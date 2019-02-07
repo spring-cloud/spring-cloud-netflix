@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
+import java.net.URI;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.web.client.RestTemplate;
-
-import java.net.URI;
-import java.util.Map;
 
 /**
  * @author Spencer Gibb
@@ -68,4 +68,5 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 	private Health.Builder getWarning(Health.Builder builder) {
 		return builder.unknown().withDetail("warning", "no status field in response");
 	}
+
 }

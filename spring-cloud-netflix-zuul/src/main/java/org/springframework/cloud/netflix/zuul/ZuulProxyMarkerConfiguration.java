@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -21,19 +20,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Responsible for adding in a marker bean to trigger activation of 
- * {@link ZuulProxyAutoConfiguration}
+ * Responsible for adding in a marker bean to trigger activation of
+ * {@link ZuulProxyAutoConfiguration}.
  *
  * @author Biju Kunjummen
  */
 
 @Configuration
 public class ZuulProxyMarkerConfiguration {
+
 	@Bean
 	public Marker zuulProxyMarkerBean() {
 		return new Marker();
 	}
 
 	class Marker {
+
 	}
+
 }

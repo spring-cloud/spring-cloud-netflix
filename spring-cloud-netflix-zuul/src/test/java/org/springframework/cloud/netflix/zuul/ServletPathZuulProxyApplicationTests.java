@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,18 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
 
 import java.net.URI;
 
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,9 +49,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -83,18 +82,18 @@ public class ServletPathZuulProxyApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void getOnSelfViaSimpleHostRoutingFilter() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
 		ResponseEntity<String> result = testRestTemplate.exchange("/app/self/1",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Gotten 1!");
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void optionsOnRawEndpoint() throws Exception {
 		ResponseEntity<String> result = testRestTemplate.exchange(
 				RequestEntity.options(new URI("/app/local/1"))
@@ -103,12 +102,12 @@ public class ServletPathZuulProxyApplicationTests {
 				String.class);
 		HttpHeaders httpHeaders = result.getHeaders();
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("*", httpHeaders.getFirst("Access-Control-Allow-Origin"));
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(httpHeaders.getFirst("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void optionsOnSelf() throws Exception {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
@@ -119,30 +118,30 @@ public class ServletPathZuulProxyApplicationTests {
 				String.class);
 		HttpHeaders httpHeaders = result.getHeaders();
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("*", httpHeaders.getFirst("Access-Control-Allow-Origin"));
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(httpHeaders.getFirst("Access-Control-Allow-Origin")).isEqualTo("*");
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void contentOnRawEndpoint() throws Exception {
 		ResponseEntity<String> result = testRestTemplate.exchange(
 				RequestEntity.get(new URI("/app/local/1")).build(), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Gotten 1!");
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void stripPrefixFalseAppendsPath() {
 		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
 				"http://localhost:" + this.port + "/app/local", false, false, null));
 		this.endpoint.reset();
 		ResponseEntity<String> result = testRestTemplate.exchange("/app/strip",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 		// Prefix not stripped to it goes to /local/strip
-		assertEquals("Gotten strip!", result.getBody());
+		assertThat(result.getBody()).isEqualTo("Gotten strip!");
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
@@ -160,4 +159,5 @@ public class ServletPathZuulProxyApplicationTests {
 		}
 
 	}
+
 }

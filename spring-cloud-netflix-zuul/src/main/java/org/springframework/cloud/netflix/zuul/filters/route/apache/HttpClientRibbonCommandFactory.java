@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import java.util.Set;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
-import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 
 /**
  * @author Christian Lohmann
@@ -33,15 +33,16 @@ import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 public class HttpClientRibbonCommandFactory extends AbstractRibbonCommandFactory {
 
 	private final SpringClientFactory clientFactory;
-	
+
 	private final ZuulProperties zuulProperties;
 
-	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
+	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory,
+			ZuulProperties zuulProperties) {
 		this(clientFactory, zuulProperties, Collections.<FallbackProvider>emptySet());
 	}
 
-	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties,
-										  Set<FallbackProvider> fallbackProviders) {
+	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory,
+			ZuulProperties zuulProperties, Set<FallbackProvider> fallbackProviders) {
 		super(fallbackProviders);
 		this.clientFactory = clientFactory;
 		this.zuulProperties = zuulProperties;
@@ -49,14 +50,15 @@ public class HttpClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 
 	@Override
 	public HttpClientRibbonCommand create(final RibbonCommandContext context) {
-		FallbackProvider zuulFallbackProvider = getFallbackProvider(context.getServiceId());
+		FallbackProvider zuulFallbackProvider = getFallbackProvider(
+				context.getServiceId());
 		final String serviceId = context.getServiceId();
-		final RibbonLoadBalancingHttpClient client = this.clientFactory.getClient(
-				serviceId, RibbonLoadBalancingHttpClient.class);
+		final RibbonLoadBalancingHttpClient client = this.clientFactory
+				.getClient(serviceId, RibbonLoadBalancingHttpClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, zuulFallbackProvider,
-				clientFactory.getClientConfig(serviceId));
+		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties,
+				zuulFallbackProvider, clientFactory.getClientConfig(serviceId));
 	}
 
 }

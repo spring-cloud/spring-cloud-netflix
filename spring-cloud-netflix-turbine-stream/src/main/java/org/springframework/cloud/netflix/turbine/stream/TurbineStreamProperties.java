@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.turbine.stream;
 
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 import org.springframework.http.MediaType;
@@ -52,10 +51,12 @@ public class TurbineStreamProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		TurbineStreamProperties that = (TurbineStreamProperties) o;
 		return Objects.equals(destination, that.destination)
 				&& Objects.equals(contentType, that.contentType);
@@ -68,8 +69,8 @@ public class TurbineStreamProperties {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("TurbineStreamProperties{")
-				.append(", ").append("destination='").append(destination).append("', ")
+		return new StringBuilder("TurbineStreamProperties{").append(", ")
+				.append("destination='").append(destination).append("', ")
 				.append("contentType='").append(contentType).append("'}").toString();
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -24,14 +26,19 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.util.EntityUtils;
 
 /**
- * Provides basic utilities for {@link org.apache.http.client.HttpClient}
+ * Provides basic utilities for {@link org.apache.http.client.HttpClient}.
+ *
  * @author Ryan Baxter
  */
-public class HttpClientUtils {
+public final class HttpClientUtils {
+
+	private HttpClientUtils() {
+		throw new AssertionError("Must not instantiate utility class.");
+	}
 
 	/**
-	 * Creates an new {@link HttpEntity} by copying the {@link HttpEntity} from the {@link HttpResponse}.
-	 * This method will close the response after copying the entity.
+	 * Creates an new {@link HttpEntity} by copying the {@link HttpEntity} from the
+	 * {@link HttpResponse}. This method will close the response after copying the entity.
 	 * @param response The response to create the {@link HttpEntity} from
 	 * @return A new {@link HttpEntity}
 	 * @throws IOException thrown if there is a problem closing the response.
@@ -42,9 +49,10 @@ public class HttpClientUtils {
 		BasicHttpEntity entity = new BasicHttpEntity();
 		entity.setContent(is);
 		entity.setContentLength(response.getEntity().getContentLength());
-		if(CloseableHttpResponse.class.isInstance(response)) {
-			((CloseableHttpResponse)response).close();
+		if (CloseableHttpResponse.class.isInstance(response)) {
+			((CloseableHttpResponse) response).close();
 		}
 		return entity;
 	}
+
 }

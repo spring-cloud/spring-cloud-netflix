@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.healthcheck;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
@@ -29,11 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the Eureka health check handler.
@@ -55,8 +54,8 @@ public class EurekaHealthCheckTests {
 		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
 				.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
 
-		assertNotNull(status);
-		assertEquals(InstanceInfo.InstanceStatus.OUT_OF_SERVICE, status);
+		assertThat(status).isNotNull();
+		assertThat(status).isEqualTo(InstanceInfo.InstanceStatus.OUT_OF_SERVICE);
 	}
 
 	@Configuration
@@ -72,5 +71,7 @@ public class EurekaHealthCheckTests {
 				}
 			};
 		}
+
 	}
+
 }

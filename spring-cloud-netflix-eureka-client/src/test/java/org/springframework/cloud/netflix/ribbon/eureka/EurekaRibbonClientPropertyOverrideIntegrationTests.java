@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,15 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import com.netflix.discovery.EurekaClient;
+import com.netflix.loadbalancer.ConfigurationBasedServerList;
+import com.netflix.loadbalancer.DummyPing;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
@@ -31,13 +38,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.netflix.discovery.EurekaClient;
-import com.netflix.loadbalancer.ConfigurationBasedServerList;
-import com.netflix.loadbalancer.DummyPing;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
-import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
 import static org.mockito.Mockito.mock;
 
@@ -72,13 +72,16 @@ public class EurekaRibbonClientPropertyOverrideIntegrationTests {
 
 	@Configuration
 	@RibbonClients
-	@ImportAutoConfiguration({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
-			RibbonEurekaAutoConfiguration.class })
+	@ImportAutoConfiguration({ UtilAutoConfiguration.class,
+			PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+			RibbonAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
+
 		@Bean
 		public EurekaClient eurekaClient() {
 			return mock(EurekaClient.class);
 		}
+
 	}
+
 }

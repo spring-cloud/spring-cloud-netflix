@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.hystrix.stream;
@@ -46,8 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Daniel Lavoie
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"debug=true", "spring.jmx.enabled=true", "spring.application.name=mytestapp" })
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = { "debug=true",
+		"spring.jmx.enabled=true", "spring.application.name=mytestapp" })
 @DirtiesContext
 public class HystrixStreamTests {
 
@@ -70,6 +69,22 @@ public class HystrixStreamTests {
 	@Qualifier(HystrixStreamClient.OUTPUT)
 	private MessageChannel output;
 
+	@Test
+	public void contextLoads() throws Exception {
+		this.application.hello();
+		// It is important that local service instance resolves for metrics
+		// origin details to be populated
+		assertThat(this.registration).isNotNull();
+		assertThat(this.registration.getServiceId()).isEqualTo("mytestapp");
+		this.task.gatherMetrics();
+		Message<?> message = this.collector.forChannel(output).take();
+		JsonNode tree = mapper.readTree((String) message.getPayload());
+		assertThat(tree.hasNonNull("origin")).isTrue();
+		assertThat(tree.hasNonNull("data")).isTrue();
+		assertThat(tree.hasNonNull("event")).isTrue();
+		assertThat(tree.findValue("event").asText()).isEqualTo("message");
+	}
+
 	@EnableAutoConfiguration
 	@EnableCircuitBreaker
 	@RestController
@@ -81,22 +96,7 @@ public class HystrixStreamTests {
 		public String hello() {
 			return "Hello World";
 		}
-	}
 
-	@Test
-	public void contextLoads() throws Exception {
-		this.application.hello();
-		// It is important that local service instance resolves for metrics
-		// origin details to be populated
-		assertThat(this.registration).isNotNull();
-		assertThat(this.registration.getServiceId()).isEqualTo("mytestapp");
-		this.task.gatherMetrics();
-		Message<?> message = this.collector.forChannel(output).take();
-		JsonNode tree = mapper.readTree((String)message.getPayload());
-		assertThat(tree.hasNonNull("origin")).isTrue();
-		assertThat(tree.hasNonNull("data")).isTrue();
-		assertThat(tree.hasNonNull("event")).isTrue();
-		assertThat(tree.findValue("event").asText()).isEqualTo("message");
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route;
@@ -22,10 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
@@ -36,8 +38,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import javax.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,6 +52,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 public class RibbonRoutingFilterTests {
 
 	private RequestContext requestContext;
+
 	private RibbonRoutingFilter filter;
 
 	@Before
@@ -115,7 +116,8 @@ public class RibbonRoutingFilterTests {
 
 	private void setupRibbonRoutingFilter() {
 		RibbonCommandFactory factory = mock(RibbonCommandFactory.class);
-		filter = new RibbonRoutingFilter(new ProxyRequestHelper(new ZuulProperties()), factory, Collections.<RibbonRequestCustomizer>emptyList());
+		filter = new RibbonRoutingFilter(new ProxyRequestHelper(new ZuulProperties()),
+				factory, Collections.<RibbonRequestCustomizer>emptyList());
 	}
 
 	private ClientHttpResponse createClientHttpResponseWithNonStatus() {
@@ -189,4 +191,5 @@ public class RibbonRoutingFilterTests {
 			}
 		};
 	}
+
 }

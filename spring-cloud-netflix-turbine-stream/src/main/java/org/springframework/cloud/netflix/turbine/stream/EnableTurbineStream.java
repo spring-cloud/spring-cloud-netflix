@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 /**
- * Run the RxNetty based Spring Cloud Turbine Stream server.
- * Based on Netflix Turbine 2 and Spring Cloud Stream
+ * Run the RxNetty based Spring Cloud Turbine Stream server. Based on Netflix Turbine 2
+ * and Spring Cloud Stream
  *
  * @author Spencer Gibb
  */

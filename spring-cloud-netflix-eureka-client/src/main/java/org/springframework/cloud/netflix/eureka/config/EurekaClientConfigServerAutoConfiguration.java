@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.discovery.EurekaClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,9 +28,6 @@ import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
-
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.EurekaClient;
 
 /**
  * Extra configuration for config server if it happens to be a Eureka instance.
@@ -52,7 +52,8 @@ public class EurekaClientConfigServerAutoConfiguration {
 			return;
 		}
 		String prefix = this.server.getPrefix();
-		if (StringUtils.hasText(prefix) && !StringUtils.hasText(this.instance.getMetadataMap().get("configPath"))) {
+		if (StringUtils.hasText(prefix) && !StringUtils
+				.hasText(this.instance.getMetadataMap().get("configPath"))) {
 			this.instance.getMetadataMap().put("configPath", prefix);
 		}
 	}

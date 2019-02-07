@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -45,37 +45,45 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest(classes = TurbineHttpTests.TurbineHttpSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TurbineHttpTests {
 
-	private static final ClusterInformation foo = new ClusterInformation("foo", "http://foo");
-	private static final ClusterInformation bar = new ClusterInformation("bar", "http://bar");
+	private static final ClusterInformation foo = new ClusterInformation("foo",
+			"http://foo");
+
+	private static final ClusterInformation bar = new ClusterInformation("bar",
+			"http://bar");
 
 	@Autowired
 	TestRestTemplate rest;
+
+	@Test
+	public void contextLoads() {
+		ClusterInformation[] clusters = rest.getForObject("/clusters",
+				ClusterInformation[].class);
+		System.err.println(Arrays.asList(clusters));
+		assertThat(clusters.length).isEqualTo(2);
+		assertThat(clusters[0]).isEqualTo(foo);
+		assertThat(clusters[1]).isEqualTo(bar);
+	}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@EnableTurbine
 	protected static class TurbineHttpSampleApplication {
+
 		@Bean
 		@Primary
 		TurbineInformationService myInfoService() {
 			return new TurbineInformationService() {
-			   @Override
-			   public Collection<ClusterInformation> getClusterInformations(HttpServletRequest request) {
+				@Override
+				public Collection<ClusterInformation> getClusterInformations(
+						HttpServletRequest request) {
 					List<ClusterInformation> clusterInformationList = new ArrayList<ClusterInformation>();
 					clusterInformationList.add(foo);
 					clusterInformationList.add(bar);
 					return clusterInformationList;
-			}
-		};
+				}
+			};
 		}
+
 	}
 
-	@Test
-	public void contextLoads() {
-		ClusterInformation[] clusters = rest.getForObject("/clusters", ClusterInformation[].class);
-		System.err.println(Arrays.asList(clusters));
-		assertEquals(2, clusters.length);
-		assertEquals(foo, clusters[0]);
-		assertEquals(bar, clusters[1]);
-	}
 }

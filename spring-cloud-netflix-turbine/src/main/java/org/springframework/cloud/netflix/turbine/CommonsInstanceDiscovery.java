@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,24 +21,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.turbine.discovery.Instance;
+import com.netflix.turbine.discovery.InstanceDiscovery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.netflix.turbine.discovery.Instance;
-import com.netflix.turbine.discovery.InstanceDiscovery;
-
 /**
- * Class that encapsulates an {@link InstanceDiscovery}
- * implementation that uses Spring Cloud Commons (see https://github.com/spring-cloud/spring-cloud-commons)
- * The plugin requires a list of applications configured. It then queries the set of
- * instances for * each application. Instance information retrieved from the {@link DiscoveryClient}
- * must be translated to * something that Turbine can understand i.e the
- * {@link Instance} class.
+ * Class that encapsulates an {@link InstanceDiscovery} implementation that uses Spring
+ * Cloud Commons (see https://github.com/spring-cloud/spring-cloud-commons) The plugin
+ * requires a list of applications configured. It then queries the set of instances for *
+ * each application. Instance information retrieved from the {@link DiscoveryClient} must
+ * be translated to * something that Turbine can understand i.e the {@link Instance}
+ * class.
  * <p>
  * All the logic to perform this translation can be overriden here, so that you can
  * provide your own implementation if needed.
@@ -50,25 +50,32 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 	private static final Log log = LogFactory.getLog(CommonsInstanceDiscovery.class);
 
 	private static final String DEFAULT_CLUSTER_NAME_EXPRESSION = "serviceId";
+
 	protected static final String PORT_KEY = "port";
+
 	protected static final String SECURE_PORT_KEY = "securePort";
+
 	protected static final String FUSED_HOST_PORT_KEY = "fusedHostPort";
 
 	private final Expression clusterNameExpression;
+
 	private DiscoveryClient discoveryClient;
+
 	private TurbineProperties turbineProperties;
+
 	private final boolean combineHostPort;
 
-	public CommonsInstanceDiscovery(TurbineProperties turbineProperties, DiscoveryClient discoveryClient) {
+	public CommonsInstanceDiscovery(TurbineProperties turbineProperties,
+			DiscoveryClient discoveryClient) {
 		this(turbineProperties, DEFAULT_CLUSTER_NAME_EXPRESSION);
 		this.discoveryClient = discoveryClient;
 	}
 
-	protected CommonsInstanceDiscovery(TurbineProperties turbineProperties, String defaultExpression) {
+	protected CommonsInstanceDiscovery(TurbineProperties turbineProperties,
+			String defaultExpression) {
 		this.turbineProperties = turbineProperties;
 		SpelExpressionParser parser = new SpelExpressionParser();
-		String clusterNameExpression = turbineProperties
-				.getClusterNameExpression();
+		String clusterNameExpression = turbineProperties.getClusterNameExpression();
 		if (clusterNameExpression == null) {
 			clusterNameExpression = defaultExpression;
 		}
@@ -89,8 +96,8 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 	}
 
 	/**
-	 * Method that queries DiscoveryClient for a list of configured application names
-	 * @return Collection<Instance>
+	 * Method that queries DiscoveryClient for a list of configured application names.
+	 * @return Collection of instances
 	 */
 	@Override
 	public Collection<Instance> getInstanceList() throws Exception {
@@ -126,9 +133,10 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 
 	/**
 	 * helper that fetches the Instances for each application from DiscoveryClient.
-	 * @param serviceId
-	 * @return List<Instance>
-	 * @throws Exception
+	 * @param serviceId Id of the service whose instances should be returned
+	 * @return List of instances
+	 * @throws Exception - retrieving and marshalling service instances may result in an
+	 * Exception
 	 */
 	protected List<Instance> getInstancesForApp(String serviceId) throws Exception {
 		List<Instance> instances = new ArrayList<>();
@@ -157,15 +165,16 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 	/**
 	 * Private helper that marshals the information from each instance into something that
 	 * Turbine can understand. Override this method for your own implementation.
-	 * @param serviceInstance
+	 * @param serviceInstance whose information should be marshaled
 	 * @return Instance
 	 */
 	Instance marshall(ServiceInstance serviceInstance) {
 		String hostname = serviceInstance.getHost();
-			String managementPort = serviceInstance.getMetadata().get("management.port");
-			String port = managementPort == null ? String.valueOf(serviceInstance.getPort()) : managementPort;
+		String managementPort = serviceInstance.getMetadata().get("management.port");
+		String port = managementPort == null ? String.valueOf(serviceInstance.getPort())
+				: managementPort;
 		String cluster = getClusterName(serviceInstance);
-		Boolean status = Boolean.TRUE; //TODO: where to get?
+		Boolean status = Boolean.TRUE; // TODO: where to get?
 		if (hostname != null && cluster != null && status != null) {
 			Instance instance = getInstance(hostname, port, cluster, status);
 
@@ -181,7 +190,8 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 		}
 	}
 
-	protected void addMetadata(Instance instance, String hostname, String port, boolean securePortEnabled, String securePort, Map<String, String> metadata) {
+	protected void addMetadata(Instance instance, String hostname, String port,
+			boolean securePortEnabled, String securePort, Map<String, String> metadata) {
 		// add metadata
 		if (metadata != null) {
 			instance.getAttributes().putAll(metadata);
@@ -193,20 +203,24 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 			instance.getAttributes().put(SECURE_PORT_KEY, securePort);
 		}
 		if (this.isCombineHostPort()) {
-			String fusedHostPort = securePortEnabled ? hostname+":"+securePort : instance.getHostname() ;
+			String fusedHostPort = securePortEnabled ? hostname + ":" + securePort
+					: instance.getHostname();
 			instance.getAttributes().put(FUSED_HOST_PORT_KEY, fusedHostPort);
 		}
 	}
 
-	protected Instance getInstance(String hostname, String port, String cluster, Boolean status) {
-		String hostPart = this.isCombineHostPort() ? hostname+":"+port : hostname;
+	protected Instance getInstance(String hostname, String port, String cluster,
+			Boolean status) {
+		String hostPart = this.isCombineHostPort() ? hostname + ":" + port : hostname;
 		return new Instance(hostPart, cluster, status);
 	}
 
 	/**
-	 * Helper that fetches the cluster name. Cluster is a Turbine concept and not a commons
-	 * concept. By default we choose the amazon serviceId as the cluster. A custom
+	 * Helper that fetches the cluster name. Cluster is a Turbine concept and not a
+	 * commons concept. By default we choose the amazon serviceId as the cluster. A custom
 	 * implementation can be plugged in by overriding this method.
+	 * @param object cluster whose name should be evaluated
+	 * @return String name of the cluster
 	 */
 	protected String getClusterName(Object object) {
 		StandardEvaluationContext context = new StandardEvaluationContext(object);

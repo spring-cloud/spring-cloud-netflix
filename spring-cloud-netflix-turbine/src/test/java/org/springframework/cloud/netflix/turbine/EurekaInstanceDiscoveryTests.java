@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 
 package org.springframework.cloud.netflix.turbine;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.turbine.discovery.Instance;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -32,7 +31,9 @@ import static org.mockito.Mockito.mock;
 public class EurekaInstanceDiscoveryTests {
 
 	private EurekaClient eurekaClient;
+
 	private TurbineProperties turbineProperties;
+
 	private InstanceInfo.Builder builder;
 
 	@Before
@@ -45,47 +46,51 @@ public class EurekaInstanceDiscoveryTests {
 	@Test
 	public void testSecureCombineHostPort() {
 		turbineProperties.setCombineHostPort(true);
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
-				turbineProperties, eurekaClient);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties,
+				eurekaClient);
 		String appName = "testAppName";
 		int port = 8080;
 		int securePort = 8443;
 		String hostName = "myhost";
-		InstanceInfo instanceInfo = builder.setAppName(appName)
-				.setHostName(hostName)
-				.setPort(port)
-				.setSecurePort(securePort)
-				.enablePort(InstanceInfo.PortType.SECURE, true)
-				.build();
+		InstanceInfo instanceInfo = builder.setAppName(appName).setHostName(hostName)
+				.setPort(port).setSecurePort(securePort)
+				.enablePort(InstanceInfo.PortType.SECURE, true).build();
 		Instance instance = discovery.marshall(instanceInfo);
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
-		assertEquals("securePort is wrong", String.valueOf(securePort), instance.getAttributes().get("securePort"));
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
+		assertThat(instance.getAttributes().get("securePort")).as("securePort is wrong")
+				.isEqualTo(String.valueOf(securePort));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "https://"+hostName+":"+securePort+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"https://" + hostName + ":" + securePort + "/actuator/hystrix.stream");
 	}
 
 	@Test
 	public void testCombineHostPort() {
 		turbineProperties.setCombineHostPort(true);
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
-			turbineProperties, eurekaClient);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties,
+				eurekaClient);
 		String appName = "testAppName";
 		int port = 8080;
 		String hostName = "myhost";
-		InstanceInfo instanceInfo = builder.setAppName(appName)
-				.setHostName(hostName)
-				.setPort(port)
-				.build();
+		InstanceInfo instanceInfo = builder.setAppName(appName).setHostName(hostName)
+				.setPort(port).build();
 		Instance instance = discovery.marshall(instanceInfo);
-		assertEquals("hostname is wrong", hostName+":"+port, instance.getHostname());
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+		assertThat(instance.getHostname()).as("hostname is wrong")
+				.isEqualTo(hostName + ":" + port);
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"http://" + hostName + ":" + port + "/actuator/hystrix.stream");
 
 		String clusterName = discovery.getClusterName(instanceInfo);
-		assertEquals("clusterName is wrong", appName.toUpperCase(), clusterName);
+		assertThat(clusterName).as("clusterName is wrong")
+				.isEqualTo(appName.toUpperCase());
 	}
 
 	@Test
@@ -96,20 +101,23 @@ public class EurekaInstanceDiscoveryTests {
 		int port = 8080;
 		int managementPort = 8081;
 		String hostName = "myhost";
-		InstanceInfo instanceInfo = builder.setAppName(appName).setHostName(hostName).setPort(port)
-				.build();
+		InstanceInfo instanceInfo = builder.setAppName(appName).setHostName(hostName)
+				.setPort(port).build();
 		instanceInfo.getMetadata().put("management.port", "8081");
 		Instance instance = discovery.marshall(instanceInfo);
-		assertEquals("hostname is wrong", hostName + ":" + managementPort, instance.getHostname());
-		assertEquals("port is wrong", String.valueOf(managementPort),
-				instance.getAttributes().get("port"));
+		assertThat(instance.getHostname()).as("hostname is wrong")
+				.isEqualTo(hostName + ":" + managementPort);
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(managementPort));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong",
-				"http://" + hostName + ":" + managementPort + "/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"http://" + hostName + ":" + managementPort + "/actuator/hystrix.stream");
 
 		String clusterName = discovery.getClusterName(instanceInfo);
-		assertEquals("clusterName is wrong", appName.toUpperCase(), clusterName);
+		assertThat(clusterName).as("clusterName is wrong")
+				.isEqualTo(appName.toUpperCase());
 	}
 
 	@Test
@@ -119,69 +127,74 @@ public class EurekaInstanceDiscoveryTests {
 		String appName = "testAppName";
 		InstanceInfo instanceInfo = builder.setAppName(appName).build();
 		String clusterName = discovery.getClusterName(instanceInfo);
-		assertEquals("clusterName is wrong", appName.toUpperCase(), clusterName);
+		assertThat(clusterName).as("clusterName is wrong")
+				.isEqualTo(appName.toUpperCase());
 	}
 
 	@Test
 	public void testGetPort() {
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
-				turbineProperties, eurekaClient);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties,
+				eurekaClient);
 		String appName = "testAppName";
 		int port = 8080;
 		String hostName = "myhost";
-		InstanceInfo instanceInfo = builder.setAppName(appName)
-				.setHostName(hostName)
-				.setPort(port)
-				.build();
+		InstanceInfo instanceInfo = builder.setAppName(appName).setHostName(hostName)
+				.setPort(port).build();
 		Instance instance = discovery.marshall(instanceInfo);
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"http://" + hostName + ":" + port + "/actuator/hystrix.stream");
 	}
 
 	@Test
 	public void testGetSecurePort() {
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
-				turbineProperties, eurekaClient);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties,
+				eurekaClient);
 		String appName = "testAppName";
 		int port = 8080;
 		int securePort = 8443;
 		String hostName = "myhost";
-		InstanceInfo instanceInfo = builder.setAppName(appName)
-				.setHostName(hostName)
-				.setPort(port)
-				.setSecurePort(securePort)
-				.enablePort(InstanceInfo.PortType.SECURE, true)
-				.build();
+		InstanceInfo instanceInfo = builder.setAppName(appName).setHostName(hostName)
+				.setPort(port).setSecurePort(securePort)
+				.enablePort(InstanceInfo.PortType.SECURE, true).build();
 		Instance instance = discovery.marshall(instanceInfo);
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
-		assertEquals("securePort is wrong", String.valueOf(securePort), instance.getAttributes().get("securePort"));
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
+		assertThat(instance.getAttributes().get("securePort")).as("securePort is wrong")
+				.isEqualTo(String.valueOf(securePort));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "https://"+hostName+":"+securePort+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"https://" + hostName + ":" + securePort + "/actuator/hystrix.stream");
 	}
 
 	@Test
 	public void testGetClusterNameCustomExpression() {
 		turbineProperties.setClusterNameExpression("aSGName");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties,
+				eurekaClient);
 		String asgName = "myAsgName";
-		InstanceInfo instanceInfo = builder
-				.setAppName("testApp").setASGName(asgName).build();
+		InstanceInfo instanceInfo = builder.setAppName("testApp").setASGName(asgName)
+				.build();
 		String clusterName = discovery.getClusterName(instanceInfo);
-		assertEquals("clusterName is wrong", asgName, clusterName);
+		assertThat(clusterName).as("clusterName is wrong").isEqualTo(asgName);
 	}
 
 	@Test
 	public void testGetClusterNameInstanceMetadataMapExpression() {
 		turbineProperties.setClusterNameExpression("metadata['cluster']");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties,
+				eurekaClient);
 		String metadataProperty = "myCluster";
-		InstanceInfo instanceInfo = builder
-				.setAppName("testApp").add("cluster", metadataProperty).build();
+		InstanceInfo instanceInfo = builder.setAppName("testApp")
+				.add("cluster", metadataProperty).build();
 		String clusterName = discovery.getClusterName(instanceInfo);
-		assertEquals("clusterName is wrong", metadataProperty, clusterName);
+		assertThat(clusterName).as("clusterName is wrong").isEqualTo(metadataProperty);
 	}
 
 }

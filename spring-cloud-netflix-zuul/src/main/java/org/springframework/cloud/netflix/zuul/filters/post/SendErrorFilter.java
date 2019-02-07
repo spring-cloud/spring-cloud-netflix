@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package org.springframework.cloud.netflix.zuul.filters.post;
+
+import java.net.SocketTimeoutException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -32,20 +34,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.net.SocketTimeoutException;
-
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ERROR_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_ERROR_FILTER_ORDER;
 
 /**
- * Error {@link ZuulFilter} that forwards to /error (by default) if {@link RequestContext#getThrowable()} is not null.
+ * Error {@link ZuulFilter} that forwards to /error (by default) if
+ * {@link RequestContext#getThrowable()} is not null.
  *
  * @author Spencer Gibb
  */
-//TODO: move to error package in Edgware
+// TODO: move to error package in Edgware
 public class SendErrorFilter extends ZuulFilter {
 
 	private static final Log log = LogFactory.getLog(SendErrorFilter.class);
+
 	protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";
 
 	@Value("${error.path:/error}")
@@ -76,17 +78,19 @@ public class SendErrorFilter extends ZuulFilter {
 			ExceptionHolder exception = findZuulException(ctx.getThrowable());
 			HttpServletRequest request = ctx.getRequest();
 
-			request.setAttribute("javax.servlet.error.status_code", exception.getStatusCode());
+			request.setAttribute("javax.servlet.error.status_code",
+					exception.getStatusCode());
 
 			log.warn("Error during filtering", exception.getThrowable());
-			request.setAttribute("javax.servlet.error.exception", exception.getThrowable());
+			request.setAttribute("javax.servlet.error.exception",
+					exception.getThrowable());
 
 			if (StringUtils.hasText(exception.getErrorCause())) {
-				request.setAttribute("javax.servlet.error.message", exception.getErrorCause());
+				request.setAttribute("javax.servlet.error.message",
+						exception.getErrorCause());
 			}
 
-			RequestDispatcher dispatcher = request.getRequestDispatcher(
-					this.errorPath);
+			RequestDispatcher dispatcher = request.getRequestDispatcher(this.errorPath);
 			if (dispatcher != null) {
 				ctx.set(SEND_ERROR_FILTER_RAN, true);
 				if (!ctx.getResponse().isCommitted()) {
@@ -115,14 +119,15 @@ public class SendErrorFilter extends ZuulFilter {
 				return new ZuulExceptionHolder(zuulException);
 			}
 			// this was a failure initiated by one of the local filters
-			if(throwable.getCause().getCause() instanceof ZuulException) {
-				return new ZuulExceptionHolder((ZuulException) throwable.getCause().getCause());
+			if (throwable.getCause().getCause() instanceof ZuulException) {
+				return new ZuulExceptionHolder(
+						(ZuulException) throwable.getCause().getCause());
 			}
 		}
-		
+
 		if (throwable.getCause() instanceof ZuulException) {
 			// wrapped zuul exception
-			return  new ZuulExceptionHolder((ZuulException) throwable.getCause());
+			return new ZuulExceptionHolder((ZuulException) throwable.getCause());
 		}
 
 		if (throwable instanceof ZuulException) {
@@ -134,19 +139,26 @@ public class SendErrorFilter extends ZuulFilter {
 		return new DefaultExceptionHolder(throwable);
 	}
 
+	public void setErrorPath(String errorPath) {
+		this.errorPath = errorPath;
+	}
+
 	protected interface ExceptionHolder {
+
 		Throwable getThrowable();
 
-	    default int getStatusCode() {
-	    	return HttpStatus.INTERNAL_SERVER_ERROR.value();
+		default int getStatusCode() {
+			return HttpStatus.INTERNAL_SERVER_ERROR.value();
 		}
 
-	    default String getErrorCause() {
-	    	return null;
+		default String getErrorCause() {
+			return null;
 		}
+
 	}
 
 	protected static class DefaultExceptionHolder implements ExceptionHolder {
+
 		private final Throwable throwable;
 
 		public DefaultExceptionHolder(Throwable throwable) {
@@ -157,9 +169,11 @@ public class SendErrorFilter extends ZuulFilter {
 		public Throwable getThrowable() {
 			return this.throwable;
 		}
+
 	}
 
 	protected static class ZuulExceptionHolder implements ExceptionHolder {
+
 		private final ZuulException exception;
 
 		public ZuulExceptionHolder(ZuulException exception) {
@@ -180,10 +194,7 @@ public class SendErrorFilter extends ZuulFilter {
 		public String getErrorCause() {
 			return this.exception.errorCause;
 		}
-	}
 
-	public void setErrorPath(String errorPath) {
-		this.errorPath = errorPath;
 	}
 
 }

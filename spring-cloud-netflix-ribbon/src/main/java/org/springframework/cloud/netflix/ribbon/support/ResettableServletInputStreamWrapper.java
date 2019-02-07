@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon.support;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
+/**
+ * A wrapper for {@link ServletInputStream} providing additional capabilities to allow for
+ * resetting.
+ *
+ * @author Arne Dörnbrack
+ * @author Spencer Gibb
+ */
 public class ResettableServletInputStreamWrapper extends ServletInputStream {
+
 	private final ByteArrayInputStream input;
 
 	public ResettableServletInputStreamWrapper(byte[] data) {
@@ -50,4 +60,5 @@ public class ResettableServletInputStreamWrapper extends ServletInputStream {
 	public synchronized void reset() throws IOException {
 		input.reset();
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka.config;
 
 import java.util.Arrays;
 
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
@@ -34,11 +37,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
-
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.springframework.cloud.config.client.ConfigClientProperties.Discovery.DEFAULT_CONFIG_SERVER;
@@ -65,18 +64,19 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		setup("spring.cloud.config.discovery.enabled=true",
 				"eureka.instance.metadataMap.foo:bar",
 				"eureka.instance.nonSecurePort:7001", "eureka.instance.hostname:foo");
-		assertEquals(1, this.context.getBeanNamesForType(
-				EurekaDiscoveryClientConfigServiceAutoConfiguration.class).length);
+		assertThat(this.context.getBeanNamesForType(
+				EurekaDiscoveryClientConfigServiceAutoConfiguration.class).length)
+						.isEqualTo(1);
 		EurekaClient eurekaClient = this.context.getParent().getBean(EurekaClient.class);
-		Mockito.verify(eurekaClient, times(2)).getInstancesByVipAddress(DEFAULT_CONFIG_SERVER,
-				false);
+		Mockito.verify(eurekaClient, times(2))
+				.getInstancesByVipAddress(DEFAULT_CONFIG_SERVER, false);
 		Mockito.verify(eurekaClient, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/", locator.getUri()[0]);
+		assertThat(locator.getUri()[0]).isEqualTo("http://foo:7001/");
 		ApplicationInfoManager infoManager = this.context
 				.getBean(ApplicationInfoManager.class);
-		assertEquals("bar", infoManager.getInfo().getMetadata().get("foo"));
+		assertThat(infoManager.getInfo().getMetadata().get("foo")).isEqualTo("bar");
 	}
 
 	private void setup(String... env) {

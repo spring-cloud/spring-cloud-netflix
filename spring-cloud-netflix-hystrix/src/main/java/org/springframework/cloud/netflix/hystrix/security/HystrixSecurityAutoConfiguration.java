@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,17 @@ package org.springframework.cloud.netflix.hystrix.security;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.hystrix.Hystrix;
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategyDefault;
+import com.netflix.hystrix.strategy.eventnotifier.HystrixEventNotifier;
+import com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook;
+import com.netflix.hystrix.strategy.metrics.HystrixMetricsPublisher;
+import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -30,14 +38,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContext;
 
-import com.netflix.hystrix.Hystrix;
-import com.netflix.hystrix.strategy.HystrixPlugins;
-import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
-import com.netflix.hystrix.strategy.eventnotifier.HystrixEventNotifier;
-import com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook;
-import com.netflix.hystrix.strategy.metrics.HystrixMetricsPublisher;
-import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
-
 /**
  * @author Daniel Lavoie
  */
@@ -45,7 +45,10 @@ import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
 @Conditional(HystrixSecurityCondition.class)
 @ConditionalOnClass({ Hystrix.class, SecurityContext.class })
 public class HystrixSecurityAutoConfiguration {
-	private static final Log LOGGER = LogFactory.getLog(HystrixSecurityAutoConfiguration.class);
+
+	private static final Log LOGGER = LogFactory
+			.getLog(HystrixSecurityAutoConfiguration.class);
+
 	@Autowired(required = false)
 	private HystrixConcurrencyStrategy existingConcurrencyStrategy;
 
@@ -79,20 +82,22 @@ public class HystrixSecurityAutoConfiguration {
 		if (existingConcurrencyStrategy == null) {
 			return registeredStrategy;
 		}
-		//Hystrix registered a default Strategy.
-		if (registeredStrategy instanceof HystrixConcurrencyStrategyDefault){
+		// Hystrix registered a default Strategy.
+		if (registeredStrategy instanceof HystrixConcurrencyStrategyDefault) {
 			return existingConcurrencyStrategy;
 		}
-		//If registeredStrategy not the default and not some use bean of existingConcurrencyStrategy.
-		if (!existingConcurrencyStrategy.equals(registeredStrategy)){
-			LOGGER.warn("Multiple HystrixConcurrencyStrategy detected. Bean of HystrixConcurrencyStrategy was used.");
+		// If registeredStrategy not the default and not some use bean of
+		// existingConcurrencyStrategy.
+		if (!existingConcurrencyStrategy.equals(registeredStrategy)) {
+			LOGGER.warn(
+					"Multiple HystrixConcurrencyStrategy detected. Bean of HystrixConcurrencyStrategy was used.");
 		}
 		return existingConcurrencyStrategy;
 	}
 
 	static class HystrixSecurityCondition extends AllNestedConditions {
 
-		public HystrixSecurityCondition() {
+		HystrixSecurityCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
@@ -100,5 +105,7 @@ public class HystrixSecurityAutoConfiguration {
 		static class ShareSecurityContext {
 
 		}
+
 	}
+
 }

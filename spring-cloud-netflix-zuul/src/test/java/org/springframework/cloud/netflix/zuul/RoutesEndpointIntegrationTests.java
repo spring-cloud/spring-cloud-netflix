@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -22,6 +21,7 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -40,10 +40,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
@@ -51,10 +48,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Gregor Zurowski
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT,
-		value = {"zuul.routes.sslservice.url=https://localhost:8443", "management.security.enabled=false", "management.endpoints.web.exposure.include=*"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, value = {
+		"zuul.routes.sslservice.url=https://localhost:8443",
+		"management.security.enabled=false",
+		"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class RoutesEndpointIntegrationTests {
+
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@Autowired
@@ -66,36 +66,40 @@ public class RoutesEndpointIntegrationTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void getRoutesTest() {
-		ResponseEntity<Map> entity = restTemplate.getForEntity(BASE_PATH + "/routes", Map.class);
+		ResponseEntity<Map> entity = restTemplate.getForEntity(BASE_PATH + "/routes",
+				Map.class);
 		Assertions.assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Map<String, String> routes = entity.getBody();
-		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
+		assertThat(routes.get("/sslservice/**")).isEqualTo("https://localhost:8443");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void postRoutesTest() {
-		ResponseEntity<Map> entity = restTemplate.postForEntity(BASE_PATH + "/routes", null, Map.class);
+		ResponseEntity<Map> entity = restTemplate.postForEntity(BASE_PATH + "/routes",
+				null, Map.class);
 		Assertions.assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Map<String, String> routes = entity.getBody();
-		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
-		assertTrue(refreshListener.wasCalled());
+		assertThat(routes.get("/sslservice/**")).isEqualTo("https://localhost:8443");
+		assertThat(refreshListener.wasCalled()).isTrue();
 	}
 
 	@Test
 	public void getRouteDetailsTest() {
-		ResponseEntity<Map<String, RoutesEndpoint.RouteDetails>> responseEntity = restTemplate.exchange(
-				BASE_PATH + "/routes/details", HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
-				});
+		ResponseEntity<Map<String, RoutesEndpoint.RouteDetails>> responseEntity = restTemplate
+				.exchange(BASE_PATH + "/routes/details", HttpMethod.GET, null,
+						new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
+						});
 
-		assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-		RoutesEndpoint.RouteDetails details = responseEntity.getBody().get("/sslservice/**");
-		assertThat(details.getPath(), is("/**"));
-		assertThat(details.getFullPath(), is("/sslservice/**"));
-		assertThat(details.getLocation(), is("https://localhost:8443"));
-		assertThat(details.getPrefix(), is("/sslservice"));
-		assertTrue(details.isPrefixStripped());
+		RoutesEndpoint.RouteDetails details = responseEntity.getBody()
+				.get("/sslservice/**");
+		assertThat(details.getPath()).isEqualTo("/**");
+		assertThat(details.getFullPath()).isEqualTo("/sslservice/**");
+		assertThat(details.getLocation()).isEqualTo("https://localhost:8443");
+		assertThat(details.getPrefix()).isEqualTo("/sslservice");
+		assertThat(details.isPrefixStripped()).isTrue();
 	}
 
 	@Configuration
@@ -104,9 +108,13 @@ public class RoutesEndpointIntegrationTests {
 	@EnableZuulProxy
 	@Import(NoSecurityConfiguration.class)
 	static class SimpleZuulProxyApplication {
+
 		@Component
-		static class RoutesRefreshListener implements ApplicationListener<RoutesRefreshedEvent> {
+		static class RoutesRefreshListener
+				implements ApplicationListener<RoutesRefreshedEvent> {
+
 			private boolean called = false;
+
 			@Override
 			public void onApplicationEvent(RoutesRefreshedEvent routesRefreshedEvent) {
 				called = true;
@@ -115,6 +123,9 @@ public class RoutesEndpointIntegrationTests {
 			public boolean wasCalled() {
 				return called;
 			}
+
 		}
+
 	}
+
 }

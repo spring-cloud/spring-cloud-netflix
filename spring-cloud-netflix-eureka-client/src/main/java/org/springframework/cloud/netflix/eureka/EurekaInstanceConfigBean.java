@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.netflix.appinfo.DataCenterInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.appinfo.MyDataCenterInfo;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtils.HostInfo;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
-
-import com.netflix.appinfo.DataCenterInfo;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.MyDataCenterInfo;
 
 /**
  * @author Dave Syer
@@ -39,7 +39,8 @@ import com.netflix.appinfo.MyDataCenterInfo;
  * @author Gregor Zurowski
  */
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware {
+public class EurekaInstanceConfigBean
+		implements CloudEurekaInstanceConfig, EnvironmentAware {
 
 	private static final String UNKNOWN = "unknown";
 
@@ -48,7 +49,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	private InetUtils inetUtils;
 
 	/**
-	 * Default prefix for actuator endpoints
+	 * Default prefix for actuator endpoints.
 	 */
 	private String actuatorPrefix = "/actuator";
 
@@ -275,6 +276,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
 	private String[] defaultAddressResolutionOrder = new String[0];
+
 	private Environment environment;
 
 	public String getHostname() {
@@ -327,8 +329,10 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	@Override
 	public void setEnvironment(Environment environment) {
 		this.environment = environment;
-		// set some defaults from the environment, but allow the defaults to use relaxed binding
-		String springAppName = this.environment.getProperty("spring.application.name", "");
+		// set some defaults from the environment, but allow the defaults to use relaxed
+		// binding
+		String springAppName = this.environment.getProperty("spring.application.name",
+				"");
 		if (StringUtils.hasText(springAppName)) {
 			setAppname(springAppName);
 			setVirtualHostName(springAppName);
@@ -567,40 +571,44 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		EurekaInstanceConfigBean that = (EurekaInstanceConfigBean) o;
-		return Objects.equals(hostInfo, that.hostInfo) &&
-				Objects.equals(inetUtils, that.inetUtils) &&
-				Objects.equals(appname, that.appname) &&
-				Objects.equals(appGroupName, that.appGroupName) &&
-				instanceEnabledOnit == that.instanceEnabledOnit &&
-				nonSecurePort == that.nonSecurePort &&
-				securePort == that.securePort &&
-				nonSecurePortEnabled == that.nonSecurePortEnabled &&
-				securePortEnabled == that.securePortEnabled &&
-				leaseRenewalIntervalInSeconds == that.leaseRenewalIntervalInSeconds &&
-				leaseExpirationDurationInSeconds == that.leaseExpirationDurationInSeconds &&
-				Objects.equals(virtualHostName, that.virtualHostName) &&
-				Objects.equals(instanceId, that.instanceId) &&
-				Objects.equals(secureVirtualHostName, that.secureVirtualHostName) &&
-				Objects.equals(aSGName, that.aSGName) &&
-				Objects.equals(metadataMap, that.metadataMap) &&
-				Objects.equals(dataCenterInfo, that.dataCenterInfo) &&
-				Objects.equals(ipAddress, that.ipAddress) &&
-				Objects.equals(statusPageUrlPath, that.statusPageUrlPath) &&
-				Objects.equals(statusPageUrl, that.statusPageUrl) &&
-				Objects.equals(homePageUrlPath, that.homePageUrlPath) &&
-				Objects.equals(homePageUrl, that.homePageUrl) &&
-				Objects.equals(healthCheckUrlPath, that.healthCheckUrlPath) &&
-				Objects.equals(healthCheckUrl, that.healthCheckUrl) &&
-				Objects.equals(secureHealthCheckUrl, that.secureHealthCheckUrl) &&
-				Objects.equals(namespace, that.namespace) &&
-				Objects.equals(hostname, that.hostname) &&
-				preferIpAddress == that.preferIpAddress &&
-				Objects.equals(initialStatus, that.initialStatus) &&
-				Arrays.equals(defaultAddressResolutionOrder, that.defaultAddressResolutionOrder) &&
-				Objects.equals(environment, that.environment);
+		return Objects.equals(hostInfo, that.hostInfo)
+				&& Objects.equals(inetUtils, that.inetUtils)
+				&& Objects.equals(appname, that.appname)
+				&& Objects.equals(appGroupName, that.appGroupName)
+				&& instanceEnabledOnit == that.instanceEnabledOnit
+				&& nonSecurePort == that.nonSecurePort && securePort == that.securePort
+				&& nonSecurePortEnabled == that.nonSecurePortEnabled
+				&& securePortEnabled == that.securePortEnabled
+				&& leaseRenewalIntervalInSeconds == that.leaseRenewalIntervalInSeconds
+				&& leaseExpirationDurationInSeconds == that.leaseExpirationDurationInSeconds
+				&& Objects.equals(virtualHostName, that.virtualHostName)
+				&& Objects.equals(instanceId, that.instanceId)
+				&& Objects.equals(secureVirtualHostName, that.secureVirtualHostName)
+				&& Objects.equals(aSGName, that.aSGName)
+				&& Objects.equals(metadataMap, that.metadataMap)
+				&& Objects.equals(dataCenterInfo, that.dataCenterInfo)
+				&& Objects.equals(ipAddress, that.ipAddress)
+				&& Objects.equals(statusPageUrlPath, that.statusPageUrlPath)
+				&& Objects.equals(statusPageUrl, that.statusPageUrl)
+				&& Objects.equals(homePageUrlPath, that.homePageUrlPath)
+				&& Objects.equals(homePageUrl, that.homePageUrl)
+				&& Objects.equals(healthCheckUrlPath, that.healthCheckUrlPath)
+				&& Objects.equals(healthCheckUrl, that.healthCheckUrl)
+				&& Objects.equals(secureHealthCheckUrl, that.secureHealthCheckUrl)
+				&& Objects.equals(namespace, that.namespace)
+				&& Objects.equals(hostname, that.hostname)
+				&& preferIpAddress == that.preferIpAddress
+				&& Objects.equals(initialStatus, that.initialStatus)
+				&& Arrays.equals(defaultAddressResolutionOrder,
+						that.defaultAddressResolutionOrder)
+				&& Objects.equals(environment, that.environment);
 	}
 
 	@Override
@@ -612,27 +620,29 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				secureVirtualHostName, aSGName, metadataMap, dataCenterInfo, ipAddress,
 				statusPageUrlPath, statusPageUrl, homePageUrlPath, homePageUrl,
 				healthCheckUrlPath, healthCheckUrl, secureHealthCheckUrl, namespace,
-				hostname, preferIpAddress, initialStatus, defaultAddressResolutionOrder, environment);
+				hostname, preferIpAddress, initialStatus, defaultAddressResolutionOrder,
+				environment);
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceConfigBean{")
-				.append("hostInfo=").append(hostInfo).append(", ")
-				.append("inetUtils=").append(inetUtils).append(", ")
-				.append("appname='").append(appname).append("', ")
+		return new StringBuilder("EurekaInstanceConfigBean{").append("hostInfo=")
+				.append(hostInfo).append(", ").append("inetUtils=").append(inetUtils)
+				.append(", ").append("appname='").append(appname).append("', ")
 				.append("appGroupName='").append(appGroupName).append("', ")
 				.append("instanceEnabledOnit=").append(instanceEnabledOnit).append(", ")
 				.append("nonSecurePort=").append(nonSecurePort).append(", ")
 				.append("securePort=").append(securePort).append(", ")
 				.append("nonSecurePortEnabled=").append(nonSecurePortEnabled).append(", ")
 				.append("securePortEnabled=").append(securePortEnabled).append(", ")
-				.append("leaseRenewalIntervalInSeconds=").append(leaseRenewalIntervalInSeconds).append(", ")
-				.append("leaseExpirationDurationInSeconds=").append(leaseExpirationDurationInSeconds).append(", ")
+				.append("leaseRenewalIntervalInSeconds=")
+				.append(leaseRenewalIntervalInSeconds).append(", ")
+				.append("leaseExpirationDurationInSeconds=")
+				.append(leaseExpirationDurationInSeconds).append(", ")
 				.append("virtualHostName='").append(virtualHostName).append("', ")
 				.append("instanceId='").append(instanceId).append("', ")
-				.append("secureVirtualHostName='").append(secureVirtualHostName).append("', ")
-				.append("aSGName='").append(aSGName).append("', ")
+				.append("secureVirtualHostName='").append(secureVirtualHostName)
+				.append("', ").append("aSGName='").append(aSGName).append("', ")
 				.append("metadataMap=").append(metadataMap).append(", ")
 				.append("dataCenterInfo=").append(dataCenterInfo).append(", ")
 				.append("ipAddress='").append(ipAddress).append("', ")
@@ -642,13 +652,15 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				.append("homePageUrl='").append(homePageUrl).append("', ")
 				.append("healthCheckUrlPath='").append(healthCheckUrlPath).append("', ")
 				.append("healthCheckUrl='").append(healthCheckUrl).append("', ")
-				.append("secureHealthCheckUrl='").append(secureHealthCheckUrl).append("', ")
-				.append("namespace='").append(namespace).append("', ")
+				.append("secureHealthCheckUrl='").append(secureHealthCheckUrl)
+				.append("', ").append("namespace='").append(namespace).append("', ")
 				.append("hostname='").append(hostname).append("', ")
 				.append("preferIpAddress=").append(preferIpAddress).append(", ")
 				.append("initialStatus=").append(initialStatus).append(", ")
-				.append("defaultAddressResolutionOrder=").append(Arrays.toString(defaultAddressResolutionOrder)).append(", ")
+				.append("defaultAddressResolutionOrder=")
+				.append(Arrays.toString(defaultAddressResolutionOrder)).append(", ")
 				.append("environment=").append(environment).append(", ").append("}")
 				.toString();
 	}
+
 }

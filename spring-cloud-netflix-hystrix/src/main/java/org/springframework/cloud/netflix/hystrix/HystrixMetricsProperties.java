@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.Objects;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Venil Noronha
@@ -51,11 +51,15 @@ public class HystrixMetricsProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		HystrixMetricsProperties that = (HystrixMetricsProperties) o;
-		return enabled == that.enabled &&
-				Objects.equals(pollingIntervalMs, that.pollingIntervalMs);
+		return enabled == that.enabled
+				&& Objects.equals(pollingIntervalMs, that.pollingIntervalMs);
 	}
 
 	@Override
@@ -65,9 +69,9 @@ public class HystrixMetricsProperties {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("HystrixMetricsProperties{")
-				.append("enabled=").append(enabled).append(", ")
-				.append("pollingIntervalMs=").append(pollingIntervalMs)
-				.append("}").toString();
+		return new StringBuilder("HystrixMetricsProperties{").append("enabled=")
+				.append(enabled).append(", ").append("pollingIntervalMs=")
+				.append(pollingIntervalMs).append("}").toString();
 	}
+
 }

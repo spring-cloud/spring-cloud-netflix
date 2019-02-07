@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,24 @@ import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
+
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.converters.EurekaJacksonCodec;
+import com.netflix.discovery.converters.wrappers.CodecWrapper;
+import com.netflix.discovery.converters.wrappers.CodecWrappers;
+import com.netflix.eureka.DefaultEurekaServerContext;
+import com.netflix.eureka.EurekaServerConfig;
+import com.netflix.eureka.EurekaServerContext;
+import com.netflix.eureka.cluster.PeerEurekaNodes;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
+import com.netflix.eureka.resources.DefaultServerCodecs;
+import com.netflix.eureka.resources.ServerCodecs;
+import com.sun.jersey.api.core.DefaultResourceConfig;
+import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,22 +67,6 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.converters.EurekaJacksonCodec;
-import com.netflix.discovery.converters.wrappers.CodecWrapper;
-import com.netflix.discovery.converters.wrappers.CodecWrappers;
-import com.netflix.eureka.DefaultEurekaServerContext;
-import com.netflix.eureka.EurekaServerConfig;
-import com.netflix.eureka.EurekaServerContext;
-import com.netflix.eureka.cluster.PeerEurekaNodes;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
-import com.netflix.eureka.resources.DefaultServerCodecs;
-import com.netflix.eureka.resources.ServerCodecs;
-import com.sun.jersey.api.core.DefaultResourceConfig;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
-
 /**
  * @author Gunnar Hillert
  * @author Biju Kunjummen
@@ -78,11 +79,12 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 		InstanceRegistryProperties.class })
 @PropertySource("classpath:/eureka/server.properties")
 public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
+
 	/**
-	 * List of packages containing Jersey resources required by the Eureka server
+	 * List of packages containing Jersey resources required by the Eureka server.
 	 */
-	private static final String[] EUREKA_PACKAGES = new String[] { "com.netflix.discovery",
-			"com.netflix.eureka" };
+	private static final String[] EUREKA_PACKAGES = new String[] {
+			"com.netflix.discovery", "com.netflix.eureka" };
 
 	@Autowired
 	private ApplicationInfoManager applicationInfoManager;
@@ -99,26 +101,15 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	@Autowired
 	private InstanceRegistryProperties instanceRegistryProperties;
 
+	/**
+	 * A {@link CloudJacksonJson} instance.
+	 */
 	public static final CloudJacksonJson JACKSON_JSON = new CloudJacksonJson();
 
 	@Bean
 	public HasFeatures eurekaServerFeature() {
 		return HasFeatures.namedFeature("Eureka Server",
 				EurekaServerAutoConfiguration.class);
-	}
-
-	@Configuration
-	protected static class EurekaServerConfigBeanConfiguration {
-		@Bean
-		@ConditionalOnMissingBean
-		public EurekaServerConfig eurekaServerConfig(EurekaClientConfig clientConfig) {
-			EurekaServerConfigBean server = new EurekaServerConfigBean();
-			if (clientConfig.shouldRegisterWithEureka()) {
-				// Set a sensible default if we are supposed to replicate
-				server.setRegistrySyncRetries(5);
-			}
-			return server;
-		}
 	}
 
 	@Bean
@@ -148,16 +139,6 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 				: codec;
 	}
 
-	class CloudServerCodecs extends DefaultServerCodecs {
-
-		public CloudServerCodecs(EurekaServerConfig serverConfig) {
-			super(getFullJson(serverConfig),
-					CodecWrappers.getCodec(CodecWrappers.JacksonJsonMini.class),
-					getFullXml(serverConfig),
-					CodecWrappers.getCodec(CodecWrappers.JacksonXmlMini.class));
-		}
-	}
-
 	@Bean
 	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(
 			ServerCodecs serverCodecs) {
@@ -174,65 +155,6 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 			ServerCodecs serverCodecs) {
 		return new RefreshablePeerEurekaNodes(registry, this.eurekaServerConfig,
 				this.eurekaClientConfig, serverCodecs, this.applicationInfoManager);
-	}
-	
-	/**
-	 * {@link PeerEurekaNodes} which updates peers when /refresh is invoked.
-	 * Peers are updated only if
-	 * <code>eureka.client.use-dns-for-fetching-service-urls</code> is
-	 * <code>false</code> and one of following properties have changed.
-	 * </p>
-	 * <ul>
-	 * <li><code>eureka.client.availability-zones</code></li>
-	 * <li><code>eureka.client.region</code></li>
-	 * <li><code>eureka.client.service-url.&lt;zone&gt;</code></li>
-	 * </ul>
-	 */
-	static class RefreshablePeerEurekaNodes extends PeerEurekaNodes
-			implements ApplicationListener<EnvironmentChangeEvent> {
-
-		public RefreshablePeerEurekaNodes(
-				final PeerAwareInstanceRegistry registry,
-				final EurekaServerConfig serverConfig,
-				final EurekaClientConfig clientConfig, 
-				final ServerCodecs serverCodecs,
-				final ApplicationInfoManager applicationInfoManager) {
-			super(registry, serverConfig, clientConfig, serverCodecs, applicationInfoManager);
-		}
-
-		@Override
-		public void onApplicationEvent(final EnvironmentChangeEvent event) {
-			if (shouldUpdate(event.getKeys())) {
-				updatePeerEurekaNodes(resolvePeerUrls());
-			}
-		}
-		
-		/*
-		 * Check whether specific properties have changed.
-		 */
-		protected boolean shouldUpdate(final Set<String> changedKeys) {
-			assert changedKeys != null;
-			
-			// if eureka.client.use-dns-for-fetching-service-urls is true, then
-			// service-url will not be fetched from environment.
-			if (clientConfig.shouldUseDnsForFetchingServiceUrls()) {
-				return false;
-			}
-			
-			if (changedKeys.contains("eureka.client.region")) {
-				return true;
-			}
-			
-			for (final String key : changedKeys) {
-				// property keys are not expected to be null.
-				if (key.startsWith("eureka.client.service-url.") ||
-					key.startsWith("eureka.client.availability-zones.")) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
 	}
 
 	@Bean
@@ -251,7 +173,9 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	/**
-	 * Register the Jersey filter
+	 * Register the Jersey filter.
+	 * @param eurekaJerseyApp an {@link Application} for the filter to be registered
+	 * @return a jersey {@link FilterRegistrationBean}
 	 */
 	@Bean
 	public FilterRegistrationBean jerseyFilterRegistration(
@@ -268,6 +192,9 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	/**
 	 * Construct a Jersey {@link javax.ws.rs.core.Application} with all the resources
 	 * required by the Eureka server.
+	 * @param environment an {@link Environment} instance to retrieve classpath resources
+	 * @param resourceLoader a {@link ResourceLoader} instance to get classloader from
+	 * @return created {@link Application} object
 	 */
 	@Bean
 	public javax.ws.rs.core.Application jerseyApplication(Environment environment,
@@ -294,7 +221,6 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 		}
 
 		// Construct the Jersey ResourceConfig
-		//
 		Map<String, Object> propsAndFeatures = new HashMap<>();
 		propsAndFeatures.put(
 				// Skip static content used by the webapp
@@ -315,4 +241,90 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
 		return bean;
 	}
+
+	@Configuration
+	protected static class EurekaServerConfigBeanConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean
+		public EurekaServerConfig eurekaServerConfig(EurekaClientConfig clientConfig) {
+			EurekaServerConfigBean server = new EurekaServerConfigBean();
+			if (clientConfig.shouldRegisterWithEureka()) {
+				// Set a sensible default if we are supposed to replicate
+				server.setRegistrySyncRetries(5);
+			}
+			return server;
+		}
+
+	}
+
+	/**
+	 * {@link PeerEurekaNodes} which updates peers when /refresh is invoked. Peers are
+	 * updated only if <code>eureka.client.use-dns-for-fetching-service-urls</code> is
+	 * <code>false</code> and one of following properties have changed.
+	 * <p>
+	 * </p>
+	 * <ul>
+	 * <li><code>eureka.client.availability-zones</code></li>
+	 * <li><code>eureka.client.region</code></li>
+	 * <li><code>eureka.client.service-url.&lt;zone&gt;</code></li>
+	 * </ul>
+	 */
+	static class RefreshablePeerEurekaNodes extends PeerEurekaNodes
+			implements ApplicationListener<EnvironmentChangeEvent> {
+
+		RefreshablePeerEurekaNodes(final PeerAwareInstanceRegistry registry,
+				final EurekaServerConfig serverConfig,
+				final EurekaClientConfig clientConfig, final ServerCodecs serverCodecs,
+				final ApplicationInfoManager applicationInfoManager) {
+			super(registry, serverConfig, clientConfig, serverCodecs,
+					applicationInfoManager);
+		}
+
+		@Override
+		public void onApplicationEvent(final EnvironmentChangeEvent event) {
+			if (shouldUpdate(event.getKeys())) {
+				updatePeerEurekaNodes(resolvePeerUrls());
+			}
+		}
+
+		/*
+		 * Check whether specific properties have changed.
+		 */
+		protected boolean shouldUpdate(final Set<String> changedKeys) {
+			assert changedKeys != null;
+
+			// if eureka.client.use-dns-for-fetching-service-urls is true, then
+			// service-url will not be fetched from environment.
+			if (clientConfig.shouldUseDnsForFetchingServiceUrls()) {
+				return false;
+			}
+
+			if (changedKeys.contains("eureka.client.region")) {
+				return true;
+			}
+
+			for (final String key : changedKeys) {
+				// property keys are not expected to be null.
+				if (key.startsWith("eureka.client.service-url.")
+						|| key.startsWith("eureka.client.availability-zones.")) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+	}
+
+	class CloudServerCodecs extends DefaultServerCodecs {
+
+		CloudServerCodecs(EurekaServerConfig serverConfig) {
+			super(getFullJson(serverConfig),
+					CodecWrappers.getCodec(CodecWrappers.JacksonJsonMini.class),
+					getFullXml(serverConfig),
+					CodecWrappers.getCodec(CodecWrappers.JacksonXmlMini.class));
+		}
+
+	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.web;
@@ -20,6 +19,8 @@ package org.springframework.cloud.netflix.zuul.web;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
+
+import com.netflix.zuul.context.RequestContext;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
@@ -30,8 +31,6 @@ import org.springframework.util.PathMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
-
-import com.netflix.zuul.context.RequestContext;
 
 /**
  * MVC HandlerMapping that maps incoming request paths to remote services.
@@ -60,8 +59,9 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	@Override
-	protected HandlerExecutionChain getCorsHandlerExecutionChain(HttpServletRequest request,
-			HandlerExecutionChain chain, CorsConfiguration config) {
+	protected HandlerExecutionChain getCorsHandlerExecutionChain(
+			HttpServletRequest request, HandlerExecutionChain chain,
+			CorsConfiguration config) {
 		if (config == null) {
 			// Allow CORS requests to go to the backend
 			return chain;
@@ -81,11 +81,15 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	@Override
-	protected Object lookupHandler(String urlPath, HttpServletRequest request) throws Exception {
-		if (this.errorController != null && urlPath.equals(this.errorController.getErrorPath())) {
+	protected Object lookupHandler(String urlPath, HttpServletRequest request)
+			throws Exception {
+		if (this.errorController != null
+				&& urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
-		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths())) return null;
+		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths())) {
+			return null;
+		}
 		RequestContext ctx = RequestContext.getCurrentContext();
 		if (ctx.containsKey("forward.to")) {
 			return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 package org.springframework.cloud.netflix.concurrency.limits.web;
 
 import java.util.function.Consumer;
@@ -35,14 +35,20 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * MVC autoconfiguration class for registering Netflix {@link Limiter} bean.
+ *
+ * @author Spencer Gibb
+ */
 @Configuration
 @ConditionalOnWebApplication(type = Type.SERVLET)
-@ConditionalOnClass({HttpServletRequest.class, HandlerInterceptor.class})
+@ConditionalOnClass({ HttpServletRequest.class, HandlerInterceptor.class })
 public class MvcConcurrencyLimitsAutoConfiguration implements WebMvcConfigurer {
 
 	private final ObjectProvider<Consumer<ServletLimiterBuilder>> configurerProvider;
 
-	public MvcConcurrencyLimitsAutoConfiguration(ObjectProvider<Consumer<ServletLimiterBuilder>> configurerProvider) {
+	public MvcConcurrencyLimitsAutoConfiguration(
+			ObjectProvider<Consumer<ServletLimiterBuilder>> configurerProvider) {
 		this.configurerProvider = configurerProvider;
 	}
 
@@ -62,10 +68,11 @@ public class MvcConcurrencyLimitsAutoConfiguration implements WebMvcConfigurer {
 		@Autowired
 		private Limiter<HttpServletRequest> limiter;
 
-
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
 			registry.addInterceptor(new ConcurrencyLimitsHandlerInterceptor(limiter));
 		}
+
 	}
+
 }

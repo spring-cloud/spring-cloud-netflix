@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.restclient;
@@ -83,13 +82,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -97,7 +90,7 @@ import static org.junit.Assert.assertTrue;
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
 		"zuul.routes.badhost: /badhost/**", "zuul.ignored-headers: X-Header",
 		"zuul.routes.rnd: /rnd/**", "rnd.ribbon.listOfServers: ${random.value}",
-		"zuul.remove-semicolon-content: false", "ribbon.restclient.enabled=true"})
+		"zuul.remove-semicolon-content: false", "ribbon.restclient.enabled=true" })
 @DirtiesContext
 public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
@@ -121,9 +114,9 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/trailing-slash", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("/trailing-slash", result.getBody());
-		assertFalse(this.myErrorController.wasControllerUsed());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("/trailing-slash");
+		assertThat(this.myErrorController.wasControllerUsed()).isFalse();
 	}
 
 	@Test
@@ -135,8 +128,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-		assertFalse(this.myErrorController.wasControllerUsed());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		assertThat(this.myErrorController.wasControllerUsed()).isFalse();
 	}
 
 	@Test
@@ -146,8 +139,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/add-header", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertNull(result.getHeaders().get("X-Header"));
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getHeaders().get("X-Header")).isNull();
 	}
 
 	@Test
@@ -157,10 +150,10 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/add-header", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 		List<String> headers = result.getHeaders().get("X-Application-Context");
-		assertNotNull("header was null", headers);
-		assertEquals("[application-1]", headers.toString());
+		assertThat(headers).as("header was null").isNotNull();
+		assertThat(headers.toString()).isEqualTo("[application-1]");
 	}
 
 	@Test
@@ -170,8 +163,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/query?foo=bar", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("/query?foo=bar", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("/query?foo=bar");
 	}
 
 	@Test
@@ -181,8 +174,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/matrix/my;q=2;p=1/more;x=2",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("my=1-2;more=2", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("my=1-2;more=2");
 	}
 
 	@Test
@@ -192,8 +185,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/query?foo={foo}", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class, "weird#chars");
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("/query?foo=weird#chars", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("/query?foo=weird#chars");
 	}
 
 	@Test
@@ -201,10 +194,12 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/colonquery?foo:bar={foobar0}&foobar={foobar1}", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class, "baz", "bam");
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("/colonquery?foo:bar=baz&foobar=bam", result.getBody());
+				"http://localhost:" + this.port
+						+ "/self/colonquery?foo:bar={foobar0}&foobar={foobar1}",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class, "baz",
+				"bam");
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("/colonquery?foo:bar=baz&foobar=bam");
 	}
 
 	@Test
@@ -214,8 +209,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/content-type", HttpMethod.POST,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("<NONE>", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("<NONE>");
 	}
 
 	@Test
@@ -223,7 +218,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/throwexception/403",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test
@@ -231,7 +226,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/throwexception/503",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.SERVICE_UNAVAILABLE, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
 	}
 
 	@Test
@@ -239,9 +234,9 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/badhost/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 		// JSON response
-		assertThat(result.getBody(), containsString("\"status\":500"));
+		assertThat(result.getBody()).contains("\"status\":500");
 	}
 
 	@Test
@@ -249,15 +244,15 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/rnd/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 		// JSON response
-		assertThat(result.getBody(), containsString("\"status\":500"));
+		assertThat(result.getBody()).contains("\"status\":500");
 	}
 
 	@Test
 	public void ribbonCommandFactoryOverridden() {
-		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
-				this.ribbonCommandFactory instanceof TestConfig.MyRibbonCommandFactory);
+		assertThat(this.ribbonCommandFactory instanceof TestConfig.MyRibbonCommandFactory)
+				.as("ribbonCommandFactory not a MyRibbonCommandFactory").isTrue();
 	}
 
 	@Override
@@ -274,14 +269,15 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		map.add("foo", "(bar)");
 		ResponseEntity<String> result = testRestTemplate.postForEntity(
 				"http://localhost:" + this.port + "/simple/local", map, String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted [(bar)] and Content-Length was: -1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody())
+				.isEqualTo("Posted [(bar)] and Content-Length was: -1!");
 	}
 
 	@Test
 	public void routeLocatorOverridden() {
-		assertTrue("routeLocator not a MyRouteLocator",
-				this.routeLocator instanceof TestConfig.MyRouteLocator);
+		assertThat(this.routeLocator instanceof TestConfig.MyRouteLocator)
+				.as("routeLocator not a MyRouteLocator").isTrue();
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
@@ -314,8 +310,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		public ResponseEntity<String> addHeader(HttpServletRequest request) {
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("X-Header", "FOO");
-			ResponseEntity<String> result = new ResponseEntity<>(
-					request.getRequestURI(), headers, HttpStatus.OK);
+			ResponseEntity<String> result = new ResponseEntity<>(request.getRequestURI(),
+					headers, HttpStatus.OK);
 			return result;
 		}
 
@@ -325,7 +321,9 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		@RequestMapping("/colonquery")
-		public String colonQuery(HttpServletRequest request, @RequestParam(name = "foo:bar") String foobar0, @RequestParam(name = "foobar") String foobar1) {
+		public String colonQuery(HttpServletRequest request,
+				@RequestParam(name = "foo:bar") String foobar0,
+				@RequestParam(name = "foobar") String foobar1) {
 			return request.getRequestURI() + "?foo:bar=" + foobar0 + "&foobar=" + foobar1;
 		}
 
@@ -346,8 +344,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 		@Bean
 		public DiscoveryClientRouteLocator discoveryRouteLocator(
-				DiscoveryClient discoveryClient,
-				ZuulProperties zuulProperties) {
+				DiscoveryClient discoveryClient, ZuulProperties zuulProperties) {
 			return new MyRouteLocator("/", discoveryClient, zuulProperties);
 		}
 
@@ -371,8 +368,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 			private SpringClientFactory clientFactory;
 
-			public MyRibbonCommandFactory(SpringClientFactory clientFactory,
-										  Set<FallbackProvider> fallbackProviders) {
+			MyRibbonCommandFactory(SpringClientFactory clientFactory,
+					Set<FallbackProvider> fallbackProviders) {
 				super(clientFactory, new ZuulProperties(), fallbackProviders);
 				this.clientFactory = clientFactory;
 			}
@@ -390,13 +387,14 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				}
 				return super.create(context);
 			}
+
 		}
 
 		static class MyCommand extends RestClientRibbonCommand {
 
 			private int errorCode;
 
-			public MyCommand(int errorCode, String commandKey, RestClient restClient,
+			MyCommand(int errorCode, String commandKey, RestClient restClient,
 					RibbonCommandContext context) {
 				super(commandKey, restClient, context, new ZuulProperties());
 				this.errorCode = errorCode;
@@ -410,11 +408,13 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				return new MockClientHttpResponse(new byte[0],
 						HttpStatus.valueOf(this.errorCode));
 			}
+
 		}
 
 		// Load balancer with fixed server list for "simple" pointing to bad host
 		@Configuration
 		static class BadHostRibbonClientConfiguration {
+
 			@Bean
 			public ServerList<Server> ribbonServerList() {
 				return new StaticServerList<>(
@@ -423,11 +423,14 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 		}
 
-		//This is needed to allow semicolon separators used in matrix variables
+		// This is needed to allow semicolon separators used in matrix variables
 		@Configuration
-		static class CustomHttpFirewallConfig implements WebSecurityConfigurer<WebSecurity> {
+		static class CustomHttpFirewallConfig
+				implements WebSecurityConfigurer<WebSecurity> {
+
 			@Override
-			public void init(WebSecurity webSecurity) throws Exception {}
+			public void init(WebSecurity webSecurity) throws Exception {
+			}
 
 			@Override
 			public void configure(WebSecurity builder) throws Exception {
@@ -435,14 +438,18 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				firewall.setAllowSemicolon(true);
 				builder.httpFirewall(firewall);
 			}
+
 		}
 
 		static class MyRouteLocator extends DiscoveryClientRouteLocator {
 
-			public MyRouteLocator(String servletPath, DiscoveryClient discovery,
+			MyRouteLocator(String servletPath, DiscoveryClient discovery,
 					ZuulProperties properties) {
 				super(servletPath, discovery, properties);
 			}
+
 		}
+
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+
+import com.netflix.client.http.HttpResponse;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.AbstractClientHttpResponse;
-import com.netflix.client.http.HttpResponse;
 
 /**
  * @author Spencer Gibb
@@ -31,6 +33,7 @@ import com.netflix.client.http.HttpResponse;
 public class RibbonHttpResponse extends AbstractClientHttpResponse {
 
 	private HttpResponse response;
+
 	private HttpHeaders httpHeaders;
 
 	public RibbonHttpResponse(HttpResponse response) {

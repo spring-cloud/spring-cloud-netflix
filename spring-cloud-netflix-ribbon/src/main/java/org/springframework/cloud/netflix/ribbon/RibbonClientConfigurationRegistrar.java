@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Map;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -32,8 +33,8 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) {
-		Map<String, Object> attrs = metadata.getAnnotationAttributes(
-				RibbonClients.class.getName(), true);
+		Map<String, Object> attrs = metadata
+				.getAnnotationAttributes(RibbonClients.class.getName(), true);
 		if (attrs != null && attrs.containsKey("value")) {
 			AnnotationAttributes[] clients = (AnnotationAttributes[]) attrs.get("value");
 			for (AnnotationAttributes client : clients) {
@@ -45,14 +46,15 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			String name;
 			if (metadata.hasEnclosingClass()) {
 				name = "default." + metadata.getEnclosingClassName();
-			} else {
+			}
+			else {
 				name = "default." + metadata.getClassName();
 			}
 			registerClientConfiguration(registry, name,
 					attrs.get("defaultConfiguration"));
 		}
-		Map<String, Object> client = metadata.getAnnotationAttributes(
-				RibbonClient.class.getName(), true);
+		Map<String, Object> client = metadata
+				.getAnnotationAttributes(RibbonClient.class.getName(), true);
 		String name = getClientName(client);
 		if (name != null) {
 			registerClientConfiguration(registry, name, client.get("configuration"));
@@ -74,8 +76,8 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 				"Either 'name' or 'value' must be provided in @RibbonClient");
 	}
 
-	private void registerClientConfiguration(BeanDefinitionRegistry registry,
-			Object name, Object configuration) {
+	private void registerClientConfiguration(BeanDefinitionRegistry registry, Object name,
+			Object configuration) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.genericBeanDefinition(RibbonClientSpecification.class);
 		builder.addConstructorArgValue(name);

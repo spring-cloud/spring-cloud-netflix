@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package org.springframework.cloud.netflix.eureka.sample;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.appinfo.InstanceInfo;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -35,9 +38,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.appinfo.InstanceInfo;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -76,7 +76,7 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 
 	@RequestMapping("/")
 	public String home() {
-		return "Hello world "+ registration.getUri();
+		return "Hello world " + registration.getUri();
 	}
 
 	@Override
@@ -97,8 +97,7 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 		config.setInstanceId("127.0.0.1:customapp:4444");
 
 		this.registration = EurekaRegistration.builder(config)
-				.with(this.clientConfig, this.context)
-				.build();
+				.with(this.clientConfig, this.context).build();
 
 		this.serviceRegistry.register(this.registration);
 		return config.getInstanceId();
@@ -114,4 +113,5 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 	public void close() throws IOException {
 		deregister();
 	}
+
 }

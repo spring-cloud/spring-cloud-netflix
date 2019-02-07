@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
@@ -20,11 +19,15 @@ package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 import java.util.Collections;
 import java.util.Set;
 
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,12 +55,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RestController;
-import com.netflix.client.DefaultLoadBalancerRetryHandler;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = OkHttpRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -76,8 +75,8 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.PATCH,
 				new HttpEntity<>("TestPatch"), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Patched 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Patched 1!");
 	}
 
 	@Test
@@ -85,8 +84,8 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.POST,
 				new HttpEntity<>("TestPost"), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted 1!");
 	}
 
 	@Test
@@ -94,14 +93,14 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.DELETE,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Deleted 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Deleted 1!");
 	}
 
 	@Test
 	public void ribbonCommandFactoryOverridden() {
-		assertTrue("ribbonCommandFactory not a OkHttpRibbonCommandFactory",
-				this.ribbonCommandFactory instanceof OkHttpRibbonCommandFactory);
+		assertThat(this.ribbonCommandFactory instanceof OkHttpRibbonCommandFactory)
+				.as("ribbonCommandFactory not a OkHttpRibbonCommandFactory").isTrue();
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
@@ -143,8 +142,11 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			client.setRetryHandler(new DefaultLoadBalancerRetryHandler());
 			return client;
 		}
+
 	}
 
 	static class TestLoadBalancer<T extends Server> extends ZoneAwareLoadBalancer<T> {
+
 	}
+
 }

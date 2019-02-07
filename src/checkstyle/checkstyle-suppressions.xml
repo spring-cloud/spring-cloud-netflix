@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+		"-//Puppy Crawl//DTD Suppressions 1.1//EN"
+		"http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+<suppressions>
+<suppress files=".*OkHttpRibbonResponse\.java" checks="IllegalImportCheck"/>
+<suppress files=".*RibbonApacheHttpResponse\.java" checks="IllegalImportCheck"/>
+<suppress files=".*TurbineApplication\.java" checks="HideUtilityClassConstructorCheck"/>
+<suppress files=".*SpringAggregatorFactory\.java" checks="LineLengthCheck"/>
+<suppress files=".*HystrixDashboardConfiguration\.java" checks="LineLengthCheck"/>
+<suppress files=".*EurekaHealthCheckHandler\.java" checks="LineLengthCheck"/>
+<suppress files=".*RestClientRibbonCommand\.java" checks="LineLengthCheck"/>
+<suppress files=".*AbstractRibbonCommand\.java" checks="LineLengthCheck"/>
+<suppress files=".*ContextPathZuulProxyApplicationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*RetryableRibbonLoadBalancingHttpClient\.java" checks="LineLengthCheck"/>
+<suppress files=".*CustomHostRoutingFilterTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*HystrixDashboardConfigurationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*ServletPathZuulProxyApplicationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*TurbineStreamTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*InstanceRegistryTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*RibbonClientConfigurationIntegrationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*HystrixStreamEndpointTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*EurekaCustomPeerNodesTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*EurekaHealthCheckTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*HttpClientRibbonCommandIntegrationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*HttpClientRibbonRetryIntegrationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*HystrixStreamEndpointTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*OkHttpRibbonCommandFallbackTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*OkHttpRibbonCommandIntegrationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*OkHttpRibbonRetryIntegrationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*RefreshablePeerEurekaNodesTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*RestClientRibbonCommandFallbackTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*RestClientRibbonCommandIntegrationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*RibbonRoutingFilterLoadBalancerKeyIntegrationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*SimpleZuulProxyApplicationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*TurbineHttpTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*ZuulProxyApplicationTests\.java" checks="LineLengthCheck"/>
+<suppress files=".*PatternServiceRouteMapper\.java" checks="JavadocTagContinuationIndentationCheck"/>
+<suppress files=".*PatternServiceRouteMapper\.java" checks="AtclauseOrder"/>
+<suppress files=".*PatternServiceRouteMapper\.java" checks="NonEmptyAtclauseDescription"/>
+<suppress files=".*EurekaRegistration\.java" checks="FinalClass"/>
+<suppress files=".*RequestVerifierFilter\.java" checks="FinalClass"/>
+</suppressions>

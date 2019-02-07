@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,18 @@ package org.springframework.cloud.netflix.hystrix;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netflix.hystrix.HystrixCircuitBreaker;
+import com.netflix.hystrix.HystrixCommandMetrics;
+
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 
-import com.netflix.hystrix.HystrixCircuitBreaker;
-import com.netflix.hystrix.HystrixCommandMetrics;
-
 /**
  * A {@link HealthIndicator} implementation for Hystrix circuit breakers.
  * <p>
- * This default implementation will not change the system state (e.g.  <code>OK</code>) but
+ * This default implementation will not change the system state (e.g. <code>OK</code>) but
  * includes all open circuits by name.
  *
  * @author Christian Dupuis

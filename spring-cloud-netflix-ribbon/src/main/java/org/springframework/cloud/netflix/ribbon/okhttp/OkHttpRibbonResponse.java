@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -27,11 +24,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.util.Assert;
+
 import com.google.common.reflect.TypeToken;
 import com.netflix.client.ClientException;
 import com.netflix.client.http.CaseInsensitiveMultiMap;
 import com.netflix.client.http.HttpHeaders;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
+import org.springframework.util.Assert;
 
 /**
  * @author Spencer Gibb
@@ -39,7 +40,9 @@ import com.netflix.client.http.HttpHeaders;
 public class OkHttpRibbonResponse implements com.netflix.client.http.HttpResponse {
 
 	private final ResponseBody body;
+
 	private URI uri;
+
 	private Response response;
 
 	public OkHttpRibbonResponse(Response response, URI uri) {
@@ -48,7 +51,6 @@ public class OkHttpRibbonResponse implements com.netflix.client.http.HttpRespons
 		this.body = response.body();
 		this.uri = uri;
 	}
-
 
 	@Override
 	public int getStatus() {
@@ -86,12 +88,14 @@ public class OkHttpRibbonResponse implements com.netflix.client.http.HttpRespons
 	@Override
 	public Map<String, Collection<String>> getHeaders() {
 		final Map<String, Collection<String>> headers = new HashMap<>();
-		for (Map.Entry<String,List<String>>	entry : this.response.headers().toMultimap().entrySet()) {
+		for (Map.Entry<String, List<String>> entry : this.response.headers().toMultimap()
+				.entrySet()) {
 			String name = entry.getKey();
 			for (String value : entry.getValue()) {
 				if (headers.containsKey(name)) {
 					headers.get(name).add(value);
-				} else {
+				}
+				else {
 					final List<String> values = new ArrayList<>();
 					values.add(value);
 					headers.put(name, values);
@@ -105,7 +109,8 @@ public class OkHttpRibbonResponse implements com.netflix.client.http.HttpRespons
 	@Override
 	public HttpHeaders getHttpHeaders() {
 		final CaseInsensitiveMultiMap headers = new CaseInsensitiveMultiMap();
-		for (Map.Entry<String,List<String>>	entry : this.response.headers().toMultimap().entrySet()) {
+		for (Map.Entry<String, List<String>> entry : this.response.headers().toMultimap()
+				.entrySet()) {
 			for (String value : entry.getValue()) {
 				headers.addHeader(entry.getKey(), value);
 			}
@@ -146,4 +151,5 @@ public class OkHttpRibbonResponse implements com.netflix.client.http.HttpRespons
 	public <T> T getEntity(TypeToken<T> type) throws Exception {
 		return null;
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.netflix.archaius;
 
+import com.netflix.config.ConcurrentMapConfiguration;
 import org.apache.commons.configuration.AbstractConfiguration;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.netflix.config.ConcurrentMapConfiguration;
 
 /**
  * @author Alexandru-George Burghelea
@@ -33,8 +33,8 @@ public class TestArchaiusExternalConfiguration {
 	@Qualifier("dynamicConfiguration")
 	public AbstractConfiguration createDynamicConfiguration() {
 		ConcurrentMapConfiguration config = new ConcurrentMapConfiguration();
-		config.addProperty("db.property","this is a db property");
-		config.addProperty("db.second.property","this is another db property");
+		config.addProperty("db.property", "this is a db property");
+		config.addProperty("db.second.property", "this is another db property");
 		return config;
 	}
 

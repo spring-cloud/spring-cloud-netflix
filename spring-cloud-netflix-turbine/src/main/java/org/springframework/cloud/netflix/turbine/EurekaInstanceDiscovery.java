@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,21 +48,23 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 	private static final Log log = LogFactory.getLog(EurekaInstanceDiscovery.class);
 
 	private static final String EUREKA_DEFAULT_CLUSTER_NAME_EXPRESSION = "appName";
+
 	private static final String ASG_KEY = "asg";
 
 	private final EurekaClient eurekaClient;
 
-
-	public EurekaInstanceDiscovery(TurbineProperties turbineProperties, EurekaClient eurekaClient) {
+	public EurekaInstanceDiscovery(TurbineProperties turbineProperties,
+			EurekaClient eurekaClient) {
 		super(turbineProperties, EUREKA_DEFAULT_CLUSTER_NAME_EXPRESSION);
 		this.eurekaClient = eurekaClient;
 	}
 
 	/**
 	 * Private helper that fetches the Instances for each application.
-	 * @param serviceId
-	 * @return List<Instance>
-	 * @throws Exception
+	 * @param serviceId of the service that the instance list should be returned for
+	 * @return List of instances for a given service id
+	 * @throws Exception - retrieving and marshalling service instances may result in an
+	 * Exception
 	 */
 	@Override
 	protected List<Instance> getInstancesForApp(String serviceId) throws Exception {
@@ -96,23 +98,26 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 	 * Private helper that marshals the information from each instance into something that
 	 * Turbine can understand. Override this method for your own implementation for
 	 * parsing Eureka info.
-	 * @param instanceInfo
-	 * @return Instance
+	 * @param instanceInfo {@link InstanceInfo} to marshal
+	 * @return {@link Instance} marshaled from provided {@link InstanceInfo}
 	 */
 	Instance marshall(InstanceInfo instanceInfo) {
 		String hostname = instanceInfo.getHostName();
 		final String managementPort = instanceInfo.getMetadata().get("management.port");
-		String port = managementPort == null ? String.valueOf(instanceInfo.getPort()) : managementPort;
+		String port = managementPort == null ? String.valueOf(instanceInfo.getPort())
+				: managementPort;
 		String cluster = getClusterName(instanceInfo);
 		Boolean status = parseInstanceStatus(instanceInfo.getStatus());
 		if (hostname != null && cluster != null && status != null) {
 			Instance instance = getInstance(hostname, port, cluster, status);
 
 			Map<String, String> metadata = instanceInfo.getMetadata();
-			boolean securePortEnabled = instanceInfo.isPortEnabled(InstanceInfo.PortType.SECURE);
+			boolean securePortEnabled = instanceInfo
+					.isPortEnabled(InstanceInfo.PortType.SECURE);
 			String securePort = String.valueOf(instanceInfo.getSecurePort());
 
-			addMetadata(instance, hostname, port, securePortEnabled, securePort, metadata);
+			addMetadata(instance, hostname, port, securePortEnabled, securePort,
+					metadata);
 
 			// add amazon metadata
 			String asgName = instanceInfo.getASGName();
@@ -134,7 +139,9 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 	}
 
 	/**
-	 * Helper that returns whether the instance is Up of Down
+	 * Helper that returns whether the instance is Up of Down.
+	 * @param status {@link InstanceStatus} instance to evaluate the status from
+	 * @return {@code true} if {@link InstanceStatus} is UP
 	 */
 	protected Boolean parseInstanceStatus(InstanceStatus status) {
 		if (status == null) {
@@ -142,6 +149,5 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 		}
 		return status == InstanceStatus.UP;
 	}
-
 
 }

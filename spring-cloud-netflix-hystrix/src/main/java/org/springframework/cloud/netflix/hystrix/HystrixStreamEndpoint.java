@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.hystrix;
 
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
-import org.springframework.boot.actuate.endpoint.web.EndpointServlet;
-import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpoint;
-
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+
+import org.springframework.boot.actuate.endpoint.web.EndpointServlet;
+import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpoint;
+
 /**
- * {@link org.springframework.boot.actuate.endpoint.annotation.Endpoint} to expose a Jolokia {@link HystrixMetricsStreamServlet}.
+ * {@link org.springframework.boot.actuate.endpoint.annotation.Endpoint} to expose a
+ * Jolokia {@link HystrixMetricsStreamServlet}.
  *
  * @author Phillip Webb
  * @since 2.0.0
@@ -33,15 +34,16 @@ import java.util.function.Supplier;
 @ServletEndpoint(id = "hystrix.stream")
 public class HystrixStreamEndpoint implements Supplier<EndpointServlet> {
 
-    private final Map<String, String> initParameters;
+	private final Map<String, String> initParameters;
 
-    public HystrixStreamEndpoint(Map<String, String> initParameters) {
-        this.initParameters = initParameters;
-    }
+	public HystrixStreamEndpoint(Map<String, String> initParameters) {
+		this.initParameters = initParameters;
+	}
 
-    @Override
-    public EndpointServlet get() {
-        return new EndpointServlet(HystrixMetricsStreamServlet.class)
-                .withInitParameters(this.initParameters);
-    }
+	@Override
+	public EndpointServlet get() {
+		return new EndpointServlet(HystrixMetricsStreamServlet.class)
+				.withInitParameters(this.initParameters);
+	}
+
 }

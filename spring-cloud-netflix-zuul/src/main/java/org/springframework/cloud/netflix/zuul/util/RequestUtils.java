@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,35 @@ import com.netflix.zuul.context.RequestContext;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY;
 
-public class RequestUtils {
+/**
+ * Utility class providing methods to verify if the current request is a dispatcher
+ * servlet or a Zuul servlet request.
+ *
+ * @author Adrian Ivan
+ * @author Spencer Gibb
+ */
+public final class RequestUtils {
+
+	private RequestUtils() {
+		throw new AssertionError("Must not instantiate utility class.");
+	}
 
 	/**
-	 * @deprecated use {@link org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#IS_DISPATCHER_SERVLET_REQUEST_KEY}
+	 * @deprecated use
+	 * {@link org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#IS_DISPATCHER_SERVLET_REQUEST_KEY}
 	 */
 	@Deprecated
 	public static final String IS_DISPATCHERSERVLETREQUEST = IS_DISPATCHER_SERVLET_REQUEST_KEY;
-	
+
 	public static boolean isDispatcherServletRequest() {
-		return RequestContext.getCurrentContext().getBoolean(IS_DISPATCHER_SERVLET_REQUEST_KEY);
+		return RequestContext.getCurrentContext()
+				.getBoolean(IS_DISPATCHER_SERVLET_REQUEST_KEY);
 	}
-	
+
 	public static boolean isZuulServletRequest() {
-		//extra check for dispatcher since ZuulServlet can run from ZuulController
-		return !isDispatcherServletRequest() && RequestContext.getCurrentContext().getZuulEngineRan();
-	}	
+		// extra check for dispatcher since ZuulServlet can run from ZuulController
+		return !isDispatcherServletRequest()
+				&& RequestContext.getCurrentContext().getZuulEngineRan();
+	}
+
 }

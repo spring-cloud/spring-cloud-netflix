@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -20,6 +19,7 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.zuul.filters.FilterRegistry;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +51,6 @@ import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFil
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-
-import com.netflix.zuul.filters.FilterRegistry;
 
 /**
  * @author Spencer Gibb
@@ -89,15 +87,18 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
 	public DiscoveryClientRouteLocator discoveryRouteLocator() {
-		return new DiscoveryClientRouteLocator(this.server.getServlet().getContextPath(), this.discovery, this.zuulProperties,
-				this.serviceRouteMapper, this.registration);
+		return new DiscoveryClientRouteLocator(this.server.getServlet().getContextPath(),
+				this.discovery, this.zuulProperties, this.serviceRouteMapper,
+				this.registration);
 	}
 
 	// pre filters
 	@Bean
 	@ConditionalOnMissingBean(PreDecorationFilter.class)
-	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
-		return new PreDecorationFilter(routeLocator, this.server.getServlet().getContextPath(), this.zuulProperties,
+	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator,
+			ProxyRequestHelper proxyRequestHelper) {
+		return new PreDecorationFilter(routeLocator,
+				this.server.getServlet().getContextPath(), this.zuulProperties,
 				proxyRequestHelper);
 	}
 
@@ -112,7 +113,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class, CloseableHttpClient.class})
+	@ConditionalOnMissingBean({ SimpleHostRoutingFilter.class,
+			CloseableHttpClient.class })
 	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
 			ZuulProperties zuulProperties,
 			ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
@@ -122,12 +124,10 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class})
+	@ConditionalOnMissingBean({ SimpleHostRoutingFilter.class })
 	public SimpleHostRoutingFilter simpleHostRoutingFilter2(ProxyRequestHelper helper,
-														   ZuulProperties zuulProperties,
-														   CloseableHttpClient httpClient) {
-		return new SimpleHostRoutingFilter(helper, zuulProperties,
-				httpClient);
+			ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties, httpClient);
 	}
 
 	@Bean
@@ -176,5 +176,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 			}
 			return helper;
 		}
+
 	}
+
 }

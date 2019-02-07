@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,40 +18,63 @@ package org.springframework.cloud.netflix.hystrix;
 
 import java.util.function.Function;
 
-import org.reactivestreams.Publisher;
-import org.springframework.util.StringUtils;
-
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixObservableCommand;
 import com.netflix.hystrix.HystrixObservableCommand.Setter;
-
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rx.Observable;
 import rx.RxReactiveStreams;
 
+import org.springframework.util.StringUtils;
+
 /**
  * Utility class to wrap a {@see Publisher} in a {@see HystrixObservableCommand}. Good for
  * use in a Spring WebFlux application. Allows more flexibility than the @HystrixCommand
  * annotation.
+ *
  * @author Spencer Gibb
  */
-public class HystrixCommands {
+public final class HystrixCommands {
 
+	private HystrixCommands() {
+		throw new AssertionError("Must not instantiate utility class.");
+	}
+
+	/**
+	 * @param publisher A {@link Publisher} to pass to the new
+	 * {@link PublisherHystrixCommand}
+	 * @param <T> type of the {@link Publisher}s to be built by the returned builder
+	 * @return a builder for Hystrix-command-specific {@link Publisher}s
+	 */
 	public static <T> PublisherBuilder<T> from(Publisher<T> publisher) {
 		return new PublisherBuilder<>(publisher);
 	}
 
+	/**
+	 * A builder class for building Hystrix-command-specific {@link Publisher}s.
+	 *
+	 * @param <T> type of the {@link Publisher}s to be built
+	 */
 	public static class PublisherBuilder<T> {
+
 		private final Publisher<T> publisher;
+
 		private String commandName;
+
 		private String groupName;
+
 		private Function<Throwable, Publisher<T>> fallback;
+
 		private Setter setter;
+
 		private HystrixCommandProperties.Setter commandProperties;
+
 		private boolean eager = false;
+
 		private Function<HystrixObservableCommand<T>, Observable<T>> toObservable;
 
 		public PublisherBuilder(Publisher<T> publisher) {
@@ -104,18 +127,21 @@ public class HystrixCommands {
 			return this;
 		}
 
-		public PublisherBuilder<T> toObservable(Function<HystrixObservableCommand<T>, Observable<T>> toObservable) {
+		public PublisherBuilder<T> toObservable(
+				Function<HystrixObservableCommand<T>, Observable<T>> toObservable) {
 			this.toObservable = toObservable;
 			return this;
 		}
 
 		public Publisher<T> build() {
 			if (!StringUtils.hasText(commandName) && setter == null) {
-				throw new IllegalStateException("commandName and setter can not both be empty");
+				throw new IllegalStateException(
+						"commandName and setter can not both be empty");
 			}
 			Setter setterToUse = getSetter();
 
-			PublisherHystrixCommand<T> command = new PublisherHystrixCommand<>(setterToUse, this.publisher, this.fallback);
+			PublisherHystrixCommand<T> command = new PublisherHystrixCommand<>(
+					setterToUse, this.publisher, this.fallback);
 
 			Observable<T> observable = getObservableFunction().apply(command);
 
@@ -127,9 +153,11 @@ public class HystrixCommands {
 
 			if (this.toObservable != null) {
 				observableFunc = this.toObservable;
-			} else if (this.eager) {
+			}
+			else if (this.eager) {
 				observableFunc = cmd -> cmd.observe();
-			} else { // apply a default onBackpressureBuffer if not eager
+			}
+			else { // apply a default onBackpressureBuffer if not eager
 				observableFunc = cmd -> cmd.toObservable().onBackpressureBuffer();
 			}
 			return observableFunc;
@@ -139,19 +167,22 @@ public class HystrixCommands {
 			Setter setterToUse;
 			if (this.setter != null) {
 				setterToUse = this.setter;
-			} else {
+			}
+			else {
 				String groupNameToUse;
 				if (StringUtils.hasText(this.groupName)) {
 					groupNameToUse = this.groupName;
-				} else {
+				}
+				else {
 					groupNameToUse = commandName + "group";
 				}
 
-				HystrixCommandGroupKey groupKey = HystrixCommandGroupKey.Factory.asKey(groupNameToUse);
-				HystrixCommandKey commandKey = HystrixCommandKey.Factory.asKey(this.commandName);
+				HystrixCommandGroupKey groupKey = HystrixCommandGroupKey.Factory
+						.asKey(groupNameToUse);
+				HystrixCommandKey commandKey = HystrixCommandKey.Factory
+						.asKey(this.commandName);
 				HystrixCommandProperties.Setter commandProperties = this.commandProperties != null
-						? this.commandProperties
-						: HystrixCommandProperties.Setter();
+						? this.commandProperties : HystrixCommandProperties.Setter();
 				setterToUse = Setter.withGroupKey(groupKey).andCommandKey(commandKey)
 						.andCommandPropertiesDefaults(commandProperties);
 			}
@@ -171,6 +202,7 @@ public class HystrixCommands {
 	private static class PublisherHystrixCommand<T> extends HystrixObservableCommand<T> {
 
 		private Publisher<T> publisher;
+
 		private Function<Throwable, Publisher<T>> fallback;
 
 		protected PublisherHystrixCommand(Setter setter, Publisher<T> publisher,
@@ -193,5 +225,7 @@ public class HystrixCommands {
 			}
 			return super.resumeWithFallback();
 		}
+
 	}
+
 }

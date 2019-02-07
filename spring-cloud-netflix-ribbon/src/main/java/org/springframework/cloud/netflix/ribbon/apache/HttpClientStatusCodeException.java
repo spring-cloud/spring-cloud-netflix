@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.util.EntityUtils;
+
 import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
 
 /**
- * A {@link RetryableStatusCodeException} for {@link HttpResponse}s
+ * A {@link RetryableStatusCodeException} for {@link HttpResponse}s.
+ *
  * @author Ryan Baxter
  */
 public class HttpClientStatusCodeException extends RetryableStatusCodeException {
 
-	private BasicHttpResponse response;
+	private final BasicHttpResponse response;
 
-	public HttpClientStatusCodeException(String serviceId, HttpResponse response, HttpEntity entity, URI uri) throws IOException {
+	public HttpClientStatusCodeException(String serviceId, HttpResponse response,
+			HttpEntity entity, URI uri) throws IOException {
 		super(serviceId, response.getStatusLine().getStatusCode(), response, uri);
 		this.response = new BasicHttpResponse(response.getStatusLine());
 		this.response.setLocale(response.getLocale());
@@ -48,4 +50,5 @@ public class HttpClientStatusCodeException extends RetryableStatusCodeException 
 	public HttpResponse getResponse() {
 		return this.response;
 	}
+
 }

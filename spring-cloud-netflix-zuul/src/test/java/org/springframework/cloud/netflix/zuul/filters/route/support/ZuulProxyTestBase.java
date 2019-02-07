@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
@@ -30,11 +29,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
@@ -72,14 +76,8 @@ import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfigu
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assume.assumeThat;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
@@ -145,12 +143,12 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void bindRouteUsingPhysicalRoute() {
-		assertEquals("http://localhost:7777/local", getRoute("/test/**"));
+		assertThat(getRoute("/test/**")).isEqualTo("http://localhost:7777/local");
 	}
 
 	@Test
 	public void bindRouteUsingOnlyPath() {
-		assertEquals("simple", getRoute("/simple/**"));
+		assertThat(getRoute("/simple/**")).isEqualTo("simple");
 	}
 
 	@Test
@@ -158,8 +156,8 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Gotten 1!");
 	}
 
 	@Test
@@ -169,8 +167,8 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/1", HttpMethod.DELETE,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Deleted 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Deleted 1!");
 	}
 
 	@Test
@@ -181,9 +179,9 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/strip", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 		// Prefix not stripped to it goes to /local/strip
-		assertEquals("Gotten strip!", result.getBody());
+		assertThat(result.getBody()).isEqualTo("Gotten strip!");
 	}
 
 	@Test
@@ -191,7 +189,7 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/notfound",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 
 	@Test
@@ -199,7 +197,7 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/myinvalidpath", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 
 	@Test
@@ -207,8 +205,8 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/another/twolevel/local/1",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Gotten 1!");
 	}
 
 	@Test
@@ -218,9 +216,9 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Hello space", result.getBody());
-		assertFalse(myErrorController.wasControllerUsed());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Hello space");
+		assertThat(myErrorController.wasControllerUsed()).isFalse();
 	}
 
 	@Test
@@ -229,12 +227,12 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/deletewithbody",
 				HttpMethod.DELETE, new HttpEntity<>("deleterequestbody"), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 		if (supportsDeleteWithBody()) {
-			assertEquals("Deleted deleterequestbody", result.getBody());
+			assertThat(result.getBody()).isEqualTo("Deleted deleterequestbody");
 		}
 		else {
-			assertEquals("Deleted null", result.getBody());
+			assertThat(result.getBody()).isEqualTo("Deleted null");
 		}
 	}
 
@@ -245,8 +243,8 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-		assertFalse(myErrorController.wasControllerUsed());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		assertThat(myErrorController.wasControllerUsed()).isFalse();
 	}
 
 	@Test
@@ -257,8 +255,8 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/spa ce", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Hello space", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Hello space");
 	}
 
 	@Test
@@ -270,8 +268,8 @@ public abstract class ZuulProxyTestBase {
 				"http://localhost:" + this.port
 						+ "/self/qstring?original=value1&original=value2",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Received {original=[value1, value2]}", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Received {original=[value1, value2]}");
 	}
 
 	@Test
@@ -283,8 +281,8 @@ public abstract class ZuulProxyTestBase {
 				"http://localhost:" + this.port
 						+ "/self/qstring?override=true&different=key",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Received {key=[overridden]}", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Received {key=[overridden]}");
 	}
 
 	@Test
@@ -297,8 +295,8 @@ public abstract class ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/1", HttpMethod.PATCH,
 				new HttpEntity<>("TestPatch"), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Patched 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Patched 1!");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -314,8 +312,9 @@ public abstract class ZuulProxyTestBase {
 		map.add("foo", "(bar)");
 		ResponseEntity<String> result = testRestTemplate.postForEntity(
 				"http://localhost:" + this.port + "/simple/local", map, String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted [(bar)] and Content-Length was: 13!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody())
+				.isEqualTo("Posted [(bar)] and Content-Length was: 13!");
 	}
 
 	public static abstract class AbstractZuulProxyApplication
@@ -369,7 +368,7 @@ public abstract class ZuulProxyTestBase {
 			return "Posted " + id + "!";
 		}
 
-		@RequestMapping(value = "/qstring")
+		@RequestMapping("/qstring")
 		public String qstring(@RequestParam MultiValueMap<String, String> params) {
 			return "Received " + params.toString();
 		}
@@ -486,6 +485,7 @@ public abstract class ZuulProxyTestBase {
 				}
 			};
 		}
+
 	}
 
 	@Configuration
@@ -501,6 +501,7 @@ public abstract class ZuulProxyTestBase {
 			converters.add(converter);
 			super.configureMessageConverters(converters);
 		}
+
 	}
 
 	// Load balancer with fixed server list for "simple" pointing to localhost
@@ -531,6 +532,7 @@ public abstract class ZuulProxyTestBase {
 	}
 
 	public static class MyErrorController extends BasicErrorController {
+
 		ThreadLocal<String> uriToMatch = new ThreadLocal<>();
 
 		AtomicBoolean controllerUsed = new AtomicBoolean();
@@ -562,5 +564,7 @@ public abstract class ZuulProxyTestBase {
 		public void clear() {
 			this.controllerUsed.set(false);
 		}
+
 	}
+
 }

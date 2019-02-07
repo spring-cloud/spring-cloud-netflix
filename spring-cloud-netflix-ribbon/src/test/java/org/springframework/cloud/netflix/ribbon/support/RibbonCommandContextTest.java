@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,18 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
-import okhttp3.Request;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+
+import okhttp3.Request;
 import org.junit.Test;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
-import com.google.common.collect.Lists;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Andre Dörnbrack
@@ -47,22 +43,22 @@ public class RibbonCommandContextTest {
 		givenRibbonCommandContextIsSetup();
 
 		InputStream requestEntity = ribbonCommandContext.getRequestEntity();
-		assertTrue(requestEntity instanceof ResettableServletInputStreamWrapper);
+		assertThat(requestEntity instanceof ResettableServletInputStreamWrapper).isTrue();
 
 		whenInputStreamIsConsumed(requestEntity);
-		assertEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isEqualTo(-1);
 
 		requestEntity.reset();
-		assertNotEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isNotEqualTo(-1);
 
 		whenInputStreamIsConsumed(requestEntity);
-		assertEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isEqualTo(-1);
 
 		requestEntity.reset();
-		assertNotEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isNotEqualTo(-1);
 
 		whenInputStreamIsConsumed(requestEntity);
-		assertEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isEqualTo(-1);
 	}
 
 	private void whenInputStreamIsConsumed(InputStream requestEntity) throws IOException {
@@ -90,7 +86,7 @@ public class RibbonCommandContextTest {
 		ribbonCommandContext = new RibbonCommandContext("serviceId",
 				HttpMethod.POST.toString(), "/my/route", true, headers, params,
 				new ByteArrayInputStream(TEST_CONTENT),
-				Lists.newArrayList(requestCustomizer));
+				Collections.singletonList(requestCustomizer));
 	}
 
 	@Test
@@ -100,10 +96,11 @@ public class RibbonCommandContextTest {
 
 		RibbonCommandContext testContext = new RibbonCommandContext("serviceId",
 				HttpMethod.POST.toString(), "/my/route", true, headers, params,
-				new ByteArrayInputStream(TEST_CONTENT), Collections.<RibbonRequestCustomizer>emptyList(),
-				null, null);
+				new ByteArrayInputStream(TEST_CONTENT),
+				Collections.<RibbonRequestCustomizer>emptyList(), null, null);
 
-		assertNotEquals(0, testContext.hashCode());
-		assertNotNull(testContext.toString());
+		assertThat(testContext.hashCode()).isNotEqualTo(0);
+		assertThat(testContext.toString()).isNotNull();
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -22,10 +21,12 @@ import java.net.URISyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,9 +48,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -120,19 +119,21 @@ public class SimpleZuulProxyApplicationTests {
 
 	@Test
 	public void getOnSelfWithComplexQueryParam() throws URISyntaxException {
-		String encodedQueryString = "foo=%7B%22project%22%3A%22stream%22%2C%22logger%22%3A%22javascript%22%2C%22platform%22%3A%22javascript%22%2C%22request%22%3A%7B%22url%22%3A%22https%3A%2F%2Ffoo%2Fadmin";
+		String encodedQueryString = "foo=%7B%22project%22%3A%22stream%22%2C%22logger"
+				+ "%22%3A%22javascript%22%2C%22platform%22%3A%22javascript%22%2C%22"
+				+ "request%22%3A%7B%22url%22%3A%22https%3A%2F%2Ffoo%2Fadmin";
 		ResponseEntity<String> result = testRestTemplate.exchange(
 				new URI("/foo?" + encodedQueryString), HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals(encodedQueryString, result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo(encodedQueryString);
 	}
 
 	private void assertResponseCodeAndBody(ResponseEntity<String> result,
 			String expectedBody) {
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals(expectedBody, result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo(expectedBody);
 	}
 
 	private ResponseEntity<String> executeSimpleRequest(HttpMethod httpMethod) {
@@ -180,4 +181,5 @@ public class SimpleZuulProxyApplicationTests {
 		}
 
 	}
+
 }

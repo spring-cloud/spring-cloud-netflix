@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
 import java.util.HashMap;
@@ -29,10 +30,10 @@ public class HystrixDashboardProperties {
 
 	/**
 	 * Directs the Hystrix dashboard to ignore 'Connection:close' headers if present in
-	 * the Hystrix response stream
+	 * the Hystrix response stream.
 	 */
 	private boolean enableIgnoreConnectionCloseHeader = false;
-	
+
 	/**
 	 * Initialization parameters for {@link ProxyStreamServlet}. ProxyStreamServlet itself
 	 * is not dependent on any initialization parameters, but could be used for adding web
@@ -52,4 +53,5 @@ public class HystrixDashboardProperties {
 	public Map<String, String> getInitParameters() {
 		return this.initParameters;
 	}
+
 }

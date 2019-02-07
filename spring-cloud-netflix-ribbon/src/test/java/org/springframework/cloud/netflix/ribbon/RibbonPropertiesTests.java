@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon;
@@ -36,4 +35,5 @@ public class RibbonPropertiesTests {
 		assertThat(properties.poolKeepAliveTime()).isEqualTo(714L);
 		assertThat(properties.getPoolKeepAliveTime()).isEqualTo(714L);
 	}
+
 }

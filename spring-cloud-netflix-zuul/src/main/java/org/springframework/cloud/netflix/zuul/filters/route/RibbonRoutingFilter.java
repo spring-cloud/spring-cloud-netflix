@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.client.ClientException;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
@@ -33,22 +39,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
 
-import com.netflix.client.ClientException;
-import com.netflix.hystrix.exception.HystrixRuntimeException;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.exception.ZuulException;
-
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.LOAD_BALANCER_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_ENTITY_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RETRYABLE_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RIBBON_ROUTING_FILTER_ORDER;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.LOAD_BALANCER_KEY;
 
 /**
- * Route {@link ZuulFilter} that uses Ribbon, Hystrix and pluggable http clients to send requests.
- * ServiceIds are found in the {@link RequestContext} attribute {@link org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#SERVICE_ID_KEY}.
+ * Route {@link ZuulFilter} that uses Ribbon, Hystrix and pluggable http clients to send
+ * requests. ServiceIds are found in the {@link RequestContext} attribute
+ * {@link org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#SERVICE_ID_KEY}.
  *
  * @author Spencer Gibb
  * @author Dave Syer
@@ -59,13 +60,16 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	private static final Log log = LogFactory.getLog(RibbonRoutingFilter.class);
 
 	protected ProxyRequestHelper helper;
+
 	protected RibbonCommandFactory<?> ribbonCommandFactory;
+
 	protected List<RibbonRequestCustomizer> requestCustomizers;
+
 	private boolean useServlet31 = true;
 
 	public RibbonRoutingFilter(ProxyRequestHelper helper,
-							   RibbonCommandFactory<?> ribbonCommandFactory,
-							   List<RibbonRequestCustomizer> requestCustomizers) {
+			RibbonCommandFactory<?> ribbonCommandFactory,
+			List<RibbonRequestCustomizer> requestCustomizers) {
 		this.helper = helper;
 		this.ribbonCommandFactory = ribbonCommandFactory;
 		this.requestCustomizers = requestCustomizers;
@@ -73,13 +77,14 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		// Spring 5 minimum support is 3.0, so this stays
 		try {
 			HttpServletRequest.class.getMethod("getContentLengthLong");
-		} catch(NoSuchMethodException e) {
+		}
+		catch (NoSuchMethodException e) {
 			useServlet31 = false;
 		}
 	}
 
 	@Deprecated
-	//TODO Remove in 2.1.x
+	// TODO Remove in 2.1.x
 	public RibbonRoutingFilter(RibbonCommandFactory<?> ribbonCommandFactory) {
 		this(new ProxyRequestHelper(), ribbonCommandFactory, null);
 	}
@@ -145,7 +150,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		// remove double slashes
 		uri = uri.replace("//", "/");
 
-		long contentLength = useServlet31 ? request.getContentLengthLong(): request.getContentLength();
+		long contentLength = useServlet31 ? request.getContentLengthLong()
+				: request.getContentLength();
 
 		return new RibbonCommandContext(serviceId, verb, uri, retryable, headers, params,
 				requestEntity, this.requestCustomizers, contentLength, loadBalancerKey);
@@ -159,7 +165,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		RibbonCommand command = this.ribbonCommandFactory.create(context);
 		try {
 			ClientHttpResponse response = command.execute();
-			this.helper.appendDebug(info, response.getRawStatusCode(), response.getHeaders());
+			this.helper.appendDebug(info, response.getRawStatusCode(),
+					response.getHeaders());
 			return response;
 		}
 		catch (HystrixRuntimeException ex) {

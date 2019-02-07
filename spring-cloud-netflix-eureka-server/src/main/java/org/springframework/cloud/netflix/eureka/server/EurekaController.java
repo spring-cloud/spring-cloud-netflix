@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.netflix.eureka.EurekaServerContext;
-import com.netflix.eureka.EurekaServerContextHolder;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
@@ -43,9 +34,18 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Pair;
+import com.netflix.eureka.EurekaServerContext;
+import com.netflix.eureka.EurekaServerContextHolder;
 import com.netflix.eureka.cluster.PeerEurekaNode;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
 import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * @author Spencer Gibb
@@ -57,6 +57,7 @@ public class EurekaController {
 
 	@Value("${eureka.dashboard.path:/}")
 	private String dashboardPath = "";
+
 	private ApplicationInfoManager applicationInfoManager;
 
 	public EurekaController(ApplicationInfoManager applicationInfoManager) {
@@ -109,8 +110,8 @@ public class EurekaController {
 	protected void populateBase(HttpServletRequest request, Map<String, Object> model) {
 		model.put("time", new Date());
 		model.put("basePath", "/");
-		model.put("dashboardPath", this.dashboardPath.equals("/") ? ""
-				: this.dashboardPath);
+		model.put("dashboardPath",
+				this.dashboardPath.equals("/") ? "" : this.dashboardPath);
 		populateHeader(model);
 		populateNavbar(request, model);
 	}
@@ -118,10 +119,10 @@ public class EurekaController {
 	private void populateHeader(Map<String, Object> model) {
 		model.put("currentTime", StatusResource.getCurrentTimeAsString());
 		model.put("upTime", StatusInfo.getUpTime());
-		model.put("environment", ConfigurationManager.getDeploymentContext()
-				.getDeploymentEnvironment());
-		model.put("datacenter", ConfigurationManager.getDeploymentContext()
-				.getDeploymentDatacenter());
+		model.put("environment",
+				ConfigurationManager.getDeploymentContext().getDeploymentEnvironment());
+		model.put("datacenter",
+				ConfigurationManager.getDeploymentContext().getDeploymentDatacenter());
 		PeerAwareInstanceRegistry registry = getRegistry();
 		model.put("registry", registry);
 		model.put("isBelowRenewThresold", registry.isBelowRenewThresold() == 1);
@@ -146,7 +147,8 @@ public class EurekaController {
 
 	private void populateNavbar(HttpServletRequest request, Map<String, Object> model) {
 		Map<String, String> replicas = new LinkedHashMap<>();
-		List<PeerEurekaNode> list = getServerContext().getPeerEurekaNodes().getPeerNodesView();
+		List<PeerEurekaNode> list = getServerContext().getPeerEurekaNodes()
+				.getPeerNodesView();
 		for (PeerEurekaNode node : list) {
 			try {
 				URI uri = new URI(node.getServiceUrl());
@@ -274,28 +276,34 @@ public class EurekaController {
 
 	protected void filterReplicas(Map<String, Object> model, StatusInfo statusInfo) {
 		Map<String, String> applicationStats = statusInfo.getApplicationStats();
-		if(applicationStats.get("registered-replicas").contains("@")){
-			applicationStats.put("registered-replicas", scrubBasicAuth(applicationStats.get("registered-replicas")));
+		if (applicationStats.get("registered-replicas").contains("@")) {
+			applicationStats.put("registered-replicas",
+					scrubBasicAuth(applicationStats.get("registered-replicas")));
 		}
-		if(applicationStats.get("unavailable-replicas").contains("@")){
-			applicationStats.put("unavailable-replicas",scrubBasicAuth(applicationStats.get("unavailable-replicas")));
+		if (applicationStats.get("unavailable-replicas").contains("@")) {
+			applicationStats.put("unavailable-replicas",
+					scrubBasicAuth(applicationStats.get("unavailable-replicas")));
 		}
-		if(applicationStats.get("available-replicas").contains("@")){
-			applicationStats.put("available-replicas",scrubBasicAuth(applicationStats.get("available-replicas")));
+		if (applicationStats.get("available-replicas").contains("@")) {
+			applicationStats.put("available-replicas",
+					scrubBasicAuth(applicationStats.get("available-replicas")));
 		}
 		model.put("applicationStats", applicationStats);
 	}
 
-	private String scrubBasicAuth(String urlList){
-		String[] urls=urlList.split(",");
+	private String scrubBasicAuth(String urlList) {
+		String[] urls = urlList.split(",");
 		StringBuilder filteredUrls = new StringBuilder();
-		for(String u : urls){
-			if(u.contains("@")){
-				filteredUrls.append(u.substring(0,u.indexOf("//")+2)).append(u.substring(u.indexOf("@")+1,u.length())).append(",");
-			}else{
+		for (String u : urls) {
+			if (u.contains("@")) {
+				filteredUrls.append(u.substring(0, u.indexOf("//") + 2))
+						.append(u.substring(u.indexOf("@") + 1, u.length())).append(",");
+			}
+			else {
 				filteredUrls.append(u).append(",");
 			}
 		}
-		return filteredUrls.substring(0,filteredUrls.length()-1);
+		return filteredUrls.substring(0, filteredUrls.length() - 1);
 	}
+
 }

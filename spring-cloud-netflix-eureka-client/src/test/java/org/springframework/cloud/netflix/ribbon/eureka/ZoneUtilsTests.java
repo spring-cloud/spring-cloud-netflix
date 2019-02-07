@@ -1,4 +1,5 @@
-/* Copyright 2013-2015 the original author or authors.
+/*
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertTrue;
+package org.springframework.cloud.netflix.ribbon.eureka;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- * 
  * @author Ryan Baxter
  *
  */
@@ -27,9 +28,11 @@ public class ZoneUtilsTests {
 
 	@Test
 	public void extractApproximateZoneTest() {
-		assertTrue("foo".equals(ZoneUtils.extractApproximateZone("foo")));
-		assertTrue("bar".equals(ZoneUtils.extractApproximateZone("foo.bar")));
-		assertTrue("world.foo.bar".equals(ZoneUtils
-				.extractApproximateZone("hello.world.foo.bar")));
+		assertThat("foo".equals(ZoneUtils.extractApproximateZone("foo"))).isTrue();
+		assertThat("bar".equals(ZoneUtils.extractApproximateZone("foo.bar"))).isTrue();
+		assertThat("world.foo.bar"
+				.equals(ZoneUtils.extractApproximateZone("hello.world.foo.bar")))
+						.isTrue();
 	}
+
 }

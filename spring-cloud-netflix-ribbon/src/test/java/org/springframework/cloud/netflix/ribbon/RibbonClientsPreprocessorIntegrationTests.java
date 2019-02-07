@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon;
 
+import com.netflix.loadbalancer.IPing;
+import com.netflix.loadbalancer.PingUrl;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,11 +36,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.netflix.loadbalancer.IPing;
-import com.netflix.loadbalancer.PingUrl;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -74,13 +74,16 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	@Configuration
 	@RibbonClients(@RibbonClient(name = "foo", configuration = FooConfiguration.class))
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class, HttpClientConfiguration.class})
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
+			HttpClientConfiguration.class })
 	protected static class TestConfiguration {
+
 	}
 
 	// tag::sample_override_ribbon_config[]
 	@Configuration
 	protected static class FooConfiguration {
+
 		@Bean
 		public ZonePreferenceServerListFilter serverListFilter() {
 			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
@@ -92,6 +95,7 @@ public class RibbonClientsPreprocessorIntegrationTests {
 		public IPing ribbonPing() {
 			return new PingUrl();
 		}
+
 	}
 	// end::sample_override_ribbon_config[]
 

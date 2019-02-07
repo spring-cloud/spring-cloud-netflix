@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,13 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,11 +39,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
-import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
 /**
  * @author Dave Syer
@@ -68,13 +68,13 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 
 	@Test
 	public void serverIntrospectorDefaultsToEureka() throws Exception {
-		EurekaServerIntrospector.class.cast(this.factory.getInstance("foo", ServerIntrospector.class));
+		EurekaServerIntrospector.class
+				.cast(this.factory.getInstance("foo", ServerIntrospector.class));
 	}
 
 	@SuppressWarnings("unchecked")
 	private ZoneAwareLoadBalancer<Server> getLoadBalancer() {
-		return (ZoneAwareLoadBalancer<Server>) this.factory
-				.getLoadBalancer("foo");
+		return (ZoneAwareLoadBalancer<Server>) this.factory.getLoadBalancer("foo");
 	}
 
 	@Configuration

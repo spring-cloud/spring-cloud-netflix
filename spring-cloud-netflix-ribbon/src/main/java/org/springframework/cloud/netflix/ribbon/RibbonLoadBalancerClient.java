@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,8 +61,10 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			RibbonServer ribbonServer = (RibbonServer) instance;
 			server = ribbonServer.getServer();
 			uri = updateToSecureConnectionIfNeeded(original, ribbonServer);
-		} else {
-			server = new Server(instance.getScheme(), instance.getHost(), instance.getPort());
+		}
+		else {
+			server = new Server(instance.getScheme(), instance.getHost(),
+					instance.getPort());
 			IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
 			ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
 			uri = updateToSecureConnectionIfNeeded(original, clientConfig,
@@ -73,11 +75,14 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-	    return choose(serviceId, null);
+		return choose(serviceId, null);
 	}
 
 	/**
 	 * New: Select a server using a 'key'.
+	 * @param serviceId of the service to choose an instance for
+	 * @param hint to specify the service instance
+	 * @return the selected {@link ServiceInstance}
 	 */
 	public ServiceInstance choose(String serviceId, Object hint) {
 		Server server = getServer(getLoadBalancer(serviceId), hint);
@@ -89,32 +94,43 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	@Override
-	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException {
-	    return execute(serviceId, request, null);
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request)
+			throws IOException {
+		return execute(serviceId, request, null);
 	}
 
 	/**
-	 * New: Execute a request by selecting server using a 'key'.
-	 * The hint will have to be the last parameter to not mess with the `execute(serviceId, ServiceInstance, request)`
-	 * method. This somewhat breaks the fluent coding style when using a lambda to define the LoadBalancerRequest.
+	 * New: Execute a request by selecting server using a 'key'. The hint will have to be
+	 * the last parameter to not mess with the `execute(serviceId, ServiceInstance,
+	 * request)` method. This somewhat breaks the fluent coding style when using a lambda
+	 * to define the LoadBalancerRequest.
+	 * @param <T> returned request execution result type
+	 * @param serviceId id of the service to execute the request to
+	 * @param request to be executed
+	 * @param hint used to choose appropriate {@link Server} instance
+	 * @return request execution result
+	 * @throws IOException executing the request may result in an {@link IOException}
 	 */
-	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint) throws IOException {
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
+			throws IOException {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
 		Server server = getServer(loadBalancer, hint);
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
 		}
-		RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(server,
-				serviceId), serverIntrospector(serviceId).getMetadata(server));
+		RibbonServer ribbonServer = new RibbonServer(serviceId, server,
+				isSecure(server, serviceId),
+				serverIntrospector(serviceId).getMetadata(server));
 
 		return execute(serviceId, ribbonServer, request);
 	}
 
 	@Override
-	public <T> T execute(String serviceId, ServiceInstance serviceInstance, LoadBalancerRequest<T> request) throws IOException {
+	public <T> T execute(String serviceId, ServiceInstance serviceInstance,
+			LoadBalancerRequest<T> request) throws IOException {
 		Server server = null;
-		if(serviceInstance instanceof RibbonServer) {
-			server = ((RibbonServer)serviceInstance).getServer();
+		if (serviceInstance instanceof RibbonServer) {
+			server = ((RibbonServer) serviceInstance).getServer();
 		}
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
@@ -156,15 +172,13 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		return RibbonUtils.isSecure(config, serverIntrospector, server);
 	}
 
-	/**
-	 * Note: This method could be removed?
-	 */
+	// Note: This method could be removed?
 	protected Server getServer(String serviceId) {
 		return getServer(getLoadBalancer(serviceId), null);
 	}
 
 	protected Server getServer(ILoadBalancer loadBalancer) {
-	    return getServer(loadBalancer, null);
+		return getServer(loadBalancer, null);
 	}
 
 	protected Server getServer(ILoadBalancer loadBalancer, Object hint) {
@@ -179,10 +193,17 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		return this.clientFactory.getLoadBalancer(serviceId);
 	}
 
+	/**
+	 * Ribbon-server-specific {@link ServiceInstance} implementation.
+	 */
 	public static class RibbonServer implements ServiceInstance {
+
 		private final String serviceId;
+
 		private final Server server;
+
 		private final boolean secure;
+
 		private Map<String, String> metadata;
 
 		public RibbonServer(String serviceId, Server server) {
@@ -251,6 +272,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			sb.append('}');
 			return sb.toString();
 		}
+
 	}
 
 }

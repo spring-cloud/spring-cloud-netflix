@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon.eureka;
@@ -21,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringBootConfiguration;
@@ -39,9 +39,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RibbonEurekaAutoConfigurationTests.EurekaClientDisabledApp.class,
-		properties = { "eureka.client.enabled=false", "spring.application.name=eurekadisabledtest" },
-		webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = RibbonEurekaAutoConfigurationTests.EurekaClientDisabledApp.class, properties = {
+		"eureka.client.enabled=false",
+		"spring.application.name=eurekadisabledtest" }, webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class RibbonEurekaAutoConfigurationTests {
 
@@ -58,12 +58,14 @@ public class RibbonEurekaAutoConfigurationTests {
 	public static class EurekaClientDisabledApp {
 
 		@Bean
-		public TestLoadbalancerClient testLoadbalanceClient(LoadBalancerClient loadBalancerClient) {
+		public TestLoadbalancerClient testLoadbalanceClient(
+				LoadBalancerClient loadBalancerClient) {
 			return new TestLoadbalancerClient(loadBalancerClient);
 		}
 
 		@Bean
-		public CommandLineRunner commandLineRunner(final TestLoadbalancerClient testLoadbalancerClient) {
+		public CommandLineRunner commandLineRunner(
+				final TestLoadbalancerClient testLoadbalancerClient) {
 			return new CommandLineRunner() {
 				@Override
 				public void run(String... args) throws Exception {
@@ -71,6 +73,7 @@ public class RibbonEurekaAutoConfigurationTests {
 				}
 			};
 		}
+
 	}
 
 	private static class TestLoadbalancerClient {
@@ -78,22 +81,27 @@ public class RibbonEurekaAutoConfigurationTests {
 		Log log = LogFactory.getLog(this.getClass());
 
 		private LoadBalancerClient loadBalancerClient;
+
 		private boolean instanceFound = false;
 
-		public TestLoadbalancerClient(LoadBalancerClient loadBalancerClient) {
+		TestLoadbalancerClient(LoadBalancerClient loadBalancerClient) {
 			this.loadBalancerClient = loadBalancerClient;
 		}
 
 		public void doStuff() {
-			ServiceInstance serviceInstance = loadBalancerClient.choose("http://host/doStuff");
+			ServiceInstance serviceInstance = loadBalancerClient
+					.choose("http://host/doStuff");
 			if (serviceInstance != null) {
-				log.info("There is a service instance, because Eureka discovery is enabled and the service is registered");
+				log.info(
+						"There is a service instance, because Eureka discovery is enabled and the service is registered");
 				instanceFound = true;
 			}
 			else {
-				log.warn("No instance found, because Eureka is disabled or there is no service matching.");
+				log.warn(
+						"No instance found, because Eureka is disabled or there is no service matching.");
 			}
 		}
+
 	}
 
 }

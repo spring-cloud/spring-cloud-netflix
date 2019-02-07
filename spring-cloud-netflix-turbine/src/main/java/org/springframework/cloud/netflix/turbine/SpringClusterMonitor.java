@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 		private final DynamicStringProperty defaultUrlClosureConfig = DynamicPropertyFactory
 				.getInstance().getStringProperty("turbine.instanceUrlSuffix",
 						"actuator/hystrix.stream");
+
 		private final DynamicBooleanProperty instanceInsertPort = DynamicPropertyFactory
 				.getInstance().getBooleanProperty("turbine.instanceInsertPort", true);
 
@@ -82,13 +83,15 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 			if (host.getAttributes().containsKey("securePort")) {
 				port = host.getAttributes().get("securePort");
 				scheme = "https";
-			} else {
+			}
+			else {
 				port = host.getAttributes().get("port");
 				scheme = "http";
 			}
 
 			if (host.getAttributes().containsKey("fusedHostPort")) {
-				return String.format("%s://%s/%s", scheme, host.getAttributes().get("fusedHostPort"), url);
+				return String.format("%s://%s/%s", scheme,
+						host.getAttributes().get("fusedHostPort"), url);
 			}
 
 			// determine if to insert port
@@ -113,10 +116,11 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 							"Configured to use port, but port or securePort is not in host attributes");
 				}
 
-				return String.format("%s://%s:%s/%s", scheme, host.getHostname(), port, url);
+				return String.format("%s://%s:%s/%s", scheme, host.getHostname(), port,
+						url);
 			}
 
-			//format url without port
+			// format url without port
 			return scheme + "://" + host.getHostname() + url;
 		}
 	};

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.concurrency.limits.test;
@@ -39,26 +38,26 @@ public class AbstractConcurrencyLimitsTests {
 		Flux<Tuple2<String, HttpStatus>> flux = Flux.range(1, 100)
 				.flatMap(integer -> client.get().uri("/").exchange(), 4)
 				// .log("reqs", Level.INFO)
-				.flatMap(response -> response.bodyToMono(String.class)
-						.defaultIfEmpty("")
-						/*.log("body2mono", Level.INFO)*/
+				.flatMap(response -> response.bodyToMono(String.class).defaultIfEmpty("")
+						/* .log("body2mono", Level.INFO) */
 						.zipWith(Mono.just(response.statusCode())));
 
 		Responses responses = new Responses();
-		StepVerifier.create(flux)
-				.thenConsumeWhile(response -> true, response -> {
-					HttpStatus status = response.getT2();
-					if (status.equals(HttpStatus.OK)) {
-						responses.success.incrementAndGet();
-					} else if (status.equals(HttpStatus.TOO_MANY_REQUESTS)) {
-						responses.tooManyReqs.incrementAndGet();
-						String body = response.getT1();
-						//TODO: body from handler isn't coming thru
-						// assertThat(body).isEqualTo("Concurrency limit exceeded");
-					} else {
-						responses.other.incrementAndGet();
-					}
-				}).verifyComplete();
+		StepVerifier.create(flux).thenConsumeWhile(response -> true, response -> {
+			HttpStatus status = response.getT2();
+			if (status.equals(HttpStatus.OK)) {
+				responses.success.incrementAndGet();
+			}
+			else if (status.equals(HttpStatus.TOO_MANY_REQUESTS)) {
+				responses.tooManyReqs.incrementAndGet();
+				String body = response.getT1();
+				// TODO: body from handler isn't coming thru
+				// assertThat(body).isEqualTo("Concurrency limit exceeded");
+			}
+			else {
+				responses.other.incrementAndGet();
+			}
+		}).verifyComplete();
 
 		System.out.println("Responses: " + responses);
 
@@ -75,5 +74,7 @@ public class AbstractConcurrencyLimitsTests {
 		public String get() {
 			return "Hello";
 		}
+
 	}
+
 }

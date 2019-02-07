@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka.server;
@@ -22,6 +21,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,46 +37,42 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
 		"spring.application.name=eureka", "server.servlet.context-path=/servlet",
-		"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
+		"management.security.enabled=false",
+		"management.endpoints.web.exposure.include=*" })
 public class ApplicationServletPathTests {
+
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@LocalServerPort
 	private int port = 0;
-
-	@Configuration
-	@EnableAutoConfiguration
-	@EnableEurekaServer
-	protected static class Application {
-	}
 
 	@Test
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/servlet/eureka/apps", Map.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
 	public void dashboardLoads() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/servlet/", String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String body = entity.getBody();
 		// System.err.println(body);
-		assertTrue(body.contains("eureka/js"));
-		assertTrue(body.contains("eureka/css"));
+		assertThat(body.contains("eureka/js")).isTrue();
+		assertThat(body.contains("eureka/css")).isTrue();
 		// The "DS Replicas"
-		assertTrue(
-				body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
+		assertThat(
+				body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"))
+						.isTrue();
 	}
 
 	@Test
@@ -84,7 +80,7 @@ public class ApplicationServletPathTests {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/servlet/eureka/css/wro.css",
 				String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
@@ -92,7 +88,7 @@ public class ApplicationServletPathTests {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/servlet/eureka/js/wro.js",
 				String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
@@ -102,9 +98,16 @@ public class ApplicationServletPathTests {
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/servlet" + BASE_PATH + "/env", HttpMethod.GET,
-				new HttpEntity<>("parameters", headers), Map.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+				"http://localhost:" + this.port + "/servlet" + BASE_PATH + "/env",
+				HttpMethod.GET, new HttpEntity<>("parameters", headers), Map.class);
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableEurekaServer
+	protected static class Application {
+
 	}
 
 }

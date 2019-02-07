@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.resttemplate;
@@ -21,11 +20,25 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.AvailabilityFilteringRule;
+import com.netflix.loadbalancer.BaseLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.IPing;
+import com.netflix.loadbalancer.IRule;
+import com.netflix.loadbalancer.LoadBalancerBuilder;
+import com.netflix.loadbalancer.LoadBalancerStats;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.loadbalancer.ServerStats;
+import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -44,30 +57,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.AvailabilityFilteringRule;
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.IPing;
-import com.netflix.loadbalancer.IRule;
-import com.netflix.loadbalancer.LoadBalancerBuilder;
-import com.netflix.loadbalancer.LoadBalancerStats;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.loadbalancer.ServerStats;
-import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RestTemplateRetryTests.Application.class, webEnvironment = RANDOM_PORT,
-		properties = { "spring.application.name=resttemplatetest", "logging.level.com.netflix=DEBUG",
-				"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
-				"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=25",
-				"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
+@SpringBootTest(classes = RestTemplateRetryTests.Application.class, webEnvironment = RANDOM_PORT, properties = {
+		"spring.application.name=resttemplatetest", "logging.level.com.netflix=DEBUG",
+		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
+		"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=25",
+		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
 @DirtiesContext
 public class RestTemplateRetryTests {
 
@@ -111,9 +109,10 @@ public class RestTemplateRetryTests {
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		assertTrue(badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(badServer2Stats.isCircuitBreakerTripped());
-		assertThat(targetConnectionCount).isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
+		assertThat(badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(badServer2Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(targetConnectionCount)
+				.isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
 
 		// Wait for any timeout thread to finish.
 
@@ -157,9 +156,10 @@ public class RestTemplateRetryTests {
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		assertTrue(badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(badServer2Stats.isCircuitBreakerTripped());
-		assertThat(targetConnectionCount).isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
+		assertThat(badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(badServer2Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(targetConnectionCount)
+				.isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
 		assertThat(hits).isGreaterThanOrEqualTo(numCalls);
 		logger.debug("Retry Hits: " + hits);
 	}
@@ -178,8 +178,8 @@ public class RestTemplateRetryTests {
 
 		badServer1Stats.clearSuccessiveConnectionFailureCount();
 		badServer2Stats.clearSuccessiveConnectionFailureCount();
-		assertTrue(!badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(!badServer2Stats.isCircuitBreakerTripped());
+		assertThat(!badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(!badServer2Stats.isCircuitBreakerTripped()).isTrue();
 
 		int hits = 0;
 
@@ -192,9 +192,9 @@ public class RestTemplateRetryTests {
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		assertTrue(badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(badServer2Stats.isCircuitBreakerTripped());
-		assertTrue(!goodServerStats.isCircuitBreakerTripped());
+		assertThat(badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(badServer2Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(!goodServerStats.isCircuitBreakerTripped()).isTrue();
 
 		// 15 + 4 timeouts. See the endpoint for timeout conditions.
 		assertThat(hits).isGreaterThanOrEqualTo(numCalls + 4);
@@ -212,6 +212,7 @@ public class RestTemplateRetryTests {
 	public static class Application {
 
 		private AtomicInteger hits = new AtomicInteger(1);
+
 		private AtomicInteger retryHits = new AtomicInteger(1);
 
 		@RequestMapping(method = RequestMethod.GET, value = "/ping")
@@ -246,8 +247,8 @@ public class RestTemplateRetryTests {
 		RestTemplate restTemplate() {
 			return new RestTemplate();
 		}
-	}
 
+	}
 
 	// Load balancer with fixed server list for "local" pointing to localhost
 	// and some bogus servers are thrown in to test retry
@@ -259,7 +260,7 @@ public class RestTemplateRetryTests {
 		static Server badServer;
 		static Server badServer2;
 
-		public LocalBadClientConfiguration() {
+		LocalBadClientConfiguration() {
 		}
 
 		@Value("${local.server.port}")
@@ -267,7 +268,8 @@ public class RestTemplateRetryTests {
 
 		@Bean
 		public IRule loadBalancerRule() {
-			// This is a good place to try different load balancing rules and how those rules
+			// This is a good place to try different load balancing rules and how those
+			// rules
 			// behave in failure states: BestAvailableRule, WeightedResponseTimeRule, etc
 
 			// This rule just uses a round robin and will skip servers that are in circuit
@@ -296,11 +298,14 @@ public class RestTemplateRetryTests {
 		}
 
 		static class OverrideRetryHandler extends HttpClientLoadBalancerErrorHandler {
-			public OverrideRetryHandler() {
+
+			OverrideRetryHandler() {
 				this.circuitRelated.add(UnknownHostException.class);
 				this.retriable.add(UnknownHostException.class);
 			}
+
 		}
 
 	}
+
 }

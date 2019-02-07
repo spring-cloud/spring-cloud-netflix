@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 package org.springframework.cloud.netflix.eureka.server.doc;
 
 import java.io.ByteArrayOutputStream;
@@ -25,8 +25,8 @@ import com.netflix.discovery.converters.EntityBodyConverter;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
 
-final class EurekaObjectMapper
-		implements io.restassured.mapper.ObjectMapper {
+final class EurekaObjectMapper implements io.restassured.mapper.ObjectMapper {
+
 	private EntityBodyConverter converter = new EntityBodyConverter();
 
 	@Override
@@ -43,15 +43,14 @@ final class EurekaObjectMapper
 	}
 
 	@Override
-	public Object deserialize(
-			ObjectMapperDeserializationContext context) {
+	public Object deserialize(ObjectMapperDeserializationContext context) {
 		try {
-			return converter.read(
-					context.getDataToDeserialize().asInputStream(),
-					(Class)context.getType(), MediaType.APPLICATION_JSON_TYPE);
+			return converter.read(context.getDataToDeserialize().asInputStream(),
+					(Class) context.getType(), MediaType.APPLICATION_JSON_TYPE);
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot deserialize", e);
 		}
 	}
+
 }

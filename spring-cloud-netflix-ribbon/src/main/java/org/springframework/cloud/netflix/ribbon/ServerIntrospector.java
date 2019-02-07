@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Map;
+
 import com.netflix.loadbalancer.Server;
 
 /**
@@ -27,4 +28,5 @@ public interface ServerIntrospector {
 	boolean isSecure(Server server);
 
 	Map<String, String> getMetadata(Server server);
+
 }

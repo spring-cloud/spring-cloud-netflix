@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,20 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.netflix.hystrix.HystrixThreadPoolProperties;
-import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
-
 import com.netflix.hystrix.HystrixThreadPoolKey;
+import com.netflix.hystrix.HystrixThreadPoolProperties;
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariable;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestVariableLifecycle;
 import com.netflix.hystrix.strategy.properties.HystrixProperty;
 
+import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
+
 /**
- * @author daniellavoie
+ * @author Daniel Lavoie
  */
 public class SecurityContextConcurrencyStrategy extends HystrixConcurrencyStrategy {
+
 	private HystrixConcurrencyStrategy existingConcurrencyStrategy;
 
 	public SecurityContextConcurrencyStrategy(
@@ -70,9 +71,11 @@ public class SecurityContextConcurrencyStrategy extends HystrixConcurrencyStrate
 	}
 
 	@Override
-	public ThreadPoolExecutor getThreadPool(HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties threadPoolProperties) {
+	public ThreadPoolExecutor getThreadPool(HystrixThreadPoolKey threadPoolKey,
+			HystrixThreadPoolProperties threadPoolProperties) {
 		return existingConcurrencyStrategy != null
-				? existingConcurrencyStrategy.getThreadPool(threadPoolKey, threadPoolProperties)
+				? existingConcurrencyStrategy.getThreadPool(threadPoolKey,
+						threadPoolProperties)
 				: super.getThreadPool(threadPoolKey, threadPoolProperties);
 	}
 
@@ -83,4 +86,5 @@ public class SecurityContextConcurrencyStrategy extends HystrixConcurrencyStrate
 						.wrapCallable(new DelegatingSecurityContextCallable<T>(callable))
 				: super.wrapCallable(new DelegatingSecurityContextCallable<T>(callable));
 	}
+
 }

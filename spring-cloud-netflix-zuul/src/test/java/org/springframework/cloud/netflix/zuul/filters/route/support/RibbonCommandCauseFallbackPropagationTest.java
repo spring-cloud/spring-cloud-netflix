@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
@@ -32,7 +31,6 @@ import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,8 +60,8 @@ public class RibbonCommandCauseFallbackPropagationTest {
 
 	@Test
 	public void providerIsCalledInCaseOfException() throws Exception {
-		FallbackProvider provider = new TestFallbackProvider(getClientHttpResponse(
-				HttpStatus.INTERNAL_SERVER_ERROR));
+		FallbackProvider provider = new TestFallbackProvider(
+				getClientHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR));
 		RuntimeException exception = new RuntimeException("Failed!");
 		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
 				provider, context);
@@ -139,102 +137,6 @@ public class RibbonCommandCauseFallbackPropagationTest {
 				.isEqualTo(HystrixTimeoutException.class);
 	}
 
-	public static class TestRibbonCommand extends
-			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
-
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				FallbackProvider fallbackProvider, RibbonCommandContext context) {
-			this(client, new ZuulProperties(), fallbackProvider, context);
-		}
-
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulProperties zuulProperties, FallbackProvider fallbackProvider, RibbonCommandContext context) {
-			super("testCommand" + UUID.randomUUID(), client, context, zuulProperties,
-					fallbackProvider);
-		}
-
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				FallbackProvider fallbackProvider, int timeout, RibbonCommandContext context) {
-			// different name is used because of properties caching
-			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties(), new DefaultClientConfigImpl())
-					.andCommandPropertiesDefaults(defauts(timeout)), client, context,
-					fallbackProvider, null);
-		}
-
-		private static HystrixCommandProperties.Setter defauts(final int timeout) {
-			return HystrixCommandProperties.Setter().withExecutionTimeoutEnabled(true)
-					.withExecutionIsolationStrategy(
-							HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
-					.withExecutionTimeoutInMilliseconds(timeout);
-		}
-
-		@Override
-		protected ClientRequest createRequest() throws Exception {
-			return null;
-		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static class TestClient extends AbstractLoadBalancerAwareClient {
-
-		private final RuntimeException exception;
-
-		public TestClient(RuntimeException exception) {
-			super(null);
-			this.exception = exception;
-		}
-
-		@Override
-		public IResponse executeWithLoadBalancer(final ClientRequest request,
-				final IClientConfig requestConfig) throws ClientException {
-			throw exception;
-		}
-
-		@Override
-		public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
-				final ClientRequest clientRequest, final IClientConfig iClientConfig) {
-			return null;
-		}
-
-		@Override
-		public IResponse execute(final ClientRequest clientRequest,
-				final IClientConfig iClientConfig) throws Exception {
-			return null;
-		}
-	}
-
-	public static class TestFallbackProvider implements FallbackProvider {
-
-		private final ClientHttpResponse response;
-		private Throwable cause;
-
-		public TestFallbackProvider(final ClientHttpResponse response) {
-			this.response = response;
-		}
-
-		@Override
-		public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
-			this.cause = cause;
-			return response;
-		}
-
-		@Override
-		public String getRoute() {
-			return "test-route";
-		}
-
-		public Throwable getCause() {
-			return cause;
-		}
-
-		public static TestFallbackProvider withResponse(final HttpStatus status) {
-			return new TestFallbackProvider(getClientHttpResponse(status));
-		}
-	}
-
 	private static ClientHttpResponse getClientHttpResponse(final HttpStatus status) {
 		return new ClientHttpResponse() {
 			@Override
@@ -267,4 +169,108 @@ public class RibbonCommandCauseFallbackPropagationTest {
 			}
 		};
 	}
+
+	public static class TestFallbackProvider implements FallbackProvider {
+
+		private final ClientHttpResponse response;
+
+		private Throwable cause;
+
+		public TestFallbackProvider(final ClientHttpResponse response) {
+			this.response = response;
+		}
+
+		@Override
+		public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
+			this.cause = cause;
+			return response;
+		}
+
+		@Override
+		public String getRoute() {
+			return "test-route";
+		}
+
+		public Throwable getCause() {
+			return cause;
+		}
+
+		public static TestFallbackProvider withResponse(final HttpStatus status) {
+			return new TestFallbackProvider(getClientHttpResponse(status));
+		}
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static class TestClient extends AbstractLoadBalancerAwareClient {
+
+		private final RuntimeException exception;
+
+		public TestClient(RuntimeException exception) {
+			super(null);
+			this.exception = exception;
+		}
+
+		@Override
+		public IResponse executeWithLoadBalancer(final ClientRequest request,
+				final IClientConfig requestConfig) throws ClientException {
+			throw exception;
+		}
+
+		@Override
+		public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
+				final ClientRequest clientRequest, final IClientConfig iClientConfig) {
+			return null;
+		}
+
+		@Override
+		public IResponse execute(final ClientRequest clientRequest,
+				final IClientConfig iClientConfig) throws Exception {
+			return null;
+		}
+
+	}
+
+	public static class TestRibbonCommand extends
+			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
+
+		public TestRibbonCommand(
+				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+				FallbackProvider fallbackProvider, RibbonCommandContext context) {
+			this(client, new ZuulProperties(), fallbackProvider, context);
+		}
+
+		public TestRibbonCommand(
+				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+				ZuulProperties zuulProperties, FallbackProvider fallbackProvider,
+				RibbonCommandContext context) {
+			super("testCommand" + UUID.randomUUID(), client, context, zuulProperties,
+					fallbackProvider);
+		}
+
+		public TestRibbonCommand(
+				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+				FallbackProvider fallbackProvider, int timeout,
+				RibbonCommandContext context) {
+			// different name is used because of properties caching
+			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties(),
+					new DefaultClientConfigImpl()).andCommandPropertiesDefaults(
+							defauts(timeout)),
+					client, context, fallbackProvider, null);
+		}
+
+		private static HystrixCommandProperties.Setter defauts(final int timeout) {
+			return HystrixCommandProperties.Setter().withExecutionTimeoutEnabled(true)
+					.withExecutionIsolationStrategy(
+							HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
+					.withExecutionTimeoutInMilliseconds(timeout);
+		}
+
+		@Override
+		protected ClientRequest createRequest() throws Exception {
+			return null;
+		}
+
+	}
+
 }

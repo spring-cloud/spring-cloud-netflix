@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -22,6 +21,10 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.servlet.http.Part;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,13 +60,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-
 import static java.nio.charset.Charset.defaultCharset;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 import static org.springframework.util.StreamUtils.copyToString;
 
@@ -95,8 +93,8 @@ public class FormZuulProxyApplicationTests {
 
 		ResponseEntity result = sendPost("/simplefzpat/form", form, headers);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {foo=[bar]}", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {foo=[bar]}");
 	}
 
 	@Test
@@ -108,8 +106,8 @@ public class FormZuulProxyApplicationTests {
 
 		ResponseEntity result = sendPost("/simplefzpat/form", form, headers);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {foo=[bar]}", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {foo=[bar]}");
 	}
 
 	@Test
@@ -127,8 +125,8 @@ public class FormZuulProxyApplicationTests {
 
 		ResponseEntity result = sendPost("/simplefzpat/file", form, headers);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! bar", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! bar");
 	}
 
 	@Test
@@ -147,8 +145,8 @@ public class FormZuulProxyApplicationTests {
 
 		ResponseEntity result = sendPost("/simplefzpat/fileandform", form, headers);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! bar!field!data", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! bar!field!data");
 	}
 
 	@Test
@@ -164,8 +162,8 @@ public class FormZuulProxyApplicationTests {
 
 		ResponseEntity result = sendPost("/simplefzpat/json", form, headers);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {foo=[bar]} as application/json", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {foo=[bar]} as application/json");
 	}
 
 	@Test
@@ -180,8 +178,8 @@ public class FormZuulProxyApplicationTests {
 
 		ResponseEntity result = sendPost("/simplefzpat/form", form, headers);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {foo=[bar]}", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {foo=[bar]}");
 	}
 
 	@Test
@@ -194,18 +192,20 @@ public class FormZuulProxyApplicationTests {
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
-		ResponseEntity result = sendPost("/simplefzpat/form?uriParam=uriValue", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/form?uriParam=uriValue", form,
+				headers);
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {uriParam=[uriValue], foo=[bar]}", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody())
+				.isEqualTo("Posted! {uriParam=[uriValue], foo=[bar]}");
 	}
 
 	@Test
 	public void getWithUrlParams() throws Exception {
 		ResponseEntity<String> result = sendGet("/simplefzpat/form?uriParam=uriValue");
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {uriParam=[uriValue]}", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {uriParam=[uriValue]}");
 	}
 
 	private ResponseEntity<String> sendPost(String url, MultiValueMap form,
@@ -217,6 +217,7 @@ public class FormZuulProxyApplicationTests {
 	private ResponseEntity<String> sendGet(String url) {
 		return restTemplate.getForEntity(url, String.class);
 	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan

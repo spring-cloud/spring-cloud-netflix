@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ package org.springframework.cloud.netflix.eureka.http;
 import java.util.Collection;
 import java.util.Optional;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 
 /**
  * @author Daniel Lavoie
@@ -48,11 +48,12 @@ public class RestTemplateTransportClientFactories
 	}
 
 	@Override
-	public TransportClientFactory newTransportClientFactory(final EurekaClientConfig clientConfig,
-															final Collection<Void> additionalFilters,
-															final InstanceInfo myInstanceInfo,
-															final Optional<SSLContext> sslContext,
-															final Optional<HostnameVerifier> hostnameVerifier) {
+	public TransportClientFactory newTransportClientFactory(
+			final EurekaClientConfig clientConfig,
+			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
+			final Optional<SSLContext> sslContext,
+			final Optional<HostnameVerifier> hostnameVerifier) {
 		return new RestTemplateTransportClientFactory();
 	}
+
 }

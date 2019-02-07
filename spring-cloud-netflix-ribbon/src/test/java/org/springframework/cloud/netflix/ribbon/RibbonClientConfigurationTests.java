@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon;
@@ -20,10 +19,18 @@ package org.springframework.cloud.netflix.ribbon;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.netflix.client.AbstractLoadBalancerAwareClient;
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.Server;
+import com.netflix.niws.client.http.RestClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -34,15 +41,8 @@ import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpCl
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import com.netflix.client.AbstractLoadBalancerAwareClient;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.Server;
-import com.netflix.niws.client.http.RestClient;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -68,7 +68,7 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void restClientInitCalledOnce() {
 		new TestRestClient(this.config);
-		assertThat(this.config.count, is(1));
+		assertThat(this.config.count).isEqualTo(1);
 	}
 
 	@Test
@@ -81,12 +81,8 @@ public class RibbonClientConfigurationTests {
 		Server server = new Server("example.com", 443);
 		URI uri = new TestRestClient(config).reconstructURIWithServer(server,
 				new URI("/foo"));
-		assertThat(uri.getScheme(), is("https"));
-		assertThat(uri.getHost(), is("example.com"));
-	}
-
-	static class CountingConfig extends DefaultClientConfigImpl {
-		int count = 0;
+		assertThat(uri.getScheme()).isEqualTo("https");
+		assertThat(uri.getHost()).isEqualTo("example.com");
 	}
 
 	@Test
@@ -95,9 +91,8 @@ public class RibbonClientConfigurationTests {
 		when(this.inspector.isSecure(server)).thenReturn(true);
 
 		for (AbstractLoadBalancerAwareClient client : clients()) {
-			URI uri = client.reconstructURIWithServer(server,
-					new URI("http://foo/"));
-			assertThat(getReason(client), uri, is(new URI("https://foo:7777/")));
+			URI uri = client.reconstructURIWithServer(server, new URI("http://foo/"));
+			assertThat(uri).as(getReason(client)).isEqualTo(new URI("https://foo:7777/"));
 		}
 	}
 
@@ -107,14 +102,13 @@ public class RibbonClientConfigurationTests {
 		when(this.inspector.isSecure(server)).thenReturn(false);
 
 		for (AbstractLoadBalancerAwareClient client : clients()) {
-			URI uri = client.reconstructURIWithServer(server,
-					new URI("http://foo/"));
-			assertThat(getReason(client), uri, is(new URI("http://foo:7777/")));
+			URI uri = client.reconstructURIWithServer(server, new URI("http://foo/"));
+			assertThat(uri).as(getReason(client)).isEqualTo(new URI("http://foo:7777/"));
 		}
 	}
 
 	String getReason(AbstractLoadBalancerAwareClient client) {
-		return client.getClass().getSimpleName()+" failed";
+		return client.getClass().getSimpleName() + " failed";
 	}
 
 	@Test
@@ -125,7 +119,8 @@ public class RibbonClientConfigurationTests {
 		for (AbstractLoadBalancerAwareClient client : clients()) {
 			URI uri = client.reconstructURIWithServer(server,
 					new URI("http://foo/%20bar"));
-			assertThat(getReason(client), uri, is(new URI("https://foo:7777/%20bar")));
+			assertThat(uri).as(getReason(client))
+					.isEqualTo(new URI("https://foo:7777/%20bar"));
 		}
 	}
 
@@ -135,8 +130,9 @@ public class RibbonClientConfigurationTests {
 		when(this.inspector.isSecure(server)).thenReturn(true);
 
 		for (AbstractLoadBalancerAwareClient client : clients()) {
-			URI uri = client.reconstructURIWithServer(server, new URI("http://foo/%20bar?hello=1+2"));
-			assertThat(uri, is(new URI("https://foo:7777/%20bar?hello=1%202")));
+			URI uri = client.reconstructURIWithServer(server,
+					new URI("http://foo/%20bar?hello=1+2"));
+			assertThat(uri).isEqualTo(new URI("https://foo:7777/%20bar?hello=1%202"));
 		}
 	}
 
@@ -151,22 +147,26 @@ public class RibbonClientConfigurationTests {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testDefaultsToApacheHttpClient() {
-		testClient(RibbonLoadBalancingHttpClient.class, null, RestClient.class, OkHttpLoadBalancingClient.class);
-		testClient(RibbonLoadBalancingHttpClient.class, new String[]{"ribbon.httpclient.enabled"}, RestClient.class, OkHttpLoadBalancingClient.class);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testEnableRestClient() {
-		testClient(RestClient.class, new String[]{"ribbon.restclient.enabled"}, RibbonLoadBalancingHttpClient.class,
+		testClient(RibbonLoadBalancingHttpClient.class, null, RestClient.class,
+				OkHttpLoadBalancingClient.class);
+		testClient(RibbonLoadBalancingHttpClient.class,
+				new String[] { "ribbon.httpclient.enabled" }, RestClient.class,
 				OkHttpLoadBalancingClient.class);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test
+	public void testEnableRestClient() {
+		testClient(RestClient.class, new String[] { "ribbon.restclient.enabled" },
+				RibbonLoadBalancingHttpClient.class, OkHttpLoadBalancingClient.class);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
 	public void testEnableOkHttpClient() {
-		testClient(OkHttpLoadBalancingClient.class, new String[]{"ribbon.okhttp.enabled"}, RibbonLoadBalancingHttpClient.class,
-				RestClient.class);
+		testClient(OkHttpLoadBalancingClient.class,
+				new String[] { "ribbon.okhttp.enabled" },
+				RibbonLoadBalancingHttpClient.class, RestClient.class);
 	}
 
 	void testClient(Class<?> clientType, String[] properties, Class<?>... excludedTypes) {
@@ -179,7 +179,8 @@ public class RibbonClientConfigurationTests {
 		context.refresh();
 		context.getBean(clientType);
 		for (Class<?> excludedType : excludedTypes) {
-			assertThat("has "+excludedType.getSimpleName()+ " instance", hasInstance(context, excludedType), is(false));
+			assertThat(hasInstance(context, excludedType))
+					.as("has " + excludedType.getSimpleName() + " instance").isFalse();
 		}
 		context.close();
 	}
@@ -191,9 +192,17 @@ public class RibbonClientConfigurationTests {
 
 	@Configuration
 	@EnableAutoConfiguration
-	protected static class TestLBConfig { }
+	protected static class TestLBConfig {
 
-	static class TestRestClient extends OverrideRestClient {
+	}
+
+	static class CountingConfig extends DefaultClientConfigImpl {
+
+		int count = 0;
+
+	}
+
+	static final class TestRestClient extends OverrideRestClient {
 
 		private TestRestClient(IClientConfig ncc) {
 			super(ncc, new DefaultServerIntrospector());
@@ -204,5 +213,7 @@ public class RibbonClientConfigurationTests {
 			((CountingConfig) clientConfig).count++;
 			super.initWithNiwsConfig(clientConfig);
 		}
+
 	}
+
 }

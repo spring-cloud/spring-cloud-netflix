@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.Set;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
 
@@ -33,15 +33,16 @@ import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibb
 public class OkHttpRibbonCommandFactory extends AbstractRibbonCommandFactory {
 
 	private SpringClientFactory clientFactory;
-	
+
 	private ZuulProperties zuulProperties;
 
-	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
+	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory,
+			ZuulProperties zuulProperties) {
 		this(clientFactory, zuulProperties, Collections.<FallbackProvider>emptySet());
 	}
 
-	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties,
-									  Set<FallbackProvider> zuulFallbackProviders) {
+	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory,
+			ZuulProperties zuulProperties, Set<FallbackProvider> zuulFallbackProviders) {
 		super(zuulFallbackProviders);
 		this.clientFactory = clientFactory;
 		this.zuulProperties = zuulProperties;
@@ -51,12 +52,12 @@ public class OkHttpRibbonCommandFactory extends AbstractRibbonCommandFactory {
 	public OkHttpRibbonCommand create(final RibbonCommandContext context) {
 		final String serviceId = context.getServiceId();
 		FallbackProvider fallbackProvider = getFallbackProvider(serviceId);
-		final OkHttpLoadBalancingClient client = this.clientFactory.getClient(
-				serviceId, OkHttpLoadBalancingClient.class);
+		final OkHttpLoadBalancingClient client = this.clientFactory.getClient(serviceId,
+				OkHttpLoadBalancingClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new OkHttpRibbonCommand(serviceId, client, context, zuulProperties, fallbackProvider,
-				clientFactory.getClientConfig(serviceId));
+		return new OkHttpRibbonCommand(serviceId, client, context, zuulProperties,
+				fallbackProvider, clientFactory.getClientConfig(serviceId));
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,10 @@ import org.springframework.web.client.RestTemplate;
 @Conditional(RibbonAutoConfiguration.RibbonClassesConditions.class)
 @RibbonClients
 @AutoConfigureAfter(name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
-@AutoConfigureBefore({LoadBalancerAutoConfiguration.class, AsyncLoadBalancerAutoConfiguration.class})
-@EnableConfigurationProperties({RibbonEagerLoadProperties.class, ServerIntrospectorProperties.class})
+@AutoConfigureBefore({ LoadBalancerAutoConfiguration.class,
+		AsyncLoadBalancerAutoConfiguration.class })
+@EnableConfigurationProperties({ RibbonEagerLoadProperties.class,
+		ServerIntrospectorProperties.class })
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
@@ -91,7 +93,8 @@ public class RibbonAutoConfiguration {
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
 	@ConditionalOnMissingBean
-	public LoadBalancedRetryFactory loadBalancedRetryPolicyFactory(final SpringClientFactory clientFactory) {
+	public LoadBalancedRetryFactory loadBalancedRetryPolicyFactory(
+			final SpringClientFactory clientFactory) {
 		return new RibbonLoadBalancedRetryFactory(clientFactory);
 	}
 
@@ -102,7 +105,7 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "ribbon.eager-load.enabled")
+	@ConditionalOnProperty("ribbon.eager-load.enabled")
 	public RibbonApplicationContextInitializer ribbonApplicationContextInitializer() {
 		return new RibbonApplicationContextInitializer(springClientFactory(),
 				ribbonEagerLoadProperties.getClients());
@@ -119,38 +122,48 @@ public class RibbonAutoConfiguration {
 		@Bean
 		public RestTemplateCustomizer restTemplateCustomizer(
 				final RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory) {
-			return restTemplate -> restTemplate.setRequestFactory(ribbonClientHttpRequestFactory);
+			return restTemplate -> restTemplate
+					.setRequestFactory(ribbonClientHttpRequestFactory);
 		}
 
 		@Bean
 		public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
 			return new RibbonClientHttpRequestFactory(this.springClientFactory);
 		}
+
 	}
 
-	//TODO: support for autoconfiguring restemplate to use apache http client or okhttp
+	// TODO: support for autoconfiguring restemplate to use apache http client or okhttp
 
 	@Target({ ElementType.TYPE, ElementType.METHOD })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
 	@Conditional(OnRibbonRestClientCondition.class)
-	@interface ConditionalOnRibbonRestClient { }
+	@interface ConditionalOnRibbonRestClient {
+
+	}
 
 	private static class OnRibbonRestClientCondition extends AnyNestedCondition {
-		public OnRibbonRestClientCondition() {
+
+		OnRibbonRestClientCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
-		@Deprecated //remove in Edgware"
+		@Deprecated // remove in Edgware"
 		@ConditionalOnProperty("ribbon.http.client.enabled")
-		static class ZuulProperty {}
+		static class ZuulProperty {
+
+		}
 
 		@ConditionalOnProperty("ribbon.restclient.enabled")
-		static class RibbonProperty {}
+		static class RibbonProperty {
+
+		}
+
 	}
 
 	/**
-	 * {@link AllNestedConditions} that checks that either multiple classes are present
+	 * {@link AllNestedConditions} that checks that either multiple classes are present.
 	 */
 	static class RibbonClassesConditions extends AllNestedConditions {
 
@@ -179,4 +192,5 @@ public class RibbonAutoConfiguration {
 		}
 
 	}
+
 }
