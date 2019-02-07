@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
-public final class EurekaRegistration implements Registration {
+public class EurekaRegistration implements Registration {
 
 	private static final Log log = LogFactory.getLog(EurekaRegistration.class);
 

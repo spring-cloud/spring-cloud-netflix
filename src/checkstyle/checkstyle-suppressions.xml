@@ -38,4 +38,6 @@
 <suppress files=".*PatternServiceRouteMapper\.java" checks="JavadocTagContinuationIndentationCheck"/>
 <suppress files=".*PatternServiceRouteMapper\.java" checks="AtclauseOrder"/>
 <suppress files=".*PatternServiceRouteMapper\.java" checks="NonEmptyAtclauseDescription"/>
+<suppress files=".*EurekaRegistration\.java" checks="FinalClass"/>
+<suppress files=".*RequestVerifierFilter\.java" checks="FinalClass"/>
 </suppressions>

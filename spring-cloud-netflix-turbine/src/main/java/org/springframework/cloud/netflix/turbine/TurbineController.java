@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Defines endpoints to use with the Turbine.
  *
- * @author Nastya Smirnova
+ * @author Anastasiia Smirnova
  */
 @RestController
 public class TurbineController {

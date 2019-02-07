@@ -21,7 +21,7 @@ import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 /**
  * Provider for Eureka-specific management metadata.
  *
- * @author Nastya Smirnova
+ * @author Anastasiia Smirnova
  */
 public interface ManagementMetadataProvider {
 

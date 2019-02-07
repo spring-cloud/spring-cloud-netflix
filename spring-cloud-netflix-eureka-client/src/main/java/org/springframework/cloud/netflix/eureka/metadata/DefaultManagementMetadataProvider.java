@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
 /**
  * Default implementation of {@link DefaultManagementMetadataProvider}.
  *
- * @author Nastya Smirnova
+ * @author Anastasiia Smirnova
  */
 public class DefaultManagementMetadataProvider implements ManagementMetadataProvider {
 

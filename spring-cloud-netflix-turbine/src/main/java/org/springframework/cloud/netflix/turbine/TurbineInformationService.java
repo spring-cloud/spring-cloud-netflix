@@ -37,7 +37,7 @@ import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.Aggreg
 /**
  * Service providing information on Turbine clusters.
  *
- * @author Nastya Smirnova
+ * @author Anastasiia Smirnova
  */
 public class TurbineInformationService {
 

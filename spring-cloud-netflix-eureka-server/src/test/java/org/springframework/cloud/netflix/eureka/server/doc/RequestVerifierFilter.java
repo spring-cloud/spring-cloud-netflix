@@ -58,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 
-public final class RequestVerifierFilter implements Filter {
+public class RequestVerifierFilter implements Filter {
 
 	static final String CONTEXT_KEY_CONFIGURATION = "org.springframework.restdocs.configuration";
 
