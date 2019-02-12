@@ -34,6 +34,7 @@
 		<sonar.language>java</sonar.language>
 		<maven-checkstyle-plugin.includeTestSourceDirectory>true
 		</maven-checkstyle-plugin.includeTestSourceDirectory>
+		<maven-checkstyle-plugin.failsOnError>true</maven-checkstyle-plugin.failsOnError>
 		<maven-checkstyle-plugin.failOnViolation>true
 		</maven-checkstyle-plugin.failOnViolation>
 	</properties>
