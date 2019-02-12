@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.eureka.server;
 
 import java.io.IOException;
@@ -6,9 +22,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.function.Supplier;
-
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -29,6 +42,9 @@ import com.netflix.discovery.converters.EurekaJacksonCodec.InstanceInfoSerialize
 import com.netflix.discovery.converters.wrappers.CodecWrappers.LegacyJacksonJson;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
+
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import static com.netflix.discovery.converters.wrappers.CodecWrappers.getCodecName;
 
@@ -68,11 +84,27 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 		return this.codec.readValue(type, inputStream);
 	}
 
+	static InstanceInfo updateIfNeeded(final InstanceInfo info) {
+		if (info.getInstanceId() == null && info.getMetadata() != null) {
+			String instanceId = info.getMetadata().get("instanceId");
+			if (StringUtils.hasText(instanceId)) {
+				// backwards compatibility for Angel
+				if (StringUtils.hasText(info.getHostName())
+						&& !instanceId.startsWith(info.getHostName())) {
+					instanceId = info.getHostName() + ":" + instanceId;
+				}
+				return new InstanceInfo.Builder(info).setInstanceId(instanceId).build();
+			}
+		}
+		return info;
+	}
+
 	static class CloudJacksonCodec extends EurekaJacksonCodec {
+
 		private static final Version VERSION = new Version(1, 1, 0, null, null, null);
 
 		@SuppressWarnings("deprecation")
-		public CloudJacksonCodec() {
+		CloudJacksonCodec() {
 			super();
 
 			ObjectMapper mapper = new ObjectMapper();
@@ -87,7 +119,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 			// TODO: Watch if this causes problems
 			// module.addDeserializer(DataCenterInfo.class,
-			// 		new DataCenterInfoDeserializer());
+			// new DataCenterInfoDeserializer());
 			module.addDeserializer(LeaseInfo.class, new LeaseInfoDeserializer());
 			module.addDeserializer(InstanceInfo.class,
 					new CloudInstanceInfoDeserializer(mapper));
@@ -99,12 +131,12 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			mapper.registerModule(module);
 
 			HashMap<Class<?>, Supplier<ObjectReader>> readers = new HashMap<>();
-			readers.put(InstanceInfo.class, ()-> mapper.reader().withType(InstanceInfo.class)
-					.withRootName("instance"));
-			readers.put(Application.class, ()-> mapper.reader().withType(Application.class)
-					.withRootName("application"));
-			readers.put(Applications.class, ()-> mapper.reader().withType(Applications.class)
-					.withRootName("applications"));
+			readers.put(InstanceInfo.class, () -> mapper.reader()
+					.withType(InstanceInfo.class).withRootName("instance"));
+			readers.put(Application.class, () -> mapper.reader()
+					.withType(Application.class).withRootName("application"));
+			readers.put(Applications.class, () -> mapper.reader()
+					.withType(Applications.class).withRootName("applications"));
 			setField("objectReaderByClass", readers);
 
 			HashMap<Class<?>, ObjectWriter> writers = new HashMap<>();
@@ -124,9 +156,11 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			ReflectionUtils.makeAccessible(field);
 			ReflectionUtils.setField(field, this, value);
 		}
+
 	}
 
 	static class CloudInstanceInfoSerializer extends InstanceInfoSerializer {
+
 		@Override
 		public void serialize(final InstanceInfo info, JsonGenerator jgen,
 				SerializerProvider provider) throws IOException {
@@ -134,20 +168,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			InstanceInfo updated = updateIfNeeded(info);
 			super.serialize(updated, jgen, provider);
 		}
-	}
 
-	static InstanceInfo updateIfNeeded(final InstanceInfo info) {
-		if (info.getInstanceId() == null && info.getMetadata() != null) {
-			String instanceId = info.getMetadata().get("instanceId");
-			if (StringUtils.hasText(instanceId)) {
-				// backwards compatibility for Angel
-				if (StringUtils.hasText(info.getHostName()) && !instanceId.startsWith(info.getHostName())) {
-					instanceId = info.getHostName()+":"+instanceId;
-				}
-				return new InstanceInfo.Builder(info).setInstanceId(instanceId).build();
-			}
-		}
-		return info;
 	}
 
 	static class CloudInstanceInfoDeserializer extends InstanceInfoDeserializer {
@@ -157,10 +178,13 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 		}
 
 		@Override
-		public InstanceInfo deserialize(JsonParser jp, DeserializationContext context) throws IOException {
+		public InstanceInfo deserialize(JsonParser jp, DeserializationContext context)
+				throws IOException {
 			InstanceInfo info = super.deserialize(jp, context);
 			InstanceInfo updated = updateIfNeeded(info);
 			return updated;
 		}
+
 	}
+
 }

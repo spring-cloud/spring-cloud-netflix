@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -82,7 +82,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Bilal Alp
  * @author Gang Li
  */
-public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationListener<EnvironmentChangeEvent> {
+public class SimpleHostRoutingFilter extends ZuulFilter
+		implements ApplicationListener<EnvironmentChangeEvent> {
 
 	private static final Log log = LogFactory.getLog(SimpleHostRoutingFilter.class);
 
@@ -92,15 +93,23 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
 
 	private boolean sslHostnameValidationEnabled;
+
 	private boolean forceOriginalQueryStringEncoding;
 
 	private ProxyRequestHelper helper;
+
 	private Host hostProperties;
+
 	private ApacheHttpClientConnectionManagerFactory connectionManagerFactory;
+
 	private ApacheHttpClientFactory httpClientFactory;
+
 	private HttpClientConnectionManager connectionManager;
+
 	private CloseableHttpClient httpClient;
+
 	private boolean customHttpClient = false;
+
 	private boolean useServlet31 = true;
 
 	@Override
@@ -111,7 +120,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 
 	@Deprecated
 	public void onPropertyChange(EnvironmentChangeEvent event) {
-		if(!customHttpClient) {
+		if (!customHttpClient) {
 			boolean createNewClient = false;
 
 			for (String key : event.getKeys()) {
@@ -124,7 +133,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 			if (createNewClient) {
 				try {
 					SimpleHostRoutingFilter.this.httpClient.close();
-				} catch (IOException ex) {
+				}
+				catch (IOException ex) {
 					log.error("error closing client", ex);
 				}
 				SimpleHostRoutingFilter.this.httpClient = newClient();
@@ -146,7 +156,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 	}
 
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties,
-								   CloseableHttpClient httpClient) {
+			CloseableHttpClient httpClient) {
 		this.helper = helper;
 		this.hostProperties = properties.getHost();
 		this.sslHostnameValidationEnabled = properties.isSslHostnameValidationEnabled();
@@ -159,13 +169,13 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 
 	@PostConstruct
 	private void initialize() {
-		if(!customHttpClient) {
+		if (!customHttpClient) {
 			this.connectionManager = connectionManagerFactory.newConnectionManager(
 					!this.sslHostnameValidationEnabled,
 					this.hostProperties.getMaxTotalConnections(),
 					this.hostProperties.getMaxPerRouteConnections(),
-					this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
-					null);
+					this.hostProperties.getTimeToLive(),
+					this.hostProperties.getTimeUnit(), null);
 			this.httpClient = newClient();
 			this.connectionManagerTimer.schedule(new TimerTask() {
 				@Override
@@ -173,7 +183,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 					if (SimpleHostRoutingFilter.this.connectionManager == null) {
 						return;
 					}
-					SimpleHostRoutingFilter.this.connectionManager.closeExpiredConnections();
+					SimpleHostRoutingFilter.this.connectionManager
+							.closeExpiredConnections();
 				}
 			}, 30000, 5000);
 		}
@@ -256,14 +267,14 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 		return findClientException(t.getCause());
 	}
 
-
 	protected void checkServletVersion() {
 		// To support Servlet API 3.1 we need to check if getContentLengthLong exists
 		// Spring 5 minimum support is 3.0, so this stays
 		try {
 			HttpServletRequest.class.getMethod("getContentLengthLong");
 			useServlet31 = true;
-		} catch(NoSuchMethodException e) {
+		}
+		catch (NoSuchMethodException e) {
 			useServlet31 = false;
 		}
 	}
@@ -278,13 +289,14 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 
 	protected CloseableHttpClient newClient() {
 		final RequestConfig requestConfig = RequestConfig.custom()
-				.setConnectionRequestTimeout(this.hostProperties.getConnectionRequestTimeoutMillis())
+				.setConnectionRequestTimeout(
+						this.hostProperties.getConnectionRequestTimeoutMillis())
 				.setSocketTimeout(this.hostProperties.getSocketTimeoutMillis())
 				.setConnectTimeout(this.hostProperties.getConnectTimeoutMillis())
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
-		return httpClientFactory.createBuilder().
-				setDefaultRequestConfig(requestConfig).
-				setConnectionManager(this.connectionManager).disableRedirectHandling().build();
+		return httpClientFactory.createBuilder().setDefaultRequestConfig(requestConfig)
+				.setConnectionManager(this.connectionManager).disableRedirectHandling()
+				.build();
 	}
 
 	private CloseableHttpResponse forward(CloseableHttpClient httpclient, String verb,
@@ -295,7 +307,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
-		uri = StringUtils.cleanPath(MULTIPLE_SLASH_PATTERN.matcher(host.getPath() + uri).replaceAll("/"));
+		uri = StringUtils.cleanPath(
+				MULTIPLE_SLASH_PATTERN.matcher(host.getPath() + uri).replaceAll("/"));
 		long contentLength = getContentLength(request);
 
 		ContentType contentType = null;
@@ -405,7 +418,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 	protected InputStream getRequestBody(HttpServletRequest request) {
 		InputStream requestEntity = null;
 		try {
-			requestEntity = (InputStream) RequestContext.getCurrentContext().get(REQUEST_ENTITY_KEY);
+			requestEntity = (InputStream) RequestContext.getCurrentContext()
+					.get(REQUEST_ENTITY_KEY);
 			if (requestEntity == null) {
 				requestEntity = request.getInputStream();
 			}
@@ -430,7 +444,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 
 	/**
 	 * Add header names to exclude from proxied response in the current request.
-	 * @param names
+	 * @param names names of headers to exclude
 	 */
 	protected void addIgnoredHeaders(String... names) {
 		this.helper.addIgnoredHeaders(names);
@@ -446,7 +460,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 
 	// Get the header value as a long in order to more correctly proxy very large requests
 	protected long getContentLength(HttpServletRequest request) {
-		if(useServlet31){
+		if (useServlet31) {
 			return request.getContentLengthLong();
 		}
 		String contentLengthHeader = request.getHeader(HttpHeaders.CONTENT_LENGTH);
@@ -454,8 +468,10 @@ public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationLi
 			try {
 				return Long.parseLong(contentLengthHeader);
 			}
-			catch (NumberFormatException e){}
+			catch (NumberFormatException e) {
+			}
 		}
 		return request.getContentLength();
 	}
+
 }

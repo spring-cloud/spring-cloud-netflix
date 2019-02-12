@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.Assert;
+
 import com.google.common.reflect.TypeToken;
 import com.netflix.client.ClientException;
 import com.netflix.client.http.CaseInsensitiveMultiMap;
 import com.netflix.client.http.HttpHeaders;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 
 /**
  * @author Christian Lohmann
@@ -40,6 +42,7 @@ import com.netflix.client.http.HttpHeaders;
 public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpResponse {
 
 	private HttpResponse httpResponse;
+
 	private URI uri;
 
 	public RibbonApacheHttpResponse(final HttpResponse httpResponse, final URI uri) {
@@ -68,7 +71,8 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 
 	@Override
 	public boolean isSuccess() {
-		return HttpStatus.valueOf(this.httpResponse.getStatusLine().getStatusCode()).is2xxSuccessful();
+		return HttpStatus.valueOf(this.httpResponse.getStatusLine().getStatusCode())
+				.is2xxSuccessful();
 	}
 
 	@Override
@@ -143,7 +147,7 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 	}
 
 	/**
-	 * Not used
+	 * Not used.
 	 */
 	@Override
 	public <T> T getEntity(final Class<T> type) throws Exception {
@@ -151,7 +155,7 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 	}
 
 	/**
-	 * Not used
+	 * Not used.
 	 */
 	@Override
 	public <T> T getEntity(final Type type) throws Exception {
@@ -159,10 +163,11 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 	}
 
 	/**
-	 * Not used
+	 * Not used.
 	 */
 	@Override
 	public <T> T getEntity(final TypeToken<T> type) throws Exception {
 		return null;
 	}
+
 }

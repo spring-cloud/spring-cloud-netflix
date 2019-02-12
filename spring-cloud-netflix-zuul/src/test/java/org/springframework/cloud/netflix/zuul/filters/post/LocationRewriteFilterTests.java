@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,23 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.post;
+
+import java.util.Collections;
 
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,14 +41,20 @@ import static org.mockito.Mockito.when;
 public class LocationRewriteFilterTests {
 
 	private final String ZUUL_HOST = "myzuul.com";
+
 	private final String ZUUL_SCHEME = "https";
+
 	private final int ZUUL_PORT = 8443;
+
 	private final String ZUUL_BASE_URL = String.format("%s://%s:%d", ZUUL_SCHEME,
 			ZUUL_HOST, ZUUL_PORT);
 
 	private final String SERVER_HOST = "someserver.com";
+
 	private final String SERVER_SCHEME = "http";
+
 	private final int SERVER_PORT = 8564;
+
 	private final String SERVER_BASE_URL = String.format("%s://%s:%d", SERVER_SCHEME,
 			SERVER_HOST, SERVER_PORT);
 
@@ -57,7 +63,6 @@ public class LocationRewriteFilterTests {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
-
 
 	@After
 	public void reset() {
@@ -182,4 +187,5 @@ public class LocationRewriteFilterTests {
 		}
 		return null;
 	}
+
 }

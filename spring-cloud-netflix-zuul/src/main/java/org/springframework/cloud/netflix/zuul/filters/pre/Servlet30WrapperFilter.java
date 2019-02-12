@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,21 @@ import java.lang.reflect.Field;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.cloud.netflix.zuul.util.RequestUtils;
-import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
-
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
+
+import org.springframework.cloud.netflix.zuul.util.RequestUtils;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVLET_30_WRAPPER_FILTER_ORDER;
 
 /**
- * Pre {@link ZuulFilter} that wraps requests in a Servlet 3.0 compliant wrapper.
- * Zuul's default wrapper is only Servlet 2.5 compliant.
+ * Pre {@link ZuulFilter} that wraps requests in a Servlet 3.0 compliant wrapper. Zuul's
+ * default wrapper is only Servlet 2.5 compliant.
+ *
  * @author Spencer Gibb
  */
 public class Servlet30WrapperFilter extends ZuulFilter {

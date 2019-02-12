@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.AbstractClientHttpRequest;
-import org.springframework.http.client.ClientHttpResponse;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.niws.client.http.RestClient;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.AbstractClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
 
 /**
  * @author Spencer Gibb
@@ -37,14 +39,19 @@ import com.netflix.niws.client.http.RestClient;
 public class RibbonHttpRequest extends AbstractClientHttpRequest {
 
 	private HttpRequest.Builder builder;
+
 	private URI uri;
+
 	private HttpRequest.Verb verb;
+
 	private RestClient client;
+
 	private IClientConfig config;
+
 	private ByteArrayOutputStream outputStream = null;
 
 	public RibbonHttpRequest(URI uri, HttpRequest.Verb verb, RestClient client,
-							 IClientConfig config) {
+			IClientConfig config) {
 		this.uri = uri;
 		this.verb = verb;
 		this.client = client;
@@ -76,8 +83,7 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 	}
 
 	@Override
-	protected ClientHttpResponse executeInternal(HttpHeaders headers)
-			throws IOException {
+	protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
 		try {
 			addHeaders(headers);
 			if (outputStream != null) {
@@ -87,19 +93,21 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 			HttpRequest request = builder.build();
 			HttpResponse response = client.executeWithLoadBalancer(request, config);
 			return new RibbonHttpResponse(response);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
 
 	private void addHeaders(HttpHeaders headers) {
 		for (String name : headers.keySet()) {
-		// apache http RequestContent pukes if there is a body and
-		// the dynamic headers are already present
+			// apache http RequestContent pukes if there is a body and
+			// the dynamic headers are already present
 			if (isDynamic(name) && outputStream != null) {
 				continue;
 			}
-			//Don't add content-length if the output stream is null. The RibbonClient does this for us. 
+			// Don't add content-length if the output stream is null. The RibbonClient
+			// does this for us.
 			if (name.equals("Content-Length") && outputStream == null) {
 				continue;
 			}
@@ -111,6 +119,8 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 	}
 
 	private boolean isDynamic(String name) {
-		return "Content-Length".equalsIgnoreCase(name) || "Transfer-Encoding".equalsIgnoreCase(name);
+		return "Content-Length".equalsIgnoreCase(name)
+				|| "Transfer-Encoding".equalsIgnoreCase(name);
 	}
+
 }

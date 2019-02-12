@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,15 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.lang.reflect.Constructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.cloud.context.named.NamedContextFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import com.netflix.client.IClient;
 import com.netflix.client.IClientConfigAware;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.cloud.context.named.NamedContextFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * A factory that creates client, load balancer and client configuration instances. It
@@ -43,6 +45,10 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the rest client associated with the name.
+	 * @param name name to search by
+	 * @param clientClass the class of the client bean
+	 * @param <C> {@link IClient} subtype
+	 * @return {@link IClient} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public <C extends IClient<?, ?>> C getClient(String name, Class<C> clientClass) {
@@ -51,6 +57,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the load balancer associated with the name.
+	 * @param name name to search by
+	 * @return {@link ILoadBalancer} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public ILoadBalancer getLoadBalancer(String name) {
@@ -59,6 +67,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the client config associated with the name.
+	 * @param name name to search by
+	 * @return {@link IClientConfig} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public IClientConfig getClientConfig(String name) {
@@ -67,6 +77,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the load balancer context associated with the name.
+	 * @param serviceId id of the service to search by
+	 * @return {@link RibbonLoadBalancerContext} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public RibbonLoadBalancerContext getLoadBalancerContext(String serviceId) {
@@ -78,28 +90,29 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	}
 
 	static <C> C instantiateWithConfig(AnnotationConfigApplicationContext context,
-										Class<C> clazz, IClientConfig config) {
+			Class<C> clazz, IClientConfig config) {
 		C result = null;
-		
+
 		try {
 			Constructor<C> constructor = clazz.getConstructor(IClientConfig.class);
 			result = constructor.newInstance(config);
-		} catch (Throwable e) {
+		}
+		catch (Throwable e) {
 			// Ignored
 		}
-		
+
 		if (result == null) {
 			result = BeanUtils.instantiate(clazz);
-			
+
 			if (result instanceof IClientConfigAware) {
 				((IClientConfigAware) result).initWithNiwsConfig(config);
 			}
-			
+
 			if (context != null) {
 				context.getAutowireCapableBeanFactory().autowireBean(result);
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -119,4 +132,3 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	}
 
 }
-

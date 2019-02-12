@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.netflix.hystrix.HystrixCircuitBreaker;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandMetrics;
+import com.netflix.hystrix.HystrixCommandProperties;
+import com.netflix.hystrix.HystrixThreadPoolKey;
+import com.netflix.hystrix.HystrixThreadPoolMetrics;
+import com.netflix.hystrix.util.HystrixRollingNumberEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.context.ApplicationContext;
@@ -34,19 +44,8 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.netflix.hystrix.HystrixCircuitBreaker;
-import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixCommandMetrics;
-import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.hystrix.HystrixThreadPoolKey;
-import com.netflix.hystrix.HystrixThreadPoolMetrics;
-import com.netflix.hystrix.util.HystrixRollingNumberEvent;
-
 /**
  * @author Spencer Gibb
- *
  * @see com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller (nested
  * private class MetricsPoller)
  */
@@ -67,8 +66,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 
 	private final JsonFactory jsonFactory = new JsonFactory();
 
-	public HystrixStreamTask(MessageChannel outboundChannel,
-							 ServiceInstance registration, HystrixStreamProperties properties) {
+	public HystrixStreamTask(MessageChannel outboundChannel, ServiceInstance registration,
+			HystrixStreamProperties properties) {
 		Assert.notNull(outboundChannel, "outboundChannel may not be null");
 		Assert.notNull(registration, "registration may not be null");
 		Assert.notNull(properties, "properties may not be null");
@@ -89,7 +88,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 	}
 
 	// TODO: use integration to split this up?
-	@Scheduled(fixedRateString = "${hystrix.stream.queue.sendRate:500}")
+	@Scheduled(fixedRateString = "${hystrix.stream.queue.sendRate:${hystrix.stream.queue.send-rate:500}}")
 	public void sendMetrics() {
 		ArrayList<String> metrics = new ArrayList<>();
 		this.jsonMetrics.drainTo(metrics);
@@ -117,7 +116,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 		}
 	}
 
-	@Scheduled(fixedRateString = "${hystrix.stream.queue.gatherRate:500}")
+	@Scheduled(fixedRateString = "${hystrix.stream.queue.gatherRate:${hystrix.stream.queue.gather-rate:500}}")
 	public void gatherMetrics() {
 		try {
 			// command metrics

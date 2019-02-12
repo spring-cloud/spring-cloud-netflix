@@ -1,8 +1,25 @@
+/*
+ * Copyright 2018-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.ribbon.support;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
@@ -15,9 +32,13 @@ import org.springframework.retry.RetryContext;
  * @author Ryan Baxter
  */
 public class RibbonRetryPolicy extends InterceptorRetryPolicy {
+
 	private HttpRequest request;
+
 	private String serviceId;
-	public RibbonRetryPolicy(HttpRequest request, LoadBalancedRetryPolicy policy, ServiceInstanceChooser serviceInstanceChooser, String serviceName) {
+
+	public RibbonRetryPolicy(HttpRequest request, LoadBalancedRetryPolicy policy,
+			ServiceInstanceChooser serviceInstanceChooser, String serviceName) {
 		super(request, policy, serviceInstanceChooser, serviceName);
 		this.request = request;
 		this.serviceId = serviceName;
@@ -26,13 +47,14 @@ public class RibbonRetryPolicy extends InterceptorRetryPolicy {
 	@Override
 	public boolean canRetry(RetryContext context) {
 		/*
-		 * In InterceptorRetryPolicy.canRetry we ask the LoadBalancer to choose a server if one is not
-		 * set in the retry context and then return true.  RetryTemplat calls the canRetry method of
-		 * the policy even on its first execution.  So the fact that we didnt have a service instance set
-		 * in the RetryContext signaled that it was the first execution and we should return true.
+		 * In InterceptorRetryPolicy.canRetry we ask the LoadBalancer to choose a server
+		 * if one is not set in the retry context and then return true. RetryTemplat calls
+		 * the canRetry method of the policy even on its first execution. So the fact that
+		 * we didnt have a service instance set in the RetryContext signaled that it was
+		 * the first execution and we should return true.
 		 *
 		 */
-		if(context.getRetryCount() == 0) {
+		if (context.getRetryCount() == 0) {
 			return true;
 		}
 		return super.canRetry(context);
@@ -40,15 +62,19 @@ public class RibbonRetryPolicy extends InterceptorRetryPolicy {
 
 	@Override
 	public RetryContext open(RetryContext parent) {
-		LoadBalancedRetryContext context = new LoadBalancedRetryContext(parent, this.request);
-		context.setServiceInstance(new RibbonRetryPolicyServiceInstance(serviceId, request));
+		LoadBalancedRetryContext context = new LoadBalancedRetryContext(parent,
+				this.request);
+		context.setServiceInstance(
+				new RibbonRetryPolicyServiceInstance(serviceId, request));
 		return context;
 	}
 
 	class RibbonRetryPolicyServiceInstance implements ServiceInstance {
 
 		private String serviceId;
+
 		private HttpRequest request;
+
 		private Map<String, String> metadata;
 
 		RibbonRetryPolicyServiceInstance(String serviceId, HttpRequest request) {
@@ -86,5 +112,7 @@ public class RibbonRetryPolicy extends InterceptorRetryPolicy {
 		public Map<String, String> getMetadata() {
 			return metadata;
 		}
+
 	}
+
 }

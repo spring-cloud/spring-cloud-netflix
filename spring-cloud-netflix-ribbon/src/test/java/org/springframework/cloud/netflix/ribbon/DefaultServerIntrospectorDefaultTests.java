@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,18 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import org.junit.Assert;
+import com.netflix.loadbalancer.Server;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.netflix.loadbalancer.Server;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,23 +42,26 @@ public class DefaultServerIntrospectorDefaultTests {
 	private ServerIntrospector serverIntrospector;
 
 	@Test
-	public void testDefaultSslPorts(){
+	public void testDefaultSslPorts() {
 		Server serverMock = mock(Server.class);
 		when(serverMock.getPort()).thenReturn(443);
-		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
+		assertThat(serverIntrospector.isSecure(serverMock)).isTrue();
 		when(serverMock.getPort()).thenReturn(8443);
-		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
+		assertThat(serverIntrospector.isSecure(serverMock)).isTrue();
 
 		when(serverMock.getPort()).thenReturn(16443);
-		Assert.assertFalse(serverIntrospector.isSecure(serverMock));
+		assertThat(serverIntrospector.isSecure(serverMock)).isFalse();
 	}
 
 	@Configuration
 	@EnableConfigurationProperties(ServerIntrospectorProperties.class)
 	protected static class TestConfiguration {
+
 		@Bean
-		public DefaultServerIntrospector defaultServerIntrospector(){
+		public DefaultServerIntrospector defaultServerIntrospector() {
 			return new DefaultServerIntrospector();
 		}
+
 	}
+
 }

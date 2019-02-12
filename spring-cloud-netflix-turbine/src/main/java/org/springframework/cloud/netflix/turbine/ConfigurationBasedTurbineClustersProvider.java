@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,26 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.List;
 
 /**
  * Provides clusters names for Turbine based on configuration value.
  *
  * @author Anastasiia Smirnova
  */
-public class ConfigurationBasedTurbineClustersProvider implements TurbineClustersProvider {
+public class ConfigurationBasedTurbineClustersProvider
+		implements TurbineClustersProvider {
 
-	private static final Log log = LogFactory.getLog(ConfigurationBasedTurbineClustersProvider.class);
+	private static final Log log = LogFactory
+			.getLog(ConfigurationBasedTurbineClustersProvider.class);
+
 	private final TurbineAggregatorProperties properties;
 
-	public ConfigurationBasedTurbineClustersProvider(TurbineAggregatorProperties turbineAggregatorProperties) {
+	public ConfigurationBasedTurbineClustersProvider(
+			TurbineAggregatorProperties turbineAggregatorProperties) {
 		this.properties = turbineAggregatorProperties;
 	}
 
@@ -41,4 +45,5 @@ public class ConfigurationBasedTurbineClustersProvider implements TurbineCluster
 		log.trace("Using clusters names: " + clusterNames);
 		return clusterNames;
 	}
+
 }

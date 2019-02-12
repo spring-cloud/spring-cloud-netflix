@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
@@ -45,6 +46,9 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 
 	private static final Log log = LogFactory.getLog(DiscoveryClientRouteLocator.class);
 
+	/**
+	 * Default route.
+	 */
 	public static final String DEFAULT_ROUTE = "/**";
 
 	private DiscoveryClient discovery;
@@ -55,8 +59,8 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 
 	@Deprecated
 	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
-									   ZuulProperties properties) {
-		this(servletPath, discovery, properties, (ServiceInstance)null);
+			ZuulProperties properties) {
+		this(servletPath, discovery, properties, (ServiceInstance) null);
 	}
 
 	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
@@ -77,12 +81,13 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 	@Deprecated
 	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties, ServiceRouteMapper serviceRouteMapper) {
-		this(servletPath, discovery, properties, (ServiceInstance)null);
+		this(servletPath, discovery, properties, (ServiceInstance) null);
 		this.serviceRouteMapper = serviceRouteMapper;
 	}
 
 	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
-			ZuulProperties properties, ServiceRouteMapper serviceRouteMapper, ServiceInstance localServiceInstance) {
+			ZuulProperties properties, ServiceRouteMapper serviceRouteMapper,
+			ServiceInstance localServiceInstance) {
 		this(servletPath, discovery, properties, localServiceInstance);
 		this.serviceRouteMapper = serviceRouteMapper;
 	}

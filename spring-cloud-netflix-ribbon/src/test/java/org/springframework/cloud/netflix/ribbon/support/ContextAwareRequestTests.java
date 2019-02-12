@@ -1,37 +1,35 @@
 /*
+ * Copyright 2013-2019 the original author or authors.
  *
- *  * Copyright 2013-2016 the original author or authors.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.springframework.cloud.netflix.ribbon.support;
 
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -41,6 +39,7 @@ import static org.mockito.Mockito.mock;
 public class ContextAwareRequestTests {
 
 	private RibbonCommandContext context;
+
 	private ContextAwareRequest request;
 
 	@Before
@@ -67,24 +66,24 @@ public class ContextAwareRequestTests {
 
 	@Test
 	public void getContext() throws Exception {
-		assertEquals(context, request.getContext());
+		assertThat(request.getContext()).isEqualTo(context);
 	}
 
 	@Test
 	public void getMethod() throws Exception {
-		assertEquals(HttpMethod.GET, request.getMethod());
+		assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
 	}
 
 	@Test
 	public void getURI() throws Exception {
-		assertEquals(new URI("http://foo"), request.getURI());
+		assertThat(request.getURI()).isEqualTo(new URI("http://foo"));
 
 		RibbonCommandContext badUriContext = mock(RibbonCommandContext.class);
 		doReturn(new LinkedMultiValueMap()).when(badUriContext).getHeaders();
 		doReturn("foobar").when(badUriContext).getUri();
 		ContextAwareRequest badUriRequest = new TestContextAwareRequest(badUriContext);
 
-		assertNull(badUriRequest.getURI());
+		assertThat(badUriRequest.getURI()).isNull();
 
 	}
 
@@ -94,26 +93,27 @@ public class ContextAwareRequestTests {
 		headers.put("header1", Collections.<String>emptyList());
 		headers.put("header2", Arrays.asList("value1", "value2"));
 		headers.put("header3", Arrays.asList("value1"));
-		assertEquals(headers, request.getHeaders());
+		assertThat(request.getHeaders()).isEqualTo(headers);
 	}
 
 	@Test
 	public void getLoadBalancerKey() throws Exception {
-		assertEquals("testLoadBalancerKey", request.getLoadBalancerKey());
+		assertThat(request.getLoadBalancerKey()).isEqualTo("testLoadBalancerKey");
 
 		RibbonCommandContext defaultContext = mock(RibbonCommandContext.class);
 		doReturn(new LinkedMultiValueMap()).when(defaultContext).getHeaders();
 		doReturn(null).when(defaultContext).getLoadBalancerKey();
 		ContextAwareRequest defaultRequest = new TestContextAwareRequest(defaultContext);
 
-		assertNull(defaultRequest.getLoadBalancerKey());
+		assertThat(defaultRequest.getLoadBalancerKey()).isNull();
 	}
 
 	static class TestContextAwareRequest extends ContextAwareRequest {
 
-		public TestContextAwareRequest(RibbonCommandContext context) {
+		TestContextAwareRequest(RibbonCommandContext context) {
 			super(context);
 		}
+
 	}
 
 }

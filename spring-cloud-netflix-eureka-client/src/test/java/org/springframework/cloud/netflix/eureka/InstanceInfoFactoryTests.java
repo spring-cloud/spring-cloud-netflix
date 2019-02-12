@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka;
 
 import java.io.IOException;
 
+import com.netflix.appinfo.InstanceInfo;
 import org.junit.Test;
+
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -29,33 +30,31 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.appinfo.InstanceInfo;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class InstanceInfoFactoryTests {
+
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@Test
 	public void instanceIdIsHostNameByDefault() throws IOException {
 		InstanceInfo instanceInfo = setupInstance();
 		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
-			assertEquals(utils.findFirstNonLoopbackHostInfo().getHostname(),
-					instanceInfo.getId());
+			assertThat(instanceInfo.getId())
+					.isEqualTo(utils.findFirstNonLoopbackHostInfo().getHostname());
 		}
 	}
 
 	@Test
 	public void instanceIdIsIpWhenIpPreferred() throws Exception {
 		InstanceInfo instanceInfo = setupInstance("eureka.instance.preferIpAddress:true");
-		assertTrue(instanceInfo.getId().matches("(\\d+\\.){3}\\d+"));
+		assertThat(instanceInfo.getId().matches("(\\d+\\.){3}\\d+")).isTrue();
 	}
 
 	@Test
 	public void instanceInfoIdIsInstanceIdWhenSet() {
 		InstanceInfo instanceInfo = setupInstance("eureka.instance.instanceId:special");
-		assertEquals("special", instanceInfo.getId());
+		assertThat(instanceInfo.getId()).isEqualTo("special");
 	}
 
 	private InstanceInfo setupInstance(String... pairs) {
@@ -76,9 +75,12 @@ public class InstanceInfoFactoryTests {
 	@Configuration
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
+
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 			return new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
 		}
+
 	}
+
 }

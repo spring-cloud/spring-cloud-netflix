@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon;
 
+import com.netflix.loadbalancer.ConfigurationBasedServerList;
+import com.netflix.loadbalancer.DummyPing;
+import com.netflix.loadbalancer.NoOpPing;
+import com.netflix.loadbalancer.RandomRule;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerListSubsetFilter;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,14 +39,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.netflix.loadbalancer.ConfigurationBasedServerList;
-import com.netflix.loadbalancer.DummyPing;
-import com.netflix.loadbalancer.NoOpPing;
-import com.netflix.loadbalancer.RandomRule;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerListSubsetFilter;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -103,9 +103,11 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 
 	@Configuration
 	@RibbonClients
-	@Import({ UtilAutoConfiguration.class, HttpClientConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
+	@Import({ UtilAutoConfiguration.class, HttpClientConfiguration.class,
+			PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+			RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
+
 	}
 
 }

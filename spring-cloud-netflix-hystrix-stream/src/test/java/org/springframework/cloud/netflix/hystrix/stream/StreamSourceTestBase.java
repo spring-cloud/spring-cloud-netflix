@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.hystrix.stream;
@@ -22,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +60,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Marius Bogoevici
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestApplication.class, properties = {"spring.application.name=application"})
+@SpringBootTest(classes = TestApplication.class, properties = {
+		"spring.application.name=application" })
 @AutoConfigureMessageVerifier
 public abstract class StreamSourceTestBase {
 
@@ -113,6 +112,7 @@ public abstract class StreamSourceTestBase {
 				ApplicationContext applicationContext) {
 			return new PatchedStubMessages(applicationContext);
 		}
+
 	}
 
 	static class PatchedStubMessages implements MessageVerifier<Message<?>> {
@@ -121,10 +121,12 @@ public abstract class StreamSourceTestBase {
 				.getLogger(StreamStubMessages.class);
 
 		private final ApplicationContext context;
+
 		private final MessageCollector messageCollector;
+
 		private final ContractVerifierStreamMessageBuilder builder = new ContractVerifierStreamMessageBuilder();
 
-		public PatchedStubMessages(ApplicationContext context) {
+		PatchedStubMessages(ApplicationContext context) {
 			this.context = context;
 			this.messageCollector = context.getBean(MessageCollector.class);
 		}
@@ -160,7 +162,8 @@ public abstract class StreamSourceTestBase {
 				if (message == null) {
 					return message;
 				}
-				return MessageBuilder.createMessage(message.getPayload(), message.getHeaders());
+				return MessageBuilder.createMessage(message.getPayload(),
+						message.getHeaders());
 			}
 			catch (Exception e) {
 				log.error("Exception occurred while trying to read a message from "
@@ -235,4 +238,5 @@ public abstract class StreamSourceTestBase {
 		}
 
 	}
+
 }

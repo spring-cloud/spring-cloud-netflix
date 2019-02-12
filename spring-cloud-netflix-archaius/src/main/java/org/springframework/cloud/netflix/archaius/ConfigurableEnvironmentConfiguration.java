@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.AbstractConfiguration;
+
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -31,6 +32,8 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 /**
+ * EnvironmentConfiguration wrapper class providing further configuration possibilities.
+ *
  * @author Spencer Gibb
  */
 public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration {
@@ -64,7 +67,8 @@ public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration 
 	@Override
 	public Iterator<String> getKeys() {
 		List<String> result = new ArrayList<>();
-		for (Map.Entry<String, PropertySource<?>> entry : getPropertySources().entrySet()) {
+		for (Map.Entry<String, PropertySource<?>> entry : getPropertySources()
+				.entrySet()) {
 			PropertySource<?> source = entry.getValue();
 			if (source instanceof EnumerablePropertySource) {
 				EnumerablePropertySource<?> enumerable = (EnumerablePropertySource<?>) source;
@@ -78,8 +82,9 @@ public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration 
 
 	private Map<String, PropertySource<?>> getPropertySources() {
 		Map<String, PropertySource<?>> map = new LinkedHashMap<>();
-		MutablePropertySources sources = (this.environment != null ? this.environment
-				.getPropertySources() : new StandardEnvironment().getPropertySources());
+		MutablePropertySources sources = (this.environment != null
+				? this.environment.getPropertySources()
+				: new StandardEnvironment().getPropertySources());
 		for (PropertySource<?> source : sources) {
 			extract("", map, source);
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import org.springframework.context.ApplicationEvent;
-
 import java.util.Objects;
+
+import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Spencer Gibb
@@ -67,12 +67,15 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		EurekaInstanceCanceledEvent that = (EurekaInstanceCanceledEvent) o;
-		return Objects.equals(appName, that.appName) &&
-				Objects.equals(serverId, that.serverId) &&
-				replication == replication;
+		return Objects.equals(appName, that.appName)
+				&& Objects.equals(serverId, that.serverId) && replication == replication;
 	}
 
 	@Override
@@ -82,10 +85,9 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceCanceledEvent{")
-				.append("appName='").append(appName).append("', ")
-				.append("serverId='").append(serverId).append("', ")
-				.append("replication=").append(replication).append("}")
+		return new StringBuilder("EurekaInstanceCanceledEvent{").append("appName='")
+				.append(appName).append("', ").append("serverId='").append(serverId)
+				.append("', ").append("replication=").append(replication).append("}")
 				.toString();
 	}
 

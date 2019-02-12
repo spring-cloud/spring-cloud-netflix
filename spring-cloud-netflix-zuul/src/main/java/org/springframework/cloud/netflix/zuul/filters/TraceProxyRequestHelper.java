@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters;
@@ -50,8 +49,9 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 	private HttpTraceRepository traces;
 
 	@Deprecated
-	//TODO Remove in 2.1.x
-	public TraceProxyRequestHelper(){}
+	// TODO Remove in 2.1.x
+	public TraceProxyRequestHelper() {
+	}
 
 	public TraceProxyRequestHelper(ZuulProperties zuulProperties) {
 		super(zuulProperties);
@@ -96,11 +96,49 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 		return info;
 	}
 
+	void debugHeaders(MultiValueMap<String, String> headers, Map<String, Object> map) {
+		for (Entry<String, List<String>> entry : headers.entrySet()) {
+			Collection<String> collection = entry.getValue();
+			Object value = collection;
+			if (collection.size() < 2) {
+				value = collection.isEmpty() ? "" : collection.iterator().next();
+			}
+			map.put(entry.getKey(), value);
+		}
+	}
+
+	public void appendDebug(Map<String, Object> info, int status,
+			MultiValueMap<String, String> headers) {
+		if (this.traces != null) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
+			Map<String, Object> output = new LinkedHashMap<>();
+			trace.put("response", output);
+			debugHeaders(headers, output);
+			output.put("status", "" + status);
+		}
+	}
+
+	private void debugRequestEntity(Map<String, Object> info, InputStream inputStream)
+			throws IOException {
+		if (RequestContext.getCurrentContext().isChunkedRequestBody()) {
+			info.put("body", "<chunked>");
+			return;
+		}
+		char[] buffer = new char[4096];
+		int count = new InputStreamReader(inputStream, Charset.forName("UTF-8"))
+				.read(buffer, 0, buffer.length);
+		if (count > 0) {
+			String entity = new String(buffer).substring(0, count);
+			info.put("body", entity.length() < 4096 ? entity : entity + "<truncated>");
+		}
+	}
+
 	private class ServletTraceableRequest implements TraceableRequest {
+
 		private HttpServletRequest request;
 
-		public ServletTraceableRequest(HttpServletRequest request) {
-
+		ServletTraceableRequest(HttpServletRequest request) {
 			this.request = request;
 		}
 
@@ -146,44 +184,7 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 			}
 			return list;
 		}
-	}
 
-	void debugHeaders(MultiValueMap<String, String> headers, Map<String, Object> map) {
-		for (Entry<String, List<String>> entry : headers.entrySet()) {
-			Collection<String> collection = entry.getValue();
-			Object value = collection;
-			if (collection.size() < 2) {
-				value = collection.isEmpty() ? "" : collection.iterator().next();
-			}
-			map.put(entry.getKey(), value);
-		}
-	}
-
-	public void appendDebug(Map<String, Object> info, int status,
-			MultiValueMap<String, String> headers) {
-		if (this.traces != null) {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
-			Map<String, Object> output = new LinkedHashMap<>();
-			trace.put("response", output);
-			debugHeaders(headers, output);
-			output.put("status", "" + status);
-		}
-	}
-
-	private void debugRequestEntity(Map<String, Object> info, InputStream inputStream)
-			throws IOException {
-		if (RequestContext.getCurrentContext().isChunkedRequestBody()) {
-			info.put("body", "<chunked>");
-			return;
-		}
-		char[] buffer = new char[4096];
-		int count = new InputStreamReader(inputStream, Charset.forName("UTF-8"))
-				.read(buffer, 0, buffer.length);
-		if (count > 0) {
-			String entity = new String(buffer).substring(0, count);
-			info.put("body", entity.length() < 4096 ? entity : entity + "<truncated>");
-		}
 	}
 
 }

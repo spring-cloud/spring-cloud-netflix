@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import javax.servlet.http.HttpServletRequest;
 
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,8 +26,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
 
 /**
@@ -50,7 +48,7 @@ public class SendForwardFilterTests {
 	@Test
 	public void runsNormally() {
 		SendForwardFilter filter = createSendForwardFilter(new MockHttpServletRequest());
-		assertTrue("shouldFilter returned false", filter.shouldFilter());
+		assertThat(filter.shouldFilter()).as("shouldFilter returned false").isTrue();
 		filter.run();
 	}
 
@@ -67,8 +65,9 @@ public class SendForwardFilterTests {
 	@Test
 	public void doesNotRunTwice() {
 		SendForwardFilter filter = createSendForwardFilter(new MockHttpServletRequest());
-		assertTrue("shouldFilter returned false", filter.shouldFilter());
+		assertThat(filter.shouldFilter()).as("shouldFilter returned false").isTrue();
 		filter.run();
-		assertFalse("shouldFilter returned true", filter.shouldFilter());
+		assertThat(filter.shouldFilter()).as("shouldFilter returned true").isFalse();
 	}
+
 }

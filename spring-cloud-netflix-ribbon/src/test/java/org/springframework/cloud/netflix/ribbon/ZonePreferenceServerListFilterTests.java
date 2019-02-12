@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.netflix.loadbalancer.Server;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-import com.netflix.loadbalancer.Server;
 
-import static org.junit.Assert.assertEquals;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -31,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 public class ZonePreferenceServerListFilterTests {
 
 	private Server dsyer = new Server("dsyer", 8080);
+
 	private Server localhost = new Server("localhost", 8080);
 
 	@Before
@@ -42,27 +45,27 @@ public class ZonePreferenceServerListFilterTests {
 	@Test
 	public void noZoneSet() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-		List<Server> result = filter.getFilteredListOfServers(Arrays
-				.asList(this.localhost));
-		assertEquals(1, result.size());
+		List<Server> result = filter
+				.getFilteredListOfServers(Arrays.asList(this.localhost));
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 	@Test
 	public void withZoneSetAndNoMatches() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
-		List<Server> result = filter.getFilteredListOfServers(Arrays
-				.asList(this.localhost));
-		assertEquals(1, result.size());
+		List<Server> result = filter
+				.getFilteredListOfServers(Arrays.asList(this.localhost));
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 	@Test
 	public void withZoneSetAndMatches() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
-		List<Server> result = filter.getFilteredListOfServers(Arrays.asList(this.dsyer,
-				this.localhost));
-		assertEquals(1, result.size());
+		List<Server> result = filter
+				.getFilteredListOfServers(Arrays.asList(this.dsyer, this.localhost));
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 }

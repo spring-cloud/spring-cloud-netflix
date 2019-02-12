@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
@@ -32,49 +33,66 @@ import org.springframework.util.StreamUtils;
  * @author Yongsung Yoon
  */
 public class RibbonCommandContext {
+
 	private final String serviceId;
+
 	private final String method;
+
 	private final String uri;
+
 	private final Boolean retryable;
+
 	private final MultiValueMap<String, String> headers;
+
 	private final MultiValueMap<String, String> params;
+
 	private final List<RibbonRequestCustomizer> requestCustomizers;
+
 	private InputStream requestEntity;
+
 	private Long contentLength;
+
 	private Object loadBalancerKey;
 
 	/**
-	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
+	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions.
+	 * @param serviceId to be used with Ribbon request
+	 * @param method to be used with Ribbon request
+	 * @param uri {@link String} value of the uri to be used with Ribbon request
+	 * @param retryable determines whether the requests should be retried
+	 * @param headers to pass to the Ribbon request
+	 * @param params parameters to pass to the Ribbon request
+	 * @param requestEntity request content {@link InputStream}
 	 */
 	@Deprecated
-	public RibbonCommandContext(String serviceId, String method,
-								String uri, Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity) {
+	public RibbonCommandContext(String serviceId, String method, String uri,
+			Boolean retryable, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-			new ArrayList<RibbonRequestCustomizer>(), null, null);
+				new ArrayList<RibbonRequestCustomizer>(), null, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity,
-								List<RibbonRequestCustomizer> requestCustomizers) {
+			Boolean retryable, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity,
+			List<RibbonRequestCustomizer> requestCustomizers) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-			requestCustomizers, null, null);
+				requestCustomizers, null, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity,
-								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
+			Boolean retryable, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity,
+			List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-			requestCustomizers, contentLength, null);
+				requestCustomizers, contentLength, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity,
-								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength,
-								Object loadBalancerKey) {
+			Boolean retryable, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity,
+			List<RibbonRequestCustomizer> requestCustomizers, Long contentLength,
+			Object loadBalancerKey) {
 		Assert.notNull(serviceId, "serviceId may not be null");
 		Assert.notNull(method, "method may not be null");
 		Assert.notNull(uri, "uri may not be null");
@@ -96,16 +114,16 @@ public class RibbonCommandContext {
 	public URI uri() {
 		try {
 			return new URI(this.uri);
-		} catch (URISyntaxException e) {
+		}
+		catch (URISyntaxException e) {
 			ReflectionUtils.rethrowRuntimeException(e);
 		}
 		return null;
 	}
 
 	/**
-	 * Use getMethod()
-	 *
-	 * @return
+	 * Use {@link #getMethod()}.
+	 * @return request method
 	 */
 	@Deprecated
 	public String getVerb() {
@@ -140,20 +158,23 @@ public class RibbonCommandContext {
 		if (requestEntity == null) {
 			return null;
 		}
-		//If the route is not retryable there is no point in copying the RequestEntity.  This
-		//has memory implications in all cases but especially when uploading large files through
-		//Zuul
-		if(!retryable) {
+		// If the route is not retryable there is no point in copying the RequestEntity.
+		// This
+		// has memory implications in all cases but especially when uploading large files
+		// through
+		// Zuul
+		if (!retryable) {
 			return requestEntity;
 		}
 
 		try {
 			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
 				requestEntity = new ResettableServletInputStreamWrapper(
-					StreamUtils.copyToByteArray(requestEntity));
+						StreamUtils.copyToByteArray(requestEntity));
 			}
 			requestEntity.reset();
-		} finally {
+		}
+		finally {
 			return requestEntity;
 		}
 	}
@@ -180,26 +201,28 @@ public class RibbonCommandContext {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		RibbonCommandContext that = (RibbonCommandContext) o;
-		return Objects.equals(serviceId, that.serviceId) && Objects
-			.equals(method, that.method) && Objects.equals(uri, that.uri)
-			&& Objects.equals(retryable, that.retryable) && Objects
-			.equals(headers, that.headers) && Objects
-			.equals(params, that.params) && Objects
-			.equals(requestEntity, that.requestEntity) && Objects
-			.equals(requestCustomizers, that.requestCustomizers) && Objects
-			.equals(contentLength, that.contentLength) && Objects
-			.equals(loadBalancerKey, that.loadBalancerKey);
+		return Objects.equals(serviceId, that.serviceId)
+				&& Objects.equals(method, that.method) && Objects.equals(uri, that.uri)
+				&& Objects.equals(retryable, that.retryable)
+				&& Objects.equals(headers, that.headers)
+				&& Objects.equals(params, that.params)
+				&& Objects.equals(requestEntity, that.requestEntity)
+				&& Objects.equals(requestCustomizers, that.requestCustomizers)
+				&& Objects.equals(contentLength, that.contentLength)
+				&& Objects.equals(loadBalancerKey, that.loadBalancerKey);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(serviceId, method, uri, retryable, headers, params,
-			requestEntity, requestCustomizers, contentLength, loadBalancerKey);
+				requestEntity, requestCustomizers, contentLength, loadBalancerKey);
 	}
 
 	@Override
@@ -218,4 +241,5 @@ public class RibbonCommandContext {
 		sb.append('}');
 		return sb.toString();
 	}
+
 }

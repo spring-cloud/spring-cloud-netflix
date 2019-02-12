@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,14 @@ public interface FallbackProvider {
 	 * The route this fallback will be used for.
 	 * @return The route the fallback will be used for.
 	 */
-	public String getRoute();
+	String getRoute();
 
 	/**
 	 * Provides a fallback response based on the cause of the failed execution.
-	 *
 	 * @param route The route the fallback is for
 	 * @param cause cause of the main method failure, may be <code>null</code>
 	 * @return the fallback response
 	 */
 	ClientHttpResponse fallbackResponse(String route, Throwable cause);
+
 }

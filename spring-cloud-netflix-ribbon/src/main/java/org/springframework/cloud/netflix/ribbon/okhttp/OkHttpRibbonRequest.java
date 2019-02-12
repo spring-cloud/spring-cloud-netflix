@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.List;
+
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -26,10 +31,6 @@ import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.List;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 
@@ -63,18 +64,18 @@ public class OkHttpRibbonRequest extends ContextAwareRequest implements Cloneabl
 
 		RequestBody requestBody = null;
 
-		if (this.context.getRequestEntity() != null && HttpMethod.permitsRequestBody(this.context.getMethod())) {
+		if (this.context.getRequestEntity() != null
+				&& HttpMethod.permitsRequestBody(this.context.getMethod())) {
 			MediaType mediaType = null;
 			if (headers.get("Content-Type") != null) {
 				mediaType = MediaType.parse(headers.get("Content-Type"));
 			}
-			requestBody = new InputStreamRequestBody(this.context.getRequestEntity(), mediaType, this.context.getContentLength());
+			requestBody = new InputStreamRequestBody(this.context.getRequestEntity(),
+					mediaType, this.context.getContentLength());
 		}
 
-		Request.Builder builder = new Request.Builder()
-				.url(url.build())
-				.headers(headers.build())
-				.method(this.context.getMethod(), requestBody);
+		Request.Builder builder = new Request.Builder().url(url.build())
+				.headers(headers.build()).method(this.context.getMethod(), requestBody);
 
 		customize(this.context.getRequestCustomizers(), builder);
 
@@ -88,10 +89,13 @@ public class OkHttpRibbonRequest extends ContextAwareRequest implements Cloneabl
 	static class InputStreamRequestBody extends RequestBody {
 
 		private InputStream inputStream;
+
 		private MediaType mediaType;
+
 		private Long contentLength;
 
-		InputStreamRequestBody(InputStream inputStream, MediaType mediaType, Long contentLength) {
+		InputStreamRequestBody(InputStream inputStream, MediaType mediaType,
+				Long contentLength) {
 			this.inputStream = inputStream;
 			this.mediaType = mediaType;
 			this.contentLength = contentLength;
@@ -109,7 +113,8 @@ public class OkHttpRibbonRequest extends ContextAwareRequest implements Cloneabl
 			}
 			try {
 				return inputStream.available();
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				return 0;
 			}
 		}
@@ -120,11 +125,14 @@ public class OkHttpRibbonRequest extends ContextAwareRequest implements Cloneabl
 			try {
 				source = Okio.source(inputStream);
 				sink.writeAll(source);
-			} finally {
+			}
+			finally {
 				if (source != null) {
 					source.close();
 				}
 			}
 		}
+
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -39,8 +40,8 @@ public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter
 	public void initWithNiwsConfig(IClientConfig niwsClientConfig) {
 		super.initWithNiwsConfig(niwsClientConfig);
 		if (ConfigurationManager.getDeploymentContext() != null) {
-			this.zone = ConfigurationManager.getDeploymentContext().getValue(
-					ContextKey.zone);
+			this.zone = ConfigurationManager.getDeploymentContext()
+					.getValue(ContextKey.zone);
 		}
 	}
 
@@ -71,8 +72,12 @@ public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		ZonePreferenceServerListFilter that = (ZonePreferenceServerListFilter) o;
 		return Objects.equals(zone, that.zone);
 	}
@@ -84,9 +89,8 @@ public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter
 
 	@Override
 	public String toString() {
-		return new StringBuilder("ZonePreferenceServerListFilter{")
-				.append("zone='").append(zone).append("'")
-				.append("}").toString();
+		return new StringBuilder("ZonePreferenceServerListFilter{").append("zone='")
+				.append(zone).append("'").append("}").toString();
 	}
 
 }

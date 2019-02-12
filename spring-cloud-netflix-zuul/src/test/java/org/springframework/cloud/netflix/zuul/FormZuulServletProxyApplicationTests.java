@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -20,6 +19,10 @@ package org.springframework.cloud.netflix.zuul;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.After;
@@ -57,18 +60,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = RANDOM_PORT,
-		properties = {"zuul.routes[simplefzspat].path:/simplefzspat/**", "zuul.routes[simplefzspat].serviceId:simplefzspat"})
+@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = RANDOM_PORT, properties = {
+		"zuul.routes[simplefzspat].path:/simplefzspat/**",
+		"zuul.routes[simplefzspat].serviceId:simplefzspat" })
 @DirtiesContext
 public class FormZuulServletProxyApplicationTests {
 
@@ -92,10 +91,11 @@ public class FormZuulServletProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/form",
-				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {foo=[bar]}", result.getBody());
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simplefzspat/form", HttpMethod.POST,
+				new HttpEntity<>(form, headers), String.class);
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {foo=[bar]}");
 	}
 
 	@Test
@@ -104,10 +104,11 @@ public class FormZuulServletProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/form",
-				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {foo=[bar]}", result.getBody());
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simplefzspat/form", HttpMethod.POST,
+				new HttpEntity<>(form, headers), String.class);
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {foo=[bar]}");
 	}
 
 	@Test
@@ -121,10 +122,11 @@ public class FormZuulServletProxyApplicationTests {
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		headers.set("Transfer-Encoding", "chunked");
 		headers.setContentLength(-1);
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/file",
-				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! bar", result.getBody());
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simplefzspat/file", HttpMethod.POST,
+				new HttpEntity<>(form, headers), String.class);
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! bar");
 	}
 
 	@Test
@@ -134,11 +136,13 @@ public class FormZuulServletProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/form",
-				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted! {foo=[bar]}", result.getBody());
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simplefzspat/form", HttpMethod.POST,
+				new HttpEntity<>(form, headers), String.class);
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted! {foo=[bar]}");
 	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -150,7 +154,8 @@ public class FormZuulServletProxyApplicationTests {
 @Import(NoSecurityConfiguration.class)
 class FormZuulServletProxyApplication {
 
-	private static final Log log = LogFactory.getLog(FormZuulServletProxyApplication.class);
+	private static final Log log = LogFactory
+			.getLog(FormZuulServletProxyApplication.class);
 
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String accept(@RequestParam MultiValueMap<String, String> form)

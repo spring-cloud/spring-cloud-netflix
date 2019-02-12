@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.Locale;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolVersion;
@@ -31,8 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -49,7 +50,7 @@ public class HttpClientStatusCodeExceptionTest {
 		CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		doReturn(new Locale("en")).when(response).getLocale();
 		Header foo = new BasicHeader("foo", "bar");
-		Header[] headers = new Header[]{foo};
+		Header[] headers = new Header[] { foo };
 		doReturn(headers).when(response).getAllHeaders();
 		StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("http", 1, 1),
 				200, "Success");
@@ -59,16 +60,21 @@ public class HttpClientStatusCodeExceptionTest {
 		entity.setContentLength(3);
 		doReturn(entity).when(response).getEntity();
 		HttpEntity copiedEntity = HttpClientUtils.createEntity(response);
-		HttpClientStatusCodeException ex = new HttpClientStatusCodeException("service", response, copiedEntity,
-				new URI("http://service.com"));
-		assertEquals("en", ex.getResponse().getLocale().toString());
-		assertArrayEquals(headers, ex.getResponse().getAllHeaders());
-		assertEquals("Success", ex.getResponse().getStatusLine().getReasonPhrase());
-		assertEquals(200, ex.getResponse().getStatusLine().getStatusCode());
-		assertEquals("http", ex.getResponse().getStatusLine().getProtocolVersion().getProtocol());
-		assertEquals(1, ex.getResponse().getStatusLine().getProtocolVersion().getMajor());
-		assertEquals(1, ex.getResponse().getStatusLine().getProtocolVersion().getMinor());
-		assertEquals("foo", EntityUtils.toString(ex.getResponse().getEntity()));
+		HttpClientStatusCodeException ex = new HttpClientStatusCodeException("service",
+				response, copiedEntity, new URI("http://service.com"));
+		assertThat(ex.getResponse().getLocale().toString()).isEqualTo("en");
+		assertThat(ex.getResponse().getAllHeaders()).isEqualTo(headers);
+		assertThat(ex.getResponse().getStatusLine().getReasonPhrase())
+				.isEqualTo("Success");
+		assertThat(ex.getResponse().getStatusLine().getStatusCode()).isEqualTo(200);
+		assertThat(ex.getResponse().getStatusLine().getProtocolVersion().getProtocol())
+				.isEqualTo("http");
+		assertThat(ex.getResponse().getStatusLine().getProtocolVersion().getMajor())
+				.isEqualTo(1);
+		assertThat(ex.getResponse().getStatusLine().getProtocolVersion().getMinor())
+				.isEqualTo(1);
+		assertThat(EntityUtils.toString(ex.getResponse().getEntity())).isEqualTo("foo");
 		verify(response, times(1)).close();
 	}
+
 }

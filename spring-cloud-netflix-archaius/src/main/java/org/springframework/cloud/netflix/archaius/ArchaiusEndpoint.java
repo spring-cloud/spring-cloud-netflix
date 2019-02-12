@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,19 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.netflix.config.ConcurrentCompositeConfiguration;
+import com.netflix.config.ConfigurationManager;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
+
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 
-import com.netflix.config.ConcurrentCompositeConfiguration;
-import com.netflix.config.ConfigurationManager;
-
 /**
+ * An actuator endpoint that returns Archaius configuration.
+ *
  * @author Dave Syer
  */
 @Endpoint(id = "archaius")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,11 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import com.netflix.discovery.EurekaClient;
+import com.netflix.turbine.discovery.InstanceDiscovery;
 import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
+import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -27,10 +31,6 @@ import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.netflix.discovery.EurekaClient;
-import com.netflix.turbine.discovery.InstanceDiscovery;
-import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 
 /**
  * @author Spencer Gibb
@@ -77,19 +77,21 @@ public class TurbineHttpConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public TurbineLifecycle turbineLifecycle(InstanceDiscovery instanceDiscovery,
-											 ClusterMonitorFactory<?> factory) {
+			ClusterMonitorFactory<?> factory) {
 		return new TurbineLifecycle(instanceDiscovery, factory);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public ClusterMonitorFactory clusterMonitorFactory(TurbineClustersProvider clustersProvider) {
+	public ClusterMonitorFactory clusterMonitorFactory(
+			TurbineClustersProvider clustersProvider) {
 		return new SpringAggregatorFactory(clustersProvider);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public TurbineClustersProvider clustersProvider(TurbineAggregatorProperties turbineAggregatorProperties) {
+	public TurbineClustersProvider clustersProvider(
+			TurbineAggregatorProperties turbineAggregatorProperties) {
 		return new ConfigurationBasedTurbineClustersProvider(turbineAggregatorProperties);
 	}
 
@@ -99,7 +101,8 @@ public class TurbineHttpConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		public InstanceDiscovery instanceDiscovery(TurbineProperties turbineProperties, EurekaClient eurekaClient) {
+		public InstanceDiscovery instanceDiscovery(TurbineProperties turbineProperties,
+				EurekaClient eurekaClient) {
 			return new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
 		}
 
@@ -111,8 +114,11 @@ public class TurbineHttpConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		public InstanceDiscovery instanceDiscovery(TurbineProperties turbineProperties, DiscoveryClient discoveryClient) {
+		public InstanceDiscovery instanceDiscovery(TurbineProperties turbineProperties,
+				DiscoveryClient discoveryClient) {
 			return new CommonsInstanceDiscovery(turbineProperties, discoveryClient);
 		}
+
 	}
+
 }

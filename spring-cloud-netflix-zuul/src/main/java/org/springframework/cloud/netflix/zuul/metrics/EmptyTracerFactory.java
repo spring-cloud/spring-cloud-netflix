@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class EmptyTracerFactory extends TracerFactory {
 	}
 
 	private static final class EmptyTracer implements Tracer {
+
 		@Override
 		public void setName(String name) {
 		}
@@ -41,5 +42,7 @@ public class EmptyTracerFactory extends TracerFactory {
 		@Override
 		public void stopAndLog() {
 		}
+
 	}
+
 }

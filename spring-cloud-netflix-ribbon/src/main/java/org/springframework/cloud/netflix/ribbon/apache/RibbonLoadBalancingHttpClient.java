@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,20 @@ package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.net.URI;
 
+import com.netflix.client.RequestSpecificRetryHandler;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.Server;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+
 import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.netflix.client.RequestSpecificRetryHandler;
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.Server;
 
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
 
@@ -40,7 +40,8 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
  * @author Ryan Baxter
  * @author Tim Ysewyn
  */
-// TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
+// TODO: rename (ie new class that extends this in Dalston) to
+// ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient extends
 		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, CloseableHttpClient> {
 
@@ -67,7 +68,7 @@ public class RibbonLoadBalancingHttpClient extends
 
 	@Override
 	public RibbonApacheHttpResponse execute(RibbonApacheHttpRequest request,
-											final IClientConfig configOverride) throws Exception {
+			final IClientConfig configOverride) throws Exception {
 		IClientConfig config = configOverride != null ? configOverride : this.config;
 		RibbonProperties ribbon = RibbonProperties.from(config);
 		RequestConfig requestConfig = RequestConfig.custom()
@@ -85,8 +86,8 @@ public class RibbonLoadBalancingHttpClient extends
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		URI uri = updateToSecureConnectionIfNeeded(original, this.config, this.serverIntrospector,
-				server);
+		URI uri = updateToSecureConnectionIfNeeded(original, this.config,
+				this.serverIntrospector, server);
 		return super.reconstructURIWithServer(server, uri);
 	}
 
@@ -97,7 +98,8 @@ public class RibbonLoadBalancingHttpClient extends
 				requestConfig);
 	}
 
-	protected RibbonApacheHttpRequest getSecureRequest(RibbonApacheHttpRequest request, IClientConfig configOverride) {
+	protected RibbonApacheHttpRequest getSecureRequest(RibbonApacheHttpRequest request,
+			IClientConfig configOverride) {
 		if (isSecure(configOverride)) {
 			final URI secureUri = UriComponentsBuilder.fromUri(request.getUri())
 					.scheme("https").build(true).toUri();
@@ -105,4 +107,5 @@ public class RibbonLoadBalancingHttpClient extends
 		}
 		return request;
 	}
+
 }

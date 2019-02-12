@@ -74,12 +74,16 @@ public class TurbineProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		TurbineProperties that = (TurbineProperties) o;
-		return Objects.equals(clusterNameExpression, that.clusterNameExpression) &&
-				Objects.equals(appConfig, that.appConfig) &&
-				Objects.equals(combineHostPort, that.combineHostPort);
+		return Objects.equals(clusterNameExpression, that.clusterNameExpression)
+				&& Objects.equals(appConfig, that.appConfig)
+				&& Objects.equals(combineHostPort, that.combineHostPort);
 	}
 
 	@Override
@@ -89,11 +93,10 @@ public class TurbineProperties {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("TurbineProperties{")
-				.append("clusterNameExpression='").append(clusterNameExpression).append("', ")
-				.append("appConfig='").append(appConfig).append("', ")
-				.append("combineHostPort=").append(combineHostPort).append("}")
-				.toString();
+		return new StringBuilder("TurbineProperties{").append("clusterNameExpression='")
+				.append(clusterNameExpression).append("', ").append("appConfig='")
+				.append(appConfig).append("', ").append("combineHostPort=")
+				.append(combineHostPort).append("}").toString();
 	}
 
 }

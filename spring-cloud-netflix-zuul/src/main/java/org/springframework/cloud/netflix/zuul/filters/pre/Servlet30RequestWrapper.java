@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import com.netflix.zuul.http.HttpServletRequestWrapper;
-
 import javax.servlet.http.HttpServletRequest;
+
+import com.netflix.zuul.http.HttpServletRequestWrapper;
 
 /**
  * A Servlet 3.0 compliant wrapper.
  */
 class Servlet30RequestWrapper extends HttpServletRequestWrapper {
+
 	private HttpServletRequest request;
 
 	Servlet30RequestWrapper(HttpServletRequest request) {
@@ -32,11 +33,13 @@ class Servlet30RequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	/**
-	 * There is a bug in zuul 1.2.2 where HttpServletRequestWrapper.getRequest returns a wrapped request rather than the raw one.
+	 * There is a bug in zuul 1.2.2 where HttpServletRequestWrapper.getRequest returns a
+	 * wrapped request rather than the raw one.
 	 * @return the original HttpServletRequest
 	 */
 	@Override
 	public HttpServletRequest getRequest() {
 		return this.request;
 	}
+
 }

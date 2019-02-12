@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.net.URI;
 import java.util.List;
+
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.BasicHttpEntity;
-import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
+
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 
 import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer.Runner.customize;
 
@@ -60,9 +62,11 @@ public class RibbonApacheHttpRequest extends ContextAwareRequest implements Clon
 			// if the entity contentLength isn't set, transfer-encoding will be set
 			// to chunked in org.apache.http.protocol.RequestContent. See gh-1042
 			Long contentLength = this.context.getContentLength();
-			if ("GET".equals(this.context.getMethod()) && (contentLength == null || contentLength < 0)) {
+			if ("GET".equals(this.context.getMethod())
+					&& (contentLength == null || contentLength < 0)) {
 				entity.setContentLength(0);
-			} else if (contentLength != null) {
+			}
+			else if (contentLength != null) {
 				entity.setContentLength(contentLength);
 			}
 			builder.setEntity(entity);

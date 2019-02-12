@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
@@ -42,6 +30,18 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse.EurekaHttpResponseBuilder;
 import com.netflix.discovery.util.StringUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
 
 /**
  * @author Daniel Lavoie
@@ -51,13 +51,14 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private RestTemplate restTemplate;
+
 	private String serviceUrl;
 
 	public RestTemplateEurekaHttpClient(RestTemplate restTemplate, String serviceUrl) {
 		this.restTemplate = restTemplate;
 		this.serviceUrl = serviceUrl;
 		if (!serviceUrl.endsWith("/")) {
-			this.serviceUrl = this.serviceUrl+"/";
+			this.serviceUrl = this.serviceUrl + "/";
 		}
 	}
 
@@ -102,8 +103,9 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 				response.getStatusCodeValue(), InstanceInfo.class)
 						.headers(headersOf(response));
 
-		if (response.hasBody())
+		if (response.hasBody()) {
 			eurekaResponseBuilder.entity(response.getBody());
+		}
 
 		return eurekaResponseBuilder.build();
 	}
@@ -228,4 +230,5 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		}
 		return headers;
 	}
+
 }

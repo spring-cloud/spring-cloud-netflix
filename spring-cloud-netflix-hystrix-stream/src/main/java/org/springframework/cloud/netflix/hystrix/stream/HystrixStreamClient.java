@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,22 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 
 /**
- * @author Dave Syer
+ * Store Hystrix Stream Client output information.
  *
+ * @author Dave Syer
  */
 public interface HystrixStreamClient {
 
+	/**
+	 * Hystrix Stream Output channel name.
+	 */
 	String OUTPUT = "hystrixStreamOutput";
 
+	/**
+	 * Provides Hystrix Stream Output setup.
+	 * @return corresponding {@link MessageChannel} instance
+	 */
 	@Output(OUTPUT)
 	MessageChannel hystrixStreamOutput();
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,15 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.ReflectionUtils;
-
 import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Initializes various Zuul components including {@link ZuulFilter}.
@@ -43,16 +43,18 @@ public class ZuulFilterInitializer {
 	private static final Log log = LogFactory.getLog(ZuulFilterInitializer.class);
 
 	private final Map<String, ZuulFilter> filters;
+
 	private final CounterFactory counterFactory;
+
 	private final TracerFactory tracerFactory;
+
 	private final FilterLoader filterLoader;
+
 	private final FilterRegistry filterRegistry;
 
 	public ZuulFilterInitializer(Map<String, ZuulFilter> filters,
-								 CounterFactory counterFactory,
-								 TracerFactory tracerFactory,
-								 FilterLoader filterLoader,
-								 FilterRegistry filterRegistry) {
+			CounterFactory counterFactory, TracerFactory tracerFactory,
+			FilterLoader filterLoader, FilterRegistry filterRegistry) {
 		this.filters = filters;
 		this.counterFactory = counterFactory;
 		this.tracerFactory = tracerFactory;

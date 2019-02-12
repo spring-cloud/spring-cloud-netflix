@@ -1,13 +1,20 @@
-package org.springframework.cloud.netflix.zuul.filters;
+/*
+ * Copyright 2017-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,41 +23,46 @@ import java.util.List;
 
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 /**
  * @author Johannes Edmeier
  */
 public class CompositeRouteLocatorTests {
+
 	private CompositeRouteLocator locator;
 
 	public CompositeRouteLocatorTests() {
 		List<RouteLocator> locators = new ArrayList<>();
-		locators.add(new TestRouteLocator(asList("ign1"),
-				asList(createRoute("1", "/pathA"))));
 		locators.add(
-				new TestRouteLocator(asList("ign1", "ign2"),
-						asList(createRoute("2", "/pathA"), createRoute("2", "/pathB"))));
+				new TestRouteLocator(asList("ign1"), asList(createRoute("1", "/pathA"))));
+		locators.add(new TestRouteLocator(asList("ign1", "ign2"),
+				asList(createRoute("2", "/pathA"), createRoute("2", "/pathB"))));
 		this.locator = new CompositeRouteLocator(locators);
 	}
 
 	@Test
 	public void test_getIgnoredPaths() {
-		assertThat(locator.getIgnoredPaths(), hasItems("ign1", "ign2"));
+		assertThat(locator.getIgnoredPaths()).contains("ign1", "ign2");
 
 	}
 
 	@Test
 	public void test_getRoutes() {
-		assertThat(locator.getRoutes(),
-				hasItems(createRoute("1", "/pathA"), createRoute("2", "/pathB")));
+		assertThat(locator.getRoutes()).contains(createRoute("1", "/pathA"),
+				createRoute("2", "/pathB"));
 	}
 
 	@Test
 	public void test_getMatchingRoute() {
-		assertThat(locator.getMatchingRoute("/pathA"), notNullValue());
-		assertThat(locator.getMatchingRoute("/pathA").getId(), is("1"));
-		assertThat("Locator 1 should take precedence", locator.getMatchingRoute("/pathB").getId(),
-				is("2"));
-		assertThat(locator.getMatchingRoute("/pathNot"), nullValue());
+		assertThat(locator.getMatchingRoute("/pathA")).isNotNull();
+		assertThat(locator.getMatchingRoute("/pathA").getId()).isEqualTo("1");
+		assertThat(locator.getMatchingRoute("/pathB").getId())
+				.as("Locator 1 should take precedence").isEqualTo("2");
+		assertThat(locator.getMatchingRoute("/pathNot")).isNull();
 	}
 
 	@Test
@@ -65,10 +77,12 @@ public class CompositeRouteLocatorTests {
 	}
 
 	private static class TestRouteLocator implements RouteLocator {
+
 		private Collection<String> ignoredPaths;
+
 		private List<Route> routes;
 
-		public TestRouteLocator(Collection<String> ignoredPaths, List<Route> routes) {
+		TestRouteLocator(Collection<String> ignoredPaths, List<Route> routes) {
 			this.ignoredPaths = ignoredPaths;
 			this.routes = routes;
 		}
@@ -94,4 +108,5 @@ public class CompositeRouteLocatorTests {
 		}
 
 	}
+
 }

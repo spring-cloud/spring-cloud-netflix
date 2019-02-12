@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -30,19 +29,24 @@ import com.netflix.zuul.context.RequestContext;
  * @author Craig Andrews
  */
 public class ZuulServletFilter extends com.netflix.zuul.filters.ZuulServletFilter {
+
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
 			FilterChain filterChain) throws IOException, ServletException {
 
 		// Workaround https://github.com/Netflix/zuul/pull/430
-		// This class can be removed, and com.netflix.zuul.filters.ZuulServletFilter used in its place,
+		// This class can be removed, and com.netflix.zuul.filters.ZuulServletFilter used
+		// in its place,
 		// when using a Zuul release with that change in it.
 
-        // Marks this request as having passed through the "Zuul engine", as opposed to servlets
-        // explicitly bound in web.xml, for which requests will not have the same data attached
-        RequestContext context = RequestContext.getCurrentContext();
-        context.setZuulEngineRan();
+		// Marks this request as having passed through the "Zuul engine", as opposed to
+		// servlets
+		// explicitly bound in web.xml, for which requests will not have the same data
+		// attached
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setZuulEngineRan();
 
 		super.doFilter(servletRequest, servletResponse, filterChain);
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.netflix.turbine.monitor.TurbineDataMonitor;
 import com.netflix.turbine.monitor.cluster.AggregateClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,7 +34,8 @@ import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.Aggreg
 /**
  * @author Spencer Gibb
  */
-public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFromCluster> {
+public class SpringAggregatorFactory
+		implements ClusterMonitorFactory<AggDataFromCluster> {
 
 	private static final Log log = LogFactory.getLog(SpringAggregatorFactory.class);
 
@@ -46,8 +46,8 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 	}
 
 	/**
-	 * @return {@link com.netflix.turbine.monitor.cluster.ClusterMonitor}<
-	 * {@link com.netflix.turbine.data.AggDataFromCluster}>
+	 * @return {@link com.netflix.turbine.monitor.cluster.ClusterMonitor}
+	 * {@link com.netflix.turbine.data.AggDataFromCluster}
 	 */
 	@Override
 	public ClusterMonitor<AggDataFromCluster> getClusterMonitor(String name) {
@@ -73,7 +73,9 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 	@Override
 	public void initClusterMonitors() {
 		for (String clusterName : clustersProvider.getClusterNames()) {
-			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) findOrRegisterAggregateMonitor(clusterName);
+
+			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) findOrRegisterAggregateMonitor(
+					clusterName);
 			clusterMonitor.registerListenertoClusterMonitor(this.StaticListener);
 			try {
 				clusterMonitor.startMonitor();
@@ -87,7 +89,7 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 	}
 
 	/**
-	 * shutdown all configured cluster monitors
+	 * shutdown all configured cluster monitors.
 	 */
 	@Override
 	public void shutdownClusterMonitors() {
@@ -139,4 +141,5 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 		}
 
 	};
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.ribbon.test;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
@@ -45,4 +46,5 @@ public class TestServerList<T extends Server> implements ServerList<T> {
 	public List<T> getUpdatedListOfServers() {
 		return servers;
 	}
+
 }

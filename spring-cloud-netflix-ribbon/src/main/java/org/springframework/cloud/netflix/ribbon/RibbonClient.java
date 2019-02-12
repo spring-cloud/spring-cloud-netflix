@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.IRule;
 import com.netflix.loadbalancer.ServerListFilter;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Declarative configuration for a ribbon client. Add this annotation to any
@@ -42,15 +44,17 @@ import com.netflix.loadbalancer.ServerListFilter;
 public @interface RibbonClient {
 
 	/**
-	 * Synonym for name (the name of the client)
+	 * Synonym for name (the name of the client).
 	 *
 	 * @see #name()
+	 * @return name of the Ribbon client
 	 */
 	String value() default "";
 
 	/**
 	 * The name of the ribbon client, uniquely identifying a set of client resources,
 	 * including a load balancer.
+	 * @return name of the Ribbon client
 	 */
 	String name() default "";
 
@@ -60,6 +64,7 @@ public @interface RibbonClient {
 	 * {@link ILoadBalancer}, {@link ServerListFilter}, {@link IRule}.
 	 *
 	 * @see RibbonClientConfiguration for the defaults
+	 * @return the custom Ribbon client configuration
 	 */
 	Class<?>[] configuration() default {};
 

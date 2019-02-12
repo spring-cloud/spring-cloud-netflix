@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.io.IOException;
 import java.net.URI;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.ClientHttpRequest;
-import org.springframework.http.client.ClientHttpRequestFactory;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
+
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
 
 /**
  * @author Spencer Gibb

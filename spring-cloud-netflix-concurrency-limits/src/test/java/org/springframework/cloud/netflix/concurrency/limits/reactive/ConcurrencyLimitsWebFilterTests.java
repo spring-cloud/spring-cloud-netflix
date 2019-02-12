@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.concurrency.limits.reactive;
@@ -37,7 +36,7 @@ import org.springframework.util.SocketUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @RunWith(ModifiedClassPathRunner.class)
-@ClassPathExclusions({"spring-boot-starter-tomcat-*", "tomcat-embed-*"})
+@ClassPathExclusions({ "spring-boot-starter-tomcat-*", "tomcat-embed-*" })
 public class ConcurrencyLimitsWebFilterTests extends AbstractConcurrencyLimitsTests {
 
 	private int port;
@@ -45,7 +44,7 @@ public class ConcurrencyLimitsWebFilterTests extends AbstractConcurrencyLimitsTe
 	@Before
 	public void init() {
 		port = SocketUtils.findAvailableTcpPort();
-		client = WebClient.create("http://localhost:"+port);
+		client = WebClient.create("http://localhost:" + port);
 	}
 
 	@Test
@@ -53,7 +52,8 @@ public class ConcurrencyLimitsWebFilterTests extends AbstractConcurrencyLimitsTe
 	public void webFilterWorks() {
 
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
-				.properties("server.port="+port, "spring.main.web-application-type=reactive")
+				.properties("server.port=" + port,
+						"spring.main.web-application-type=reactive")
 				.sources(TestConfig.class).run()) {
 
 			assertLimiter(client);
@@ -67,9 +67,9 @@ public class ConcurrencyLimitsWebFilterTests extends AbstractConcurrencyLimitsTe
 
 		@Bean
 		public Consumer<ServerWebExchangeLimiterBuilder> limiterBuilderConfigurer() {
-			return limiterBuilder -> limiterBuilder
-					.limit(FixedLimit.of(1));
+			return limiterBuilder -> limiterBuilder.limit(FixedLimit.of(1));
 		}
+
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon.apache;
@@ -23,24 +22,20 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -55,35 +50,44 @@ public class RibbonApacheHttpRequestTests {
 		headers.add("content-length", "5192");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RibbonApacheHttpRequest httpRequest = 
-				new RibbonApacheHttpRequest(
-						new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()));
+		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest(
+				new RibbonCommandContext("example", "GET", uri, false, headers, params,
+						null, new ArrayList<RibbonRequestCustomizer>()));
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 
-		assertThat("request is wrong type", request, is(not(instanceOf(HttpEntityEnclosingRequest.class))));
-		assertThat("uri is wrong", request.getURI().toString(), startsWith(uri));
-		assertThat("my-header is missing", request.getFirstHeader("my-header"), is(notNullValue()));
-		assertThat("my-header is wrong", request.getFirstHeader("my-header").getValue(), is(equalTo("my-value")));
-		assertThat("Content-Length is wrong", request.getFirstHeader("content-length").getValue(), is(equalTo("5192")));
-		assertThat("myparam is missing", request.getURI().getQuery(), is(equalTo("myparam=myparamval")));
-		
+		assertThat(request).as("request is wrong type")
+				.isNotInstanceOf(HttpEntityEnclosingRequest.class);
+		assertThat(request.getURI().toString()).as("uri is wrong").startsWith(uri);
+		assertThat(request.getFirstHeader("my-header")).as("my-header is missing")
+				.isNotNull();
+		assertThat(request.getFirstHeader("my-header").getValue())
+				.as("my-header is wrong").isEqualTo("my-value");
+		assertThat(request.getFirstHeader("content-length").getValue())
+				.as("Content-Length is wrong").isEqualTo("5192");
+		assertThat(request.getURI().getQuery()).as("myparam is missing")
+				.isEqualTo("myparam=myparamval");
+
 	}
 
 	@Test
-	// this situation happens, see https://github.com/spring-cloud/spring-cloud-netflix/issues/1042#issuecomment-227723877
+	// this situation happens, see
+	// https://github.com/spring-cloud/spring-cloud-netflix/issues/1042#issuecomment-227723877
 	public void testEmptyEntityGet() throws Exception {
 		String entityValue = "";
-		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false, "GET");
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false,
+				"GET");
 	}
 
 	@Test
 	public void testNonEmptyEntityPost() throws Exception {
 		String entityValue = "abcd";
-		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true, "POST");
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true,
+				"POST");
 	}
 
-	void testEntity(String entityValue, ByteArrayInputStream requestEntity, boolean addContentLengthHeader, String method) throws IOException {
+	void testEntity(String entityValue, ByteArrayInputStream requestEntity,
+			boolean addContentLengthHeader, String method) throws IOException {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
 		URI uri = URI.create("http://example.com");
@@ -112,24 +116,30 @@ public class RibbonApacheHttpRequestTests {
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 
-		assertThat("request is wrong type", request, is(instanceOf(HttpEntityEnclosingRequest.class)));
-		assertThat("uri is wrong", request.getURI().toString(), startsWith(uri.toString()));
+		assertThat(request).as("request is wrong type")
+				.isInstanceOf(HttpEntityEnclosingRequest.class);
+		assertThat(request.getURI().toString()).as("uri is wrong")
+				.startsWith(uri.toString());
 		if (addContentLengthHeader) {
-			assertThat("Content-Length is missing", request.getFirstHeader("Content-Length"), is(notNullValue()));
-			assertThat("Content-Length is wrong", request.getFirstHeader("Content-Length").getValue(),
-					is(equalTo(lengthString)));
+			assertThat(request.getFirstHeader("Content-Length"))
+					.as("Content-Length is missing").isNotNull();
+			assertThat(request.getFirstHeader("Content-Length").getValue())
+					.as("Content-Length is wrong").isEqualTo(lengthString);
 		}
-		assertThat("from-customizer is missing", request.getFirstHeader("from-customizer"), is(notNullValue()));
-		assertThat("from-customizer is wrong", request.getFirstHeader("from-customizer").getValue(),
-				is(equalTo("foo")));
+		assertThat(request.getFirstHeader("from-customizer"))
+				.as("from-customizer is missing").isNotNull();
+		assertThat(request.getFirstHeader("from-customizer").getValue())
+				.as("from-customizer is wrong").isEqualTo("foo");
 
 		HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
-		assertThat("entity is missing", entityRequest.getEntity(), is(notNullValue()));
+		assertThat(entityRequest.getEntity()).as("entity is missing").isNotNull();
 		HttpEntity entity = entityRequest.getEntity();
-		assertThat("contentLength is wrong", entity.getContentLength(), is(equalTo((long)entityValue.length())));
-		assertThat("content is missing", entity.getContent(), is(notNullValue()));
-		String string = StreamUtils.copyToString(entity.getContent(), Charset.forName("UTF-8"));
-		assertThat("content is wrong", string, is(equalTo(entityValue)));
+		assertThat(entity.getContentLength()).as("contentLength is wrong")
+				.isEqualTo((long) entityValue.length());
+		assertThat(entity.getContent()).as("content is missing").isNotNull();
+		String string = StreamUtils.copyToString(entity.getContent(),
+				Charset.forName("UTF-8"));
+		assertThat(string).as("content is wrong").isEqualTo(entityValue);
 	}
-}
 
+}

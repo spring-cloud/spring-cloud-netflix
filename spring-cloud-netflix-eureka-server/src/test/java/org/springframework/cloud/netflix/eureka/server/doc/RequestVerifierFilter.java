@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka.server.doc;
 
 import java.util.ArrayList;
@@ -43,12 +44,12 @@ import io.restassured.http.Header;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
+import wiremock.com.google.common.base.Optional;
 
 import org.springframework.util.Base64Utils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-import wiremock.com.google.common.base.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,10 +57,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  *
  */
+
 public class RequestVerifierFilter implements Filter {
 
 	static final String CONTEXT_KEY_CONFIGURATION = "org.springframework.restdocs.configuration";
+
 	private Map<String, JsonPath> jsonPaths = new LinkedHashMap<>();
+
 	private MappingBuilder builder;
 
 	public static RequestVerifierFilter verify(String path) {
@@ -136,12 +140,15 @@ public class RequestVerifierFilter implements Filter {
 				.<Map<String, Object>>getValue(CONTEXT_KEY_CONFIGURATION);
 		return configuration;
 	}
+
 }
 
 class JsonPathValue {
 
 	private final JsonPath jsonPath;
+
 	private final String expression;
+
 	private final CharSequence actual;
 
 	JsonPathValue(JsonPath jsonPath, CharSequence actual) {
@@ -201,7 +208,7 @@ class WireMockRestAssuredRequestAdapter implements Request {
 
 	private FilterableRequestSpecification request;
 
-	public WireMockRestAssuredRequestAdapter(FilterableRequestSpecification request) {
+	WireMockRestAssuredRequestAdapter(FilterableRequestSpecification request) {
 		this.request = request;
 	}
 

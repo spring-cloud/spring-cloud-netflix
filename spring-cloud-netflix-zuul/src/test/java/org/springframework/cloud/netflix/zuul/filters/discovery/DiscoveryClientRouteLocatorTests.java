@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -34,13 +36,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -66,47 +62,6 @@ public class DiscoveryClientRouteLocatorTests {
 
 	private ZuulProperties properties = new ZuulProperties();
 
-	public static class RegexMapper {
-		private boolean enabled = false;
-
-		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
-
-		private String routePattern = "${version}/${name}";
-
-		public RegexMapper() {
-		}
-
-		public RegexMapper(boolean enabled, String servicePattern, String routePattern) {
-			this.enabled = enabled;
-			this.servicePattern = servicePattern;
-			this.routePattern = routePattern;
-		}
-
-		public boolean isEnabled() {
-			return enabled;
-		}
-
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
-		}
-
-		public String getServicePattern() {
-			return servicePattern;
-		}
-
-		public void setServicePattern(String servicePattern) {
-			this.servicePattern = servicePattern;
-		}
-
-		public String getRoutePattern() {
-			return routePattern;
-		}
-
-		public void setRoutePattern(String routePattern) {
-			this.routePattern = routePattern;
-		}
-	}
-
 	private RegexMapper regexMapper = new RegexMapper();
 
 	@Before
@@ -128,8 +83,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("foo", route.getId());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getId()).isEqualTo("foo");
 	}
 
 	@Test
@@ -141,8 +96,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/1");
 	}
 
 	@Test
@@ -156,8 +111,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/app/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/1");
 	}
 
 	@Test
@@ -169,8 +124,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/zuul/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/1");
 
 	}
 
@@ -184,8 +139,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/proxy/foo/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/proxy/foo/1");
 	}
 
 	@Test
@@ -197,8 +152,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/proxy/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/proxy/1");
 	}
 
 	@Test
@@ -210,8 +165,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/foo/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/foo/1");
 	}
 
 	@Test
@@ -226,8 +181,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/app/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/foo/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/foo/1");
 	}
 
 	@Test
@@ -241,8 +196,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/zuul/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/foo/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/foo/1");
 	}
 
 	@Test
@@ -255,8 +210,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/1");
 	}
 
 	@Test
@@ -268,8 +223,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/bar/1");
-		assertEquals("bar", route.getLocation());
-		assertEquals("bar", route.getId());
+		assertThat(route.getLocation()).isEqualTo("bar");
+		assertThat(route.getId()).isEqualTo("bar");
 	}
 
 	@Test
@@ -281,7 +236,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/foo/1");
-		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
+		assertThat(route).as("routes did not ignore " + IGNOREDPATTERN).isNull();
 	}
 
 	@Test
@@ -295,8 +250,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/1");
 	}
 
 	@Test
@@ -309,7 +264,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/app/foo/1");
-		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
+		assertThat(route).as("routes did not ignore " + IGNOREDPATTERN).isNull();
 	}
 
 	@Test
@@ -324,8 +279,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/proxy/foo/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/proxy/foo/1");
 	}
 
 	@Test
@@ -341,7 +296,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
+		assertThat(route).as("routes did not ignore " + "/proxy" + IGNOREDPATTERN)
+				.isNull();
 	}
 
 	@Test
@@ -355,8 +311,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/proxy/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/proxy/1");
 	}
 
 	@Test
@@ -371,7 +327,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
+		assertThat(route).as("routes did not ignore " + "/proxy" + IGNOREDPATTERN)
+				.isNull();
 	}
 
 	@Test
@@ -385,8 +342,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertEquals("foo", route.getLocation());
-		assertEquals("/foo/1", route.getPath());
+		assertThat(route.getLocation()).isEqualTo("foo");
+		assertThat(route.getPath()).isEqualTo("/foo/1");
 	}
 
 	@Test
@@ -401,7 +358,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
-		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
+		assertThat(route).as("routes did not ignore " + "/proxy" + IGNOREDPATTERN)
+				.isNull();
 	}
 
 	@Test
@@ -416,7 +374,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/foo/1");
-		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
+		assertThat(route).as("routes did not ignore " + IGNOREDPATTERN).isNull();
 	}
 
 	@Test
@@ -426,8 +384,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/" + ASERVICE + "/**"));
 		this.properties.init();
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertMapping(routesMap, ASERVICE);
 	}
 
@@ -450,8 +408,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put(ASERVICE,
 				new ZuulRoute("/" + ASERVICE + "/**", "http://" + ASERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertMapping(routesMap, "http://" + ASERVICE, ASERVICE);
 	}
 
@@ -461,8 +419,8 @@ public class DiscoveryClientRouteLocatorTests {
 				this.discovery, this.properties);
 		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/**", ASERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertDefaultMapping(routesMap, ASERVICE);
 	}
 
@@ -473,8 +431,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put(ASERVICE,
 				new ZuulRoute("/**", "http://" + ASERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertDefaultMapping(routesMap, "http://" + ASERVICE);
 	}
 
@@ -486,8 +444,8 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(IGNOREDSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNull("routes did not ignore " + IGNOREDSERVICE,
-				getRoute(routesMap, getMapping(IGNOREDSERVICE)));
+		assertThat(getRoute(routesMap, getMapping(IGNOREDSERVICE)))
+				.as("routes did not ignore " + IGNOREDSERVICE).isNull();
 	}
 
 	@Test
@@ -498,8 +456,8 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(IGNOREDSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNull("routes did not ignore " + IGNOREDSERVICE,
-				getRoute(routesMap, getMapping(IGNOREDSERVICE)));
+		assertThat(getRoute(routesMap, getMapping(IGNOREDSERVICE)))
+				.as("routes did not ignore " + IGNOREDSERVICE).isNull();
 	}
 
 	@Test
@@ -510,8 +468,8 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(IGNOREDSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNull("routes did not ignore " + IGNOREDSERVICE,
-				getRoute(routesMap, getMapping(IGNOREDSERVICE)));
+		assertThat(getRoute(routesMap, getMapping(IGNOREDSERVICE)))
+				.as("routes did not ignore " + IGNOREDSERVICE).isNull();
 	}
 
 	@Test
@@ -522,7 +480,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setIgnoredServices(Collections.singleton("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routes ignored foo", getRoute(routesMap, "/foo/**"));
+		assertThat(getRoute(routesMap, "/foo/**")).as("routes ignored foo").isNotNull();
 	}
 
 	@Test
@@ -537,9 +495,10 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
 		ZuulRoute actual = routes.get("/foo/**");
-		assertNotNull("routes ignored foo", actual);
-		assertTrue("stripPrefix is wrong", actual.isStripPrefix());
-		assertEquals("retryable is wrong", Boolean.TRUE, actual.getRetryable());
+		assertThat(actual).as("routes ignored foo").isNotNull();
+		assertThat(actual.isStripPrefix()).as("stripPrefix is wrong").isTrue();
+		assertThat(actual.getRetryable()).as("retryable is wrong")
+				.isEqualTo(Boolean.TRUE);
 	}
 
 	@Test
@@ -555,10 +514,10 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
 		ZuulRoute actual = routes.get("/**");
-		assertNotNull("routes ignored foo", actual);
-		assertEquals("id is wrong", "foo", actual.getId());
-		assertEquals("location is wrong", "foo", actual.getServiceId());
-		assertEquals("path is wrong", "/**", actual.getPath());
+		assertThat(actual).as("routes ignored foo").isNotNull();
+		assertThat(actual.getId()).as("id is wrong").isEqualTo("foo");
+		assertThat(actual.getServiceId()).as("location is wrong").isEqualTo("foo");
+		assertThat(actual.getPath()).as("path is wrong").isEqualTo("/**");
 	}
 
 	@Test
@@ -570,7 +529,8 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setIgnoredServices(Collections.singleton("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("bar"));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routes ignored foo", getRoute(routesMap, getMapping("foo")));
+		assertThat(getRoute(routesMap, getMapping("foo"))).as("routes ignored foo")
+				.isNotNull();
 	}
 
 	@Test
@@ -580,8 +540,8 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(MYSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertMapping(routesMap, MYSERVICE);
 	}
 
@@ -595,8 +555,8 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(MYSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertMapping(routesMap, "http://example.com/" + MYSERVICE, MYSERVICE);
 	}
 
@@ -641,11 +601,11 @@ public class DiscoveryClientRouteLocatorTests {
 
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
 		ZuulRoute actual = routes.get("/**");
-		assertNull("routes didn't ignore " + MYSERVICE, actual);
+		assertThat(actual).as("routes didn't ignore " + MYSERVICE).isNull();
 
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertTrue("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isTrue();
 	}
 
 	@Test
@@ -659,8 +619,8 @@ public class DiscoveryClientRouteLocatorTests {
 				this.discovery, this.properties);
 
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertMapping(routesMap, MYSERVICE);
 	}
 
@@ -669,7 +629,7 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices()).willReturn(Collections.<String>emptyList());
 
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
-				this.discovery, this.properties, (Registration)null);
+				this.discovery, this.properties, (Registration) null);
 
 		// if no exception is thrown in constructor, this is a success
 		routeLocator.locateRoutes();
@@ -685,8 +645,8 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties, regExServiceRouteMapper);
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertMapping(routesMap, MYSERVICE);
 	}
 
@@ -700,8 +660,8 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties, regExServiceRouteMapper);
 		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertThat(routesMap).as("routesMap was null").isNotNull();
+		assertThat(routesMap.isEmpty()).as("routesMap was empty").isFalse();
 		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");
 	}
 
@@ -713,9 +673,10 @@ public class DiscoveryClientRouteLocatorTests {
 			String key) {
 		String mapping = getMapping(key);
 		Route route = getRoute(routesMap, mapping);
-		assertNotNull("Could not find route for " + key, route);
+		assertThat(route).as("Could not find route for " + key).isNotNull();
 		String location = route.getLocation();
-		assertEquals("routesMap had wrong value for " + mapping, expectedRoute, location);
+		assertThat(location).as("routesMap had wrong value for " + mapping)
+				.isEqualTo(expectedRoute);
 	}
 
 	private String getMapping(String serviceId) {
@@ -725,7 +686,8 @@ public class DiscoveryClientRouteLocatorTests {
 	protected void assertDefaultMapping(List<Route> routesMap, String expectedRoute) {
 		String mapping = "/**";
 		String route = getRoute(routesMap, mapping).getLocation();
-		assertEquals("routesMap had wrong value for " + mapping, expectedRoute, route);
+		assertThat(route).as("routesMap had wrong value for " + mapping)
+				.isEqualTo(expectedRoute);
 	}
 
 	private Route getRoute(List<Route> routes, String path) {
@@ -742,4 +704,48 @@ public class DiscoveryClientRouteLocatorTests {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
+
+	public static class RegexMapper {
+
+		private boolean enabled = false;
+
+		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
+
+		private String routePattern = "${version}/${name}";
+
+		public RegexMapper() {
+		}
+
+		public RegexMapper(boolean enabled, String servicePattern, String routePattern) {
+			this.enabled = enabled;
+			this.servicePattern = servicePattern;
+			this.routePattern = routePattern;
+		}
+
+		public boolean isEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public String getServicePattern() {
+			return servicePattern;
+		}
+
+		public void setServicePattern(String servicePattern) {
+			this.servicePattern = servicePattern;
+		}
+
+		public String getRoutePattern() {
+			return routePattern;
+		}
+
+		public void setRoutePattern(String routePattern) {
+			this.routePattern = routePattern;
+		}
+
+	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.netflix.client.ClientRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.strategy.HystrixPlugins;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,6 +121,7 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 
 	public static class TestRibbonCommand extends
 			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
+
 		public TestRibbonCommand(String commandKey, ZuulProperties zuulProperties) {
 			super(commandKey, null, null, zuulProperties);
 		}
@@ -130,5 +130,7 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 		protected ClientRequest createRequest() throws Exception {
 			return null;
 		}
+
 	}
+
 }

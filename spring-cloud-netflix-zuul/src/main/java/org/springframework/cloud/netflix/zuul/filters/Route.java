@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,13 @@ import java.util.Set;
 
 import org.springframework.util.StringUtils;
 
+/**
+ * Represents Zuul route.
+ *
+ * @author Dave Syer
+ * @author Biju Kunjummen
+ * @author Gregor Zurowski
+ */
 public class Route {
 
 	public Route(String id, String path, String location, String prefix,
@@ -42,7 +49,7 @@ public class Route {
 	}
 
 	public Route(String id, String path, String location, String prefix,
-		Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
+			Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
 		this(id, path, location, prefix, retryable, ignoredHeaders);
 		this.prefixStripped = prefixStripped;
 	}
@@ -139,18 +146,21 @@ public class Route {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Route that = (Route) o;
-		return customSensitiveHeaders == that.customSensitiveHeaders &&
-				prefixStripped == that.prefixStripped &&
-				Objects.equals(id, that.id) &&
-				Objects.equals(fullPath, that.fullPath) &&
-				Objects.equals(path, that.path) &&
-				Objects.equals(location, that.location) &&
-				Objects.equals(prefix, that.prefix) &&
-				Objects.equals(retryable, that.retryable) &&
-				Objects.equals(sensitiveHeaders, that.sensitiveHeaders);
+		return customSensitiveHeaders == that.customSensitiveHeaders
+				&& prefixStripped == that.prefixStripped && Objects.equals(id, that.id)
+				&& Objects.equals(fullPath, that.fullPath)
+				&& Objects.equals(path, that.path)
+				&& Objects.equals(location, that.location)
+				&& Objects.equals(prefix, that.prefix)
+				&& Objects.equals(retryable, that.retryable)
+				&& Objects.equals(sensitiveHeaders, that.sensitiveHeaders);
 	}
 
 	@Override
@@ -161,16 +171,15 @@ public class Route {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("Route{")
-				.append("id='").append(id).append("', ")
-				.append("fullPath='").append(fullPath).append("', ")
-				.append("path='").append(path).append("', ")
-				.append("location='").append(location).append("', ")
-				.append("prefix='").append(prefix).append("', ")
+		return new StringBuilder("Route{").append("id='").append(id).append("', ")
+				.append("fullPath='").append(fullPath).append("', ").append("path='")
+				.append(path).append("', ").append("location='").append(location)
+				.append("', ").append("prefix='").append(prefix).append("', ")
 				.append("retryable=").append(retryable).append(", ")
 				.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
-				.append("customSensitiveHeaders=").append(customSensitiveHeaders).append(", ")
-				.append("prefixStripped=").append(prefixStripped)
-				.append("}").toString();
+				.append("customSensitiveHeaders=").append(customSensitiveHeaders)
+				.append(", ").append("prefixStripped=").append(prefixStripped).append("}")
+				.toString();
 	}
+
 }

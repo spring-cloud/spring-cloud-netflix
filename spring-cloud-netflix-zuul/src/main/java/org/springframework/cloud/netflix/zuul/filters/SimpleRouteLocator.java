@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters;
@@ -24,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.Ordered;
@@ -49,9 +50,11 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
 	private String dispatcherServletPath = "/";
+
 	private String zuulServletPath;
 
 	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
+
 	private int order = DEFAULT_ORDER;
 
 	public SimpleRouteLocator(String servletPath, ZuulProperties properties) {
@@ -74,8 +77,9 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 			}
 			catch (Exception e) {
 				if (log.isWarnEnabled()) {
-					log.warn("Invalid route, routeId: " + route.getId() + ", routeServiceId: "
-							+ route.getServiceId() + ", msg: " + e.getMessage());
+					log.warn("Invalid route, routeId: " + route.getId()
+							+ ", routeServiceId: " + route.getServiceId() + ", msg: "
+							+ e.getMessage());
 				}
 				if (log.isDebugEnabled()) {
 					log.debug("", e);
@@ -185,6 +189,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	/**
 	 * Compute a map of path pattern to route. The default is just a static map from the
 	 * {@link ZuulProperties}, but subclasses can add dynamic calculations.
+	 * @return map of Zuul routes
 	 */
 	protected Map<String, ZuulRoute> locateRoutes() {
 		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
@@ -210,7 +215,8 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 		if (RequestUtils.isDispatcherServletRequest()
 				&& StringUtils.hasText(this.dispatcherServletPath)) {
-			if (!this.dispatcherServletPath.equals("/") && path.startsWith(this.dispatcherServletPath)) {
+			if (!this.dispatcherServletPath.equals("/")
+					&& path.startsWith(this.dispatcherServletPath)) {
 				adjustedPath = path.substring(this.dispatcherServletPath.length());
 				log.debug("Stripped dispatcherServletPath");
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import javax.servlet.ServletContext;
 
+import com.netflix.eureka.EurekaServerConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaRegistryAvailableEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaServerStartedEvent;
@@ -30,8 +32,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.context.ServletContextAware;
 
-import com.netflix.eureka.EurekaServerConfig;
-
 /**
  * @author Dave Syer
  */
@@ -39,7 +39,8 @@ import com.netflix.eureka.EurekaServerConfig;
 public class EurekaServerInitializerConfiguration
 		implements ServletContextAware, SmartLifecycle, Ordered {
 
-	private static final Log log = LogFactory.getLog(EurekaServerInitializerConfiguration.class);
+	private static final Log log = LogFactory
+			.getLog(EurekaServerInitializerConfiguration.class);
 
 	@Autowired
 	private EurekaServerConfig eurekaServerConfig;
@@ -67,8 +68,9 @@ public class EurekaServerInitializerConfiguration
 			@Override
 			public void run() {
 				try {
-					//TODO: is this class even needed now?
-					eurekaServerBootstrap.contextInitialized(EurekaServerInitializerConfiguration.this.servletContext);
+					// TODO: is this class even needed now?
+					eurekaServerBootstrap.contextInitialized(
+							EurekaServerInitializerConfiguration.this.servletContext);
 					log.info("Started Eureka Server");
 
 					publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig()));

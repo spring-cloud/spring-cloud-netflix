@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 
+import com.netflix.config.AggregatedConfiguration;
+import com.netflix.config.ConcurrentCompositeConfiguration;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DeploymentContext;
+import com.netflix.config.DynamicProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicURLConfiguration;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.ConfigurationBuilder;
 import org.apache.commons.configuration.EnvironmentConfiguration;
@@ -32,6 +39,7 @@ import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.health.Health;
@@ -47,14 +55,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
-
-import com.netflix.config.AggregatedConfiguration;
-import com.netflix.config.ConcurrentCompositeConfiguration;
-import com.netflix.config.ConfigurationManager;
-import com.netflix.config.DeploymentContext;
-import com.netflix.config.DynamicProperty;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.config.DynamicURLConfiguration;
 
 import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
 import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
@@ -98,52 +98,21 @@ public class ArchaiusAutoConfiguration {
 	}
 
 	@Bean
-	public static ConfigurableEnvironmentConfiguration configurableEnvironmentConfiguration(ConfigurableEnvironment env,
-																							ApplicationContext context) {
-		Map<String, AbstractConfiguration> abstractConfigurationMap = context.getBeansOfType(AbstractConfiguration.class);
-		List<AbstractConfiguration> externalConfigurations = new ArrayList<>(abstractConfigurationMap.values());
-		ConfigurableEnvironmentConfiguration envConfig = new ConfigurableEnvironmentConfiguration(env);
+	public static ConfigurableEnvironmentConfiguration configurableEnvironmentConfiguration(
+			ConfigurableEnvironment env, ApplicationContext context) {
+		Map<String, AbstractConfiguration> abstractConfigurationMap = context
+				.getBeansOfType(AbstractConfiguration.class);
+		List<AbstractConfiguration> externalConfigurations = new ArrayList<>(
+				abstractConfigurationMap.values());
+		ConfigurableEnvironmentConfiguration envConfig = new ConfigurableEnvironmentConfiguration(
+				env);
 		configureArchaius(envConfig, env, externalConfigurations);
 		return envConfig;
 	}
 
-	@Configuration
-	@ConditionalOnClass(Health.class)
-	protected static class ArchaiusEndpointConfiguration {
-		@Bean
-		@ConditionalOnEnabledEndpoint
-		protected ArchaiusEndpoint archaiusEndpoint() {
-			return new ArchaiusEndpoint();
-		}
-	}
-
-	@Configuration
-	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent", matchIfMissing = true)
-	@ConditionalOnClass(EnvironmentChangeEvent.class)
-	protected static class PropagateEventsConfiguration
-			implements ApplicationListener<EnvironmentChangeEvent> {
-		@Autowired
-		private Environment env;
-
-		@Override
-		public void onApplicationEvent(EnvironmentChangeEvent event) {
-			AbstractConfiguration manager = ConfigurationManager.getConfigInstance();
-			for (String key : event.getKeys()) {
-				for (ConfigurationListener listener : manager
-						.getConfigurationListeners()) {
-					Object source = event.getSource();
-					// TODO: Handle add vs set vs delete?
-					int type = AbstractConfiguration.EVENT_SET_PROPERTY;
-					String value = this.env.getProperty(key);
-					boolean beforeUpdate = false;
-					listener.configurationChanged(new ConfigurationEvent(source, type,
-							key, value, beforeUpdate));
-				}
-			}
-		}
-	}
-
-	protected static void configureArchaius(ConfigurableEnvironmentConfiguration envConfig, ConfigurableEnvironment env, List<AbstractConfiguration> externalConfigurations) {
+	protected static void configureArchaius(
+			ConfigurableEnvironmentConfiguration envConfig, ConfigurableEnvironment env,
+			List<AbstractConfiguration> externalConfigurations) {
 		if (initialized.compareAndSet(false, true)) {
 			String appName = env.getProperty("spring.application.name");
 			if (appName == null) {
@@ -196,7 +165,8 @@ public class ArchaiusAutoConfiguration {
 		}
 	}
 
-	private static void addArchaiusConfiguration(ConcurrentCompositeConfiguration config) {
+	private static void addArchaiusConfiguration(
+			ConcurrentCompositeConfiguration config) {
 		if (ConfigurationManager.isConfigurationInstalled()) {
 			AbstractConfiguration installedConfiguration = ConfigurationManager
 					.getConfigInstance();
@@ -222,6 +192,46 @@ public class ArchaiusAutoConfiguration {
 		Field field = ReflectionUtils.findField(type, name);
 		ReflectionUtils.makeAccessible(field);
 		ReflectionUtils.setField(field, null, value);
+	}
+
+	@Configuration
+	@ConditionalOnClass(Health.class)
+	protected static class ArchaiusEndpointConfiguration {
+
+		@Bean
+		@ConditionalOnEnabledEndpoint
+		protected ArchaiusEndpoint archaiusEndpoint() {
+			return new ArchaiusEndpoint();
+		}
+
+	}
+
+	@Configuration
+	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent", matchIfMissing = true)
+	@ConditionalOnClass(EnvironmentChangeEvent.class)
+	protected static class PropagateEventsConfiguration
+			implements ApplicationListener<EnvironmentChangeEvent> {
+
+		@Autowired
+		private Environment env;
+
+		@Override
+		public void onApplicationEvent(EnvironmentChangeEvent event) {
+			AbstractConfiguration manager = ConfigurationManager.getConfigInstance();
+			for (String key : event.getKeys()) {
+				for (ConfigurationListener listener : manager
+						.getConfigurationListeners()) {
+					Object source = event.getSource();
+					// TODO: Handle add vs set vs delete?
+					int type = AbstractConfiguration.EVENT_SET_PROPERTY;
+					String value = this.env.getProperty(key);
+					boolean beforeUpdate = false;
+					listener.configurationChanged(new ConfigurationEvent(source, type,
+							key, value, beforeUpdate));
+				}
+			}
+		}
+
 	}
 
 }

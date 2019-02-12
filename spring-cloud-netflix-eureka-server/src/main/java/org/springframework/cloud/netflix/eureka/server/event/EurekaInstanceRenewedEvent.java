@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import org.springframework.context.ApplicationEvent;
+import java.util.Objects;
 
 import com.netflix.appinfo.InstanceInfo;
 
-import java.util.Objects;
+import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Spencer Gibb
@@ -80,13 +80,17 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		EurekaInstanceRenewedEvent that = (EurekaInstanceRenewedEvent) o;
-		return Objects.equals(appName, that.appName) &&
-				Objects.equals(serverId, that.serverId) &&
-				Objects.equals(instanceInfo, that.instanceInfo) &&
-				replication == that.replication;
+		return Objects.equals(appName, that.appName)
+				&& Objects.equals(serverId, that.serverId)
+				&& Objects.equals(instanceInfo, that.instanceInfo)
+				&& replication == that.replication;
 	}
 
 	@Override
@@ -96,12 +100,10 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRenewedEvent{")
-				.append("appName='").append(appName).append("', ")
-				.append("serverId='").append(serverId).append("', ")
-				.append("instanceInfo=").append(instanceInfo).append(", ")
-				.append("replication=").append(replication).append("}")
-				.toString();
+		return new StringBuilder("EurekaInstanceRenewedEvent{").append("appName='")
+				.append(appName).append("', ").append("serverId='").append(serverId)
+				.append("', ").append("instanceInfo=").append(instanceInfo).append(", ")
+				.append("replication=").append(replication).append("}").toString();
 	}
 
 }

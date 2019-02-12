@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.http.HttpServletRequestWrapper;
+import com.netflix.zuul.http.ServletInputStreamWrapper;
+
 import org.springframework.cloud.netflix.zuul.util.RequestContentDataExtractor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
@@ -38,23 +43,20 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.http.HttpServletRequestWrapper;
-import com.netflix.zuul.http.ServletInputStreamWrapper;
-
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORM_BODY_WRAPPER_FILTER_ORDER;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 /**
- * Pre {@link ZuulFilter} that parses form data and reencodes it for downstream services
+ * Pre {@link ZuulFilter} that parses form data and reencodes it for downstream services.
  *
  * @author Dave Syer
  */
 public class FormBodyWrapperFilter extends ZuulFilter {
 
 	private FormHttpMessageConverter formHttpMessageConverter;
+
 	private Field requestField;
+
 	private Field servletRequestField;
 
 	public FormBodyWrapperFilter() {
@@ -146,7 +148,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 		private int contentLength;
 
-		public FormBodyRequestWrapper(HttpServletRequest request) {
+		FormBodyRequestWrapper(HttpServletRequest request) {
 			super(request);
 			this.request = request;
 		}
@@ -187,12 +189,14 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 				return;
 			}
 			try {
-				MultiValueMap<String, Object> builder = RequestContentDataExtractor.extract(this.request);
+				MultiValueMap<String, Object> builder = RequestContentDataExtractor
+						.extract(this.request);
 				FormHttpOutputMessage data = new FormHttpOutputMessage();
 
 				this.contentType = MediaType.valueOf(this.request.getContentType());
 				data.getHeaders().setContentType(this.contentType);
-				FormBodyWrapperFilter.this.formHttpMessageConverter.write(builder, this.contentType, data);
+				FormBodyWrapperFilter.this.formHttpMessageConverter.write(builder,
+						this.contentType, data);
 				// copy new content type including multipart boundary
 				this.contentType = data.getHeaders().getContentType();
 				byte[] input = data.getInput();
@@ -207,6 +211,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		private class FormHttpOutputMessage implements HttpOutputMessage {
 
 			private HttpHeaders headers = new HttpHeaders();
+
 			private ByteArrayOutputStream output = new ByteArrayOutputStream();
 
 			@Override

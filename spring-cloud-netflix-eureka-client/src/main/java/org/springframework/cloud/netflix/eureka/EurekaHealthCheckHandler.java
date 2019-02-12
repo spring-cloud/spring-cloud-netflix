@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,26 +36,28 @@ import org.springframework.util.Assert;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 /**
- * A Eureka health checker, maps the application status into {@link InstanceStatus}
- * that will be propagated to Eureka registry.
+ * A Eureka health checker, maps the application status into {@link InstanceStatus} that
+ * will be propagated to Eureka registry.
  *
- * On each heartbeat Eureka performs the health check invoking registered {@link HealthCheckHandler}. By default this
- * implementation will perform aggregation of all registered {@link HealthIndicator}
- * through registered {@link HealthAggregator}.
+ * On each heartbeat Eureka performs the health check invoking registered
+ * {@link HealthCheckHandler}. By default this implementation will perform aggregation of
+ * all registered {@link HealthIndicator} through registered {@link HealthAggregator}.
  *
  * @author Jakub Narloch
  * @see HealthCheckHandler
  * @see HealthAggregator
  */
-public class EurekaHealthCheckHandler implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
+public class EurekaHealthCheckHandler
+		implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
 
-	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING =
-			new HashMap<Status, InstanceInfo.InstanceStatus>() {{
-				put(Status.UNKNOWN, InstanceStatus.UNKNOWN);
-				put(Status.OUT_OF_SERVICE, InstanceStatus.OUT_OF_SERVICE);
-				put(Status.DOWN, InstanceStatus.DOWN);
-				put(Status.UP, InstanceStatus.UP);
-			}};
+	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
+		{
+			put(Status.UNKNOWN, InstanceStatus.UNKNOWN);
+			put(Status.OUT_OF_SERVICE, InstanceStatus.OUT_OF_SERVICE);
+			put(Status.DOWN, InstanceStatus.DOWN);
+			put(Status.UP, InstanceStatus.UP);
+		}
+	};
 
 	private final CompositeHealthIndicator healthIndicator;
 
@@ -67,23 +69,28 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final Map<String, HealthIndicator> healthIndicators = applicationContext.getBeansOfType(HealthIndicator.class);
+		final Map<String, HealthIndicator> healthIndicators = applicationContext
+				.getBeansOfType(HealthIndicator.class);
 
 		for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
 
-			//ignore EurekaHealthIndicator and flatten the rest of the composite
-			//otherwise there is a never ending cycle of down. See gh-643
+			// ignore EurekaHealthIndicator and flatten the rest of the composite
+			// otherwise there is a never ending cycle of down. See gh-643
 			if (entry.getValue() instanceof DiscoveryCompositeHealthIndicator) {
-				DiscoveryCompositeHealthIndicator indicator = (DiscoveryCompositeHealthIndicator) entry.getValue();
-				for (DiscoveryCompositeHealthIndicator.Holder holder : indicator.getHealthIndicators()) {
+				DiscoveryCompositeHealthIndicator indicator = (DiscoveryCompositeHealthIndicator) entry
+						.getValue();
+				for (DiscoveryCompositeHealthIndicator.Holder holder : indicator
+						.getHealthIndicators()) {
 					if (!(holder.getDelegate() instanceof EurekaHealthIndicator)) {
-						healthIndicator.addHealthIndicator(holder.getDelegate().getName(), holder);
+						healthIndicator.addHealthIndicator(holder.getDelegate().getName(),
+								holder);
 					}
 				}
 
@@ -114,4 +121,5 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	protected CompositeHealthIndicator getHealthIndicator() {
 		return healthIndicator;
 	}
+
 }

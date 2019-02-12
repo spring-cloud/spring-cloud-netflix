@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,16 +26,20 @@ public interface RouteLocator {
 
 	/**
 	 * Ignored route paths (or patterns), if any.
+	 * @return {@link Collection} of ignored paths
 	 */
 	Collection<String> getIgnoredPaths();
 
 	/**
 	 * A map of route path (pattern) to location (e.g. service id or URL).
+	 * @return {@link List} of routes
 	 */
 	List<Route> getRoutes();
 
 	/**
 	 * Maps a path to an actual route with full metadata.
+	 * @param path used to match the {@link Route}
+	 * @return matching {@link Route} based on the provided path
 	 */
 	Route getMatchingRoute(String path);
 

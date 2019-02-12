@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,26 @@ package org.springframework.cloud.netflix.ribbon.okhttp;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.Server;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.Server;
-
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * @author Spencer Gibb
  * @author Ryan Baxter
  * @author Tim Ysewyn
  */
-public class OkHttpLoadBalancingClient
-		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
+public class OkHttpLoadBalancingClient extends
+		AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
 
 	public OkHttpLoadBalancingClient(IClientConfig config,
 			ServerIntrospector serverIntrospector) {
@@ -47,7 +46,7 @@ public class OkHttpLoadBalancingClient
 	}
 
 	public OkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config,
-									 ServerIntrospector serverIntrospector) {
+			ServerIntrospector serverIntrospector) {
 		super(delegate, config, serverIntrospector);
 	}
 
@@ -58,7 +57,7 @@ public class OkHttpLoadBalancingClient
 
 	@Override
 	public OkHttpRibbonResponse execute(OkHttpRibbonRequest ribbonRequest,
-										final IClientConfig configOverride) throws Exception {
+			final IClientConfig configOverride) throws Exception {
 		boolean secure = isSecure(configOverride);
 		if (secure) {
 			final URI secureUri = UriComponentsBuilder.fromUri(ribbonRequest.getUri())
@@ -76,7 +75,8 @@ public class OkHttpLoadBalancingClient
 		IClientConfig config = configOverride != null ? configOverride : this.config;
 		RibbonProperties ribbon = RibbonProperties.from(config);
 		OkHttpClient.Builder builder = this.delegate.newBuilder()
-				.connectTimeout(ribbon.connectTimeout(this.connectTimeout), TimeUnit.MILLISECONDS)
+				.connectTimeout(ribbon.connectTimeout(this.connectTimeout),
+						TimeUnit.MILLISECONDS)
 				.readTimeout(ribbon.readTimeout(this.readTimeout), TimeUnit.MILLISECONDS)
 				.followRedirects(ribbon.isFollowRedirects(this.followRedirects));
 		if (secure) {
@@ -88,8 +88,9 @@ public class OkHttpLoadBalancingClient
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		URI uri = updateToSecureConnectionIfNeeded(original, this.config, this.serverIntrospector,
-				server);
+		URI uri = updateToSecureConnectionIfNeeded(original, this.config,
+				this.serverIntrospector, server);
 		return super.reconstructURIWithServer(server, uri);
 	}
+
 }

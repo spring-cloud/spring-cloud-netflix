@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ package org.springframework.cloud.netflix.turbine;
 
 import java.util.Collections;
 
+import com.netflix.turbine.discovery.Instance;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
-import com.netflix.turbine.discovery.Instance;
-
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.mock;
 public class CommonsInstanceDiscoveryTests {
 
 	private DiscoveryClient discoveryClient;
+
 	private TurbineProperties turbineProperties;
 
 	@Before
@@ -49,13 +50,18 @@ public class CommonsInstanceDiscoveryTests {
 		String appName = "testAppName";
 		int port = 8443;
 		String hostName = "myhost";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, true);
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				hostName, port, true);
 		Instance instance = discovery.marshall(serviceInstance);
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
-		assertEquals("securePort is wrong", String.valueOf(port), instance.getAttributes().get("securePort"));
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
+		assertThat(instance.getAttributes().get("securePort")).as("securePort is wrong")
+				.isEqualTo(String.valueOf(port));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "https://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"https://" + hostName + ":" + port + "/actuator/hystrix.stream");
 	}
 
 	@Test
@@ -65,25 +71,31 @@ public class CommonsInstanceDiscoveryTests {
 		String appName = "testAppName";
 		int port = 8080;
 		String hostName = "myhost";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, false);
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				hostName, port, false);
 		Instance instance = discovery.marshall(serviceInstance);
-		assertEquals("hostname is wrong", hostName+":"+port, instance.getHostname());
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+		assertThat(instance.getHostname()).as("hostname is wrong")
+				.isEqualTo(hostName + ":" + port);
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"http://" + hostName + ":" + port + "/actuator/hystrix.stream");
 
 		String clusterName = discovery.getClusterName(serviceInstance);
-		assertEquals("clusterName is wrong", appName, clusterName);
+		assertThat(clusterName).as("clusterName is wrong").isEqualTo(appName);
 	}
 
 	@Test
 	public void testGetClusterName() {
 		CommonsInstanceDiscovery discovery = createDiscovery();
 		String appName = "testAppName";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, "myhost", 8080, false);
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				"myhost", 8080, false);
 		String clusterName = discovery.getClusterName(serviceInstance);
-		assertEquals("clusterName is wrong", appName, clusterName);
+		assertThat(clusterName).as("clusterName is wrong").isEqualTo(appName);
 	}
 
 	@Test
@@ -92,12 +104,16 @@ public class CommonsInstanceDiscoveryTests {
 		String appName = "testAppName";
 		int port = 8080;
 		String hostName = "myhost";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, false);
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				hostName, port, false);
 		Instance instance = discovery.marshall(serviceInstance);
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"http://" + hostName + ":" + port + "/actuator/hystrix.stream");
 	}
 
 	@Test
@@ -107,29 +123,39 @@ public class CommonsInstanceDiscoveryTests {
 		int port = 8080;
 		int managementPort = 8081;
 		String hostName = "myhost";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, false);
-		serviceInstance.getMetadata().put("management.port", String.valueOf(managementPort));
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				hostName, port, false);
+		serviceInstance.getMetadata().put("management.port",
+				String.valueOf(managementPort));
 		Instance instance = discovery.marshall(serviceInstance);
-		assertEquals("port is wrong", String.valueOf(managementPort), instance.getAttributes().get("port"));
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(managementPort));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+managementPort+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"http://" + hostName + ":" + managementPort + "/actuator/hystrix.stream");
 	}
 
 	@Test
 	public void testGetSecurePort() {
 		CommonsInstanceDiscovery discovery = createDiscovery();
 		String appName = "testAppName";
-		//int port = 8080;
+		// int port = 8080;
 		int port = 8443;
 		String hostName = "myhost";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, true);
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				hostName, port, true);
 		Instance instance = discovery.marshall(serviceInstance);
-		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
-		assertEquals("securePort is wrong", String.valueOf(port), instance.getAttributes().get("securePort"));
+		assertThat(instance.getAttributes().get("port")).as("port is wrong")
+				.isEqualTo(String.valueOf(port));
+		assertThat(instance.getAttributes().get("securePort")).as("securePort is wrong")
+				.isEqualTo(String.valueOf(port));
 
-		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "https://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure
+				.getUrlPath(instance);
+		assertThat(urlPath).as("url is wrong").isEqualTo(
+				"https://" + hostName + ":" + port + "/actuator/hystrix.stream");
 	}
 
 	@Test
@@ -138,9 +164,10 @@ public class CommonsInstanceDiscoveryTests {
 		CommonsInstanceDiscovery discovery = createDiscovery();
 		String appName = "testAppName";
 		String hostName = "myhost";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, 8080, true);
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				hostName, 8080, true);
 		String clusterName = discovery.getClusterName(serviceInstance);
-		assertEquals("clusterName is wrong", hostName, clusterName);
+		assertThat(clusterName).as("clusterName is wrong").isEqualTo(hostName);
 	}
 
 	@Test
@@ -150,9 +177,11 @@ public class CommonsInstanceDiscoveryTests {
 		String metadataProperty = "myCluster";
 		String appName = "testAppName";
 		String hostName = "myhost";
-		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, 8080, true, Collections.singletonMap("cluster", metadataProperty));
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName,
+				hostName, 8080, true,
+				Collections.singletonMap("cluster", metadataProperty));
 		String clusterName = discovery.getClusterName(serviceInstance);
-		assertEquals("clusterName is wrong", metadataProperty, clusterName);
+		assertThat(clusterName).as("clusterName is wrong").isEqualTo(metadataProperty);
 	}
 
 	private CommonsInstanceDiscovery createDiscovery() {

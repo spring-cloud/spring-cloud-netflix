@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 import okhttp3.OkHttpClient;
-
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -26,12 +29,8 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -42,21 +41,21 @@ public class OkHttpLoadBalancingClientTests {
 	public void testOkHttpClientUseDefaultsNoOverride() throws Exception {
 		OkHttpClient result = getHttpClient(UseDefaults.class, null);
 
-		assertThat(result.followRedirects(), is(false));
+		assertThat(result.followRedirects()).isFalse();
 	}
 
 	@Test
 	public void testOkHttpClientDoNotFollowRedirectsNoOverride() throws Exception {
 		OkHttpClient result = getHttpClient(DoNotFollowRedirects.class, null);
 
-		assertThat(result.followRedirects(), is(false));
+		assertThat(result.followRedirects()).isFalse();
 	}
 
 	@Test
 	public void testOkHttpClientFollowRedirectsNoOverride() throws Exception {
 		OkHttpClient result = getHttpClient(FollowRedirects.class, null);
 
-		assertThat(result.followRedirects(), is(true));
+		assertThat(result.followRedirects()).isTrue();
 	}
 
 	@Test
@@ -69,7 +68,7 @@ public class OkHttpLoadBalancingClientTests {
 
 		OkHttpClient result = getHttpClient(DoNotFollowRedirects.class, override);
 
-		assertThat(result.followRedirects(), is(true));
+		assertThat(result.followRedirects()).isTrue();
 	}
 
 	@Test
@@ -82,21 +81,21 @@ public class OkHttpLoadBalancingClientTests {
 
 		OkHttpClient result = getHttpClient(FollowRedirects.class, override);
 
-		assertThat(result.followRedirects(), is(false));
+		assertThat(result.followRedirects()).isFalse();
 	}
 
 	@Test
 	public void testTimeouts() throws Exception {
 		OkHttpClient result = getHttpClient(Timeouts.class, null);
-		assertThat(result.readTimeoutMillis(), is(50000));
-		assertThat(result.connectTimeoutMillis(), is(60000));
+		assertThat(result.readTimeoutMillis()).isEqualTo(50000);
+		assertThat(result.connectTimeoutMillis()).isEqualTo(60000);
 	}
 
 	@Test
 	public void testDefaultTimeouts() throws Exception {
 		OkHttpClient result = getHttpClient(UseDefaults.class, null);
-		assertThat(result.readTimeoutMillis(), is(1000));
-		assertThat(result.connectTimeoutMillis(), is(1000));
+		assertThat(result.readTimeoutMillis()).isEqualTo(1000);
+		assertThat(result.connectTimeoutMillis()).isEqualTo(1000);
 	}
 
 	@Test
@@ -105,34 +104,35 @@ public class OkHttpLoadBalancingClientTests {
 		override.set(CommonClientConfigKey.ConnectTimeout, 60);
 		override.set(CommonClientConfigKey.ReadTimeout, 50);
 		OkHttpClient result = getHttpClient(Timeouts.class, override);
-		assertThat(result.readTimeoutMillis(), is(50));
-		assertThat(result.connectTimeoutMillis(), is(60));
+		assertThat(result.readTimeoutMillis()).isEqualTo(50);
+		assertThat(result.connectTimeoutMillis()).isEqualTo(60);
 	}
 
 	@Test
 	public void testUpdatedTimeouts() throws Exception {
 		SpringClientFactory factory = new SpringClientFactory();
 		OkHttpClient result = getHttpClient(Timeouts.class, null, factory);
-		assertThat(result.readTimeoutMillis(), is(50000));
-		assertThat(result.connectTimeoutMillis(), is(60000));
+		assertThat(result.readTimeoutMillis()).isEqualTo(50000);
+		assertThat(result.connectTimeoutMillis()).isEqualTo(60000);
 		IClientConfig config = factory.getClientConfig("service");
 		config.set(CommonClientConfigKey.ConnectTimeout, 60);
 		config.set(CommonClientConfigKey.ReadTimeout, 50);
 		result = getHttpClient(Timeouts.class, null, factory);
-		assertThat(result.readTimeoutMillis(), is(50));
-		assertThat(result.connectTimeoutMillis(), is(60));
+		assertThat(result.readTimeoutMillis()).isEqualTo(50);
+		assertThat(result.connectTimeoutMillis()).isEqualTo(60);
 	}
 
 	private OkHttpClient getHttpClient(Class<?> defaultConfigurationClass,
-											   IClientConfig configOverride) throws Exception {
-		return getHttpClient(defaultConfigurationClass, configOverride, new SpringClientFactory());
+			IClientConfig configOverride) throws Exception {
+		return getHttpClient(defaultConfigurationClass, configOverride,
+				new SpringClientFactory());
 	}
 
 	private OkHttpClient getHttpClient(Class<?> defaultConfigurationClass,
-									   IClientConfig configOverride,
-									   SpringClientFactory factory) throws Exception {
-		factory.setApplicationContext(new AnnotationConfigApplicationContext(
-				RibbonAutoConfiguration.class, OkHttpClientConfiguration.class, defaultConfigurationClass));
+			IClientConfig configOverride, SpringClientFactory factory) throws Exception {
+		factory.setApplicationContext(
+				new AnnotationConfigApplicationContext(RibbonAutoConfiguration.class,
+						OkHttpClientConfiguration.class, defaultConfigurationClass));
 
 		OkHttpLoadBalancingClient client = factory.getClient("service",
 				OkHttpLoadBalancingClient.class);
@@ -142,15 +142,19 @@ public class OkHttpLoadBalancingClientTests {
 
 	@Configuration
 	protected static class OkHttpClientConfiguration {
+
 		@Autowired(required = false)
 		IClientConfig clientConfig;
+
 		@Bean
 		public OkHttpLoadBalancingClient okHttpLoadBalancingClient() {
-			if(clientConfig == null) {
+			if (clientConfig == null) {
 				clientConfig = new DefaultClientConfigImpl();
 			}
-			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig, new DefaultServerIntrospector());
+			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig,
+					new DefaultServerIntrospector());
 		}
+
 	}
 
 	@Configuration
@@ -160,26 +164,31 @@ public class OkHttpLoadBalancingClientTests {
 
 	@Configuration
 	protected static class FollowRedirects {
+
 		@Bean
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 			config.set(CommonClientConfigKey.FollowRedirects, true);
 			return config;
 		}
+
 	}
 
 	@Configuration
 	protected static class DoNotFollowRedirects {
+
 		@Bean
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 			config.set(CommonClientConfigKey.FollowRedirects, false);
 			return config;
 		}
+
 	}
 
 	@Configuration
 	protected static class Timeouts {
+
 		@Bean
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
@@ -187,6 +196,7 @@ public class OkHttpLoadBalancingClientTests {
 			config.set(CommonClientConfigKey.ReadTimeout, 50000);
 			return config;
 		}
+
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
@@ -33,10 +34,12 @@ public class RibbonLoadBalancedRetryFactory implements LoadBalancedRetryFactory 
 	}
 
 	@Override
-	public LoadBalancedRetryPolicy createRetryPolicy(String service, ServiceInstanceChooser serviceInstanceChooser) {
+	public LoadBalancedRetryPolicy createRetryPolicy(String service,
+			ServiceInstanceChooser serviceInstanceChooser) {
 		RibbonLoadBalancerContext lbContext = this.clientFactory
 				.getLoadBalancerContext(service);
-		return new RibbonLoadBalancedRetryPolicy(service, lbContext, serviceInstanceChooser, clientFactory.getClientConfig(service));
+		return new RibbonLoadBalancedRetryPolicy(service, lbContext,
+				serviceInstanceChooser, clientFactory.getClientConfig(service));
 	}
 
 	@Override
@@ -48,5 +51,5 @@ public class RibbonLoadBalancedRetryFactory implements LoadBalancedRetryFactory 
 	public BackOffPolicy createBackOffPolicy(String service) {
 		return null;
 	}
-}
 
+}

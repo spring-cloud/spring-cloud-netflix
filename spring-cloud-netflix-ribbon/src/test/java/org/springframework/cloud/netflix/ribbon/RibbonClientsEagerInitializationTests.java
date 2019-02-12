@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -33,10 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {
-	"ribbon.eager-load.enabled=true",
-	"ribbon.eager-load.clients=testspec1,testspec2"
-})
+@SpringBootTest(properties = { "ribbon.eager-load.enabled=true",
+		"ribbon.eager-load.clients=testspec1,testspec2" })
 @DirtiesContext
 public class RibbonClientsEagerInitializationTests {
 
@@ -46,32 +46,35 @@ public class RibbonClientsEagerInitializationTests {
 	}
 
 	static class FooConfig {
+
 		@Bean
 		public Foo1 foo() {
 			return new Foo1();
 		}
+
 	}
 
 	@Configuration
 	@EnableAutoConfiguration
-	@RibbonClients(
-		value = {
-			@RibbonClient(name="testspec1", configuration = FooConfig.class),
-			@RibbonClient(name="testspec2", configuration = FooConfig.class),
-			@RibbonClient(name="testspec3", configuration = FooConfig.class),
-		})
+	@RibbonClients({ @RibbonClient(name = "testspec1", configuration = FooConfig.class),
+			@RibbonClient(name = "testspec2", configuration = FooConfig.class),
+			@RibbonClient(name = "testspec3", configuration = FooConfig.class) })
 	static class RibbonConfig {
+
 	}
 
 	static class Foo1 {
+
 		private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger();
 
-		public Foo1() {
+		Foo1() {
 			INSTANCE_COUNT.incrementAndGet();
 		}
 
 		public static int getInstanceCount() {
 			return INSTANCE_COUNT.get();
 		}
+
 	}
+
 }

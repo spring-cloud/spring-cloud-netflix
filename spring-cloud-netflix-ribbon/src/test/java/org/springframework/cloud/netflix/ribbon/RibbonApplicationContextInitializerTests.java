@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
@@ -36,8 +38,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {RibbonAutoConfiguration.class,
-		ArchaiusAutoConfiguration.class, RibbonApplicationContextInitializerTests.RibbonInitializerConfig.class})
+@SpringBootTest(classes = { RibbonAutoConfiguration.class,
+		ArchaiusAutoConfiguration.class,
+		RibbonApplicationContextInitializerTests.RibbonInitializerConfig.class })
 @DirtiesContext
 public class RibbonApplicationContextInitializerTests {
 
@@ -66,7 +69,7 @@ public class RibbonApplicationContextInitializerTests {
 	}
 
 	@Configuration
-	@RibbonClient(name="testspec", configuration = FooConfig.class)
+	@RibbonClient(name = "testspec", configuration = FooConfig.class)
 	static class RibbonInitializerConfig {
 
 		@Bean
@@ -79,14 +82,17 @@ public class RibbonApplicationContextInitializerTests {
 	}
 
 	static class Foo {
+
 		private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger();
 
-		public Foo() {
+		Foo() {
 			INSTANCE_COUNT.incrementAndGet();
 		}
 
 		public static int getInstanceCount() {
 			return INSTANCE_COUNT.get();
 		}
+
 	}
+
 }

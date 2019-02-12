@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,30 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
-
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okio.Buffer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okio.Buffer;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.util.LinkedMultiValueMap;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -56,12 +51,12 @@ public class OkHttpRibbonRequestTests {
 
 		Request request = httpRequest.toRequest();
 
-		assertThat("body is not null", request.body(), is(nullValue()));
-		assertThat("uri is wrong", request.url().toString(), startsWith(uri));
-		assertThat("my-header is wrong", request.header("my-header"),
-				is(equalTo("my-value")));
-		assertThat("myparam is missing", request.url().queryParameter("myparam"),
-				is(equalTo("myparamval")));
+		assertThat(request.body()).as("body is not null").isNull();
+		assertThat(request.url().toString()).as("uri is wrong").startsWith(uri);
+		assertThat(request.header("my-header")).as("my-header is wrong")
+				.isEqualTo("my-value");
+		assertThat(request.url().queryParameter("myparam")).as("myparam is missing")
+				.isEqualTo("myparamval");
 	}
 
 	@Test
@@ -110,23 +105,24 @@ public class OkHttpRibbonRequestTests {
 
 		Request request = httpRequest.toRequest();
 
-		assertThat("uri is wrong", request.url().toString(), startsWith(uri));
+		assertThat(request.url().toString()).as("uri is wrong").startsWith(uri);
 		if (addContentLengthHeader) {
-			assertThat("Content-Length is wrong", request.header("Content-Length"),
-					is(equalTo(lengthString)));
+			assertThat(request.header("Content-Length")).as("Content-Length is wrong")
+					.isEqualTo(lengthString);
 		}
-		assertThat("from-customizer is wrong", request.header("from-customizer"),
-				is(equalTo("foo")));
+		assertThat(request.header("from-customizer")).as("from-customizer is wrong")
+				.isEqualTo("foo");
 
 		if (!method.equalsIgnoreCase("get")) {
-			assertThat("body is null", request.body(), is(notNullValue()));
+			assertThat(request.body()).as("body is null").isNotNull();
 			RequestBody body = request.body();
-			assertThat("contentLength is wrong", body.contentLength(),
-					is(equalTo((long) entityValue.length())));
+			assertThat(body.contentLength()).as("contentLength is wrong")
+					.isEqualTo((long) entityValue.length());
 			Buffer content = new Buffer();
 			body.writeTo(content);
 			String string = content.readByteString().utf8();
-			assertThat("content is wrong", string, is(equalTo(entityValue)));
+			assertThat(string).as("content is wrong").isEqualTo(entityValue);
 		}
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,16 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.Applications;
-import org.junit.Assert;
+import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,11 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
-import com.netflix.discovery.shared.resolver.DefaultEndpoint;
-import com.netflix.discovery.shared.transport.EurekaHttpClient;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Daniel Lavoie
@@ -45,6 +46,7 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 		"security.basic.enabled=true" }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class RestTemplateEurekaHttpClientTest {
+
 	@Autowired
 	private InetUtils inetUtils;
 
@@ -52,6 +54,7 @@ public class RestTemplateEurekaHttpClientTest {
 	private String serviceUrl;
 
 	private EurekaHttpClient eurekaHttpClient;
+
 	private InstanceInfo info;
 
 	@Before
@@ -76,45 +79,45 @@ public class RestTemplateEurekaHttpClientTest {
 
 	@Test
 	public void testRegister() {
-		Assert.assertEquals(HttpStatus.OK.value(),
-				eurekaHttpClient.register(info).getStatusCode());
+		assertThat(eurekaHttpClient.register(info).getStatusCode())
+				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testCancel() {
-		Assert.assertEquals(HttpStatus.OK.value(),
-				eurekaHttpClient.cancel("test", "test").getStatusCode());
+		assertThat(eurekaHttpClient.cancel("test", "test").getStatusCode())
+				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testSendHeartBeat() {
-		Assert.assertEquals(HttpStatus.OK.value(), eurekaHttpClient
-				.sendHeartBeat("test", "test", info, null).getStatusCode());
+		assertThat(eurekaHttpClient.sendHeartBeat("test", "test", info, null)
+				.getStatusCode()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testSendHeartBeatFourOFour() {
-		Assert.assertEquals(HttpStatus.NOT_FOUND.value(), eurekaHttpClient
-				.sendHeartBeat("fourOFour", "test", info, null).getStatusCode());
+		assertThat(eurekaHttpClient.sendHeartBeat("fourOFour", "test", info, null)
+				.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
 	}
 
 	@Test
 	public void testStatusUpdate() {
-		Assert.assertEquals(HttpStatus.OK.value(), eurekaHttpClient
-				.statusUpdate("test", "test", InstanceStatus.UP, info).getStatusCode());
+		assertThat(eurekaHttpClient.statusUpdate("test", "test", InstanceStatus.UP, info)
+				.getStatusCode()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testDeleteStatusOverride() {
-		Assert.assertEquals(HttpStatus.OK.value(), eurekaHttpClient
-				.deleteStatusOverride("test", "test", info).getStatusCode());
+		assertThat(eurekaHttpClient.deleteStatusOverride("test", "test", info)
+				.getStatusCode()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testGetApplications() {
 		Applications entity = eurekaHttpClient.getApplications().getEntity();
-		Assert.assertNotNull(entity);
-		Assert.assertNotNull(eurekaHttpClient.getApplications("us", "eu").getEntity());
+		assertThat(entity).isNotNull();
+		assertThat(eurekaHttpClient.getApplications("us", "eu").getEntity()).isNotNull();
 	}
 
 	@Test
@@ -145,4 +148,5 @@ public class RestTemplateEurekaHttpClientTest {
 		eurekaHttpClient.getInstance("test");
 		eurekaHttpClient.getInstance("test", "test");
 	}
+
 }

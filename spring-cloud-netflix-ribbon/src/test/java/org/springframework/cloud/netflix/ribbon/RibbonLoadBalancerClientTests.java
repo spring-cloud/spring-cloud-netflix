@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonS
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyDouble;
@@ -77,8 +74,8 @@ public class RibbonLoadBalancerClientTests {
 	public void init() {
 		server = null;
 		MockitoAnnotations.initMocks(this);
-		given(this.clientFactory.getLoadBalancerContext(anyString())).willReturn(
-				new RibbonLoadBalancerContext(this.loadBalancer));
+		given(this.clientFactory.getLoadBalancerContext(anyString()))
+				.willReturn(new RibbonLoadBalancerContext(this.loadBalancer));
 		given(this.clientFactory.getInstance(anyString(), eq(ServerIntrospector.class)))
 				.willReturn(new DefaultServerIntrospector() {
 
@@ -111,11 +108,9 @@ public class RibbonLoadBalancerClientTests {
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 		URI uri = client.reconstructURI(serviceInstance,
 				new URL(scheme + "://" + server.getServiceId()).toURI());
-		assertThat(uri).hasScheme(scheme)
-				.hasHost(serviceInstance.getHost())
+		assertThat(uri).hasScheme(scheme).hasHost(serviceInstance.getHost())
 				.hasPort(serviceInstance.getPort());
-		assertThat(this.server).isNotNull()
-				.isInstanceOf(MyServer.class);
+		assertThat(this.server).isNotNull().isInstanceOf(MyServer.class);
 	}
 
 	@Test
@@ -155,7 +150,8 @@ public class RibbonLoadBalancerClientTests {
 
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
-		URI uri = client.reconstructURI(serviceInstance, URI.create("http://testService"));
+		URI uri = client.reconstructURI(serviceInstance,
+				URI.create("http://testService"));
 
 		assertThat(uri).hasScheme("ws").hasHost("myhost").hasPort(9080);
 	}
@@ -171,9 +167,9 @@ public class RibbonLoadBalancerClientTests {
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 		URI uri = client.reconstructURI(serviceInstance,
 				new URL("http://" + server.getServiceId()).toURI());
-		assertEquals(server.getHost(), uri.getHost());
-		assertEquals(server.getPort(), uri.getPort());
-		assertEquals("https", uri.getScheme());
+		assertThat(uri.getHost()).isEqualTo(server.getHost());
+		assertThat(uri.getPort()).isEqualTo(server.getPort());
+		assertThat(uri.getScheme()).isEqualTo("https");
 	}
 
 	@Test
@@ -186,8 +182,8 @@ public class RibbonLoadBalancerClientTests {
 		testReconstructSchemelessUriWithoutClientConfig(getRibbonServer(), "http");
 	}
 
-	public void testReconstructSchemelessUriWithoutClientConfig(RibbonServer server, String expectedScheme)
-			throws Exception {
+	public void testReconstructSchemelessUriWithoutClientConfig(RibbonServer server,
+			String expectedScheme) throws Exception {
 		IClientConfig config = mock(IClientConfig.class);
 		when(config.get(CommonClientConfigKey.IsSecure)).thenReturn(null);
 		when(clientFactory.getClientConfig(server.getServiceId())).thenReturn(config);
@@ -196,9 +192,9 @@ public class RibbonLoadBalancerClientTests {
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 		URI uri = client.reconstructURI(serviceInstance,
 				new URI("//" + server.getServiceId()));
-		assertEquals(server.getHost(), uri.getHost());
-		assertEquals(server.getPort(), uri.getPort());
-		assertEquals(expectedScheme, uri.getScheme());
+		assertThat(uri.getHost()).isEqualTo(server.getHost());
+		assertThat(uri.getPort()).isEqualTo(server.getPort());
+		assertThat(uri.getScheme()).isEqualTo(expectedScheme);
 	}
 
 	@Test
@@ -225,9 +221,10 @@ public class RibbonLoadBalancerClientTests {
 		given(this.clientFactory.getLoadBalancer(this.loadBalancer.getName()))
 				.willReturn(null);
 		given(this.loadBalancer.getName()).willReturn("missingservice");
-		RibbonLoadBalancerClient client = new RibbonLoadBalancerClient(this.clientFactory);
+		RibbonLoadBalancerClient client = new RibbonLoadBalancerClient(
+				this.clientFactory);
 		ServiceInstance instance = client.choose("missingservice");
-		assertNull("instance wasn't null", instance);
+		assertThat(instance).as("instance wasn't null").isNull();
 	}
 
 	@Test
@@ -237,12 +234,12 @@ public class RibbonLoadBalancerClientTests {
 		final String returnVal = "myval";
 		Object actualReturn = client.execute(server.getServiceId(),
 				(LoadBalancerRequest<Object>) instance -> {
-                    assertServiceInstance(server, instance);
-                    return returnVal;
-                });
+					assertServiceInstance(server, instance);
+					return returnVal;
+				});
 		verifyServerStats();
 		verify(this.loadBalancer).chooseServer(eq("default"));
-		assertEquals("retVal was wrong", returnVal, actualReturn);
+		assertThat(actualReturn).as("retVal was wrong").isEqualTo(returnVal);
 	}
 
 	@Test
@@ -258,7 +255,7 @@ public class RibbonLoadBalancerClientTests {
 				}, hint);
 		verifyServerStats();
 		verify(this.loadBalancer).chooseServer(same(hint));
-		assertEquals("retVal was wrong", returnVal, actualReturn);
+		assertThat(actualReturn).as("retVal was wrong").isEqualTo(returnVal);
 	}
 
 	@Test
@@ -266,15 +263,14 @@ public class RibbonLoadBalancerClientTests {
 		final RibbonServer ribbonServer = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(ribbonServer);
 		try {
-			client.execute(ribbonServer.getServiceId(),
-					instance -> {
-                        assertServiceInstance(ribbonServer, instance);
-                        throw new RuntimeException();
-                    });
+			client.execute(ribbonServer.getServiceId(), instance -> {
+				assertServiceInstance(ribbonServer, instance);
+				throw new RuntimeException();
+			});
 			fail("Should have thrown exception");
 		}
 		catch (Exception ex) {
-			assertNotNull(ex);
+			assertThat(ex).isNotNull();
 		}
 		verifyServerStats();
 	}
@@ -284,15 +280,14 @@ public class RibbonLoadBalancerClientTests {
 		final RibbonServer ribbonServer = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(ribbonServer);
 		try {
-			client.execute(ribbonServer.getServiceId(),
-					instance -> {
-                        assertServiceInstance(ribbonServer, instance);
-                        throw new IOException();
-                    });
+			client.execute(ribbonServer.getServiceId(), instance -> {
+				assertServiceInstance(ribbonServer, instance);
+				throw new IOException();
+			});
 			fail("Should have thrown exception");
 		}
 		catch (Exception ex) {
-		    assertThat(ex).isInstanceOf(IOException.class);
+			assertThat(ex).isInstanceOf(IOException.class);
 		}
 		verifyServerStats();
 	}
@@ -307,14 +302,6 @@ public class RibbonLoadBalancerClientTests {
 				Collections.singletonMap("mykey", "myvalue"));
 	}
 
-	protected static class MyServer extends Server {
-
-		public MyServer(String host, int port) {
-			super(host, port);
-		}
-
-	}
-
 	protected void verifyServerStats() {
 		verify(this.serverStats).incrementActiveRequestsCount();
 		verify(this.serverStats).decrementActiveRequestsCount();
@@ -324,22 +311,24 @@ public class RibbonLoadBalancerClientTests {
 
 	protected void assertServiceInstance(RibbonServer ribbonServer,
 			ServiceInstance instance) {
-		assertNotNull("instance was null", instance);
-		assertEquals("instanceId was wrong", ribbonServer.getInstanceId(),
-				instance.getInstanceId());
-		assertEquals("serviceId was wrong", ribbonServer.getServiceId(),
-				instance.getServiceId());
-		assertEquals("host was wrong", ribbonServer.getHost(), instance.getHost());
-		assertEquals("port was wrong", ribbonServer.getPort(), instance.getPort());
-		assertEquals("missing metadata", ribbonServer.getMetadata().get("mykey"),
-				instance.getMetadata().get("mykey"));
+		assertThat(instance).as("instance was null").isNotNull();
+		assertThat(instance.getInstanceId()).as("instanceId was wrong")
+				.isEqualTo(ribbonServer.getInstanceId());
+		assertThat(instance.getServiceId()).as("serviceId was wrong")
+				.isEqualTo(ribbonServer.getServiceId());
+		assertThat(instance.getHost()).as("host was wrong")
+				.isEqualTo(ribbonServer.getHost());
+		assertThat(instance.getPort()).as("port was wrong")
+				.isEqualTo(ribbonServer.getPort());
+		assertThat(instance.getMetadata().get("mykey")).as("missing metadata")
+				.isEqualTo(ribbonServer.getMetadata().get("mykey"));
 	}
 
 	protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(
 			RibbonServer ribbonServer) {
 		given(this.loadBalancer.getName()).willReturn(ribbonServer.getServiceId());
-		given(this.loadBalancer.chooseServer(anyObject())).willReturn(
-				ribbonServer.getServer());
+		given(this.loadBalancer.chooseServer(anyObject()))
+				.willReturn(ribbonServer.getServer());
 		given(this.loadBalancer.getLoadBalancerStats())
 				.willReturn(this.loadBalancerStats);
 		given(this.loadBalancerStats.getSingleServerStat(ribbonServer.getServer()))
@@ -348,4 +337,13 @@ public class RibbonLoadBalancerClientTests {
 				.willReturn(this.loadBalancer);
 		return new RibbonLoadBalancerClient(this.clientFactory);
 	}
+
+	protected static class MyServer extends Server {
+
+		public MyServer(String host, int port) {
+			super(host, port);
+		}
+
+	}
+
 }

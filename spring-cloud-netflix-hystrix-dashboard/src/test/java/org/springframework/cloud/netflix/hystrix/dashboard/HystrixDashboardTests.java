@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.hystrix.dashboard;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,8 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -47,11 +47,11 @@ public class HystrixDashboardTests {
 	public void homePage() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/hystrix", String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String body = entity.getBody();
-		assertTrue(body.contains("<base href=\"/hystrix\">"));
-		assertTrue(body.contains("\"/webjars"));
-		assertTrue(body.contains("= \"/hystrix/monitor"));
+		assertThat(body.contains("<base href=\"/hystrix\">")).isTrue();
+		assertThat(body.contains("\"/webjars")).isTrue();
+		assertThat(body.contains("= \"/hystrix/monitor")).isTrue();
 	}
 
 	@Test
@@ -59,22 +59,23 @@ public class HystrixDashboardTests {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/hystrix/css/global.css",
 				String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
 	public void monitorPage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/hystrix/monitor", String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String body = entity.getBody();
-		assertTrue(body.contains("<base href=\"/hystrix/monitor\">"));
+		assertThat(body.contains("<base href=\"/hystrix/monitor\">")).isTrue();
 	}
 
 	@Configuration
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	protected static class Application {
+
 	}
 
 }

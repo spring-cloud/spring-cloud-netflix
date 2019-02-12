@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon.support;
@@ -20,21 +19,33 @@ package org.springframework.cloud.netflix.ribbon.support;
 import java.util.List;
 
 /**
+ * Interface providing methods for customizing Ribbon requests.
+ *
+ * @param <B> Request builder type
  * @author Spencer Gibb
  */
 public interface RibbonRequestCustomizer<B> {
+
 	boolean accepts(Class builderClass);
+
 	void customize(B builder);
 
 	class Runner {
 
+		private Runner() {
+			throw new AssertionError("Must not instantiate utility class.");
+		}
+
 		@SuppressWarnings("unchecked")
-		public static void customize(List<RibbonRequestCustomizer> customizers, Object builder) {
+		public static void customize(List<RibbonRequestCustomizer> customizers,
+				Object builder) {
 			for (RibbonRequestCustomizer customizer : customizers) {
 				if (customizer.accepts(builder.getClass())) {
 					customizer.customize(builder);
 				}
 			}
 		}
+
 	}
+
 }

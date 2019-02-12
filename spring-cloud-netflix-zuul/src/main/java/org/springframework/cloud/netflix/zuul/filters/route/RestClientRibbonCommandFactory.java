@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route;
@@ -20,13 +19,13 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.util.Collections;
 import java.util.Set;
 
+import com.netflix.client.http.HttpRequest;
+import com.netflix.niws.client.http.RestClient;
+
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
-
-import com.netflix.client.http.HttpRequest;
-import com.netflix.niws.client.http.RestClient;
 
 /**
  * @author Spencer Gibb
@@ -39,12 +38,12 @@ public class RestClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 	private ZuulProperties zuulProperties;
 
 	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory) {
-		this(clientFactory, new ZuulProperties(), Collections.<FallbackProvider>emptySet());
+		this(clientFactory, new ZuulProperties(),
+				Collections.<FallbackProvider>emptySet());
 	}
 
 	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory,
-										  ZuulProperties zuulProperties,
-										  Set<FallbackProvider> zuulFallbackProviders) {
+			ZuulProperties zuulProperties, Set<FallbackProvider> zuulFallbackProviders) {
 		super(zuulFallbackProviders);
 		this.clientFactory = clientFactory;
 		this.zuulProperties = zuulProperties;
@@ -55,10 +54,10 @@ public class RestClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 	public RestClientRibbonCommand create(RibbonCommandContext context) {
 		String serviceId = context.getServiceId();
 		FallbackProvider fallbackProvider = getFallbackProvider(serviceId);
-		RestClient restClient = this.clientFactory.getClient(serviceId,
-				RestClient.class);
+		RestClient restClient = this.clientFactory.getClient(serviceId, RestClient.class);
 		return new RestClientRibbonCommand(context.getServiceId(), restClient, context,
-				this.zuulProperties, fallbackProvider, clientFactory.getClientConfig(serviceId));
+				this.zuulProperties, fallbackProvider,
+				clientFactory.getClientConfig(serviceId));
 	}
 
 	public SpringClientFactory getClientFactory() {

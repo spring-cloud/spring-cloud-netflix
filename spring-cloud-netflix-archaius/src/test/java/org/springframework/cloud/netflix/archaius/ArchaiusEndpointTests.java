@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@ package org.springframework.cloud.netflix.archaius;
 
 import java.util.Map;
 
-import org.junit.Test;
-import org.springframework.core.env.StandardEnvironment;
-
 import com.netflix.config.ConcurrentCompositeConfiguration;
 import com.netflix.config.ConfigurationManager;
+import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.springframework.core.env.StandardEnvironment;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -37,7 +36,7 @@ public class ArchaiusEndpointTests {
 	@Test
 	public void detectsPropertiesWhenSet() {
 		ConfigurationManager.getConfigInstance().setProperty("foo", "bar");
-		assertTrue(this.endpoint.invoke().containsKey("foo"));
+		assertThat(this.endpoint.invoke().containsKey("foo")).isTrue();
 	}
 
 	@Test
@@ -46,12 +45,12 @@ public class ArchaiusEndpointTests {
 				ConfigurationManager.getConfigInstance());
 		ConfigurableEnvironmentConfiguration config = new ConfigurableEnvironmentConfiguration(
 				new StandardEnvironment());
-		assertTrue(config.containsKey("user.dir"));
+		assertThat(config.containsKey("user.dir")).isTrue();
 		composite.addConfiguration(config);
 		ConfigurationManager.getConfigInstance().setProperty("foo", "bar");
 		Map<String, Object> map = this.endpoint.invoke();
-		assertTrue(map.containsKey("foo"));
-		assertFalse(map.containsKey("user.dir"));
+		assertThat(map.containsKey("foo")).isTrue();
+		assertThat(map.containsKey("user.dir")).isFalse();
 	}
 
 }

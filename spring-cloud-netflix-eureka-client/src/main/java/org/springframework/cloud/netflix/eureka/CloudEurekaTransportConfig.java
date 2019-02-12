@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import com.netflix.discovery.shared.transport.EurekaTransportConfig;
-
 import java.util.Objects;
+
+import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
 /**
  * @author Spencer Gibb
@@ -162,21 +162,27 @@ public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		CloudEurekaTransportConfig that = (CloudEurekaTransportConfig) o;
-		return sessionedClientReconnectIntervalSeconds == that.sessionedClientReconnectIntervalSeconds &&
-				Double.compare(retryableClientQuarantineRefreshPercentage, that.retryableClientQuarantineRefreshPercentage) == 0 &&
-				bootstrapResolverRefreshIntervalSeconds == that.bootstrapResolverRefreshIntervalSeconds &&
-				applicationsResolverDataStalenessThresholdSeconds == that.applicationsResolverDataStalenessThresholdSeconds &&
-				asyncResolverRefreshIntervalMs == that.asyncResolverRefreshIntervalMs &&
-				asyncResolverWarmUpTimeoutMs == that.asyncResolverWarmUpTimeoutMs &&
-				asyncExecutorThreadPoolSize == that.asyncExecutorThreadPoolSize &&
-				Objects.equals(readClusterVip, that.readClusterVip) &&
-				Objects.equals(writeClusterVip, that.writeClusterVip) &&
-				bootstrapResolverForQuery == that.bootstrapResolverForQuery &&
-				Objects.equals(bootstrapResolverStrategy, that.bootstrapResolverStrategy) &&
-				applicationsResolverUseIp == that.applicationsResolverUseIp;
+		return sessionedClientReconnectIntervalSeconds == that.sessionedClientReconnectIntervalSeconds
+				&& Double.compare(retryableClientQuarantineRefreshPercentage,
+						that.retryableClientQuarantineRefreshPercentage) == 0
+				&& bootstrapResolverRefreshIntervalSeconds == that.bootstrapResolverRefreshIntervalSeconds
+				&& applicationsResolverDataStalenessThresholdSeconds == that.applicationsResolverDataStalenessThresholdSeconds
+				&& asyncResolverRefreshIntervalMs == that.asyncResolverRefreshIntervalMs
+				&& asyncResolverWarmUpTimeoutMs == that.asyncResolverWarmUpTimeoutMs
+				&& asyncExecutorThreadPoolSize == that.asyncExecutorThreadPoolSize
+				&& Objects.equals(readClusterVip, that.readClusterVip)
+				&& Objects.equals(writeClusterVip, that.writeClusterVip)
+				&& bootstrapResolverForQuery == that.bootstrapResolverForQuery
+				&& Objects.equals(bootstrapResolverStrategy,
+						that.bootstrapResolverStrategy)
+				&& applicationsResolverUseIp == that.applicationsResolverUseIp;
 	}
 
 	@Override
@@ -194,18 +200,27 @@ public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 	@Override
 	public String toString() {
 		return new StringBuilder("CloudEurekaTransportConfig{")
-				.append("sessionedClientReconnectIntervalSeconds=").append(sessionedClientReconnectIntervalSeconds).append(", ")
-				.append("retryableClientQuarantineRefreshPercentage=").append(retryableClientQuarantineRefreshPercentage).append(", ")
-				.append("bootstrapResolverRefreshIntervalSeconds=").append(bootstrapResolverRefreshIntervalSeconds).append(", ")
-				.append("applicationsResolverDataStalenessThresholdSeconds=").append(applicationsResolverDataStalenessThresholdSeconds).append(", ")
-				.append("asyncResolverRefreshIntervalMs=").append(asyncResolverRefreshIntervalMs).append(", ")
-				.append("asyncResolverWarmUpTimeoutMs=").append(asyncResolverWarmUpTimeoutMs).append(", ")
-				.append("asyncExecutorThreadPoolSize=").append(asyncExecutorThreadPoolSize).append(", ")
+				.append("sessionedClientReconnectIntervalSeconds=")
+				.append(sessionedClientReconnectIntervalSeconds).append(", ")
+				.append("retryableClientQuarantineRefreshPercentage=")
+				.append(retryableClientQuarantineRefreshPercentage).append(", ")
+				.append("bootstrapResolverRefreshIntervalSeconds=")
+				.append(bootstrapResolverRefreshIntervalSeconds).append(", ")
+				.append("applicationsResolverDataStalenessThresholdSeconds=")
+				.append(applicationsResolverDataStalenessThresholdSeconds).append(", ")
+				.append("asyncResolverRefreshIntervalMs=")
+				.append(asyncResolverRefreshIntervalMs).append(", ")
+				.append("asyncResolverWarmUpTimeoutMs=")
+				.append(asyncResolverWarmUpTimeoutMs).append(", ")
+				.append("asyncExecutorThreadPoolSize=")
+				.append(asyncExecutorThreadPoolSize).append(", ")
 				.append("readClusterVip='").append(readClusterVip).append("', ")
 				.append("writeClusterVip='").append(writeClusterVip).append("', ")
-				.append("bootstrapResolverForQuery=").append(bootstrapResolverForQuery).append(", ")
-				.append("bootstrapResolverStrategy='").append(bootstrapResolverStrategy).append("', ")
-				.append("applicationsResolverUseIp=").append(applicationsResolverUseIp).append(", ").append("}")
-				.toString();
+				.append("bootstrapResolverForQuery=").append(bootstrapResolverForQuery)
+				.append(", ").append("bootstrapResolverStrategy='")
+				.append(bootstrapResolverStrategy).append("', ")
+				.append("applicationsResolverUseIp=").append(applicationsResolverUseIp)
+				.append(", ").append("}").toString();
 	}
+
 }

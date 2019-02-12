@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route;
@@ -21,40 +20,47 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
-import org.springframework.http.HttpMethod;
-import org.springframework.util.MultiValueMap;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.niws.client.http.RestClient;
 
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.MultiValueMap;
+
 import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer.Runner.customize;
 
 /**
- * Hystrix wrapper around Eureka Ribbon command
+ * Hystrix wrapper around Eureka Ribbon command.
  *
- * see <a href="https://github.com/Netflix/zuul/blob/master/zuul-netflix/src/main/java/com/netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java">original</a>
+ * see <a href=
+ * "https://github.com/Netflix/zuul/blob/master/zuul-netflix/src/main/java/com/netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java">original</a>
+ *
+ * @author Spencer Gibb
+ * @author Stephane Lagraulet
+ * @author Ryan Baxter
  */
 @SuppressWarnings("deprecation")
-public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
+public class RestClientRibbonCommand
+		extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
 
 	public RestClientRibbonCommand(String commandKey, RestClient client,
-								   RibbonCommandContext context, ZuulProperties zuulProperties) {
+			RibbonCommandContext context, ZuulProperties zuulProperties) {
 		super(commandKey, client, context, zuulProperties);
 	}
 
 	public RestClientRibbonCommand(String commandKey, RestClient client,
-								   RibbonCommandContext context, ZuulProperties zuulProperties,
-								   FallbackProvider zuulFallbackProvider) {
+			RibbonCommandContext context, ZuulProperties zuulProperties,
+			FallbackProvider zuulFallbackProvider) {
 		super(commandKey, client, context, zuulProperties, zuulFallbackProvider);
 	}
 
 	public RestClientRibbonCommand(String commandKey, RestClient client,
-								   RibbonCommandContext context, ZuulProperties zuulProperties,
-								   FallbackProvider zuulFallbackProvider, IClientConfig config) {
+			RibbonCommandContext context, ZuulProperties zuulProperties,
+			FallbackProvider zuulFallbackProvider, IClientConfig config) {
 		super(commandKey, client, context, zuulProperties, zuulFallbackProvider, config);
 	}
 
@@ -73,7 +79,8 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 		// ApacheHttpClient4Handler does not support body in delete requests
 		if (getContext().getMethod().equalsIgnoreCase(HttpMethod.DELETE.toString())) {
 			requestEntity = null;
-		} else {
+		}
+		else {
 			requestEntity = this.context.getRequestEntity();
 		}
 
@@ -119,8 +126,9 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 	}
 
 	protected static HttpRequest.Verb getVerb(String method) {
-		if (method == null)
+		if (method == null) {
 			return HttpRequest.Verb.GET;
+		}
 		try {
 			return HttpRequest.Verb.valueOf(method.toUpperCase());
 		}
