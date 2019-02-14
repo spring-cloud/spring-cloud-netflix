@@ -484,19 +484,8 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 <simpara>The JAXB modules which the Eureka server depends upon were removed in JDK 11.  If you intend to use JDK 11
 when running a Eureka server you must include these dependencies in your POM or Gradle file.</simpara>
 <programlisting language="xml" linenumbering="unnumbered">&lt;dependency&gt;
-    &lt;groupId&gt;javax.xml.bind&lt;/groupId&gt;
-    &lt;artifactId&gt;jaxb-api&lt;/artifactId&gt;
-    &lt;version&gt;2.3.0&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;com.sun.xml.bind&lt;/groupId&gt;
-    &lt;artifactId&gt;jaxb-core&lt;/artifactId&gt;
-    &lt;version&gt;2.3.0&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;com.sun.xml.bind&lt;/groupId&gt;
-    &lt;artifactId&gt;jaxb-impl&lt;/artifactId&gt;
-    &lt;version&gt;2.3.0&lt;/version&gt;
+	&lt;groupId&gt;org.glassfish.jaxb&lt;/groupId&gt;
+	&lt;artifactId&gt;jaxb-runtime&lt;/artifactId&gt;
 &lt;/dependency&gt;</programlisting>
 </section>
 </chapter>
