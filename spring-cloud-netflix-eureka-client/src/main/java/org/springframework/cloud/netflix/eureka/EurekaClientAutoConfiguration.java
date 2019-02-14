@@ -87,7 +87,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @ConditionalOnClass(EurekaClientConfig.class)
 @Import(DiscoveryClientOptionalArgsConfiguration.class)
 @ConditionalOnBean(EurekaDiscoveryClientConfiguration.Marker.class)
-@ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = {"eureka.client.enabled", "spring.cloud.discovery.enabled"}, matchIfMissing = true)
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
 		CommonsClientAutoConfiguration.class, ServiceRegistryAutoConfiguration.class })
 @AutoConfigureAfter(name = {"org.springframework.cloud.autoconfigure.RefreshAutoConfiguration",

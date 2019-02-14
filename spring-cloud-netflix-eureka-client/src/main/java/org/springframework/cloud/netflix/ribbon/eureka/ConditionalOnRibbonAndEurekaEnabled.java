@@ -36,7 +36,7 @@ public @interface ConditionalOnRibbonAndEurekaEnabled {
         @ConditionalOnBean(EurekaClient.class)
         static class EurekaBeans {}
 
-        @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+        @ConditionalOnProperty(value = {"eureka.client.enabled", "spring.cloud.discovery.enabled"}, matchIfMissing = true)
         static class OnEurekaClientEnabled {}
     }
 }

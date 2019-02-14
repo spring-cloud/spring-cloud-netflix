@@ -43,7 +43,7 @@ import com.netflix.discovery.EurekaClientConfig;
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
-@ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = {"eureka.client.enabled", "spring.cloud.discovery.enabled"}, matchIfMissing = true)
 public class EurekaDiscoveryClientConfiguration {
 
 	class Marker {}
