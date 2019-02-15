@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.monitoring.CounterFactory;
@@ -115,14 +114,18 @@ public class SimpleHostRoutingFilterTests {
 		assertThat(connMgr.getMaxTotal()).isEqualTo(100);
 		assertThat(connMgr.getDefaultMaxPerRoute()).isEqualTo(10);
 		Object pool = getField(connMgr, "pool");
-		Long timeToLive = getField(pool, "timeToLive");
-		TimeUnit timeUnit = getField(pool, "tunit");
-		assertThat(timeToLive).isEqualTo(new Long(5));
-		assertThat(timeUnit).isEqualTo(TimeUnit.SECONDS);
+		assertThat(pool).hasFieldOrPropertyWithValue("timeToLive", 5L);
+		// FIXME: 2.1.1 assertThat(pool).hasFieldOrPropertyWithValue("tunit",
+		// TimeUnit.SECONDS);
 	}
 
-	protected <T> T getField(Object target, String name) {
+	@SuppressWarnings("unchecked")
+	private <T> T getField(Object target, String name) {
 		Field field = ReflectionUtils.findField(target.getClass(), name);
+		if (field == null) {
+			throw new IllegalArgumentException(
+					target.getClass() + " does not have field " + name);
+		}
 		ReflectionUtils.makeAccessible(field);
 		Object value = ReflectionUtils.getField(field, target);
 		return (T) value;
