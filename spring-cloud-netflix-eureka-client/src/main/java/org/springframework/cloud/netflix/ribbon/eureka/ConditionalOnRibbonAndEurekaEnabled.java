@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Conditional;
 
@@ -36,8 +37,9 @@ import org.springframework.context.annotation.Conditional;
  * Conditional that requires both Ribbon and Eureka to be enabled.
  * @author Ihor Kryvenko
  * @author Spencer Gibb
+ * @author Olga Maciaszek-Sharma
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional(ConditionalOnRibbonAndEurekaEnabled.OnRibbonAndEurekaEnabledCondition.class)
@@ -62,10 +64,7 @@ public @interface ConditionalOnRibbonAndEurekaEnabled {
 		}
 
 		@ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
-		static class OnEurekaClientEnabled {
-
-		}
-
+		@ConditionalOnDiscoveryEnabled
+		static class OnEurekaClientEnabled { }
 	}
-
 }

@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
 import org.springframework.context.ApplicationListener;
@@ -38,11 +39,13 @@ import org.springframework.context.annotation.Configuration;
  * @author Spencer Gibb
  * @author Jon Schneider
  * @author Jakub Narloch
+ * @author Olga Maciaszek-Sharma
  */
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+@ConditionalOnDiscoveryEnabled
 public class EurekaDiscoveryClientConfiguration {
 
 	@Bean

@@ -48,6 +48,7 @@ import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
+import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
@@ -81,6 +82,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Matt Jenkins
  * @author Ryan Baxter
  * @author Daniel Lavoie
+ * @author Olga Maciaszek-Sharma
  */
 @Configuration
 @EnableConfigurationProperties
@@ -88,6 +90,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @Import(DiscoveryClientOptionalArgsConfiguration.class)
 @ConditionalOnBean(EurekaDiscoveryClientConfiguration.Marker.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+@ConditionalOnDiscoveryEnabled
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
 		CommonsClientAutoConfiguration.class, ServiceRegistryAutoConfiguration.class })
 @AutoConfigureAfter(name = {
