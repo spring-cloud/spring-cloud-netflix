@@ -63,7 +63,7 @@ By having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the c
 <simpara>Having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the classpath makes the app into both a Eureka <quote>instance</quote> (that is, it registers itself) and a <quote>client</quote> (it can query the registry to locate other services).
 The instance behaviour is driven by <literal>eureka.instance.*</literal> configuration keys, but the defaults are fine if you ensure that your application has a value for <literal>spring.application.name</literal> (this is the default for the Eureka service ID or VIP).</simpara>
 <simpara>See <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> and <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</link> for more details on the configurable options.</simpara>
-<simpara>To disable the Eureka Discovery Client, you can set <literal>eureka.client.enabled</literal> to <literal>false</literal>.</simpara>
+<simpara>To disable the Eureka Discovery Client, you can set <literal>eureka.client.enabled</literal> to <literal>false</literal>. Eureka Discovery Client will also be disabled when <literal>spring.cloud.discovery.enabled</literal> is set to <literal>false</literal>.</simpara>
 </section>
 <section xml:id="_authenticating_with_the_eureka_server">
 <title>Authenticating with the Eureka Server</title>
