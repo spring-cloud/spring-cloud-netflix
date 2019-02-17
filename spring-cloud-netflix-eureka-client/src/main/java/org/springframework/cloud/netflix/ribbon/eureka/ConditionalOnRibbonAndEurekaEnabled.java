@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Conditional;
  * @author Spencer Gibb
  * @author Olga Maciaszek-Sharma
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional(ConditionalOnRibbonAndEurekaEnabled.OnRibbonAndEurekaEnabledCondition.class)
@@ -65,6 +65,10 @@ public @interface ConditionalOnRibbonAndEurekaEnabled {
 
 		@ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 		@ConditionalOnDiscoveryEnabled
-		static class OnEurekaClientEnabled { }
+		static class OnEurekaClientEnabled {
+
+		}
+
 	}
+
 }

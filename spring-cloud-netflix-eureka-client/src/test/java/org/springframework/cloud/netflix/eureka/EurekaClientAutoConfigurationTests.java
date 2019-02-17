@@ -40,6 +40,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.context.refresh.ContextRefresher;
@@ -56,6 +57,7 @@ import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.fail;
 
 /**
  * @author Spencer Gibb
@@ -570,7 +572,8 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void eurekaConfigNotLoadedWhenDiscoveryClientDisabled() {
-		addEnvironment(context, "spring.cloud.discovery.enabled=false");
+		TestPropertyValues.of("spring.cloud.discovery.enabled=false")
+				.applyTo(this.context);
 		setupContext(TestConfiguration.class);
 		assertBeanNotPresent(EurekaClientConfigBean.class);
 		assertBeanNotPresent(EurekaInstanceConfigBean.class);
