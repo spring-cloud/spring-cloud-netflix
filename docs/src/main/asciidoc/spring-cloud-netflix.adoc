@@ -72,7 +72,7 @@ The instance behaviour is driven by `eureka.instance.*` configuration keys, but 
 
 See {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details on the configurable options.
 
-To disable the Eureka Discovery Client, you can set `eureka.client.enabled` to `false`.
+To disable the Eureka Discovery Client, you can set `eureka.client.enabled` to `false`. Eureka Discovery Client will also be disabled when `spring.cloud.discovery.enabled` is set to `false`.
 
 === Authenticating with the Eureka Server
 

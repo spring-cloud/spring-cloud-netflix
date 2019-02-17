@@ -20,10 +20,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.discovery.DiscoveryClient;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
+import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import org.springframework.aop.framework.Advised;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
@@ -35,6 +45,7 @@ import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationP
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.cloud.context.scope.GenericScope;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -44,21 +55,17 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Spencer Gibb
  * @author Matt Jenkins
+ * @author Olga Maciaszek-Sharma
  */
 public class EurekaClientAutoConfigurationTests {
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
@@ -518,6 +525,28 @@ public class EurekaClientAutoConfigurationTests {
 			CountDownLatch latch = this.context.getBean(CountDownLatch.class);
 			this.context.close();
 			assertThat(latch.getCount()).isEqualTo(0);
+		}
+	}
+
+	@Test
+	public void eurekaConfigNotLoadedWhenDiscoveryClientDisabled() {
+		addEnvironment(context, "spring.cloud.discovery.enabled=false");
+		setupContext(TestConfiguration.class);
+		assertBeanNotPresent(EurekaClientConfigBean.class);
+		assertBeanNotPresent(EurekaInstanceConfigBean.class);
+		assertBeanNotPresent(DiscoveryClient.class);
+		assertBeanNotPresent(EurekaServiceRegistry.class);
+		assertBeanNotPresent(EurekaClient.class);
+		assertBeanNotPresent(EurekaDiscoveryClientConfiguration.Marker.class);
+	}
+
+	private void assertBeanNotPresent(Class beanClass) {
+		try {
+			context.getBean(beanClass);
+			fail("Bean of type " + beanClass + " should not have been created.");
+		}
+		catch (NoSuchBeanDefinitionException exception) {
+			// expected exception
 		}
 	}
 
