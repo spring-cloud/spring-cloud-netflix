@@ -169,8 +169,8 @@ public class EurekaClientAutoConfiguration {
 		if (StringUtils.hasText(hostname)) {
 			instance.setHostname(hostname);
 		}
-		String statusPageUrlPath = getProperty("eureka.instance.status-page-url-path");
-		String healthCheckUrlPath = getProperty("eureka.instance.health-check-url-path");
+		String statusPageUrlPath = env.resolvePlaceholders("${eureka.instance.status-page-url-path:${management.endpoints.web.base-path:/actuator}/info}");
+		String healthCheckUrlPath = env.resolvePlaceholders("${eureka.instance.health-check-url-path:${management.endpoints.web.base-path:/actuator}/health}");
 
 		if (StringUtils.hasText(statusPageUrlPath)) {
 			instance.setStatusPageUrlPath(statusPageUrlPath);
