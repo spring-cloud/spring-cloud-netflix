@@ -104,11 +104,11 @@ public class RetryableRibbonLoadBalancingHttpClient
 					newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance()
 							.host(service.getHost()).scheme(service.getUri().getScheme())
 							.userInfo(newRequest.getURI().getUserInfo())
-							.port(service.getPort()).path(newRequest.getURI().getPath())
+							.port(service.getPort())
+							.path(newRequest.getURI().getRawPath())
 							.query(newRequest.getURI().getQuery())
-							.fragment(newRequest.getURI().getFragment()).build().encode()
-							.toUri());
-
+							.fragment(newRequest.getURI().getFragment()).build(true)
+							.encode().toUri());
 					if (ribbonLoadBalancerContext == null) {
 						LOGGER.error(
 								"RibbonLoadBalancerContext is null. Unable to update load balancer stats");
