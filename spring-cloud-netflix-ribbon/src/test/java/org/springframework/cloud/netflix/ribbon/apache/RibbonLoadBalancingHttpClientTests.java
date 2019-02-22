@@ -406,7 +406,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		String host = serviceName;
 		int port = 80;
 		HttpMethod method = HttpMethod.GET;
-		URI uri = new URI("http://" + host + ":" + port);
+		URI uri = new URI("http://" + host + ":" + port + "/a%2Bb");
 		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
 		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
@@ -430,6 +430,15 @@ public class RibbonLoadBalancingHttpClientTests {
 		client.execute(request, null);
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(2)).chooseServer(eq(serviceName));
+		verify(request, times(3)).withNewUri(argThat(new ArgumentMatcher<URI>() {
+			@Override
+			public boolean matches(URI argument) {
+				if (argument.equals(uri)) {
+					return true;
+				}
+				return false;
+			}
+		}));
 		assertEquals(2, myBackOffPolicy.getCount());
 	}
 
