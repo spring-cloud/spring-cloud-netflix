@@ -152,7 +152,16 @@ public class RibbonClientConfiguration {
 		if (this.propertiesFactory.isSet(ILoadBalancer.class, name)) {
 			return this.propertiesFactory.get(ILoadBalancer.class, config, name);
 		}
-		return new ZoneAwareLoadBalancer<>(config, rule, ping, serverList,
+		
+		IRule newRuleInstance;
+        try {
+            newRuleInstance = rule.getClass().newInstance();
+        } catch (Exception e) {
+            return new ZoneAwareLoadBalancer<>(config, null, ping, serverList,
+                    serverListFilter, serverListUpdater);
+        }
+		
+		return new ZoneAwareLoadBalancer<>(config, newRuleInstance, ping, serverList,
 				serverListFilter, serverListUpdater);
 	}
 
