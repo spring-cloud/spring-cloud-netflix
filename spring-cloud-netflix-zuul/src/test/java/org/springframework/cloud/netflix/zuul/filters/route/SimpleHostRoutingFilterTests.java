@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.monitoring.CounterFactory;
@@ -115,8 +116,7 @@ public class SimpleHostRoutingFilterTests {
 		assertThat(connMgr.getDefaultMaxPerRoute()).isEqualTo(10);
 		Object pool = getField(connMgr, "pool");
 		assertThat(pool).hasFieldOrPropertyWithValue("timeToLive", 5L);
-		// FIXME: 2.1.1 assertThat(pool).hasFieldOrPropertyWithValue("tunit",
-		// TimeUnit.SECONDS);
+		assertThat(pool).hasFieldOrPropertyWithValue("timeUnit", TimeUnit.SECONDS);
 	}
 
 	@SuppressWarnings("unchecked")
