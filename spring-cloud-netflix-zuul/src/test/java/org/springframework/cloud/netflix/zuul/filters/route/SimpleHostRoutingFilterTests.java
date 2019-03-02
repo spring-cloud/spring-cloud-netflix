@@ -22,7 +22,9 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.monitoring.CounterFactory;
@@ -31,6 +33,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.Configurable;
 import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -66,6 +69,7 @@ import static org.springframework.util.StreamUtils.copyToByteArray;
  * @author Andreas Kluth
  * @author Spencer Gibb
  * @author Gang Li
+ * @author Denys Ivano
  */
 public class SimpleHostRoutingFilterTests {
 
@@ -175,14 +179,81 @@ public class SimpleHostRoutingFilterTests {
 	public void zuulHostKeysUpdateHttpClient() {
 		setupContext();
 		SimpleHostRoutingFilter filter = getFilter();
-		CloseableHttpClient httpClient = (CloseableHttpClient) ReflectionTestUtils
-				.getField(filter, "httpClient");
+		CloseableHttpClient httpClient = extractHttpClient(filter);
 		EnvironmentChangeEvent event = new EnvironmentChangeEvent(
 				Collections.singleton("zuul.host.mykey"));
-		filter.onPropertyChange(event);
-		CloseableHttpClient newhttpClient = (CloseableHttpClient) ReflectionTestUtils
-				.getField(filter, "httpClient");
+		filter.onApplicationEvent(event);
+		CloseableHttpClient newhttpClient = extractHttpClient(filter);
 		Assertions.assertThat(httpClient).isNotEqualTo(newhttpClient);
+	}
+
+	private CloseableHttpClient extractHttpClient(SimpleHostRoutingFilter filter) {
+		return (CloseableHttpClient) ReflectionTestUtils.getField(filter, "httpClient");
+	}
+
+	@Test
+	public void zuulHostKeysUpdateHttpClientConnectionManagerIsNotShutDown() {
+		setupContext();
+		SimpleHostRoutingFilter filter = getFilter();
+		EnvironmentChangeEvent event = new EnvironmentChangeEvent(
+				Collections.singleton("zuul.host.mykey"));
+		filter.onApplicationEvent(event);
+
+		CloseableHttpClient httpClient = extractHttpClient(filter);
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) extractConnectionManager(
+				httpClient);
+		AtomicBoolean isShutDown = getField(connMgr, "isShutDown");
+		assertThat(isShutDown.get()).as("Connection manager shut down").isFalse();
+		Object pool = getField(connMgr, "pool");
+		assertThat(pool).hasFieldOrPropertyWithValue("isShutDown", false);
+	}
+
+	private HttpClientConnectionManager extractConnectionManager(
+			CloseableHttpClient httpClient) {
+		// Default implementation is org.apache.http.impl.client.InternalHttpClient
+		return getField(httpClient, "connManager");
+	}
+
+	@Test
+	public void zuulHostKeysUpdateHttpClientUsesNewConnectionManager() {
+		setupContext();
+		SimpleHostRoutingFilter filter = getFilter();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) filter
+				.getConnectionManager();
+		EnvironmentChangeEvent event = new EnvironmentChangeEvent(
+				Collections.singleton("zuul.host.mykey"));
+		filter.onApplicationEvent(event);
+
+		PoolingHttpClientConnectionManager newConnMgr = (PoolingHttpClientConnectionManager) filter
+				.getConnectionManager();
+		CloseableHttpClient httpClient = extractHttpClient(filter);
+		HttpClientConnectionManager usedConnMgr = extractConnectionManager(httpClient);
+		assertThat(usedConnMgr).isNotEqualTo(connMgr);
+		assertThat(usedConnMgr).isEqualTo(newConnMgr);
+	}
+
+	@Test
+	public void zuulHostKeysUpdateConnectionManagerPropertiesAreChanged() {
+		setupContext();
+		SimpleHostRoutingFilter filter = getFilter();
+		ZuulProperties.Host host = context.getBean(ZuulProperties.class).getHost();
+		host.setMaxTotalConnections(50);
+		host.setMaxPerRouteConnections(10);
+		host.setTimeToLive(10);
+		host.setTimeUnit(TimeUnit.SECONDS);
+		EnvironmentChangeEvent event = new EnvironmentChangeEvent(
+				new HashSet<>(Arrays.asList("zuul.host.maxTotalConnections",
+						"zuul.host.maxPerRouteConnections", "zuul.host.timeToLive",
+						"zuul.host.timeUnit")));
+		filter.onApplicationEvent(event);
+
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) filter
+				.getConnectionManager();
+		assertThat(connMgr.getMaxTotal()).isEqualTo(50);
+		assertThat(connMgr.getDefaultMaxPerRoute()).isEqualTo(10);
+		Object pool = getField(connMgr, "pool");
+		assertThat(pool).hasFieldOrPropertyWithValue("timeToLive", 10L);
+		assertThat(pool).hasFieldOrPropertyWithValue("timeUnit", TimeUnit.SECONDS);
 	}
 
 	@Test

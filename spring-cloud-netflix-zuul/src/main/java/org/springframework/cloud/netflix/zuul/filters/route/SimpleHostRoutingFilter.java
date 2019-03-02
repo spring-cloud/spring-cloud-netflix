@@ -81,6 +81,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Dave Syer
  * @author Bilal Alp
  * @author Gang Li
+ * @author Denys Ivano
  */
 public class SimpleHostRoutingFilter extends ZuulFilter
 		implements ApplicationListener<EnvironmentChangeEvent> {
@@ -137,6 +138,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter
 				catch (IOException ex) {
 					log.error("error closing client", ex);
 				}
+				// Re-create connection manager (may be shut down on HTTP client close)
+				SimpleHostRoutingFilter.this.connectionManager.shutdown();
+				SimpleHostRoutingFilter.this.connectionManager = newConnectionManager();
 				SimpleHostRoutingFilter.this.httpClient = newClient();
 			}
 		}
@@ -170,12 +174,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter
 	@PostConstruct
 	private void initialize() {
 		if (!customHttpClient) {
-			this.connectionManager = connectionManagerFactory.newConnectionManager(
-					!this.sslHostnameValidationEnabled,
-					this.hostProperties.getMaxTotalConnections(),
-					this.hostProperties.getMaxPerRouteConnections(),
-					this.hostProperties.getTimeToLive(),
-					this.hostProperties.getTimeUnit(), null);
+			this.connectionManager = newConnectionManager();
 			this.httpClient = newClient();
 			this.connectionManagerTimer.schedule(new TimerTask() {
 				@Override
@@ -285,6 +284,15 @@ public class SimpleHostRoutingFilter extends ZuulFilter
 
 	protected HttpClientConnectionManager getConnectionManager() {
 		return connectionManager;
+	}
+
+	protected HttpClientConnectionManager newConnectionManager() {
+		return connectionManagerFactory.newConnectionManager(
+				!this.sslHostnameValidationEnabled,
+				this.hostProperties.getMaxTotalConnections(),
+				this.hostProperties.getMaxPerRouteConnections(),
+				this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
+				null);
 	}
 
 	protected CloseableHttpClient newClient() {
