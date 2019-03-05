@@ -133,15 +133,20 @@ public class SimpleHostRoutingFilter extends ZuulFilter
 
 			if (createNewClient) {
 				try {
-					SimpleHostRoutingFilter.this.httpClient.close();
+					this.httpClient.close();
 				}
 				catch (IOException ex) {
 					log.error("error closing client", ex);
 				}
 				// Re-create connection manager (may be shut down on HTTP client close)
-				SimpleHostRoutingFilter.this.connectionManager.shutdown();
-				SimpleHostRoutingFilter.this.connectionManager = newConnectionManager();
-				SimpleHostRoutingFilter.this.httpClient = newClient();
+				try {
+					this.connectionManager.shutdown();
+				}
+				catch (RuntimeException ex) {
+					log.error("error shutting down connection manager", ex);
+				}
+				this.connectionManager = newConnectionManager();
+				this.httpClient = newClient();
 			}
 		}
 	}
