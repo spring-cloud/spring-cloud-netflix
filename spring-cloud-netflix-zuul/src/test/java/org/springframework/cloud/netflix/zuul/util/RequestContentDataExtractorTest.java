@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.util;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -138,6 +141,28 @@ public class RequestContentDataExtractorTest {
 		// then
 		assertThat(result).isNotNull();
 		assertThat(result.size()).isEqualTo(0);
+	}
+
+	@Test
+	public void findQueryParamsGroupedByNameShouldReturnEmptyMapWhenQueryValueIsNull()
+			throws IOException {
+		// when
+		Map<String, String[]> paramMap = new HashMap<>();
+		paramMap.put("uid", new String[] { "foo", "bar" });
+		when(request.getQueryString()).thenReturn("uid");
+		when(request.getParameterMap()).thenReturn(paramMap);
+		when(request.getMultiFileMap()).thenReturn(new LinkedMultiValueMap<>());
+
+		// action
+		Map<String, List<Object>> result = RequestContentDataExtractor.extract(request);
+
+		// then
+		List<Object> uidResult = new LinkedList();
+		uidResult.add(new HttpEntity<>("foo"));
+		uidResult.add(new HttpEntity<>("bar"));
+		assertThat(result).isNotNull();
+		assertThat(result).containsEntry("uid", uidResult);
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 }

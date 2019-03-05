@@ -65,6 +65,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class RibbonClientHttpRequestFactoryTests {
 
 	@Rule
+	/**
+	 * JUnit rule
+	 */
 	public final ExpectedException exceptionRule = ExpectedException.none();
 
 	@LoadBalanced

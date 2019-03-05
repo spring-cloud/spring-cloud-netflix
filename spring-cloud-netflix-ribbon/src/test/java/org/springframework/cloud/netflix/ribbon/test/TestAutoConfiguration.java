@@ -38,14 +38,19 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @AutoConfigureBefore(SecurityAutoConfiguration.class)
 public class TestAutoConfiguration {
 
+	/**
+	 * User name
+	 */
 	public static final String USER = "user";
 
+	/**
+	 * Password
+	 */
 	public static final String PASSWORD = "{noop}password";
 
 	@Configuration
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	protected static class TestSecurityConfiguration
-			extends WebSecurityConfigurerAdapter {
+	static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		TestSecurityConfiguration() {
 			super(true);

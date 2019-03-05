@@ -98,6 +98,7 @@ public final class RequestContentDataExtractor {
 
 			if (listOfOnlyQueryParams != null) {
 				listOfOnlyQueryParams = listOfOnlyQueryParams.stream()
+						.filter(queryParam -> queryParam != null)
 						.map(param -> uriDecode(param, Charset.defaultCharset()))
 						.collect(Collectors.toList());
 				if (!listOfOnlyQueryParams.containsAll(listOfAllParams)) {
