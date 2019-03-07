@@ -25,8 +25,10 @@ import com.netflix.appinfo.InstanceInfo;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.actuate.health.CompositeHealthIndicator;
+import org.springframework.boot.actuate.health.DefaultHealthIndicatorRegistry;
 import org.springframework.boot.actuate.health.HealthAggregator;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.HealthIndicatorRegistryFactory;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthIndicator;
 import org.springframework.context.ApplicationContext;
@@ -59,13 +61,20 @@ public class EurekaHealthCheckHandler
 		}
 	};
 
-	private final CompositeHealthIndicator healthIndicator;
+	private CompositeHealthIndicator healthIndicator;
 
 	private ApplicationContext applicationContext;
 
+	private HealthIndicatorRegistryFactory healthIndicatorRegistryFactory;
+
+	private HealthAggregator healthAggregator;
+
 	public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
 		Assert.notNull(healthAggregator, "HealthAggregator must not be null");
-		this.healthIndicator = new CompositeHealthIndicator(healthAggregator);
+		this.healthAggregator = healthAggregator;
+		this.healthIndicatorRegistryFactory = new HealthIndicatorRegistryFactory();
+		this.healthIndicator = new CompositeHealthIndicator(this.healthAggregator,
+				new DefaultHealthIndicatorRegistry());
 	}
 
 	@Override
@@ -78,6 +87,7 @@ public class EurekaHealthCheckHandler
 	public void afterPropertiesSet() throws Exception {
 		final Map<String, HealthIndicator> healthIndicators = applicationContext
 				.getBeansOfType(HealthIndicator.class);
+		Map<String, HealthIndicator> finalHealthIndicators = new HashMap<>();
 
 		for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
 
@@ -89,16 +99,18 @@ public class EurekaHealthCheckHandler
 				for (DiscoveryCompositeHealthIndicator.Holder holder : indicator
 						.getHealthIndicators()) {
 					if (!(holder.getDelegate() instanceof EurekaHealthIndicator)) {
-						healthIndicator.addHealthIndicator(holder.getDelegate().getName(),
-								holder);
+						finalHealthIndicators.put(holder.getDelegate().getName(), holder);
 					}
 				}
 
 			}
 			else {
-				healthIndicator.addHealthIndicator(entry.getKey(), entry.getValue());
+				finalHealthIndicators.put(entry.getKey(), entry.getValue());
 			}
 		}
+		this.healthIndicator = new CompositeHealthIndicator(healthAggregator,
+				healthIndicatorRegistryFactory
+						.createHealthIndicatorRegistry(finalHealthIndicators));
 	}
 
 	@Override
