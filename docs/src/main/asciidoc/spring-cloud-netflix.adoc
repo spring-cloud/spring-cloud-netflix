@@ -881,7 +881,7 @@ Creating a bean of one of those type and placing it in a `@RibbonClient` configu
 
 [source,java,indent=0]
 ----
-include::../../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
+include::../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
 ----
 
 The include statement in the preceding example replaces `NoOpPing` with `PingUrl` and provides a custom `serverListFilter`.
@@ -892,7 +892,7 @@ A default configuration can be provided for all Ribbon Clients by using the `@Ri
 
 [source,java,indent=0]
 ----
-include::../../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
+include::../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
 
 ----
 
