@@ -40,4 +40,8 @@
 <suppress files=".*PatternServiceRouteMapper\.java" checks="NonEmptyAtclauseDescription"/>
 <suppress files=".*EurekaRegistration\.java" checks="FinalClass"/>
 <suppress files=".*RequestVerifierFilter\.java" checks="FinalClass"/>
+<suppress files=".*RibbonClientHttpRequestFactoryTests\.java" checks="JavadocVariable"/>
+<suppress files=".*TestAutoConfiguration\.java" checks="HideUtilityClassConstructor"/>
+<suppress files=".*TestAutoConfiguration\.java" checks="JavadocStyle"/>
+<suppress files=".*TestAutoConfiguration\.java" checks="JavadocStyle"/>
 </suppressions>
