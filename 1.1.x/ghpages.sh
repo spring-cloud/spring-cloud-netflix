@@ -40,7 +40,7 @@ function check_if_anything_to_sync() {
 
 function retrieve_current_branch() {
     # Code getting the name of the current branch. For master we want to publish as we did until now
-    # http://stackoverflow.com/questions/1593051/how-to-programmatically-determine-the-current-checked-out-git-branch
+    # https://stackoverflow.com/questions/1593051/how-to-programmatically-determine-the-current-checked-out-git-branch
     # If there is a branch already passed will reuse it - otherwise will try to find it
     CURRENT_BRANCH=${BRANCH}
     if [[ -z "${CURRENT_BRANCH}" ]] ; then
@@ -147,7 +147,7 @@ function copy_docs_for_current_version() {
         COMMIT_CHANGES="yes"
     else
         echo -e "Current branch is [${CURRENT_BRANCH}]"
-        # http://stackoverflow.com/questions/29300806/a-bash-script-to-check-if-a-string-is-present-in-a-comma-separated-list-of-strin
+        # https://stackoverflow.com/questions/29300806/a-bash-script-to-check-if-a-string-is-present-in-a-comma-separated-list-of-strin
         if [[ ",${WHITELISTED_BRANCHES_VALUE}," = *",${CURRENT_BRANCH},"* ]] ; then
             mkdir -p ${ROOT_FOLDER}/${CURRENT_BRANCH}
             echo -e "Branch [${CURRENT_BRANCH}] is whitelisted! Will copy the current docs to the [${CURRENT_BRANCH}] folder"
