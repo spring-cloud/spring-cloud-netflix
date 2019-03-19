@@ -137,7 +137,7 @@ public class ZuulProperties {
 	/**
 	 * Flag to say that request bodies can be traced.
 	 */
-	private boolean traceRequestBody = true;
+	private boolean traceRequestBody = false;
 
 	/**
 	 * Flag to say that path elements past the first semicolon can be dropped.
