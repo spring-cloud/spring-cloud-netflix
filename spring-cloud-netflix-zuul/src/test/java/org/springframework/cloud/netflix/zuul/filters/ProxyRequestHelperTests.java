@@ -130,7 +130,9 @@ public class ProxyRequestHelperTests {
 		RequestContext context = RequestContext.getCurrentContext();
 		context.setRequest(request);
 
-		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
+		ZuulProperties zuulProperties = new ZuulProperties();
+		zuulProperties.setTraceRequestBody(true);
+		ProxyRequestHelper helper = new ProxyRequestHelper(zuulProperties);
 
 		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isTrue();
 	}
@@ -139,7 +141,9 @@ public class ProxyRequestHelperTests {
 	public void shouldDebugBodyNullRequest() throws Exception {
 		RequestContext context = RequestContext.getCurrentContext();
 
-		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
+		ZuulProperties zuulProperties = new ZuulProperties();
+		zuulProperties.setTraceRequestBody(true);
+		ProxyRequestHelper helper = new ProxyRequestHelper(zuulProperties);
 
 		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isTrue();
 	}
@@ -151,7 +155,9 @@ public class ProxyRequestHelperTests {
 		RequestContext context = RequestContext.getCurrentContext();
 		context.setRequest(request);
 
-		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
+		ZuulProperties zuulProperties = new ZuulProperties();
+		zuulProperties.setTraceRequestBody(true);
+		ProxyRequestHelper helper = new ProxyRequestHelper(zuulProperties);
 
 		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isTrue();
 	}
