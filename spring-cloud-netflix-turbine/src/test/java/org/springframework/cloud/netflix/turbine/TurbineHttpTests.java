@@ -46,10 +46,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TurbineHttpTests {
 
 	private static final ClusterInformation foo = new ClusterInformation("foo",
-			"http://foo");
+			"https://foo");
 
 	private static final ClusterInformation bar = new ClusterInformation("bar",
-			"http://bar");
+			"https://bar");
 
 	@Autowired
 	TestRestTemplate rest;

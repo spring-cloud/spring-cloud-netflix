@@ -88,7 +88,7 @@ public class RibbonUtilsTests {
 
 	@Test
 	public void uriIsNotChangedWhenServerIsNotSecured() throws URISyntaxException {
-		URI original = new URI("http://foo");
+		URI original = new URI("https://foo");
 		URI updated = updateToSecureConnectionIfNeeded(original, NON_SECURE_CONFIG,
 				NON_SECURE_INTROSPECTOR, SERVER);
 		assertThat(original)
@@ -110,7 +110,7 @@ public class RibbonUtilsTests {
 	@Test
 	public void shouldUpgradeUriToHttpsWhenServerIsSecureAndUriNotInHttps()
 			throws URISyntaxException {
-		URI original = new URI("http://foo");
+		URI original = new URI("https://foo");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
 		assertThat(updated).as("URI should have been updated to https.")
@@ -129,7 +129,7 @@ public class RibbonUtilsTests {
 
 	@Test
 	public void shouldSubstitutePlusInQueryParam() throws URISyntaxException {
-		URI original = new URI("http://foo/%20bar?hello=1+2");
+		URI original = new URI("https://foo/%20bar?hello=1+2");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
 		assertThat(updated)

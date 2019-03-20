@@ -37,7 +37,7 @@ public class OkHttpRibbonResponseTests {
 
 	@Test
 	public void testNullEntity() throws Exception {
-		URI uri = URI.create("http://example.com");
+		URI uri = URI.create("https://example.com");
 		Response response = response(uri).build();
 
 		OkHttpRibbonResponse httpResponse = new OkHttpRibbonResponse(response, uri);
@@ -50,7 +50,7 @@ public class OkHttpRibbonResponseTests {
 
 	@Test
 	public void testNotNullEntity() throws Exception {
-		URI uri = URI.create("http://example.com");
+		URI uri = URI.create("https://example.com");
 		Response response = response(uri)
 				.body(ResponseBody.create(MediaType.parse("text/plain"), "abcd")).build();
 

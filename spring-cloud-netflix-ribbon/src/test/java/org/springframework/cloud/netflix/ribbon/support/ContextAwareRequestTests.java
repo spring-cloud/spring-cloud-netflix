@@ -51,7 +51,7 @@ public class ContextAwareRequestTests {
 		headers.put("header2", Arrays.asList("value1", "value2"));
 		headers.put("header3", Arrays.asList("value1"));
 		doReturn(headers).when(context).getHeaders();
-		doReturn(new URI("http://foo")).when(context).uri();
+		doReturn(new URI("https://foo")).when(context).uri();
 		doReturn("foo").when(context).getServiceId();
 		doReturn(new LinkedMultiValueMap<>()).when(context).getParams();
 		doReturn("testLoadBalancerKey").when(context).getLoadBalancerKey();
@@ -76,7 +76,7 @@ public class ContextAwareRequestTests {
 
 	@Test
 	public void getURI() throws Exception {
-		assertThat(request.getURI()).isEqualTo(new URI("http://foo"));
+		assertThat(request.getURI()).isEqualTo(new URI("https://foo"));
 
 		RibbonCommandContext badUriContext = mock(RibbonCommandContext.class);
 		doReturn(new LinkedMultiValueMap()).when(badUriContext).getHeaders();

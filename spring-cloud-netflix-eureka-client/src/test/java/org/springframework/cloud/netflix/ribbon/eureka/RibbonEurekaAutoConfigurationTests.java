@@ -90,7 +90,7 @@ public class RibbonEurekaAutoConfigurationTests {
 
 		public void doStuff() {
 			ServiceInstance serviceInstance = loadBalancerClient
-					.choose("http://host/doStuff");
+					.choose("https://host/doStuff");
 			if (serviceInstance != null) {
 				log.info(
 						"There is a service instance, because Eureka discovery is enabled and the service is registered");

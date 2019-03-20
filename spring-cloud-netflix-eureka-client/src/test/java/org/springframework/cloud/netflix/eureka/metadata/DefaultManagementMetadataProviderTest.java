@@ -74,9 +74,9 @@ public class DefaultManagementMetadataProviderTest {
 		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
 				managementContextPath, managementPort);
 
-		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:7777/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("https://host:7777/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:7777/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("https://host:7777/info");
 		assertThat(actual.getManagementPort()).isEqualTo(7777);
 	}
 
@@ -89,9 +89,9 @@ public class DefaultManagementMetadataProviderTest {
 		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
 				managementContextPath, managementPort);
 
-		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:8888/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("https://host:8888/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:8888/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("https://host:8888/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 	}
 
@@ -104,9 +104,9 @@ public class DefaultManagementMetadataProviderTest {
 		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
 				managementContextPath, managementPort);
 
-		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:8888/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("https://host:8888/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:8888/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("https://host:8888/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 	}
 
@@ -121,10 +121,10 @@ public class DefaultManagementMetadataProviderTest {
 				managementContextPath, managementPort);
 
 		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:8888/Management/health");
+				.isEqualTo("https://host:8888/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
 		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:8888/Management/info");
+				.isEqualTo("https://host:8888/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 	}
 
@@ -138,10 +138,10 @@ public class DefaultManagementMetadataProviderTest {
 				managementContextPath, managementPort);
 
 		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:7777/Server/Management/health");
+				.isEqualTo("https://host:7777/Server/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
 		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:7777/Server/Management/info");
+				.isEqualTo("https://host:7777/Server/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(7777);
 	}
 
@@ -155,10 +155,10 @@ public class DefaultManagementMetadataProviderTest {
 				managementContextPath, managementPort);
 
 		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:7777/Management/health");
+				.isEqualTo("https://host:7777/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
 		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:7777/Management/info");
+				.isEqualTo("https://host:7777/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(7777);
 	}
 
@@ -172,9 +172,9 @@ public class DefaultManagementMetadataProviderTest {
 				managementContextPath, managementPort);
 
 		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:7777/Server/health");
+				.isEqualTo("https://host:7777/Server/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:7777/Server/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("https://host:7777/Server/info");
 		assertThat(actual.getManagementPort()).isEqualTo(7777);
 	}
 
@@ -188,10 +188,10 @@ public class DefaultManagementMetadataProviderTest {
 				managementContextPath, managementPort);
 
 		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:8888/Management/health");
+				.isEqualTo("https://host:8888/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
 		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:8888/Management/info");
+				.isEqualTo("https://host:8888/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 
 	}
@@ -207,11 +207,11 @@ public class DefaultManagementMetadataProviderTest {
 				managementContextPath, managementPort);
 
 		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:8888/Management/health");
+				.isEqualTo("https://host:8888/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl())
 				.isEqualTo("https://host:8888/Management/health");
 		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:8888/Management/info");
+				.isEqualTo("https://host:8888/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 	}
 
