@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?asciidoc-toc?>
 <?asciidoc-numbered?>
-<book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<book xmlns="https://docbook.org/ns/docbook" xmlns:xl="https://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
 <date>2019-03-07</date>
@@ -25,7 +25,7 @@ The server can be configured and deployed to be highly available, with each serv
 <section xml:id="netflix-eureka-client-starter">
 <title>How to Include Eureka Client</title>
 <simpara>To include the Eureka Client in your project, use the starter with a group ID of <literal>org.springframework.cloud</literal> and an artifact ID of  <literal>spring-cloud-starter-netflix-eureka-client</literal>.
-See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
+See the <link xl:href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 </section>
 <section xml:id="_registering_with_eureka">
 <title>Registering with Eureka</title>
@@ -62,12 +62,12 @@ By having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the c
 <simpara>The default application name (that is, the service ID), virtual host, and non-secure port (taken from the <literal>Environment</literal>) are <literal>${spring.application.name}</literal>, <literal>${spring.application.name}</literal> and <literal>${server.port}</literal>, respectively.</simpara>
 <simpara>Having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the classpath makes the app into both a Eureka <quote>instance</quote> (that is, it registers itself) and a <quote>client</quote> (it can query the registry to locate other services).
 The instance behaviour is driven by <literal>eureka.instance.*</literal> configuration keys, but the defaults are fine if you ensure that your application has a value for <literal>spring.application.name</literal> (this is the default for the Eureka service ID or VIP).</simpara>
-<simpara>See <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> and <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</link> for more details on the configurable options.</simpara>
+<simpara>See <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> and <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</link> for more details on the configurable options.</simpara>
 <simpara>To disable the Eureka Discovery Client, you can set <literal>eureka.client.enabled</literal> to <literal>false</literal>. Eureka Discovery Client will also be disabled when <literal>spring.cloud.discovery.enabled</literal> is set to <literal>false</literal>.</simpara>
 </section>
 <section xml:id="_authenticating_with_the_eureka_server">
 <title>Authenticating with the Eureka Server</title>
-<simpara>HTTP basic authentication is automatically added to your eureka client if one of the <literal>eureka.client.serviceUrl.defaultZone</literal> URLs has credentials embedded in it (curl style, as follows: <literal><link xl:href="http://user:password@localhost:8761/eureka">http://user:password@localhost:8761/eureka</link></literal>).
+<simpara>HTTP basic authentication is automatically added to your eureka client if one of the <literal>eureka.client.serviceUrl.defaultZone</literal> URLs has credentials embedded in it (curl style, as follows: <literal><link xl:href="https://user:password@localhost:8761/eureka">https://user:password@localhost:8761/eureka</link></literal>).
 For more complex needs, you can create a <literal>@Bean</literal> of type <literal>DiscoveryClientOptionalArgs</literal> and inject <literal>ClientFilter</literal> instances into it, all of which is applied to the calls from the client to the server.</simpara>
 <note>
 <simpara>Because of a limitation in Eureka, it is not possible to support per-server basic auth credentials, so only the first set that are found is used.</simpara>
@@ -177,7 +177,7 @@ This feature is not yet available on Pivotal Web Services (<link xl:href="https:
 </section>
 <section xml:id="_using_eureka_on_aws">
 <title>Using Eureka on AWS</title>
-<simpara>If the application is planned to be deployed to an AWS cloud, the Eureka instance must be configured to be AWS-aware. You can do so by customizing the <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> as follows:</simpara>
+<simpara>If the application is planned to be deployed to an AWS cloud, the Eureka instance must be configured to be AWS-aware. You can do so by customizing the <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> as follows:</simpara>
 <programlisting language="java" linenumbering="unnumbered">@Bean
 @Profile("!default")
 public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
@@ -300,7 +300,7 @@ eureka.client.preferSameZoneEureka = true</screen>
 <section xml:id="netflix-eureka-server-starter">
 <title>How to Include Eureka Server</title>
 <simpara>To include Eureka Server in your project, use the starter with a group ID of <literal>org.springframework.cloud</literal> and an artifact ID of <literal>spring-cloud-starter-netflix-eureka-server</literal>.
-See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
+See the <link xl:href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 <note>
 <simpara>If your project already uses Thymeleaf as its template engine, the Freemarker templates of the Eureka server may not be loaded correctly. In this case it is necessary to configure the template loader manually:</simpara>
 </note>
@@ -491,7 +491,7 @@ when running a Eureka server you must include these dependencies in your POM or 
 </chapter>
 <chapter xml:id="_circuit_breaker_hystrix_clients">
 <title>Circuit Breaker: Hystrix Clients</title>
-<simpara>Netflix has created a library called <link xl:href="https://github.com/Netflix/Hystrix">Hystrix</link> that implements the <link xl:href="http://martinfowler.com/bliki/CircuitBreaker.html">circuit breaker pattern</link>.
+<simpara>Netflix has created a library called <link xl:href="https://github.com/Netflix/Hystrix">Hystrix</link> that implements the <link xl:href="https://martinfowler.com/bliki/CircuitBreaker.html">circuit breaker pattern</link>.
 In a microservice architecture, it is common to have multiple layers of service calls, as shown in the following example:</simpara>
 <figure>
 <title>Microservice Graph</title>
@@ -521,7 +521,7 @@ Fallbacks may be chained so that the first fallback makes some other business ca
 <title>How to Include Hystrix</title>
 <simpara>To include Hystrix in your project, use the starter with a group ID of <literal>org.springframework.cloud</literal>
 and a artifact ID of <literal>spring-cloud-starter-netflix-hystrix</literal>.
-See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
+See the <link xl:href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 <simpara>The following example shows a minimal Eureka server with a Hystrix circuit breaker:</simpara>
 <screen>@SpringBootApplication
 @EnableCircuitBreaker
@@ -620,7 +620,7 @@ be slightly more than three seconds.</simpara>
 <section xml:id="netflix-hystrix-dashboard-starter">
 <title>How to Include the Hystrix Dashboard</title>
 <simpara>To include the Hystrix Dashboard in your project, use the starter with a group ID of  <literal>org.springframework.cloud</literal> and an artifact ID of <literal>spring-cloud-starter-netflix-hystrix-dashboard</literal>.
-See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
+See the <link xl:href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 <simpara>To run the Hystrix Dashboard, annotate your Spring Boot main class with <literal>@EnableHystrixDashboard</literal>.
 Then visit <literal>/hystrix</literal> and point the dashboard to an individual instance&#8217;s <literal>/hystrix.stream</literal> endpoint in a Hystrix client application.</simpara>
 <note>
@@ -647,7 +647,7 @@ It can be overridden though with following configuration:</simpara>
       management.port: ${management.port:8081}</screen>
 <simpara>The <literal>turbine.appConfig</literal> configuration key is a list of Eureka serviceIds that turbine uses to lookup instances.
 The turbine stream is then used in the Hystrix dashboard with a URL similar to the following:</simpara>
-<simpara><literal><link xl:href="http://my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME">http://my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME</link></literal></simpara>
+<simpara><literal><link xl:href="https://my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME">https://my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME</link></literal></simpara>
 <simpara>The cluster parameter can be omitted if the name is <literal>default</literal>.
 The <literal>cluster</literal> parameter must match an entry in <literal>turbine.aggregator.clusterConfig</literal>.
 Values returned from Eureka are upper-case. Consequently, the following example works if there is an application called <literal>customers</literal> registered with Eureka:</simpara>
@@ -687,11 +687,11 @@ all the configured clusters.</simpara>
 <programlisting language="json" linenumbering="unnumbered">[
   {
     "name": "RACES",
-    "link": "http://localhost:8383/turbine.stream?cluster=RACES"
+    "link": "https://localhost:8383/turbine.stream?cluster=RACES"
   },
   {
     "name": "WEB",
-    "link": "http://localhost:8383/turbine.stream?cluster=WEB"
+    "link": "https://localhost:8383/turbine.stream?cluster=WEB"
   }
 ]</programlisting>
 </para>
@@ -709,17 +709,17 @@ See the <link xl:href="https://docs.spring.io/spring-cloud-stream/docs/current/r
 The Turbine Stream server requires the use of Spring Webflux, therefore <literal>spring-boot-starter-webflux</literal> needs to be included in your project.
 By default <literal>spring-boot-starter-webflux</literal> is included when adding <literal>spring-cloud-starter-netflix-turbine-stream</literal> to your application.</simpara>
 <simpara>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.
-If Turbine Stream is running on port 8989 on myhost, then put <literal><link xl:href="http://myhost:8989">http://myhost:8989</link></literal> in the stream input field in the Hystrix Dashboard.
+If Turbine Stream is running on port 8989 on myhost, then put <literal><link xl:href="https://myhost:8989">https://myhost:8989</link></literal> in the stream input field in the Hystrix Dashboard.
 Circuits are prefixed by their respective <literal>serviceId</literal>, followed by a dot (<literal>.</literal>), and then the circuit name.</simpara>
 <simpara>Spring Cloud provides a <literal>spring-cloud-starter-netflix-turbine-stream</literal> that has all the dependencies you need to get a Turbine Stream server running.
 You can then add the Stream binder of your choice&#8201;&#8212;&#8201;such as <literal>spring-cloud-starter-stream-rabbit</literal>.</simpara>
 <simpara>Turbine Stream server also supports the <literal>cluster</literal> parameter.
 Unlike Turbine server, Turbine Stream uses eureka serviceIds as cluster names and these are not configurable.</simpara>
 <simpara>If Turbine Stream server is running on port 8989 on <literal>my.turbine.server</literal> and you have two eureka serviceIds <literal>customers</literal> and <literal>products</literal>  in your environment, the following URLs will be available on your Turbine Stream server. <literal>default</literal> and empty cluster name will provide all metrics that Turbine Stream server receives.</simpara>
-<screen>http://my.turbine.sever:8989/turbine.stream?cluster=customers
-http://my.turbine.sever:8989/turbine.stream?cluster=products
-http://my.turbine.sever:8989/turbine.stream?cluster=default
-http://my.turbine.sever:8989/turbine.stream</screen>
+<screen>https://my.turbine.sever:8989/turbine.stream?cluster=customers
+https://my.turbine.sever:8989/turbine.stream?cluster=products
+https://my.turbine.sever:8989/turbine.stream?cluster=default
+https://my.turbine.sever:8989/turbine.stream</screen>
 <simpara>So, you can use eureka serviceIds as cluster names for your Turbine dashboard (or any compatible dashboard).
 You don’t need to configure any properties like <literal>turbine.appConfig</literal>, <literal>turbine.clusterNameExpression</literal> and <literal>turbine.aggregator.clusterConfig</literal> for your Turbine Stream server.</simpara>
 <note>
@@ -739,7 +739,7 @@ This contains (amongst other things) an <literal>ILoadBalancer</literal>, a <lit
 <section xml:id="netflix-ribbon-starter">
 <title>How to Include Ribbon</title>
 <simpara>To include Ribbon in your project, use the starter with a group ID of <literal>org.springframework.cloud</literal> and an artifact ID of <literal>spring-cloud-starter-netflix-ribbon</literal>.
-See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
+See the <link xl:href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 </section>
 <section xml:id="_customizing_the_ribbon_client">
 <title>Customizing the Ribbon Client</title>
@@ -964,7 +964,7 @@ You can supply the configuration as follows:</simpara>
 
     public void doStuff() {
         ServiceInstance instance = loadBalancer.choose("stores");
-        URI storesUri = URI.create(String.format("http://%s:%s", instance.getHost(), instance.getPort()));
+        URI storesUri = URI.create(String.format("https://%s:%s", instance.getHost(), instance.getPort()));
         // ... do something with the URI
     }
 }</programlisting>
@@ -1036,7 +1036,7 @@ If you do not put any value with <literal>LOAD_BALANCER_KEY</literal> in <litera
 <title>External Configuration: Archaius</title>
 <simpara><link xl:href="https://github.com/Netflix/archaius">Archaius</link> is the Netflix client-side configuration library.
 It is the library used by all of the Netflix OSS components for configuration.
-Archaius is an extension of the <link xl:href="http://commons.apache.org/proper/commons-configuration">Apache Commons Configuration</link> project.
+Archaius is an extension of the <link xl:href="https://commons.apache.org/proper/commons-configuration">Apache Commons Configuration</link> project.
 It allows updates to configuration by either polling a source for changes or by letting a source push changes to the client.
 Archaius uses Dynamic&lt;Type&gt;Property classes as handles to properties, as shown in the following example:</simpara>
 <formalpara>
@@ -1063,7 +1063,7 @@ This bridge allows Spring Boot projects to use the normal configuration toolchai
 <simpara>Routing is an integral part of a microservice architecture.
 For example, <literal>/</literal> may be mapped to your web application, <literal>/api/users</literal> is mapped to the user service and <literal>/api/shop</literal> is mapped to the shop service.
 <link xl:href="https://github.com/Netflix/zuul">Zuul</link> is a JVM-based router and server-side load balancer from Netflix.</simpara>
-<simpara><link xl:href="http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27">Netflix uses Zuul</link> for the following:</simpara>
+<simpara><link xl:href="https://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27">Netflix uses Zuul</link> for the following:</simpara>
 <itemizedlist>
 <listitem>
 <simpara>Authentication</simpara>
@@ -1107,7 +1107,7 @@ For example, <literal>/</literal> may be mapped to your web application, <litera
 <section xml:id="netflix-zuul-starter">
 <title>How to Include Zuul</title>
 <simpara>To include Zuul in your project, use the starter with a group ID of <literal>org.springframework.cloud</literal> and a artifact ID of <literal>spring-cloud-starter-netflix-zuul</literal>.
-See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
+See the <link xl:href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 </section>
 <section xml:id="netflix-zuul-reverse-proxy">
 <title>Embedded Zuul Reverse Proxy</title>
@@ -1164,7 +1164,7 @@ The route must have a <literal>path</literal> that can be specified as an ant-st
   routes:
     users:
       path: /myusers/**
-      url: http://example.com/users_service</programlisting>
+      url: https://example.com/users_service</programlisting>
 </para>
 </formalpara>
 <simpara>These simple url-routes do not get executed as a <literal>HystrixCommand</literal>, nor do they load-balance multiple URLs with Ribbon.
@@ -1190,7 +1190,7 @@ hystrix:
 myusers-service:
   ribbon:
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
-    listOfServers: http://example1.com,http://example2.com
+    listOfServers: https://example1.com,http://example2.com
     ConnectTimeout: 1000
     ReadTimeout: 3000
     MaxTotalHttpConnections: 500
@@ -1369,7 +1369,7 @@ Doing so can be useful if you disabled the HTTP Security response headers in Spr
 <title>GET /routes</title>
 <para>
 <programlisting language="json" linenumbering="unnumbered">{
-  /stores/**: "http://localhost:8081"
+  /stores/**: "https://localhost:8081"
 }</programlisting>
 </para>
 </formalpara>
@@ -1382,7 +1382,7 @@ Doing so produces the following output:</simpara>
   "/stores/**": {
     "id": "stores",
     "fullPath": "/stores/**",
-    "location": "http://localhost:8081",
+    "location": "https://localhost:8081",
     "path": "/**",
     "prefix": "/stores",
     "retryable": false,
@@ -1417,7 +1417,7 @@ The Zuul proxy is a useful tool for this because you can use it to handle all tr
   routes:
     first:
       path: /first/**
-      url: http://first.example.com
+      url: https://first.example.com
     second:
       path: /second/**
       url: forward:/second
@@ -1426,7 +1426,7 @@ The Zuul proxy is a useful tool for this because you can use it to handle all tr
       url: forward:/3rd
     legacy:
       path: /**
-      url: http://legacy.example.com</programlisting>
+      url: https://legacy.example.com</programlisting>
 </para>
 </formalpara>
 <simpara>In the preceding example, we are strangle the <quote>legacy</quote> application, which is mapped to all requests that do not match one of the other patterns.
@@ -1664,12 +1664,12 @@ public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/path-1/**")
-                    .allowedOrigins("http://allowed-origin.com")
+                    .allowedOrigins("https://allowed-origin.com")
                     .allowedMethods("GET", "POST");
         }
     };
 }</programlisting>
-<simpara>In the example above, we allow <literal>GET</literal> and <literal>POST</literal> methods from <literal><link xl:href="http://allowed-origin.com">http://allowed-origin.com</link></literal> to send cross-origin requests to the endpoints starting with <literal>path-1</literal>.
+<simpara>In the example above, we allow <literal>GET</literal> and <literal>POST</literal> methods from <literal><link xl:href="https://allowed-origin.com">https://allowed-origin.com</link></literal> to send cross-origin requests to the endpoints starting with <literal>path-1</literal>.
 You can apply CORS configuration to a specific path pattern or globally for the whole application, using <literal>/**</literal> mapping.
 You can customize properties: <literal>allowedOrigins</literal>,<literal>allowedMethods</literal>,<literal>allowedHeaders</literal>,<literal>exposedHeaders</literal>,<literal>allowCredentials</literal> and <literal>maxAge</literal> via this configuration.</simpara>
 </section>
@@ -2012,7 +2012,7 @@ spring:
 
 sidecar:
   port: 8000
-  health-uri: http://localhost:8000/health.json</programlisting>
+  health-uri: https://localhost:8000/health.json</programlisting>
 </para>
 </formalpara>
 <simpara>The API for the <literal>DiscoveryClient.getInstances()</literal> method is <literal>/hosts/{serviceId}</literal>.
@@ -2024,14 +2024,14 @@ The following example response for <literal>/hosts/customers</literal> returns t
     {
         "host": "myhost",
         "port": 9000,
-        "uri": "http://myhost:9000",
+        "uri": "https://myhost:9000",
         "serviceId": "CUSTOMERS",
         "secure": false
     },
     {
         "host": "myhost2",
         "port": 9000,
-        "uri": "http://myhost2:9000",
+        "uri": "https://myhost2:9000",
         "serviceId": "CUSTOMERS",
         "secure": false
     }
@@ -2040,11 +2040,11 @@ The following example response for <literal>/hosts/customers</literal> returns t
 </formalpara>
 <simpara>This API is accessible to the non-JVM application (if the sidecar is on port 5678) at <literal><link xl:href="http://localhost:5678/hosts/{serviceId}">http://localhost:5678/hosts/{serviceId}</link></literal>.</simpara>
 <simpara>The Zuul proxy automatically adds routes for each service known in Eureka to <literal>/&lt;serviceId&gt;</literal>, so the customers service is available at <literal>/customers</literal>.
-The non-JVM application can access the customer service at <literal><link xl:href="http://localhost:5678/customers">http://localhost:5678/customers</link></literal> (assuming the sidecar is listening on port 5678).</simpara>
+The non-JVM application can access the customer service at <literal><link xl:href="https://localhost:5678/customers">https://localhost:5678/customers</link></literal> (assuming the sidecar is listening on port 5678).</simpara>
 <simpara>If the Config Server is registered with Eureka, the non-JVM application can access it through the Zuul proxy.
-If the <literal>serviceId</literal> of the ConfigServer is <literal>configserver</literal> and the Sidecar is on port 5678, then it can be accessed at <link xl:href="http://localhost:5678/configserver">http://localhost:5678/configserver</link>.</simpara>
+If the <literal>serviceId</literal> of the ConfigServer is <literal>configserver</literal> and the Sidecar is on port 5678, then it can be accessed at <link xl:href="https://localhost:5678/configserver">https://localhost:5678/configserver</link>.</simpara>
 <simpara>Non-JVM applications can take advantage of the Config Server&#8217;s ability to return YAML documents.
-For example, a call to <link xl:href="http://sidecar.local.spring.io:5678/configserver/default-master.yml">http://sidecar.local.spring.io:5678/configserver/default-master.yml</link>
+For example, a call to <link xl:href="https://sidecar.local.spring.io:5678/configserver/default-master.yml">https://sidecar.local.spring.io:5678/configserver/default-master.yml</link>
 might result in a YAML document resembling the following:</simpara>
 <programlisting language="yaml" linenumbering="unnumbered">eureka:
   client:
