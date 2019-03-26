@@ -1,5 +1,5 @@
 <#import "/spring.ftl" as spring />
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "https://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <base href="${basePath}">
@@ -36,13 +36,13 @@
 	<br>
 	
 	<h2>Hystrix Dashboard</h2>
-	<input id="stream" type="textfield" size="120" placeholder="http://hostname:port/turbine/turbine.stream"></input>
+	<input id="stream" type="textfield" size="120" placeholder="https://hostname:port/turbine/turbine.stream"></input>
 	<br><br>
-	<i>Cluster via Turbine (default cluster):</i> http://turbine-hostname:port/turbine.stream
+	<i>Cluster via Turbine (default cluster):</i> https://turbine-hostname:port/turbine.stream
 	<br>
-	<i>Cluster via Turbine (custom cluster):</i> http://turbine-hostname:port/turbine.stream?cluster=[clusterName]
+	<i>Cluster via Turbine (custom cluster):</i> https://turbine-hostname:port/turbine.stream?cluster=[clusterName]
 	<br>
-	<i>Single Hystrix App:</i> http://hystrix-app:port/actuator/hystrix.stream
+	<i>Single Hystrix App:</i> https://hystrix-app:port/actuator/hystrix.stream
 	<br><br>
 	Delay: <input id="delay" type="textfield" size="10" placeholder="2000"></input>ms 
 	&nbsp;&nbsp;&nbsp;&nbsp; 

@@ -49,7 +49,7 @@ public class RibbonApacheHttpRequestTests {
 
 	@Test
 	public void testNullEntity() throws Exception {
-		String uri = "http://example.com";
+		String uri = "https://example.com";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
 		headers.add("content-length", "5192");
@@ -86,7 +86,7 @@ public class RibbonApacheHttpRequestTests {
 	void testEntity(String entityValue, ByteArrayInputStream requestEntity, boolean addContentLengthHeader, String method) throws IOException {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
-		URI uri = URI.create("http://example.com");
+		URI uri = URI.create("https://example.com");
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		if (addContentLengthHeader) {
 			headers.add("Content-Length", lengthString);
