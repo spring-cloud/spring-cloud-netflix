@@ -1,7 +1,7 @@
 
 //Simple JavaScript Templating
-//John Resig - http://ejohn.org/ - MIT Licensed
-// http://ejohn.org/blog/javascript-micro-templating/
+//John Resig - https://johnresig.com/ - MIT Licensed
+// https://johnresig.com/blog/javascript-micro-templating/
 (function(window, undefined) {
   var cache = {};
 
