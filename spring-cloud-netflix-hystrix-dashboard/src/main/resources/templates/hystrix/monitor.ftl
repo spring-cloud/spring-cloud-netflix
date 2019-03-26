@@ -181,7 +181,7 @@
 		});
 		
 		//Read a page's GET URL variables and return them as an associative array.
-		// from: http://jquery-howto.blogspot.com/2009/09/get-url-parameters-values-with-jquery.html
+		// from: https://jquery-howto.blogspot.com/2009/09/get-url-parameters-values-with-jquery.html
 		function getUrlVars()
 		{
 		    var vars = [], hash;
