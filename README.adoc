@@ -28,7 +28,7 @@ Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).
 === Basic Compile and Test
 
 To build the source you will need to install
-http://maven.apache.org/run-maven/index.html[Apache Maven] v3.0.6 or above and JDK {jdkversion}.
+https://maven.apache.org/run-maven/index.html[Apache Maven] v3.0.6 or above and JDK {jdkversion}.
 
 Spring Cloud uses Maven for most build-related activities, and you
 should be able to get off the ground quite quickly by cloning the
@@ -55,7 +55,7 @@ credentials and you already have those.
 If you need mongo, rabbit or redis, see the README in the https://github.com/spring-cloud-samples/scripts[scripts
 demo repository] for
 instructions. For example consider using the "fig.yml" with
-http://www.fig.sh/[Fig] to run them in Docker containers.
+https://www.fig.sh/[Fig] to run them in Docker containers.
 
 === Documentation
 
@@ -94,7 +94,7 @@ added after the original pull request but before a merge.
   the ``Importing into eclipse'' instructions below you should get project specific
   formatting automatically. You can also import formatter settings using the
   `eclipse-code-formatter.xml` file from the `eclipse` folder. If using IntelliJ, you can
-  use the http://plugins.jetbrains.com/plugin/6546[Eclipse Code Formatter Plugin]
+  use the https://plugins.jetbrains.com/plugin/6546[Eclipse Code Formatter Plugin]
   to import the same file.
 * Make sure all new `.java` files to have a simple Javadoc class comment with at least an
   `@author` tag identifying you, and preferably at least a paragraph on what the class is
@@ -110,13 +110,13 @@ added after the original pull request but before a merge.
 
 === Working with the code
 If you don't have an IDE preference we would recommend that you use
-http://www.springsource.com/developer/sts[Spring Tools Suite] or
-http://eclipse.org[Eclipse] when working with the code. We use the
-http://eclipse.org/m2e/[m2eclipe] eclipse plugin for maven support. Other IDEs and tools
+https://www.springsource.com/developer/sts[Spring Tools Suite] or
+https://eclipse.org[Eclipse] when working with the code. We use the
+https://eclipse.org/m2e/[m2eclipe] eclipse plugin for maven support. Other IDEs and tools
 should also work without issue.
 
 ==== Importing into eclipse with m2eclipse
-We recommend the http://eclipse.org/m2e/[m2eclipe] eclipse plugin when working with
+We recommend the https://eclipse.org/m2e/[m2eclipe] eclipse plugin when working with
 eclipse. If you don't already have m2eclipse installed it is available from the "eclipse
 marketplace".
 
@@ -135,7 +135,7 @@ from the `file` menu.
 ==== Adding Project Lombok Agent
 
 Spring Cloud uses [Project
-Lombok](http://projectlombok.org/features/index.html) to generate
+Lombok](https://projectlombok.org/features/index.html) to generate
 getters and setters etc. Compiling from the command line this
 shouldn't cause any problems, but in an IDE you need to add an agent
 to the JVM. Full instructions can be found in the Lombok website. The
@@ -179,7 +179,7 @@ added after the original pull request but before a merge.
   `eclipse-code-formatter.xml` file from the
   https://github.com/spring-cloud/build/tree/master/eclipse-coding-conventions.xml[Spring
   Cloud Build] project. If using IntelliJ, you can use the
-  http://plugins.jetbrains.com/plugin/6546[Eclipse Code Formatter
+  https://plugins.jetbrains.com/plugin/6546[Eclipse Code Formatter
   Plugin] to import the same file.
 * Make sure all new `.java` files to have a simple Javadoc class comment with at least an
   `@author` tag identifying you, and preferably at least a paragraph on what the class is
@@ -192,6 +192,6 @@ added after the original pull request but before a merge.
 * A few unit tests would help a lot as well -- someone has to do it.
 * If no-one else is using your branch, please rebase it against the current master (or
   other target branch in the main project).
-* When writing a commit message please follow http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html[these conventions],
+* When writing a commit message please follow https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html[these conventions],
   if you are fixing an existing issue please add `Fixes gh-XXXX` at the end of the commit
   message (where XXXX is the issue number).
