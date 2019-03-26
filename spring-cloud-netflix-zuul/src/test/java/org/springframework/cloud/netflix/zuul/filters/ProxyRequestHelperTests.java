@@ -81,7 +81,7 @@ public class ProxyRequestHelperTests {
 
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
-		helper.debug("POST", "http://example.com", headers, new LinkedMultiValueMap<>(),
+		helper.debug("POST", "https://example.com", headers, new LinkedMultiValueMap<>(),
 				request.getInputStream());
 		HttpTrace actual = this.traceRepository.findAll().get(0);
 		Assertions.assertThat(actual.getRequest().getHeaders()).containsKeys("singleName",

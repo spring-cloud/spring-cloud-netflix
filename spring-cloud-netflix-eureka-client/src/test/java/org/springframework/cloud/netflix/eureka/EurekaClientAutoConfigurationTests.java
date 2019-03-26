@@ -360,9 +360,9 @@ public class EurekaClientAutoConfigurationTests {
 				.getBean(EurekaInstanceConfigBean.class);
 
 		assertThat(instance.getStatusPageUrl()).as("statusPageUrl is wrong")
-				.isEqualTo("http://192.168.13.90:9999/actuator/info");
+				.isEqualTo("https://192.168.13.90:9999/actuator/info");
 		assertThat(instance.getHealthCheckUrl()).as("healthCheckUrl is wrong")
-				.isEqualTo("http://192.168.13.90:9999/actuator/health");
+				.isEqualTo("https://192.168.13.90:9999/actuator/health");
 	}
 
 	@Test
@@ -474,7 +474,7 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void basicAuth() {
 		TestPropertyValues.of("server.port=8989",
-				"eureka.client.serviceUrl.defaultZone=http://user:foo@example.com:80/eureka")
+				"eureka.client.serviceUrl.defaultZone=https://user:foo@example.com:80/eureka")
 				.applyTo(this.context);
 		setupContext(MockClientConfiguration.class);
 		// ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
