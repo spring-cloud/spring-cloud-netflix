@@ -58,14 +58,14 @@ public class EurekaClientConfigBeanTests {
 	@Test
 	public void serviceUrl() {
 		EnvironmentTestUtils.addEnvironment(this.context,
-				"eureka.client.serviceUrl.defaultZone:http://example.com");
+				"eureka.client.serviceUrl.defaultZone:https://example.com");
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
-		assertEquals("{defaultZone=http://example.com}",
+		assertEquals("{defaultZone=https://example.com}",
 				this.context.getBean(EurekaClientConfigBean.class).getServiceUrl()
 						.toString());
-		assertEquals("[http://example.com]",
+		assertEquals("[https://example.com]",
 				this.context.getBean(EurekaClientConfigBean.class)
 						.getEurekaServerServiceUrls("defaultZone").toString());
 	}
@@ -76,14 +76,14 @@ public class EurekaClientConfigBeanTests {
 		this.context.getEnvironment().getPropertySources().addFirst(source);
 		source.addPropertySource(new MapPropertySource("config", Collections
 				.<String, Object> singletonMap("eureka.client.serviceUrl.defaultZone",
-						"http://example.com")));
+						"https://example.com")));
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
-		assertEquals("{defaultZone=http://example.com}",
+		assertEquals("{defaultZone=https://example.com}",
 				this.context.getBean(EurekaClientConfigBean.class).getServiceUrl()
 						.toString());
-		assertEquals("[http://example.com]",
+		assertEquals("[https://example.com]",
 				this.context.getBean(EurekaClientConfigBean.class)
 						.getEurekaServerServiceUrls("defaultZone").toString());
 	}
@@ -91,11 +91,11 @@ public class EurekaClientConfigBeanTests {
 	@Test
 	public void serviceUrlWithDefault() {
 		EnvironmentTestUtils.addEnvironment(this.context,
-				"eureka.client.serviceUrl.defaultZone:http://example.com");
+				"eureka.client.serviceUrl.defaultZone:https://example.com");
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
-		assertEquals("[http://example.com]",
+		assertEquals("[https://example.com]",
 				this.context.getBean(EurekaClientConfigBean.class)
 						.getEurekaServerServiceUrls("defaultZone").toString());
 	}

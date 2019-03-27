@@ -45,7 +45,7 @@ public class FeignClientValidationTests {
 	@EnableFeignClients
 	protected static class GoodUrlConfiguration {
 
-		@FeignClient(url="http://example.com")
+		@FeignClient(url="https://example.com")
 		interface Client {
 			@RequestMapping(method = RequestMethod.GET, value = "/")
 			@Deprecated

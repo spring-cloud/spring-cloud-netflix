@@ -298,7 +298,7 @@ public class ProxyRouteLocatorTests {
 	@Test
 	public void testIgnoredRouteIncludedIfConfiguredAndNotDiscovered() {
 		this.properties.getRoutes()
-				.put("foo", new ZuulRoute("/foo/**", "http://foo.com"));
+				.put("foo", new ZuulRoute("/foo/**", "http://www.foo.com/"));
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
 				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList("*"));
@@ -322,7 +322,7 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testAutoRoutesCanBeOverridden() {
-		ZuulRoute route = new ZuulRoute("/" + MYSERVICE + "/**", "http://example.com/"
+		ZuulRoute route = new ZuulRoute("/" + MYSERVICE + "/**", "https://example.com/"
 				+ MYSERVICE);
 		this.properties.getRoutes().put(MYSERVICE, route);
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
@@ -332,7 +332,7 @@ public class ProxyRouteLocatorTests {
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
-		assertMapping(routesMap, "http://example.com/" + MYSERVICE, MYSERVICE);
+		assertMapping(routesMap, "https://example.com/" + MYSERVICE, MYSERVICE);
 	}
 
 	protected void assertMapping(Map<String, String> routesMap, String serviceId) {
