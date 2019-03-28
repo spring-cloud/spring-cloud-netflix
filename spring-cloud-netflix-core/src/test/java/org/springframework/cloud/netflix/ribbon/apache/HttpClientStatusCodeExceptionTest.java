@@ -60,7 +60,7 @@ public class HttpClientStatusCodeExceptionTest {
 		doReturn(entity).when(response).getEntity();
 		HttpEntity copiedEntity = HttpClientUtils.createEntity(response);
 		HttpClientStatusCodeException ex = new HttpClientStatusCodeException("service", response, copiedEntity,
-				new URI("http://service.com"));
+				new URI("https://service.com"));
 		assertEquals("en", ex.getResponse().getLocale().toString());
 		assertArrayEquals(headers, ex.getResponse().getAllHeaders());
 		assertEquals("Success", ex.getResponse().getStatusLine().getReasonPhrase());

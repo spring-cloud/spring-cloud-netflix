@@ -20,8 +20,8 @@ public class EurekaControllerReplicasTests {
 	String noAuthList1 = "http://test1.com";
 	String noAuthList2 = noAuthList1 + ",http://test2.com";
 
-	String authList1 = "http://user:pwd@test1.com";
-	String authList2 = authList1 + ",http://user2:pwd2@test2.com";
+	String authList1 = "https://user:pwd@test1.com";
+	String authList2 = authList1 + ",https://user2:pwd2@test2.com";
 
 	String combinationAuthList1 = "http://test1.com,http://user2:pwd2@test2.com";
 	String combinationAuthList2 = "http://test3.com,http://user4:pwd4@test4.com";

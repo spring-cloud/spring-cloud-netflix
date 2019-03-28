@@ -42,7 +42,7 @@ public class RibbonApacheHttpResponseTests {
 		HttpResponse response = mock(HttpResponse.class);
 		given(response.getStatusLine()).willReturn(statusLine);
 
-		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response, URI.create("http://example.com"));
+		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response, URI.create("https://example.com"));
 
 		assertThat(httpResponse.isSuccess(), is(true));
 		assertThat(httpResponse.hasPayload(), is(false));
@@ -61,7 +61,7 @@ public class RibbonApacheHttpResponseTests {
 		entity.setContent(new ByteArrayInputStream(new byte[0]));
 		given(response.getEntity()).willReturn(entity);
 
-		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response, URI.create("http://example.com"));
+		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response, URI.create("https://example.com"));
 
 		assertThat(httpResponse.isSuccess(), is(true));
 		assertThat(httpResponse.hasPayload(), is(true));
