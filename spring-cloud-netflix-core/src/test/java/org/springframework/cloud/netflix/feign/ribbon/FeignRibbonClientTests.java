@@ -94,20 +94,20 @@ public class FeignRibbonClientTests {
 
 	@Test
 	public void remoteRequestIsSent() throws Exception {
-		Request request = new RequestTemplate().method("GET").append("http://foo/")
+		Request request = new RequestTemplate().method("GET").append("https://foo/")
 				.request();
 		this.client.execute(request, new Options());
-		RequestMatcher matcher = new RequestMatcher("http://foo.com:8000/");
+		RequestMatcher matcher = new RequestMatcher("https://foo.com:8000/");
 		verify(this.delegate).execute(argThat(matcher),
 				any(Options.class));
 	}
 
 	@Test
 	public void remoteRequestIsSentAtRoot() throws Exception {
-		Request request = new RequestTemplate().method("GET").append("http://foo")
+		Request request = new RequestTemplate().method("GET").append("https://foo")
 				.request();
 		this.client.execute(request, new Options());
-		RequestMatcher matcher = new RequestMatcher("http://foo.com:8000/");
+		RequestMatcher matcher = new RequestMatcher("https://foo.com:8000/");
 		verify(this.delegate).execute(argThat(matcher),
 				any(Options.class));
 	}

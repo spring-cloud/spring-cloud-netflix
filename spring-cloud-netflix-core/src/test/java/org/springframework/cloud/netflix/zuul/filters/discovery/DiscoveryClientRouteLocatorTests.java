@@ -564,7 +564,7 @@ public class DiscoveryClientRouteLocatorTests {
 	@Test
 	public void testIgnoredRouteIncludedIfConfiguredAndNotDiscovered() {
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("/foo/**", "http://foo.com"));
+				new ZuulRoute("/foo/**", "http://www.foo.com/"));
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties.setIgnoredServices(Collections.singleton("*"));
@@ -588,7 +588,7 @@ public class DiscoveryClientRouteLocatorTests {
 	@Test
 	public void testAutoRoutesCanBeOverridden() {
 		ZuulRoute route = new ZuulRoute("/" + MYSERVICE + "/**",
-				"http://example.com/" + MYSERVICE);
+				"https://example.com/" + MYSERVICE);
 		this.properties.getRoutes().put(MYSERVICE, route);
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
@@ -597,7 +597,7 @@ public class DiscoveryClientRouteLocatorTests {
 		List<Route> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
-		assertMapping(routesMap, "http://example.com/" + MYSERVICE, MYSERVICE);
+		assertMapping(routesMap, "https://example.com/" + MYSERVICE, MYSERVICE);
 	}
 
 	@Test

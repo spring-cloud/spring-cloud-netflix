@@ -1,7 +1,7 @@
 :github-tag: master
 :github-repo: spring-cloud/spring-cloud-netflix
-:github-raw: http://raw.github.com/{github-repo}/{github-tag}
-:github-code: http://github.com/{github-repo}/tree/{github-tag}
+:github-raw: https://raw.github.com/{github-repo}/{github-tag}
+:github-code: https://github.com/{github-repo}/tree/{github-tag}
 :all: {asterisk}{asterisk}
 :nofooter:
 :branch: 1.4.x
@@ -20,7 +20,7 @@ Service Discovery is one of the key tenets of a microservice based architecture.
 === How to Include Eureka Client
 
 To include Eureka Client in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-netflix-eureka-client`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-eureka-client`. See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 === Registering with Eureka
@@ -372,7 +372,7 @@ eureka.client.preferSameZoneEureka = true
 === How to Include Eureka Server
 
 To include Eureka Server in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-netflix-eureka-server`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-eureka-server`. See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 [[spring-cloud-running-eureka-server]]
@@ -556,7 +556,7 @@ example `eureka.instance.hostname=${HOST_NAME}`.
 
 == Circuit Breaker: Hystrix Clients
 
-Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
+Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the https://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
 
 .Microservice Graph
 image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/Hystrix.png[]
@@ -573,7 +573,7 @@ Having an open circuit stops cascading failures and allows overwhelmed or failin
 === How to Include Hystrix
 
 To include Hystrix in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-netflix-hystrix`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-hystrix`. See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 Example boot app:
@@ -685,7 +685,7 @@ be slightly more than three seconds.
 === How to Include Hystrix Dashboard
 
 To include the Hystrix Dashboard in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-netflix-hystrix-dashboard`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-hystrix-dashboard`. See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 To run the Hystrix Dashboard annotate your Spring Boot main class with `@EnableHystrixDashboard`.  You then visit `/hystrix` and point the dashboard to an individual instances `/hystrix.stream` endpoint in a Hystrix client application.
@@ -709,7 +709,7 @@ eureka:
 ----
 
 
-The configuration key `turbine.appConfig` is a list of eureka serviceIds that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: `http://my.turbine.sever:8080/turbine.stream?cluster=CLUSTERNAME` (the cluster parameter can be omitted if the name is "default"). The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`. Values returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":
+The configuration key `turbine.appConfig` is a list of eureka serviceIds that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: `https://my.turbine.sever:8080/turbine.stream?cluster=CLUSTERNAME` (the cluster parameter can be omitted if the name is "default"). The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`. Values returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":
 
 ----
 turbine:
@@ -761,10 +761,10 @@ Unlike Turbine server, Turbine Stream uses eureka serviceIds as cluster names an
 If Turbine Stream server is running on port 8989 on `my.turbine.server` and you have two eureka serviceIds `customers` and `products`  in your environment, the following URLs will be available on your Turbine Stream server. `default` and empty cluster name will provide all metrics that Turbine Stream server receives.
 
 ----
-http://my.turbine.sever:8989/turbine.stream?cluster=customers
-http://my.turbine.sever:8989/turbine.stream?cluster=products
-http://my.turbine.sever:8989/turbine.stream?cluster=default
-http://my.turbine.sever:8989/turbine.stream
+https://my.turbine.sever:8989/turbine.stream?cluster=customers
+https://my.turbine.sever:8989/turbine.stream?cluster=products
+https://my.turbine.sever:8989/turbine.stream?cluster=default
+https://my.turbine.sever:8989/turbine.stream
 ----
 
 So, you can use eureka serviceIds as cluster names for your Turbine dashboard (or any compatible dashboard).
@@ -793,7 +793,7 @@ annotation). Spring Cloud creates a new ensemble as an
 === How to Include Ribbon
 
 To include Ribbon in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-netflix-ribbon`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-ribbon`. See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 === Customizing the Ribbon Client
@@ -1040,7 +1040,7 @@ https://github.com/Netflix/feign[Feign] is a declarative web service client.  It
 === How to Include Feign
 
 To include Feign in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-openfeign`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-openfeign`. See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 Example spring boot app
@@ -1441,7 +1441,7 @@ public class FooConfiguration {
 
 == External Configuration: Archaius
 
-https://github.com/Netflix/archaius[Archaius] is the Netflix client side configuration library.  It is the library used by all of the Netflix OSS components for configuration.  Archaius is an extension of the http://commons.apache.org/proper/commons-configuration[Apache Commons Configuration] project.  It allows updates to configuration by either polling a source for changes or for a source to push changes to the client.  Archaius uses Dynamic<Type>Property classes as handles to properties.
+https://github.com/Netflix/archaius[Archaius] is the Netflix client side configuration library.  It is the library used by all of the Netflix OSS components for configuration.  Archaius is an extension of the https://commons.apache.org/proper/commons-configuration[Apache Commons Configuration] project.  It allows updates to configuration by either polling a source for changes or for a source to push changes to the client.  Archaius uses Dynamic<Type>Property classes as handles to properties.
 
 .Archaius Example
 [source,java]
@@ -1463,7 +1463,7 @@ Archaius has its own set of configuration files and loading priorities.  Spring 
 
 Routing in an integral part of a microservice architecture.  For example, `/` may be mapped to your web application, `/api/users` is mapped to the user service and `/api/shop` is mapped to the shop service.  https://github.com/Netflix/zuul[Zuul] is a JVM based router and server side load balancer by Netflix.
 
-http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27[Netflix uses Zuul] for the following:
+https://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27[Netflix uses Zuul] for the following:
 
 * Authentication
 * Insights
@@ -1486,7 +1486,7 @@ NOTE: Default Hystrix isolation pattern (ExecutionIsolationStrategy) for all rou
 === How to Include Zuul
 
 To include Zuul in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-netflix-zuul`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-zuul`. See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 [[netflix-zuul-reverse-proxy]]
@@ -1572,7 +1572,7 @@ The location of the backend can be specified as either a "serviceId"
   routes:
     users:
       path: /myusers/**
-      url: http://example.com/users_service
+      url: https://example.com/users_service
 ----
 
 These simple url-routes don't get executed as a `HystrixCommand` nor do they loadbalance multiple URLs with Ribbon.
@@ -1599,7 +1599,7 @@ hystrix:
 myusers-service:
   ribbon:
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
-    listOfServers: http://example1.com,http://example2.com
+    listOfServers: https://example1.com,http://example2.com
     ConnectTimeout: 1000
     ReadTimeout: 3000
     MaxTotalHttpConnections: 500
@@ -1877,7 +1877,7 @@ Example configuration:
   routes:
     first:
       path: /first/**
-      url: http://first.example.com
+      url: https://first.example.com
     second:
       path: /second/**
       url: forward:/second
@@ -1886,7 +1886,7 @@ Example configuration:
       url: forward:/3rd
     legacy:
       path: /**
-      url: http://legacy.example.com
+      url: https://legacy.example.com
 ----
 
 In this example we are strangling the "legacy" app which is mapped to
@@ -2556,7 +2556,7 @@ and the Sidecar is on port 5678, then it can be accessed at
 http://localhost:5678/configserver
 
 Non-jvm app can take advantage of the Config Server's ability to return YAML
-documents.  For example, a call to http://sidecar.local.spring.io:5678/configserver/default-master.yml
+documents.  For example, a call to https://sidecar.local.spring.io:5678/configserver/default-master.yml
 might result in a YAML document like the following
 
 [source,yaml]

@@ -45,7 +45,7 @@ public class RibbonResponseStatusCodeExceptionTest {
 		List<String> fooValues = new ArrayList<String>();
 		fooValues.add("bar");
 		headers.put("foo", fooValues);
-		Request request = Request.create("GET", "http://service.com",
+		Request request = Request.create("GET", "https://service.com",
 				new HashMap<String, Collection<String>>(), new byte[]{}, Charset.defaultCharset());
 		byte[] body = "foo".getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(body);
