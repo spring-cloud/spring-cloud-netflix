@@ -43,10 +43,11 @@ public class OkHttpStatusCodeExceptionTest {
 				.message("Success")
 				.body(ResponseBody.create(MediaType.parse("text/plain"), "foo"))
 				.protocol(Protocol.HTTP_1_1)
-				.request(new Request.Builder().url("http://service.com").build()).build();
+				.request(new Request.Builder().url("https://service.com").build())
+				.build();
 		ResponseBody body = response.peekBody(Integer.MAX_VALUE);
 		OkHttpStatusCodeException ex = new OkHttpStatusCodeException("service", response,
-				body, new URI("http://service.com"));
+				body, new URI("https://service.com"));
 		assertThat(ex.getResponse().headers()).isEqualTo(headers);
 		assertThat(ex.getResponse().code()).isEqualTo(200);
 		assertThat(ex.getResponse().message()).isEqualTo("Success");

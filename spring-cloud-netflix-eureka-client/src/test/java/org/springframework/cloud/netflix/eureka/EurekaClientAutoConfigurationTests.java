@@ -474,7 +474,7 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void basicAuth() {
 		TestPropertyValues.of("server.port=8989",
-				"eureka.client.serviceUrl.defaultZone=http://user:foo@example.com:80/eureka")
+				"eureka.client.serviceUrl.defaultZone=https://user:foo@example.com:80/eureka")
 				.applyTo(this.context);
 		setupContext(MockClientConfiguration.class);
 		// ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
