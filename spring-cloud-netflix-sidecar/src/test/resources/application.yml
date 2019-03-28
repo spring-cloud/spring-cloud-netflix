@@ -14,7 +14,7 @@ eureka:
     app-group-name: mysidecargroup
   client:
     serviceUrl:
-      defaultZone: http://user:password@localhost:8761/eureka/
+      defaultZone: https://user:password@localhost:8761/eureka/
 
 ribbon:
   ServerListRefreshInterval: 5000

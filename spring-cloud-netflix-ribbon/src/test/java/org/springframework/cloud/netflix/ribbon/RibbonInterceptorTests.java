@@ -68,7 +68,7 @@ public class RibbonInterceptorTests {
 		RibbonServer server = new RibbonServer("myservice", new Server("myhost", 8080));
 		LoadBalancerInterceptor interceptor = new LoadBalancerInterceptor(
 				new MyClient(server));
-		given(this.request.getURI()).willReturn(new URL("http://myservice").toURI());
+		given(this.request.getURI()).willReturn(new URL("https://myservice").toURI());
 		given(this.execution.execute(isA(HttpRequest.class), isA(byte[].class)))
 				.willReturn(this.response);
 		ArgumentCaptor<HttpRequestWrapper> argument = ArgumentCaptor
@@ -79,7 +79,7 @@ public class RibbonInterceptorTests {
 		verify(this.execution).execute(argument.capture(), isA(byte[].class));
 		HttpRequestWrapper wrapper = argument.getValue();
 		assertThat(wrapper.getURI()).as("wrong constructed uri")
-				.isEqualTo(new URL("http://myhost:8080").toURI());
+				.isEqualTo(new URL("https://myhost:8080").toURI());
 	}
 
 	protected static class MyClient implements LoadBalancerClient {

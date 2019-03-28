@@ -124,9 +124,9 @@ public class SidecarApplicationTests {
 		EurekaInstanceConfigBean config;
 
 		public void testStatusAndHealthCheckUrls() {
-			assertThat(config.getStatusPageUrl()).isEqualTo("http://mhhost2:0/foo/info");
+			assertThat(config.getStatusPageUrl()).isEqualTo("https://mhhost2:0/foo/info");
 			assertThat(config.getHealthCheckUrl())
-					.isEqualTo("http://mhhost2:0/foo/health");
+					.isEqualTo("https://mhhost2:0/foo/health");
 		}
 
 	}
@@ -144,9 +144,9 @@ public class SidecarApplicationTests {
 
 		@Test
 		public void testStatusAndHealthCheckUrls() {
-			assertThat(config.getStatusPageUrl()).isEqualTo("http://mhhost2:0/foo/info");
+			assertThat(config.getStatusPageUrl()).isEqualTo("https://mhhost2:0/foo/info");
 			assertThat(config.getHealthCheckUrl())
-					.isEqualTo("http://mhhost2:0/foo/health");
+					.isEqualTo("https://mhhost2:0/foo/health");
 		}
 
 	}
