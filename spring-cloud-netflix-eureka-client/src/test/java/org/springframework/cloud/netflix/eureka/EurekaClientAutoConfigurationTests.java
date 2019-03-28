@@ -321,9 +321,9 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 
-		assertEquals("statusPageUrl is wrong", "https://192.168.13.90:9999/info",
+		assertEquals("statusPageUrl is wrong", "http://192.168.13.90:9999/info",
 				instance.getStatusPageUrl());
-		assertEquals("healthCheckUrl is wrong", "https://192.168.13.90:9999/health",
+		assertEquals("healthCheckUrl is wrong", "http://192.168.13.90:9999/health",
 				instance.getHealthCheckUrl());
 	}
 

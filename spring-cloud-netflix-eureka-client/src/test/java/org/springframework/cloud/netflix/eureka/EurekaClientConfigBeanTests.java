@@ -74,11 +74,11 @@ public class EurekaClientConfigBeanTests {
 		this.context.getEnvironment().getPropertySources().addFirst(source);
 		source.addPropertySource(new MapPropertySource("config", Collections
 				.<String, Object> singletonMap("eureka.client.serviceUrl.defaultZone",
-						"https://example.com,http://example2.com")));
+						"https://example.com,https://example2.com")));
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
-		assertEquals("{defaultZone=https://example.com,http://example2.com}",
+		assertEquals("{defaultZone=https://example.com,https://example2.com}",
 				this.context.getBean(EurekaClientConfigBean.class).getServiceUrl()
 						.toString());
 		assertEquals("[https://example.com/, https://example2.com/]",

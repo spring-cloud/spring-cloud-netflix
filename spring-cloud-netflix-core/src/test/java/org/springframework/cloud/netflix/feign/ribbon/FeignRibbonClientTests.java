@@ -94,7 +94,7 @@ public class FeignRibbonClientTests {
 
 	@Test
 	public void remoteRequestIsSent() throws Exception {
-		Request request = new RequestTemplate().method("GET").append("http://foo/")
+		Request request = new RequestTemplate().method("GET").append("https://foo/")
 				.request();
 		this.client.execute(request, new Options());
 		RequestMatcher matcher = new RequestMatcher("https://foo.com:8000/");
@@ -104,7 +104,7 @@ public class FeignRibbonClientTests {
 
 	@Test
 	public void remoteRequestIsSentAtRoot() throws Exception {
-		Request request = new RequestTemplate().method("GET").append("http://foo")
+		Request request = new RequestTemplate().method("GET").append("https://foo")
 				.request();
 		this.client.execute(request, new Options());
 		RequestMatcher matcher = new RequestMatcher("https://foo.com:8000/");
