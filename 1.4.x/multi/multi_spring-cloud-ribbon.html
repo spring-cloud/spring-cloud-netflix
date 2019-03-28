@@ -10,7 +10,7 @@ annotation). Spring Cloud creates a new ensemble as an
 <code class="literal">ApplicationContext</code> on demand for each named client using
 <code class="literal">RibbonClientConfiguration</code>. This contains (amongst other things) an
 <code class="literal">ILoadBalancer</code>, a <code class="literal">RestClient</code>, and a <code class="literal">ServerListFilter</code>.</p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="netflix-ribbon-starter" href="#netflix-ribbon-starter"></a>6.1&nbsp;How to Include Ribbon</h2></div></div></div><p>To include Ribbon in your project use the starter with group <code class="literal">org.springframework.cloud</code>
-and artifact id <code class="literal">spring-cloud-starter-netflix-ribbon</code>. See the <a class="link" href="http://projects.spring.io/spring-cloud/" target="_top">Spring Cloud Project page</a>
+and artifact id <code class="literal">spring-cloud-starter-netflix-ribbon</code>. See the <a class="link" href="https://projects.spring.io/spring-cloud/" target="_top">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_customizing_the_ribbon_client" href="#_customizing_the_ribbon_client"></a>6.2&nbsp;Customizing the Ribbon Client</h2></div></div></div><p>You can configure some bits of a Ribbon client using external
 properties in <code class="literal">&lt;client&gt;.ribbon.*</code>, which is no different than using
 the Netflix APIs natively, except that you can use Spring Boot
