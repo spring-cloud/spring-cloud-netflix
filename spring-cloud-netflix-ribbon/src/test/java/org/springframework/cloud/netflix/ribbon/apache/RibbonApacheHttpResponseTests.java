@@ -41,7 +41,7 @@ public class RibbonApacheHttpResponseTests {
 		given(response.getStatusLine()).willReturn(statusLine);
 
 		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response,
-				URI.create("http://example.com"));
+				URI.create("https://example.com"));
 
 		assertThat(httpResponse.isSuccess()).isTrue();
 		assertThat(httpResponse.hasPayload()).isFalse();
@@ -60,7 +60,7 @@ public class RibbonApacheHttpResponseTests {
 		given(response.getEntity()).willReturn(entity);
 
 		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response,
-				URI.create("http://example.com"));
+				URI.create("https://example.com"));
 
 		assertThat(httpResponse.isSuccess()).isTrue();
 		assertThat(httpResponse.hasPayload()).isTrue();

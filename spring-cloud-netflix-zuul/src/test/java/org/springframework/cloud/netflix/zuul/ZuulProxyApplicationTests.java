@@ -99,7 +99,7 @@ public class ZuulProxyApplicationTests {
 	@Test
 	public void preflightRequestSucceedsForGetRequest() {
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-		headers.put("Origin", singletonList("http://hello.com"));
+		headers.put("Origin", singletonList("https://hello.com"));
 		headers.put("Access-Control-Request-Method", singletonList("GET"));
 		ResponseEntity<Void> result = testRestTemplate.exchange(url(), HttpMethod.OPTIONS,
 				new HttpEntity<>(headers), Void.class);
@@ -110,7 +110,7 @@ public class ZuulProxyApplicationTests {
 	@Test
 	public void preflightRequestIsForbiddenForUnsupportedMethod() {
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-		headers.put("Origin", singletonList("http://hello.com"));
+		headers.put("Origin", singletonList("https://hello.com"));
 		headers.put("Access-Control-Request-Method", singletonList("PUT"));
 		ResponseEntity<Void> result = testRestTemplate.exchange(url(), HttpMethod.OPTIONS,
 				new HttpEntity<>(headers), Void.class);
@@ -166,7 +166,7 @@ public class ZuulProxyApplicationTests {
 			return new WebMvcConfigurer() {
 				public void addCorsMappings(CorsRegistry registry) {
 					registry.addMapping("/simplezpat/**")
-							.allowedOrigins("http://hello.com")
+							.allowedOrigins("https://hello.com")
 							.allowedMethods("GET", "POST")
 							.allowedHeaders("Authorization");
 				}

@@ -91,7 +91,7 @@ public class RibbonClientConfigurationTests {
 		when(this.inspector.isSecure(server)).thenReturn(true);
 
 		for (AbstractLoadBalancerAwareClient client : clients()) {
-			URI uri = client.reconstructURIWithServer(server, new URI("http://foo/"));
+			URI uri = client.reconstructURIWithServer(server, new URI("https://foo/"));
 			assertThat(uri).as(getReason(client)).isEqualTo(new URI("https://foo:7777/"));
 		}
 	}
@@ -102,8 +102,8 @@ public class RibbonClientConfigurationTests {
 		when(this.inspector.isSecure(server)).thenReturn(false);
 
 		for (AbstractLoadBalancerAwareClient client : clients()) {
-			URI uri = client.reconstructURIWithServer(server, new URI("http://foo/"));
-			assertThat(uri).as(getReason(client)).isEqualTo(new URI("http://foo:7777/"));
+			URI uri = client.reconstructURIWithServer(server, new URI("https://foo/"));
+			assertThat(uri).as(getReason(client)).isEqualTo(new URI("https://foo:7777/"));
 		}
 	}
 
@@ -118,7 +118,7 @@ public class RibbonClientConfigurationTests {
 
 		for (AbstractLoadBalancerAwareClient client : clients()) {
 			URI uri = client.reconstructURIWithServer(server,
-					new URI("http://foo/%20bar"));
+					new URI("https://foo/%20bar"));
 			assertThat(uri).as(getReason(client))
 					.isEqualTo(new URI("https://foo:7777/%20bar"));
 		}

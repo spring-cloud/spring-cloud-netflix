@@ -150,7 +150,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	public void invalidHostNameError() {
 		this.exceptionRule.expect(ResourceAccessException.class);
 		this.exceptionRule.expectMessage("Invalid hostname");
-		this.restTemplate.getForEntity("http://simple_bad", String.class);
+		this.restTemplate.getForEntity("https://simple_bad", String.class);
 	}
 
 	@Configuration
