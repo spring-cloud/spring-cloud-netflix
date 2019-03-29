@@ -82,7 +82,7 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	@Test
 	public void vanillaRequestWorks() {
-		ResponseEntity<String> response = this.restTemplate.getForEntity("https://simple/",
+		ResponseEntity<String> response = this.restTemplate.getForEntity("http://simple/",
 				String.class);
 		assertThat(response.getStatusCode()).as("wrong response code")
 				.isEqualTo(HttpStatus.OK);
@@ -92,7 +92,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	@Test
 	public void requestWithPathParamWorks() {
 		ResponseEntity<String> response = this.restTemplate
-				.getForEntity("https://simple/path/{param}", String.class, "world");
+				.getForEntity("http://simple/path/{param}", String.class, "world");
 		assertThat(response.getStatusCode()).as("wrong response code")
 				.isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello world");
@@ -101,7 +101,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	@Test
 	public void requestWithEncodedPathParamWorks() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity(
-				"https://simple/path/{param}", String.class, "world & everyone else");
+				"http://simple/path/{param}", String.class, "world & everyone else");
 		assertThat(response.getStatusCode()).as("wrong response code")
 				.isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).as("wrong response body")
@@ -111,7 +111,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	@Test
 	public void requestWithRequestParamWorks() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity(
-				"https://simple/request?param={param}", String.class, "world");
+				"http://simple/request?param={param}", String.class, "world");
 		assertThat(response.getStatusCode()).as("wrong response code")
 				.isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello world");
@@ -120,7 +120,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	@Test
 	public void requestWithPostWorks() {
 		ResponseEntity<String> response = this.restTemplate
-				.postForEntity("https://simple/post", "world", String.class);
+				.postForEntity("http://simple/post", "world", String.class);
 		assertThat(response.getStatusCode()).as("wrong response code")
 				.isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello world");
@@ -129,7 +129,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	@Test
 	public void requestWithEmptyPostWorks() {
 		ResponseEntity<String> response = this.restTemplate
-				.postForEntity("https://simple/emptypost", "", String.class);
+				.postForEntity("http://simple/emptypost", "", String.class);
 		assertThat(response.getStatusCode()).as("wrong response code")
 				.isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello empty");
@@ -137,7 +137,7 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	@Test
 	public void requestWithHeaderWorks() throws Exception {
-		RequestEntity<Void> entity = RequestEntity.get(new URI("https://simple/header"))
+		RequestEntity<Void> entity = RequestEntity.get(new URI("http://simple/header"))
 				.header("X-Param", "world").build();
 		ResponseEntity<String> response = this.restTemplate.exchange(entity,
 				String.class);

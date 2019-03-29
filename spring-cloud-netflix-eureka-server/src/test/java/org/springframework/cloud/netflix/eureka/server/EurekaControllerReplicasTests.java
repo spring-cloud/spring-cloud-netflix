@@ -32,9 +32,9 @@ import static org.springframework.cloud.netflix.eureka.server.EurekaControllerTe
 
 public class EurekaControllerReplicasTests {
 
-	String noAuthList1 = "http://test1.com";
+	String noAuthList1 = "https://test1.com";
 
-	String noAuthList2 = noAuthList1 + ",http://test2.com";
+	String noAuthList2 = noAuthList1 + ",https://test2.com";
 
 	String authList1 = "https://user:pwd@test1.com";
 

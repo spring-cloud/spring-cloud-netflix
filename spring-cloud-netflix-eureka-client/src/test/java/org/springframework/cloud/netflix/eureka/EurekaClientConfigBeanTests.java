@@ -76,15 +76,15 @@ public class EurekaClientConfigBeanTests {
 		source.addPropertySource(new MapPropertySource("config",
 				Collections.<String, Object>singletonMap(
 						"eureka.client.serviceUrl.defaultZone",
-						"https://example.com,http://example2.com, https://www.hugedomains.com/domain_profile.cfm?d=example3&e=com")));
+						"https://example.com,https://example2.com, https://www.hugedomains.com/domain_profile.cfm?d=example3&e=com")));
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.getBean(EurekaClientConfigBean.class).getServiceUrl()
 				.toString()).isEqualTo(
-						"{defaultZone=https://example.com,http://example2.com, https://www.hugedomains.com/domain_profile.cfm?d=example3&e=com}");
+						"{defaultZone=https://example.com,https://example2.com, https://www.hugedomains.com/domain_profile.cfm?d=example3&e=com}");
 		assertThat(getEurekaServiceUrlsForDefaultZone()).isEqualTo(
-				"[https://example.com/, https://example2.com/, https://www.hugedomains.com/domain_profile.cfm?d=example3&e=com]");
+				"[https://example.com/, https://example2.com/, https://www.hugedomains.com/domain_profile.cfm?d=example3&e=com/]");
 	}
 
 	@Test

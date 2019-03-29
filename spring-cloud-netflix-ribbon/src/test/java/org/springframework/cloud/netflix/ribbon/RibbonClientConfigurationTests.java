@@ -131,7 +131,7 @@ public class RibbonClientConfigurationTests {
 
 		for (AbstractLoadBalancerAwareClient client : clients()) {
 			URI uri = client.reconstructURIWithServer(server,
-					new URI("https://foo/%20bar?hello=1+2"));
+					new URI("http://foo/%20bar?hello=1+2"));
 			assertThat(uri).isEqualTo(new URI("https://foo:7777/%20bar?hello=1%202"));
 		}
 	}

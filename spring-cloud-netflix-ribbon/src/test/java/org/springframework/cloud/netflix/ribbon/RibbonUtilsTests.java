@@ -129,7 +129,7 @@ public class RibbonUtilsTests {
 
 	@Test
 	public void shouldSubstitutePlusInQueryParam() throws URISyntaxException {
-		URI original = new URI("https://foo/%20bar?hello=1+2");
+		URI original = new URI("http://foo/%20bar?hello=1+2");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
 		assertThat(updated)

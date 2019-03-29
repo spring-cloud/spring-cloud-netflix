@@ -360,9 +360,9 @@ public class EurekaClientAutoConfigurationTests {
 				.getBean(EurekaInstanceConfigBean.class);
 
 		assertThat(instance.getStatusPageUrl()).as("statusPageUrl is wrong")
-				.isEqualTo("https://192.168.13.90:9999/actuator/info");
+				.isEqualTo("http://192.168.13.90:9999/actuator/info");
 		assertThat(instance.getHealthCheckUrl()).as("healthCheckUrl is wrong")
-				.isEqualTo("https://192.168.13.90:9999/actuator/health");
+				.isEqualTo("http://192.168.13.90:9999/actuator/health");
 	}
 
 	@Test

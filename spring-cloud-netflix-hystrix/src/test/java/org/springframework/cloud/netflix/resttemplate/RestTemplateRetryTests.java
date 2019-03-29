@@ -77,7 +77,7 @@ public class RestTemplateRetryTests {
 	@Before
 	public void setup() throws Exception {
 		// Force Ribbon configuration by making one call.
-		this.testClient.getForObject("https://badClients/ping", Integer.class);
+		this.testClient.getForObject("http://badClients/ping", Integer.class);
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class RestTemplateRetryTests {
 		// A null pointer should NOT trigger a circuit breaker.
 		for (int index = 0; index < numCalls; index++) {
 			try {
-				this.testClient.getForObject("https://badClients/null", Integer.class);
+				this.testClient.getForObject("http://badClients/null", Integer.class);
 			}
 			catch (Exception exception) {
 			}
@@ -149,7 +149,7 @@ public class RestTemplateRetryTests {
 		int hits = 0;
 
 		for (int index = 0; index < numCalls; index++) {
-			hits = this.testClient.getForObject("https://badClients/good", Integer.class);
+			hits = this.testClient.getForObject("http://badClients/good", Integer.class);
 		}
 
 		logServerStats(LocalBadClientConfiguration.badServer);
@@ -185,7 +185,7 @@ public class RestTemplateRetryTests {
 
 		int numCalls = 15;
 		for (int index = 0; index < numCalls; index++) {
-			hits = this.testClient.getForObject("https://badClients/timeout",
+			hits = this.testClient.getForObject("http://badClients/timeout",
 					Integer.class);
 		}
 		logServerStats(LocalBadClientConfiguration.badServer);
