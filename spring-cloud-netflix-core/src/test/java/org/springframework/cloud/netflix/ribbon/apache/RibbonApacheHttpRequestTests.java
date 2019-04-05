@@ -51,13 +51,13 @@ public class RibbonApacheHttpRequestTests {
 
 	@Test
 	public void testNullEntity() throws Exception {
-		String uri = "https://example.com";
+		String uri = "http://example-domain";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
 		headers.add(HttpEncoding.CONTENT_LENGTH, "5192");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RibbonApacheHttpRequest httpRequest = 
+		RibbonApacheHttpRequest httpRequest =
 				new RibbonApacheHttpRequest(
 						new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()));
 
@@ -69,7 +69,7 @@ public class RibbonApacheHttpRequestTests {
 		assertThat("my-header is wrong", request.getFirstHeader("my-header").getValue(), is(equalTo("my-value")));
 		assertThat("Content-Length is wrong", request.getFirstHeader(HttpEncoding.CONTENT_LENGTH).getValue(), is(equalTo("5192")));
 		assertThat("myparam is missing", request.getURI().getQuery(), is(equalTo("myparam=myparamval")));
-		
+
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class RibbonApacheHttpRequestTests {
 	void testEntity(String entityValue, ByteArrayInputStream requestEntity, boolean addContentLengthHeader, String method) throws IOException {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
-		URI uri = URI.create("https://example.com");
+		URI uri = URI.create("http://example-domain");
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		if (addContentLengthHeader) {
 			headers.add("Content-Length", lengthString);

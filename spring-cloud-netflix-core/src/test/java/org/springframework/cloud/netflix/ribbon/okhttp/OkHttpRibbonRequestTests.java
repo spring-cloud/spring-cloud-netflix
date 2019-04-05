@@ -46,7 +46,7 @@ public class OkHttpRibbonRequestTests {
 
 	@Test
 	public void testNullEntity() throws Exception {
-		String uri = "https://example.com";
+		String uri = "http://example-domain";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
 		// headers.add(HttpEncoding.CONTENT_LENGTH, "5192");
@@ -83,10 +83,10 @@ public class OkHttpRibbonRequestTests {
 	}
 
 	void testEntity(String entityValue, ByteArrayInputStream requestEntity,
-			boolean addContentLengthHeader, String method) throws IOException {
+					boolean addContentLengthHeader, String method) throws IOException {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
-		String uri = "https://example.com";
+		String uri = "http://example-domain";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		if (addContentLengthHeader) {
 			headers.add("Content-Length", lengthString);

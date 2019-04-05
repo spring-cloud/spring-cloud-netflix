@@ -49,7 +49,7 @@ public class FeignClientValidationTests {
 	@EnableFeignClients(clients = GoodUrlConfiguration.Client.class)
 	protected static class GoodUrlConfiguration {
 
-		@FeignClient(name="example", url="https://example.com")
+		@FeignClient(name="example", url="http://example-domain")
 		interface Client {
 			@RequestMapping(method = RequestMethod.GET, value = "/")
 			@Deprecated
@@ -71,7 +71,7 @@ public class FeignClientValidationTests {
 	@EnableFeignClients(clients = PlaceholderUrlConfiguration.Client.class)
 	protected static class PlaceholderUrlConfiguration {
 
-		@FeignClient(name="example", url="${feignClient.url:https://example.com}")
+		@FeignClient(name="example", url="${feignClient.url:http://example-domain}")
 		interface Client {
 			@RequestMapping(method = RequestMethod.GET, value = "/")
 			@Deprecated

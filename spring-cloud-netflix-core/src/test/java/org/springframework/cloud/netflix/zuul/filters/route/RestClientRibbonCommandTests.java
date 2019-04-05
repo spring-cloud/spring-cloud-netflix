@@ -47,24 +47,24 @@ import com.netflix.client.http.HttpRequest.Verb;
 public class RestClientRibbonCommandTests {
 
 	private ZuulProperties zuulProperties;
-	
+
 	@Before
 	public void setUp()	{
 		zuulProperties = new ZuulProperties();
 	}
-	
+
 	/**
 	 * Tests old constructors kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
 	 */
 	@Test
 	@Deprecated
 	public void testNullEntityWithOldConstruct() throws Exception {
-		String uri = "https://example.com";
+		String uri = "http://example-domain";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RestClientRibbonCommand command = 
+		RestClientRibbonCommand command =
 				new RestClientRibbonCommand("cmd", null,Verb.GET ,uri, false, headers, params, null);
 
 		HttpRequest request = command.createRequest();
@@ -72,11 +72,11 @@ public class RestClientRibbonCommandTests {
 		assertThat("uri is wrong", request.getUri().toString(), startsWith(uri));
 		assertThat("my-header is wrong", request.getHttpHeaders().getFirstValue("my-header"), is(equalTo("my-value")));
 		assertThat("myparam is missing", request.getQueryParams().get("myparam").iterator().next(), is(equalTo("myparamval")));
-		
-		command = 
+
+		command =
 				new RestClientRibbonCommand("cmd", null,
-				new RibbonCommandContext("example", "GET", uri, false, headers, params, null),
-				zuulProperties);
+						new RibbonCommandContext("example", "GET", uri, false, headers, params, null),
+						zuulProperties);
 
 		request = command.createRequest();
 
@@ -84,18 +84,18 @@ public class RestClientRibbonCommandTests {
 		assertThat("my-header is wrong", request.getHttpHeaders().getFirstValue("my-header"), is(equalTo("my-value")));
 		assertThat("myparam is missing", request.getQueryParams().get("myparam").iterator().next(), is(equalTo("myparamval")));
 	}
-	
+
 	@Test
 	public void testNullEntity() throws Exception {
-		String uri = "https://example.com";
+		String uri = "http://example-domain";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RestClientRibbonCommand command = 
+		RestClientRibbonCommand command =
 				new RestClientRibbonCommand("cmd", null,
-				new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()),
-				zuulProperties);
+						new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()),
+						zuulProperties);
 
 		HttpRequest request = command.createRequest();
 
@@ -126,7 +126,7 @@ public class RestClientRibbonCommandTests {
 	void testEntity(String entityValue, ByteArrayInputStream requestEntity, boolean addContentLengthHeader, String method) throws Exception {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
-		URI uri = URI.create("https://example.com");
+		URI uri = URI.create("http://example-domain");
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		if (addContentLengthHeader) {
 			headers.add("Content-Length", lengthString);

@@ -1,33 +1,27 @@
 package org.springframework.cloud.netflix.eureka.server;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.cloud.netflix.eureka.server.EurekaControllerTest.setInstance;
-
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.DataCenterInfo;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.MyDataCenterInfo;
-import com.netflix.eureka.cluster.PeerEurekaNode;
-import com.netflix.eureka.cluster.PeerEurekaNodes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.eureka.util.StatusInfo;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.springframework.cloud.netflix.eureka.server.EurekaControllerTest.setInstance;
 
 public class EurekaControllerReplicasTest {
 
-	String noAuthList1 = "http://test1.com";
-	String noAuthList2 = noAuthList1 + ",http://test2.com";
+	String noAuthList1 = "http://test1-domain";
+	String noAuthList2 = noAuthList1 + ",http://test2-domain";
 
-	String authList1 = "https://user:pwd@test1.com";
-	String authList2 = authList1 + ",https://user2:pwd2@test2.com";
+	String authList1 = "http://user:pwd@test1-domain";
+	String authList2 = authList1 + ",http://user2:pwd2@test2-domain";
 
 	String empty = new String();
 
