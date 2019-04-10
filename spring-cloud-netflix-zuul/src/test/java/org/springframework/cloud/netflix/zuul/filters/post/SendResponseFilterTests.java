@@ -131,6 +131,25 @@ public class SendResponseFilterTests {
 	}
 
 	/*
+	 * Unknown encoding requested and NOT a GZip response -> Content-Length forwarded asis
+	 */
+	@Test
+	public void runWithOriginContentLength_content_encoding_header() throws Exception {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
+
+		SendResponseFilter filter = createFilter(properties, "hello", null, new MockHttpServletResponse(), false);
+		RequestContext.getCurrentContext().addZuulResponseHeader("Content-Encoding", "unknown");
+		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
+		RequestContext.getCurrentContext().setResponseGZipped(false);
+		filter.run();
+
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext.getCurrentContext().getResponse();
+		assertThat("wrong origin content length", response.getHeader("Content-Length"), equalTo("6"));
+		assertThat(response.getHeader("Content-Encoding")).isEqualTo("unknown");
+	}
+
+	/*
 	 * GZip requested and GZip response -> Content-Length forwarded asis, response compressed
 	 */
 	@Test
@@ -170,6 +189,31 @@ public class SendResponseFilterTests {
 		
 		byte[] gzipData = gzipData("hello");
 		
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for test
+		RequestContext.getCurrentContext().setResponseGZipped(true);
+		RequestContext.getCurrentContext().setResponseDataStream( new ByteArrayInputStream(gzipData) );
+		
+		filter.run();
+
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext.getCurrentContext().getResponse();
+		assertThat(response.getHeader("Content-Length")).isNull();
+		assertThat(response.getHeader("Content-Encoding")).isNull();
+		assertThat("wrong content", response.getContentAsString(), equalTo("hello"));
+	}
+	
+	/*
+	 * GZip NOT requested and GZip response -> Content-Length discarded and response uncompressed
+	 */
+	@Test
+	public void runWithOriginContentLength_gzipNotRequested_gzipResponse_content_encoding_header() throws Exception {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
+
+		SendResponseFilter filter = new SendResponseFilter(properties);
+		
+		byte[] gzipData = gzipData("hello");
+		
+		RequestContext.getCurrentContext().addZuulResponseHeader("Content-Encoding", "gzip");
 		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for test
 		RequestContext.getCurrentContext().setResponseGZipped(true);
 		RequestContext.getCurrentContext().setResponseDataStream( new ByteArrayInputStream(gzipData) );
