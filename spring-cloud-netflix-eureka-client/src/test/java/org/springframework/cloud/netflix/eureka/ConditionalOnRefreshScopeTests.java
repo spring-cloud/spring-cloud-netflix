@@ -44,6 +44,18 @@ public class ConditionalOnRefreshScopeTests {
 	}
 
 	@Test
+	public void refreshScopeIncludedAndPropertyDisabled() {
+		new ApplicationContextRunner()
+			.withConfiguration(AutoConfigurations.of(RefreshAutoConfiguration.class))
+			.withPropertyValues("eureka.client.refresh.enable=false")
+			.withUserConfiguration(Beans.class).run(c -> {
+			assertThat(c).hasSingleBean(
+				org.springframework.cloud.context.scope.refresh.RefreshScope.class);
+			assertThat(c).doesNotHaveBean("foo");
+		});
+	}
+
+	@Test
 	public void refreshScopeNotIncluded() {
 		new ApplicationContextRunner().withUserConfiguration(Beans.class).run(c -> {
 			assertThat(c).doesNotHaveBean("foo");
