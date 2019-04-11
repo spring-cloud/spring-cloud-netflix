@@ -129,6 +129,7 @@ public class SendResponseFilter extends ZuulFilter {
 			servletResponse.setCharacterEncoding("UTF-8");
 		}
 
+		String servletResponseContentEncoding = getResponseContentEncoding(context);
 		OutputStream outStream = servletResponse.getOutputStream();
 		InputStream is = null;
 		try {
@@ -144,12 +145,17 @@ public class SendResponseFilter extends ZuulFilter {
 					// decompress stream before sending to client
 					// else, stream gzip directly to client
 					if (isGzipRequested(context)) {
-						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
+						servletResponseContentEncoding = "gzip";
 					}
 					else {
+						servletResponseContentEncoding = null;
 						is = handleGzipStream(is);
 					}
 				}
+			}
+			if (servletResponseContentEncoding != null) {
+				servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING,
+						servletResponseContentEncoding);
 			}
 
 			if (is != null) {
@@ -230,6 +236,18 @@ public class SendResponseFilter extends ZuulFilter {
 				&& HTTPRequestUtils.getInstance().isGzipped(requestEncoding);
 	}
 
+	private String getResponseContentEncoding(RequestContext context) {
+		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
+		if (zuulResponseHeaders != null) {
+			for (Pair<String, String> it : zuulResponseHeaders) {
+				if (ZuulHeaders.CONTENT_ENCODING.equalsIgnoreCase(it.first())) {
+					return it.second();
+				}
+			}
+		}
+		return null;
+	}
+
 	private void writeResponse(InputStream zin, OutputStream out) throws Exception {
 		byte[] bytes = buffers.get();
 		int bytesRead = -1;
@@ -255,7 +273,9 @@ public class SendResponseFilter extends ZuulFilter {
 		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
 		if (zuulResponseHeaders != null) {
 			for (Pair<String, String> it : zuulResponseHeaders) {
-				servletResponse.addHeader(it.first(), it.second());
+				if (!ZuulHeaders.CONTENT_ENCODING.equalsIgnoreCase(it.first())) {
+					servletResponse.addHeader(it.first(), it.second());
+				}
 			}
 		}
 		if (includeContentLengthHeader(context)) {
