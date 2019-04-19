@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.feign.ribbon;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
@@ -42,12 +45,19 @@ public class LoadBalancerFeignClient implements Client {
 	private CachingSpringLoadBalancerFactory lbClientFactory;
 	private SpringClientFactory clientFactory;
 
+	private ConcurrentMap<String, IClientConfig> clientConfigMap = new ConcurrentHashMap<>();
+	private ConcurrentMap<String, FeignLoadBalancer> feignLoadBalancerMap = new ConcurrentHashMap<>();
+
+
 	public LoadBalancerFeignClient(Client delegate,
 								   CachingSpringLoadBalancerFactory lbClientFactory,
-								   SpringClientFactory clientFactory) {
+								   SpringClientFactory clientFactory,
+								   List<String> feignServiceIds) {
 		this.delegate = delegate;
 		this.lbClientFactory = lbClientFactory;
 		this.clientFactory = clientFactory;
+
+		initResourcesOfClientNames(feignServiceIds.toArray(new String[feignServiceIds.size()]));
 	}
 
 	@Override
@@ -75,7 +85,7 @@ public class LoadBalancerFeignClient implements Client {
 	IClientConfig getClientConfig(Request.Options options, String clientName) {
 		IClientConfig requestConfig;
 		if (options == DEFAULT_OPTIONS) {
-			requestConfig = this.clientFactory.getClientConfig(clientName);
+			requestConfig = this.clientConfig(clientName);
 		} else {
 			requestConfig = new FeignOptionsClientConfig(options);
 		}
@@ -106,8 +116,37 @@ public class LoadBalancerFeignClient implements Client {
 		return URI.create(buffer.toString());
 	}
 
+	private IClientConfig clientConfig(String clientName) {
+		IClientConfig clientConfig = this.clientConfigMap.get(clientName);
+		if (clientConfig == null) {
+			clientConfig = clientFactory.getClientConfig(clientName);
+			IClientConfig temp = this.clientConfigMap.putIfAbsent(clientName, clientConfig);
+			if (temp != null) {
+				clientConfig = temp;
+			}
+		}
+
+		return clientConfig;
+	}
+
 	private FeignLoadBalancer lbClient(String clientName) {
-		return this.lbClientFactory.create(clientName);
+		FeignLoadBalancer feignLoadBalancer = this.feignLoadBalancerMap.get(clientName);
+		if (feignLoadBalancer == null) {
+			feignLoadBalancer = lbClientFactory.create(clientName);
+			FeignLoadBalancer temp = this.feignLoadBalancerMap.putIfAbsent(clientName, feignLoadBalancer);
+			if (temp != null) {
+				feignLoadBalancer = temp;
+			}
+		}
+
+		return feignLoadBalancer;
+	}
+
+	public void initResourcesOfClientNames(String... clientNames){
+		for(String clientName : clientNames) {
+			clientConfig(clientName);
+			lbClient(clientName);
+		}
 	}
 
 	static class FeignOptionsClientConfig extends DefaultClientConfigImpl {

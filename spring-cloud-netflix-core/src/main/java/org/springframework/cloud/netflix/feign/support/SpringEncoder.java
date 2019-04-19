@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,10 +51,10 @@ public class SpringEncoder implements Encoder {
 
 	private static final Log log = LogFactory.getLog(SpringEncoder.class);
 
-	private ObjectFactory<HttpMessageConverters> messageConverters;
+	private List<HttpMessageConverter<?>> messageConverters;
 
 	public SpringEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {
-		this.messageConverters = messageConverters;
+		this.messageConverters = messageConverters.getObject().getConverters();
 	}
 
 	@Override
@@ -70,8 +71,7 @@ public class SpringEncoder implements Encoder {
 				requestContentType = MediaType.valueOf(type);
 			}
 
-			for (HttpMessageConverter<?> messageConverter : this.messageConverters
-					.getObject().getConverters()) {
+			for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
 				if (messageConverter.canWrite(requestType, requestContentType)) {
 					if (log.isDebugEnabled()) {
 						if (requestContentType != null) {

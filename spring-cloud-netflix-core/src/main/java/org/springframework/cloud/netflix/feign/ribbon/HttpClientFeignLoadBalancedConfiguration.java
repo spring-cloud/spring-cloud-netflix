@@ -20,6 +20,7 @@ package org.springframework.cloud.netflix.feign.ribbon;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.annotation.PreDestroy;
@@ -115,14 +116,14 @@ class HttpClientFeignLoadBalancedConfiguration {
 		}
 	}
 
-
-		@Bean
-		@ConditionalOnMissingBean(Client.class)
-		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-								  SpringClientFactory clientFactory, HttpClient httpClient) {
-			ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
-			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
-		}
+	@Bean
+	@ConditionalOnMissingBean(Client.class)
+	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
+							  SpringClientFactory clientFactory, HttpClient httpClient,
+							  ArrayList<String> feignServiceIds) {
+		ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
+		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory, feignServiceIds);
+	}
 
 
 }

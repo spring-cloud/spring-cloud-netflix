@@ -23,12 +23,14 @@ import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
+import java.util.List;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.client.HttpMessageConverterExtractor;
 
 import feign.FeignException;
@@ -41,10 +43,10 @@ import feign.codec.Decoder;
  */
 public class SpringDecoder implements Decoder {
 
-	private ObjectFactory<HttpMessageConverters> messageConverters;
+	private List<HttpMessageConverter<?>> messageConverters;
 
 	public SpringDecoder(ObjectFactory<HttpMessageConverters> messageConverters) {
-		this.messageConverters = messageConverters;
+		this.messageConverters = messageConverters.getObject().getConverters();
 	}
 
 	@Override
@@ -54,7 +56,7 @@ public class SpringDecoder implements Decoder {
 				|| type instanceof WildcardType) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
-					type, this.messageConverters.getObject().getConverters());
+					type, this.messageConverters);
 
 			return extractor.extractData(new FeignResponseAdapter(response));
 		}

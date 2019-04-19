@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -145,6 +146,8 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 					new AllTypeFilter(Arrays.asList(filter, annotationTypeFilter)));
 		}
 
+		List<String> feignServiceIds = new ArrayList<>();
+
 		for (String basePackage : basePackages) {
 			Set<BeanDefinition> candidateComponents = scanner
 					.findCandidateComponents(basePackage);
@@ -161,6 +164,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 									FeignClient.class.getCanonicalName());
 
 					String name = getClientName(attributes);
+					feignServiceIds.add(name);
 					registerClientConfiguration(registry, name,
 							attributes.get("configuration"));
 
@@ -168,6 +172,21 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 				}
 			}
 		}
+
+		registerFeignServiceIds(registry, feignServiceIds);
+	}
+
+	private void registerFeignServiceIds(BeanDefinitionRegistry registry, List<String> feignServiceIds) {
+		BeanDefinitionBuilder definition = BeanDefinitionBuilder
+				.genericBeanDefinition(ArrayList.class);
+		definition.addConstructorArgValue(feignServiceIds);
+		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_NAME);
+
+		AbstractBeanDefinition beanDefinition = definition.getBeanDefinition();
+
+		BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition,
+				"feignServiceIds");
+		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 	}
 
 	private void registerFeignClient(BeanDefinitionRegistry registry,

@@ -21,6 +21,7 @@ import feign.Client;
 import feign.okhttp.OkHttpClient;
 import okhttp3.ConnectionPool;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +82,9 @@ class OkHttpFeignLoadBalancedConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(Client.class)
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-							  SpringClientFactory clientFactory, okhttp3.OkHttpClient okHttpClient) {
+							  SpringClientFactory clientFactory, okhttp3.OkHttpClient okHttpClient,
+							  ArrayList<String> feignServiceIds) {
 		OkHttpClient delegate = new OkHttpClient(okHttpClient);
-		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
+		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory, feignServiceIds);
 	}
 }
