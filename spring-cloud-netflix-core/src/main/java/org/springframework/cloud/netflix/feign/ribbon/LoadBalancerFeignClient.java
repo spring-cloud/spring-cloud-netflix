@@ -57,7 +57,7 @@ public class LoadBalancerFeignClient implements Client {
 		this.lbClientFactory = lbClientFactory;
 		this.clientFactory = clientFactory;
 
-		initResourcesOfClientNames(feignServiceIds.toArray(new String[feignServiceIds.size()]));
+		initResourcesOfClientNames(feignServiceIds);
 	}
 
 	@Override
@@ -142,8 +142,12 @@ public class LoadBalancerFeignClient implements Client {
 		return feignLoadBalancer;
 	}
 
-	public void initResourcesOfClientNames(String... clientNames){
-		for(String clientName : clientNames) {
+	public void initResourcesOfClientNames(List<String> feignServiceIds){
+		if (feignServiceIds == null) {
+			return;
+		}
+
+		for(String clientName : feignServiceIds) {
 			clientConfig(clientName);
 			lbClient(clientName);
 		}

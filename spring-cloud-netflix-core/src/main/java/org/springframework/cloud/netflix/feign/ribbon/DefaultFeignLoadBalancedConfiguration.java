@@ -20,6 +20,8 @@ package org.springframework.cloud.netflix.feign.ribbon;
 import java.util.ArrayList;
 
 import feign.Client;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +36,7 @@ class DefaultFeignLoadBalancedConfiguration {
 	@ConditionalOnMissingBean
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
 							  SpringClientFactory clientFactory,
-							  ArrayList<String> feignServiceIds) {
+							  @Autowired(required = false) ArrayList<String> feignServiceIds) {
 		return new LoadBalancerFeignClient(new Client.Default(null, null),
 				cachingFactory, clientFactory, feignServiceIds);
 	}
