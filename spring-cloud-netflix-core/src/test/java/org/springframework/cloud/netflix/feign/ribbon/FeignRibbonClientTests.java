@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import java.util.Collections;
+import java.util.ArrayList;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
@@ -82,7 +82,7 @@ public class FeignRibbonClientTests {
 	// Even though we don't maintain FeignRibbonClient, keep these tests
 	// around to make sure the expected behaviour doesn't break
 	private Client client = new LoadBalancerFeignClient(this.delegate, new CachingSpringLoadBalancerFactory(this.factory,
-			retryPolicyFactory), this.factory, Collections.emptyList());
+			retryPolicyFactory), this.factory, new ArrayList<String>());
 
 	@Before
 	public void init() {
