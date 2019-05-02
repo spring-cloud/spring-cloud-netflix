@@ -30,6 +30,7 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Dave Syer
@@ -119,11 +120,14 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration, S
 	@EventListener(WebServerInitializedEvent.class)
 	public void onApplicationEvent(WebServerInitializedEvent event) {
 		// TODO: take SSL into account
-		int localPort = event.getWebServer().getPort();
-		if (this.port.get() == 0) {
-			log.info("Updating port to " + localPort);
-			this.port.compareAndSet(0, localPort);
-			start();
+		String contextName = event.getApplicationContext().getServerNamespace();
+		if (contextName == null || !contextName.equals("management")) {
+			int localPort = event.getWebServer().getPort();
+			if (this.port.get() == 0) {
+				log.info("Updating port to " + localPort);
+				this.port.compareAndSet(0, localPort);
+				start();
+			}
 		}
 	}
 
