@@ -9,7 +9,7 @@
     {
       "defaultValue": true,
       "name": "eureka.client.refresh.enable",
-      "description": "Determines whether EurekaClient instance can be refreshed or not.",
+      "description": "Determines whether the EurekaClient instance can be refreshed or not(If disabled none of the Eureka client properties will be refreshable).",
       "type": "java.lang.Boolean"
     },
     {
