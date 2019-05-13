@@ -178,9 +178,9 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	 * @return a jersey {@link FilterRegistrationBean}
 	 */
 	@Bean
-	public FilterRegistrationBean jerseyFilterRegistration(
+	public FilterRegistrationBean<?> jerseyFilterRegistration(
 			javax.ws.rs.core.Application eurekaJerseyApp) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
+		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
 		bean.setFilter(new ServletContainer(eurekaJerseyApp));
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
 		bean.setUrlPatterns(
@@ -234,9 +234,10 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public FilterRegistrationBean traceFilterRegistration(
+	@ConditionalOnBean(name = "httpTraceFilter")
+	public FilterRegistrationBean<?> traceFilterRegistration(
 			@Qualifier("httpTraceFilter") Filter filter) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
+		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
 		bean.setFilter(filter);
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
 		return bean;
@@ -296,7 +297,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 
 			// if eureka.client.use-dns-for-fetching-service-urls is true, then
 			// service-url will not be fetched from environment.
-			if (clientConfig.shouldUseDnsForFetchingServiceUrls()) {
+			if (this.clientConfig.shouldUseDnsForFetchingServiceUrls()) {
 				return false;
 			}
 
