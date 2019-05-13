@@ -58,9 +58,10 @@ import static org.mockito.Mockito.when;
  * @author Fahim Farook
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RefreshablePeerEurekaNodesTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=eureka-server",
-		"eureka.client.service-url.defaultZone=http://localhost:8678/eureka/" })
+@SpringBootTest(classes = RefreshablePeerEurekaNodesTests.Application.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "spring.application.name=eureka-server",
+				"eureka.client.service-url.defaultZone=http://localhost:8678/eureka/" })
 public class RefreshablePeerEurekaNodesTests {
 
 	@Autowired

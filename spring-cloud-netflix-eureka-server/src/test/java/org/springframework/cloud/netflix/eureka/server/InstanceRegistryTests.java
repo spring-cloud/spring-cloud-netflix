@@ -50,8 +50,9 @@ import static org.mockito.Mockito.doReturn;
  * @author Bartlomiej Slota
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=eureka", "logging.level.org.springframework."
+@SpringBootTest(classes = TestApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "spring.application.name=eureka", "logging.level.org.springframework."
 				+ "cloud.netflix.eureka.server.InstanceRegistry=DEBUG" })
 public class InstanceRegistryTests {
 

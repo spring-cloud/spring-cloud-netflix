@@ -41,10 +41,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"spring.application.name=eureka", "server.servlet.context-path=/context",
-		"management.security.enabled=false",
-		"management.endpoints.web.exposure.include=*" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "spring.application.name=eureka",
+				"server.servlet.context-path=/context",
+				"management.security.enabled=false",
+				"management.endpoints.web.exposure.include=*" })
 public class ApplicationContextTests {
 
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();

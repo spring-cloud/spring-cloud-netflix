@@ -113,7 +113,8 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)
+	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled",
+			matchIfMissing = true)
 	public EurekaController eurekaController() {
 		return new EurekaController(this.applicationInfoManager);
 	}

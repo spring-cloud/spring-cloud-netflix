@@ -53,8 +53,8 @@ import static org.springframework.restdocs.restassured3.RestAssuredRestDocumenta
 import static org.springframework.restdocs.restassured3.operation.preprocess.RestAssuredPreprocessors.modifyUris;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.jmx.enabled=false", "management.security.enabled=false" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "spring.jmx.enabled=false", "management.security.enabled=false" })
 @DirtiesContext
 public abstract class AbstractDocumentationTests {
 
