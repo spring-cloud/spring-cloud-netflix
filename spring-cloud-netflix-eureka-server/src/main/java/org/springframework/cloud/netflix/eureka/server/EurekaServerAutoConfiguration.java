@@ -65,7 +65,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author Gunnar Hillert
@@ -78,7 +78,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableConfigurationProperties({ EurekaDashboardProperties.class,
 		InstanceRegistryProperties.class })
 @PropertySource("classpath:/eureka/server.properties")
-public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
+public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server.
