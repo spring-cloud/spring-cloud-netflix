@@ -2122,7 +2122,7 @@ See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-fi
 WARNING: Enabling `client.ribbon.OkToRetryOnAllOperations` includes retrying POST requests, which can have an impact
 on the server's resources, due to the buffering of the request body.
 
-CAUTION: The property names are case-sensitive, and since some of these properties are defined in the Netflix Ribbon project they are in Pascal Case and the ones from Spring Cloud are in Camel Case.
+CAUTION: The property names are case-sensitive, and since some of these properties are defined in the Netflix Ribbon project, they are in Pascal Case and the ones from Spring Cloud are in Camel Case.
 
 In addition, you may want to retry requests when certain status codes are returned in the response.
 You can list the response codes you would like the Ribbon client to retry by setting the `clientName.ribbon.retryableStatusCodes` property, as shown in the following example:
