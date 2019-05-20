@@ -34,5 +34,10 @@
 			<groupId>com.netflix.ribbon</groupId>
 			<artifactId>ribbon-eureka</artifactId>
 		</dependency>
+		<dependency>
+			<!--  needed for Java 11 -->
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+		</dependency>
 	</dependencies>
 </project>
