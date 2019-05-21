@@ -54,8 +54,9 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = HystrixStreamEndpointTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=hystrixstreamtest" })
+@SpringBootTest(classes = HystrixStreamEndpointTests.Application.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "spring.application.name=hystrixstreamtest" })
 @DirtiesContext
 public class HystrixStreamEndpointTests {
 

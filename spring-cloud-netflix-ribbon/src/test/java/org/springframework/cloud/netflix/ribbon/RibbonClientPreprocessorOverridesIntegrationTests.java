@@ -48,7 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonClientPreprocessorOverridesIntegrationTests.TestConfiguration.class)
+@SpringBootTest(
+		classes = RibbonClientPreprocessorOverridesIntegrationTests.TestConfiguration.class)
 @DirtiesContext
 public class RibbonClientPreprocessorOverridesIntegrationTests {
 

@@ -38,9 +38,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { RibbonAutoConfiguration.class,
-		RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class,
-		HttpClientConfiguration.class })
+@ContextConfiguration(
+		classes = { RibbonAutoConfiguration.class, RibbonClientConfiguration.class,
+				LoadBalancerAutoConfiguration.class, HttpClientConfiguration.class })
 public class SpringRetryEnabledTests implements ApplicationContextAware {
 
 	private ApplicationContext context;

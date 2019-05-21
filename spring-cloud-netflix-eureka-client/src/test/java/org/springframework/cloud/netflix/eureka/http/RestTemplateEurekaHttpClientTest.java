@@ -42,8 +42,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Daniel Lavoie
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = EurekaServerMockApplication.class, properties = { "debug=true",
-		"security.basic.enabled=true" }, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = EurekaServerMockApplication.class,
+		properties = { "debug=true", "security.basic.enabled=true" },
+		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class RestTemplateEurekaHttpClientTest {
 

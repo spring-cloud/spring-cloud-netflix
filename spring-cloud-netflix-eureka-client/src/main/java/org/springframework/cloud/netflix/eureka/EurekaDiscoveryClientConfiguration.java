@@ -54,7 +54,8 @@ public class EurekaDiscoveryClientConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled", matchIfMissing = false)
+	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled",
+			matchIfMissing = false)
 	protected static class EurekaHealthCheckHandlerConfiguration {
 
 		@Autowired(required = false)

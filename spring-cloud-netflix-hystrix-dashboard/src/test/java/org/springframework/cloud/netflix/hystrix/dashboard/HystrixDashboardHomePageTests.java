@@ -39,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"server.port=0", "spring.application.name=hystrix-dashboard" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "server.port=0", "spring.application.name=hystrix-dashboard" })
 public class HystrixDashboardHomePageTests {
 
 	@Value("${local.server.port}")

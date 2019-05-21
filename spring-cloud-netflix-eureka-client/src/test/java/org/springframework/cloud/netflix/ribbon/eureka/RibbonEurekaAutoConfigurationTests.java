@@ -39,9 +39,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RibbonEurekaAutoConfigurationTests.EurekaClientDisabledApp.class, properties = {
-		"eureka.client.enabled=false",
-		"spring.application.name=eurekadisabledtest" }, webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+		classes = RibbonEurekaAutoConfigurationTests.EurekaClientDisabledApp.class,
+		properties = { "eureka.client.enabled=false",
+				"spring.application.name=eurekadisabledtest" },
+		webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class RibbonEurekaAutoConfigurationTests {
 

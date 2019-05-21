@@ -60,8 +60,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Marius Bogoevici
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestApplication.class, properties = {
-		"spring.application.name=application" })
+@SpringBootTest(classes = TestApplication.class,
+		properties = { "spring.application.name=application" })
 @AutoConfigureMessageVerifier
 public abstract class StreamSourceTestBase {
 

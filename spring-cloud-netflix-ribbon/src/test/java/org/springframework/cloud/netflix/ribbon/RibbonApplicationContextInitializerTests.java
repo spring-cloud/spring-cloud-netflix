@@ -38,9 +38,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { RibbonAutoConfiguration.class,
-		ArchaiusAutoConfiguration.class,
-		RibbonApplicationContextInitializerTests.RibbonInitializerConfig.class })
+@SpringBootTest(
+		classes = { RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+				RibbonApplicationContextInitializerTests.RibbonInitializerConfig.class })
 @DirtiesContext
 public class RibbonApplicationContextInitializerTests {
 

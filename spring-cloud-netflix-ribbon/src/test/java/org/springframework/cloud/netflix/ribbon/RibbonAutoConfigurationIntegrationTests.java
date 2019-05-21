@@ -37,8 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestConfiguration.class, value = {
-		"ribbon.ConnectTimeout=25000" })
+@SpringBootTest(classes = TestConfiguration.class,
+		value = { "ribbon.ConnectTimeout=25000" })
 @DirtiesContext
 public class RibbonAutoConfigurationIntegrationTests {
 

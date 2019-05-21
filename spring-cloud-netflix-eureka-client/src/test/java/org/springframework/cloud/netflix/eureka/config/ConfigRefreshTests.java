@@ -35,7 +35,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = RefreshEurekaSampleApplication.class)
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		classes = RefreshEurekaSampleApplication.class)
 public class ConfigRefreshTests {
 
 	@Autowired

@@ -49,7 +49,8 @@ import static org.junit.Assume.assumeThat;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonClientPreprocessorPropertiesOverridesIntegrationTests.TestConfiguration.class)
+@SpringBootTest(
+		classes = RibbonClientPreprocessorPropertiesOverridesIntegrationTests.TestConfiguration.class)
 @DirtiesContext
 public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 

@@ -61,11 +61,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RestTemplateRetryTests.Application.class, webEnvironment = RANDOM_PORT, properties = {
-		"spring.application.name=resttemplatetest", "logging.level.com.netflix=DEBUG",
-		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
-		"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=25",
-		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
+@SpringBootTest(classes = RestTemplateRetryTests.Application.class,
+		webEnvironment = RANDOM_PORT,
+		properties = { "spring.application.name=resttemplatetest",
+				"logging.level.com.netflix=DEBUG",
+				"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
+				"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=25",
+				"badClients.ribbon.OkToRetryOnAllOperations=true",
+				"ribbon.http.client.enabled" })
 @DirtiesContext
 public class RestTemplateRetryTests {
 

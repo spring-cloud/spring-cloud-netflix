@@ -37,7 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RibbonClientConfigurationIntegrationTests.TestLBConfig.class, properties = "test.ribbon.ServerListRefreshInterval=999")
+@SpringBootTest(classes = RibbonClientConfigurationIntegrationTests.TestLBConfig.class,
+		properties = "test.ribbon.ServerListRefreshInterval=999")
 @DirtiesContext
 public class RibbonClientConfigurationIntegrationTests {
 

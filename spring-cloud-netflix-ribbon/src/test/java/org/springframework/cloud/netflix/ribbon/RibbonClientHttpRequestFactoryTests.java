@@ -57,10 +57,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = RANDOM_PORT, value = {
-		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
-		"spring.cloud.netflix.metrics.enabled=false", "ribbon.restclient.enabled=true",
-		"debug=true" })
+@SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class,
+		webEnvironment = RANDOM_PORT,
+		value = { "spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
+				"spring.cloud.netflix.metrics.enabled=false",
+				"ribbon.restclient.enabled=true", "debug=true" })
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 

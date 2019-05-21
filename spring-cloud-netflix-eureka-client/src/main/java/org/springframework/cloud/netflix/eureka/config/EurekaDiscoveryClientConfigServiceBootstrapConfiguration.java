@@ -31,7 +31,8 @@ import org.springframework.context.annotation.Import;
  * @author Dave Syer
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
-@ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
+@ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled",
+		matchIfMissing = false)
 @Configuration
 @Import({ EurekaDiscoveryClientConfiguration.class, // this emulates
 		// @EnableDiscoveryClient, the import

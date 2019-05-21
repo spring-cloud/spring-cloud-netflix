@@ -44,10 +44,11 @@ import org.springframework.util.Assert;
  * @author Tyler Van Gorder
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonClientPreprocessorOverridesRetryTests.TestConfiguration.class, value = {
-		"customRetry.ribbon.MaxAutoRetries=0",
-		"customRetry.ribbon.MaxAutoRetriesNextServer=1",
-		"customRetry.ribbon.OkToRetryOnAllOperations=true" })
+@SpringBootTest(
+		classes = RibbonClientPreprocessorOverridesRetryTests.TestConfiguration.class,
+		value = { "customRetry.ribbon.MaxAutoRetries=0",
+				"customRetry.ribbon.MaxAutoRetriesNextServer=1",
+				"customRetry.ribbon.OkToRetryOnAllOperations=true" })
 @DirtiesContext
 public class RibbonClientPreprocessorOverridesRetryTests {
 

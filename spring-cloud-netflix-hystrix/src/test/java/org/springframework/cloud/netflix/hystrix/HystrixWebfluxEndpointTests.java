@@ -48,9 +48,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-		"spring.main.web-application-type=reactive",
-		"spring.application.name=hystrixstreamwebfluxtest" /* "debug=true" */ })
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		properties = { "spring.main.web-application-type=reactive",
+				"spring.application.name=hystrixstreamwebfluxtest" /* "debug=true" */ })
 @DirtiesContext
 public class HystrixWebfluxEndpointTests {
 

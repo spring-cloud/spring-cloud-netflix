@@ -35,14 +35,16 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
-	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
+	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
+			search = SearchStrategy.CURRENT)
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
 		return new RestTemplateDiscoveryClientOptionalArgs();
 	}
 
 	@Bean
 	@ConditionalOnClass(name = "com.sun.jersey.api.client.filter.ClientFilter")
-	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
+	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
+			search = SearchStrategy.CURRENT)
 	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
 		return new MutableDiscoveryClientOptionalArgs();
 	}

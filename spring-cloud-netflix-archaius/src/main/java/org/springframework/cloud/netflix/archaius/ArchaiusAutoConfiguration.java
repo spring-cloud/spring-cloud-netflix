@@ -207,7 +207,8 @@ public class ArchaiusAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent", matchIfMissing = true)
+	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent",
+			matchIfMissing = true)
 	@ConditionalOnClass(EnvironmentChangeEvent.class)
 	protected static class PropagateEventsConfiguration
 			implements ApplicationListener<EnvironmentChangeEvent> {

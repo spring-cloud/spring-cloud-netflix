@@ -37,9 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"spring.application.name=hystrix-dashboard",
-		"server.servlet.context-path=/context" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "spring.application.name=hystrix-dashboard",
+				"server.servlet.context-path=/context" })
 public class HystrixDashboardContextTests {
 
 	public static final String JQUERY_PATH = "/context/webjars/jquery/2.1.1/jquery.min.js";

@@ -59,7 +59,8 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @Conditional(RibbonAutoConfiguration.RibbonClassesConditions.class)
 @RibbonClients
-@AutoConfigureAfter(name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
+@AutoConfigureAfter(
+		name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
 @AutoConfigureBefore({ LoadBalancerAutoConfiguration.class,
 		AsyncLoadBalancerAutoConfiguration.class })
 @EnableConfigurationProperties({ RibbonEagerLoadProperties.class,

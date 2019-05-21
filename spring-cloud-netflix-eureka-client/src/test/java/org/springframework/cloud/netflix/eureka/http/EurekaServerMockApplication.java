@@ -122,8 +122,8 @@ public class EurekaServerMockApplication {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@PutMapping(value = "/apps/{appName}/{id}", params = { "status",
-			"lastDirtyTimestamp" })
+	@PutMapping(value = "/apps/{appName}/{id}",
+			params = { "status", "lastDirtyTimestamp" })
 	public ResponseEntity sendHeartBeat(@PathVariable String appName,
 			@PathVariable String id, @RequestParam String status,
 			@RequestParam String lastDirtyTimestamp,
@@ -138,8 +138,8 @@ public class EurekaServerMockApplication {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@PutMapping(value = "/apps/{appName}/{id}/status", params = { "value",
-			"lastDirtyTimestamp" })
+	@PutMapping(value = "/apps/{appName}/{id}/status",
+			params = { "value", "lastDirtyTimestamp" })
 	public void statusUpdate(@PathVariable String appName, @PathVariable String id,
 			@RequestParam String value, @RequestParam String lastDirtyTimestamp) {
 

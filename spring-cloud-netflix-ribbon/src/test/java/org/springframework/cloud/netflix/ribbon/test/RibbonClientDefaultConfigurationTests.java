@@ -38,7 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonClientDefaultConfigurationTestsConfig.class, value = "ribbon.eureka.enabled=true")
+@SpringBootTest(classes = RibbonClientDefaultConfigurationTestsConfig.class,
+		value = "ribbon.eureka.enabled=true")
 @DirtiesContext
 public class RibbonClientDefaultConfigurationTests {
 

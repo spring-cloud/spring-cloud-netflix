@@ -638,7 +638,8 @@ public class EurekaClientAutoConfigurationTests {
 		}
 
 		@Bean(destroyMethod = "shutdown")
-		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
+		@ConditionalOnMissingBean(value = EurekaClient.class,
+				search = SearchStrategy.CURRENT)
 		public EurekaClient eurekaClient(ApplicationInfoManager manager,
 				EurekaClientConfig config, ApplicationContext context) {
 			return new CloudEurekaClient(manager, config, null, context) {

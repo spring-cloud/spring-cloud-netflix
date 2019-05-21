@@ -62,9 +62,9 @@ import static org.mockito.Mockito.mock;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest({ "ribbon.okhttp.enabled: true", "ribbon.httpclient.enabled: false" })
-@ContextConfiguration(classes = { RibbonAutoConfiguration.class,
-		HttpClientConfiguration.class, RibbonClientConfiguration.class,
-		LoadBalancerAutoConfiguration.class })
+@ContextConfiguration(
+		classes = { RibbonAutoConfiguration.class, HttpClientConfiguration.class,
+				RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class })
 public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAware {
 
 	private ApplicationContext context;

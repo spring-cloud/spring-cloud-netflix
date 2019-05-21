@@ -45,7 +45,8 @@ import static org.mockito.Mockito.mock;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = EurekaRibbonClientPropertyOverrideIntegrationTests.TestConfiguration.class)
+@SpringBootTest(
+		classes = EurekaRibbonClientPropertyOverrideIntegrationTests.TestConfiguration.class)
 @DirtiesContext
 public class EurekaRibbonClientPropertyOverrideIntegrationTests {
 

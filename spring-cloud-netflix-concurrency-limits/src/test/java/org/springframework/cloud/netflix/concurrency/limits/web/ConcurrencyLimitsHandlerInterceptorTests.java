@@ -37,7 +37,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = "logging.level.reactor.netty=DEBUG", webEnvironment = RANDOM_PORT)
+@SpringBootTest(properties = "logging.level.reactor.netty=DEBUG",
+		webEnvironment = RANDOM_PORT)
 public class ConcurrencyLimitsHandlerInterceptorTests
 		extends AbstractConcurrencyLimitsTests {
 

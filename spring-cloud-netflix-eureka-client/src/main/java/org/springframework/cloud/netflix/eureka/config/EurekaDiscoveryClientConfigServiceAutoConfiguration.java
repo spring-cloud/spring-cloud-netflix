@@ -33,7 +33,8 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author Dave Syer
  */
 @ConditionalOnBean({ EurekaDiscoveryClientConfiguration.class })
-@ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
+@ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled",
+		matchIfMissing = false)
 public class EurekaDiscoveryClientConfigServiceAutoConfiguration {
 
 	@Autowired

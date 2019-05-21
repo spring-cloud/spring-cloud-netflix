@@ -34,7 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @DirtiesContext
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = EurekaSampleApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT)
 public class JerseyOptionalArgsConfigurationTest {
 
 	@Autowired

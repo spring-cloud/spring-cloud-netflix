@@ -48,7 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Biju Kunjummen
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestConfiguration.class, properties = "eureka.client.enabled=false")
+@SpringBootTest(classes = TestConfiguration.class,
+		properties = "eureka.client.enabled=false")
 @DirtiesContext
 public class EurekaDisabledRibbonClientIntegrationTests {
 
