@@ -324,18 +324,12 @@ eureka.instance.metadataMap.zone = zone2
 eureka.client.preferSameZoneEureka = true
 ```
 
-=== Refresh Scope of Eureka Client
+=== Refreshing Eureka Clients
 
-By default, the `EurekaClient` bean is refreshable, so the Eureka client properties can be refreshed, but this has a disadvantage:
-with the default setting, the `EurekaClient` instance will be destroyed and reconstructed again when refreshed, so your program will unregister from eurekaServer and after some seconds, it will register to eurekaServer again,
-consider that when we refresh all of the `Service A` instances at the same time, there will be some seconds no one instance alive on eurekaServer, if at the same time, `Service B` tries to fetch instances of `Service A`,
-it will fetch an empty list. If you don't want to see this, you can set `eureka.client.refresh.enable=false` in the application properties to make the `EurekaClient` instance immutable,
-but notice that if you set this property to false, none of the Eureka client properties will be refreshable. (This property is imported since `Finchley.SR4`)
-
-*application.properties. *
-```
-eureka.client.refresh.enable=false
-```
+By default, the `EurekaClient` bean is refreshable, meaning the Eureka client properties can be changed and refreshed.
+When a refresh occurs clients will be unregistered from the Eureka server and there might be a brief moment of time
+where all instance of a given service are not available. One way to eliminate this from happening is to disable
+the ability to refresh Eureka clients.  To do this set `eureka.client.refresh.enable=false`.
 
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
