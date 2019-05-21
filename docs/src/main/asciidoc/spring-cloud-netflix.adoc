@@ -324,6 +324,13 @@ eureka.instance.metadataMap.zone = zone2
 eureka.client.preferSameZoneEureka = true
 ```
 
+=== Refreshing Eureka Clients
+
+By default, the `EurekaClient` bean is refreshable, meaning the Eureka client properties can be changed and refreshed.
+When a refresh occurs clients will be unregistered from the Eureka server and there might be a brief moment of time
+where all instance of a given service are not available. One way to eliminate this from happening is to disable
+the ability to refresh Eureka clients.  To do this set `eureka.client.refresh.enable=false`.
+
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
 

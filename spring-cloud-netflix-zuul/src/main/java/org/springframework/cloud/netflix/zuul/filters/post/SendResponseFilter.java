@@ -184,8 +184,8 @@ public class SendResponseFilter extends ZuulFilter {
 				}
 			}
 
-			//cleanup ThreadLocal when we are all done
-			if(buffers != null) {
+			// cleanup ThreadLocal when we are all done
+			if (buffers != null) {
 				buffers.remove();
 			}
 
