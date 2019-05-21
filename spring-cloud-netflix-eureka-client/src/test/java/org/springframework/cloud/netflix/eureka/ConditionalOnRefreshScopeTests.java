@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration.ConditionalOnMissingRefreshScope;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration.ConditionalOnRefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,10 +46,30 @@ public class ConditionalOnRefreshScopeTests {
 	}
 
 	@Test
+	public void refreshScopeIncludedAndPropertyDisabled() {
+		new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(RefreshAutoConfiguration.class))
+				.withPropertyValues("eureka.client.refresh.enable=false")
+				.withUserConfiguration(Beans.class).run(c -> {
+					assertThat(c).hasSingleBean(
+							org.springframework.cloud.context.scope.refresh.RefreshScope.class);
+					assertThat(c).doesNotHaveBean("foo");
+					assertThat(c.getBean("bar")).isEqualTo("bar");
+				});
+	}
+
+	@Test
 	public void refreshScopeNotIncluded() {
 		new ApplicationContextRunner().withUserConfiguration(Beans.class).run(c -> {
 			assertThat(c).doesNotHaveBean("foo");
+			assertThat(c.getBean("bar")).isEqualTo("bar");
 		});
+
+		new ApplicationContextRunner().withUserConfiguration(Beans.class)
+				.withPropertyValues("eureka.client.refresh.enable=false").run(c -> {
+					assertThat(c).doesNotHaveBean("foo");
+					assertThat(c.getBean("bar")).isEqualTo("bar");
+				});
 	}
 
 	@Configuration
@@ -58,6 +79,12 @@ public class ConditionalOnRefreshScopeTests {
 		@ConditionalOnRefreshScope
 		public String foo() {
 			return "foo";
+		}
+
+		@Bean
+		@ConditionalOnMissingRefreshScope
+		public String bar() {
+			return "bar";
 		}
 
 	}

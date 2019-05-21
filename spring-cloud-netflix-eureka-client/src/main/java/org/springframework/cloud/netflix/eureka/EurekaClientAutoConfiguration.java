@@ -370,6 +370,7 @@ public class EurekaClientAutoConfiguration {
 	@Documented
 	@ConditionalOnClass(RefreshScope.class)
 	@ConditionalOnBean(RefreshAutoConfiguration.class)
+	@ConditionalOnProperty(value = "eureka.client.refresh.enable", havingValue = "true", matchIfMissing = true)
 	@interface ConditionalOnRefreshScope {
 
 	}
@@ -387,6 +388,11 @@ public class EurekaClientAutoConfiguration {
 
 		@ConditionalOnMissingBean(RefreshAutoConfiguration.class)
 		static class MissingScope {
+
+		}
+
+		@ConditionalOnProperty(value = "eureka.client.refresh.enable", havingValue = "false")
+		static class OnPropertyDisabled {
 
 		}
 
