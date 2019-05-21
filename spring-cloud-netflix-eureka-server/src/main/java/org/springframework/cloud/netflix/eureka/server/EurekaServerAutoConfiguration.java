@@ -65,7 +65,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author Gunnar Hillert
@@ -78,7 +78,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableConfigurationProperties({ EurekaDashboardProperties.class,
 		InstanceRegistryProperties.class })
 @PropertySource("classpath:/eureka/server.properties")
-public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
+public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server.
@@ -113,7 +113,8 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)
+	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled",
+			matchIfMissing = true)
 	public EurekaController eurekaController() {
 		return new EurekaController(this.applicationInfoManager);
 	}
@@ -178,9 +179,9 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	 * @return a jersey {@link FilterRegistrationBean}
 	 */
 	@Bean
-	public FilterRegistrationBean jerseyFilterRegistration(
+	public FilterRegistrationBean<?> jerseyFilterRegistration(
 			javax.ws.rs.core.Application eurekaJerseyApp) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
+		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
 		bean.setFilter(new ServletContainer(eurekaJerseyApp));
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
 		bean.setUrlPatterns(
@@ -234,9 +235,10 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public FilterRegistrationBean traceFilterRegistration(
+	@ConditionalOnBean(name = "httpTraceFilter")
+	public FilterRegistrationBean<?> traceFilterRegistration(
 			@Qualifier("httpTraceFilter") Filter filter) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
+		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
 		bean.setFilter(filter);
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
 		return bean;
@@ -296,7 +298,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 
 			// if eureka.client.use-dns-for-fetching-service-urls is true, then
 			// service-url will not be fetched from environment.
-			if (clientConfig.shouldUseDnsForFetchingServiceUrls()) {
+			if (this.clientConfig.shouldUseDnsForFetchingServiceUrls()) {
 				return false;
 			}
 

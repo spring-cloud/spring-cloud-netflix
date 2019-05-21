@@ -45,9 +45,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
-		"spring.jmx.enabled=true", "management.security.enabled=false",
-		"management.endpoints.web.exposure.include=*" })
+@SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT,
+		properties = { "spring.jmx.enabled=true", "management.security.enabled=false",
+				"management.endpoints.web.exposure.include=*" })
 public class ApplicationTests {
 
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();

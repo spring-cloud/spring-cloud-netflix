@@ -35,9 +35,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=eureka", "server.contextPath=/context",
-		"management.security.enabled=false" })
+@SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "spring.application.name=eureka", "server.contextPath=/context",
+				"management.security.enabled=false" })
 public class EurekaCustomPeerNodesTests {
 
 	@Autowired
