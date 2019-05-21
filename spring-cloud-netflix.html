@@ -102,6 +102,7 @@ $(addBlockSwitches);
 <li><a href="#_alternatives_to_the_native_netflix_eurekaclient">Alternatives to the Native Netflix EurekaClient</a></li>
 <li><a href="#_why_is_it_so_slow_to_register_a_service">Why Is It so Slow to Register a Service?</a></li>
 <li><a href="#_zones">Zones</a></li>
+<li><a href="#_refreshing_eureka_clients">Refreshing Eureka Clients</a></li>
 </ul>
 </li>
 <li><a href="#spring-cloud-eureka-server">Service Discovery: Eureka Server</a>
@@ -627,6 +628,15 @@ eureka.client.preferSameZoneEureka = true</code></pre>
 <pre class="highlightjs highlight"><code>eureka.instance.metadataMap.zone = zone2
 eureka.client.preferSameZoneEureka = true</code></pre>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_refreshing_eureka_clients"><a class="link" href="#_refreshing_eureka_clients">Refreshing Eureka Clients</a></h3>
+<div class="paragraph">
+<p>By default, the <code>EurekaClient</code> bean is refreshable, meaning the Eureka client properties can be changed and refreshed.
+When a refresh occurs clients will be unregistered from the Eureka server and there might be a brief moment of time
+where all instance of a given service are not available. One way to eliminate this from happening is to disable
+the ability to refresh Eureka clients.  To do this set <code>eureka.client.refresh.enable=false</code>.</p>
 </div>
 </div>
 </div>
