@@ -21,14 +21,14 @@ indicator.  It should return a json document like the following:</p><p><b>health
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span></pre><p>
 </p><p>Here is an example application.yml for a Sidecar application:</p><p><b>application.yml.&nbsp;</b>
 </p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">server</span>:
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  port</span>: <span class="hl-number">5678</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  port</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">5678</xslthl:number>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">spring</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  application</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    name</span>: sidecar
 
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">sidecar</span>:
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  port</span>: <span class="hl-number">8000</span>
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  health-uri</span>: http://localhost:<span class="hl-number">8000</span>/health.json</pre><p>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  port</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">8000</xslthl:number>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  health-uri</span>: http://localhost:<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">8000</xslthl:number>/health.json</pre><p>
 </p><p>The api for the <code class="literal">DiscoveryClient.getInstances()</code> method is <code class="literal">/hosts/{serviceId}</code>.
 Here is an example response for <code class="literal">/hosts/customers</code> that returns two instances on
 different hosts.  This api is accessible to the non-jvm app (if the sidecar is
@@ -36,14 +36,14 @@ on port 5678) at <code class="literal"><a class="link" href="http://localhost:56
 </p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">[</span>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">{</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"host"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"myhost"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
-        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"port"</span>: <span class="hl-number">9000</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"port"</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">9000</xslthl:number><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"uri"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"http://myhost:9000"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"serviceId"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"CUSTOMERS"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"secure"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">false</span>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">},</span>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">{</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"host"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"myhost2"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
-        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"port"</span>: <span class="hl-number">9000</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"port"</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">9000</xslthl:number><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"uri"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"http://myhost2:9000"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"serviceId"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"CUSTOMERS"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"secure"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">false</span>
@@ -60,7 +60,7 @@ documents.  For example, a call to <a class="link" href="https://sidecar.local.s
 might result in a YAML document like the following</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">eureka</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  client</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    serviceUrl</span>:
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      defaultZone</span>: http://localhost:<span class="hl-number">8761</span>/eureka/
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      defaultZone</span>: http://localhost:<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">8761</xslthl:number>/eureka/
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  password</span>: password
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">info</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  description</span>: Spring Cloud Samples

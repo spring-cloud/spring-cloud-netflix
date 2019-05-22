@@ -70,10 +70,10 @@ To achieve this, you can specify a <code class="literal">serviceId</code> with a
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ribbon</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    NIWSServerListClassName</span>: com.netflix.loadbalancer.ConfigurationBasedServerList
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    listOfServers</span>: https://example1.com,http://example2.com
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    ConnectTimeout</span>: <span class="hl-number">1000</span>
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    ReadTimeout</span>: <span class="hl-number">3000</span>
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    MaxTotalHttpConnections</span>: <span class="hl-number">500</span>
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    MaxConnectionsPerHost</span>: <span class="hl-number">100</span></pre><p>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    ConnectTimeout</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">1000</xslthl:number>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    ReadTimeout</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">3000</xslthl:number>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    MaxTotalHttpConnections</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">500</xslthl:number>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    MaxConnectionsPerHost</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">100</xslthl:number></pre><p>
 </p><p>Another method is specifiying a service-route and configure a Ribbon client for the
 serviceId (this requires disabling Eureka support in Ribbon:
 see <a class="link" href="multi_spring-cloud-ribbon.html#spring-cloud-ribbon-without-eureka" title="6.6&nbsp;Example: How to Use Ribbon Without Eureka">above for more information</a>), e.g.</p><p><b>application.yml.&nbsp;</b>
@@ -93,7 +93,7 @@ see <a class="link" href="multi_spring-cloud-ribbon.html#spring-cloud-ribbon-wit
 </p><p>You can provide convention between serviceId and routes using
 regexmapper.  It uses regular expression named groups to extract
 variables from serviceId and inject them into a route pattern.</p><p><b>ApplicationConfiguration.java.&nbsp;</b>
-</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> PatternServiceRouteMapper serviceRouteMapper() {
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PatternServiceRouteMapper(
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"(?&lt;name&gt;^.+)-(?&lt;version&gt;v.+$)"</span>,
@@ -238,7 +238,7 @@ but redirect some of the requests to new ones.</p><p>Example configuration:</p><
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: forward:/second
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    third</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /third/**
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: forward:/<span class="hl-number">3</span>rd
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: forward:/<xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">3</xslthl:number>rd
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    legacy</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /**
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: https://legacy.example.com</pre><p>
@@ -261,10 +261,10 @@ path is externalized via <code class="literal">zuul.servletPath</code>. Extremel
 large files will also require elevated timeout settings
 if the proxy route takes you through a Ribbon load
 balancer, e.g.</p><p><b>application.yml.&nbsp;</b>
-</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds</span>: <span class="hl-number">60000</span>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">60000</xslthl:number>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">ribbon</span>:
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ConnectTimeout</span>: <span class="hl-number">3000</span>
-<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ReadTimeout</span>: <span class="hl-number">60000</span></pre><p>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ConnectTimeout</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">3000</xslthl:number>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ReadTimeout</span>: <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">60000</xslthl:number></pre><p>
 </p><p>Note that for streaming to work with large files, you need to use chunked encoding in the request (which some browsers
 do not do by default). E.g. on the command line:</p><pre class="screen">$ curl -v -H "Transfer-Encoding: chunked" \
     -F "file=@mylarge.iso" localhost:9999/zuul/simple/file</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_query_string_encoding" href="#_query_string_encoding"></a>9.9&nbsp;Query String Encoding</h2></div></div></div><p>When processing the incoming request, query params are decoded so they can be available for possible modifications in
@@ -296,40 +296,40 @@ possible filters that are enabled.  If you want to disable one, simply set
 by creating a bean of type <code class="literal">ZuulFallbackProvider</code>.  Within this bean you need to specify
 the route ID the fallback is for and provide a <code class="literal">ClientHttpResponse</code> to return
 as a fallback.  Here is a very simple <code class="literal">ZuulFallbackProvider</code> implementation.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyFallbackProvider <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> ZuulFallbackProvider {
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getRoute() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"customers"</span>;
     }
 
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ClientHttpResponse() {
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpStatus getStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> HttpStatus.OK;
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> getRawStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
-                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span class="hl-number">200</span>;
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">200</xslthl:number>;
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getStatusText() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"OK"</span>;
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> close() {
 
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> InputStream getBody() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ByteArrayInputStream(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>.getBytes());
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpHeaders getHeaders() {
                 HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -341,40 +341,40 @@ as a fallback.  Here is a very simple <code class="literal">ZuulFallbackProvider
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    customers</span>: /customers/**</pre><p>If you would like to provide a default fallback for all routes than you can create a bean of
 type <code class="literal">ZuulFallbackProvider</code> and have the <code class="literal">getRoute</code> method return <code class="literal">*</code> or <code class="literal">null</code>.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyFallbackProvider <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> ZuulFallbackProvider {
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getRoute() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"*"</span>;
     }
 
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ClientHttpResponse() {
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpStatus getStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> HttpStatus.OK;
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> getRawStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
-                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span class="hl-number">200</span>;
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">200</xslthl:number>;
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getStatusText() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"OK"</span>;
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> close() {
 
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> InputStream getBody() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ByteArrayInputStream(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>.getBytes());
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpHeaders getHeaders() {
                 HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -384,12 +384,12 @@ type <code class="literal">ZuulFallbackProvider</code> and have the <code class=
     }
 }</pre><p>If you would like to choose the response based on the cause of the failure use <code class="literal">FallbackProvider</code> which will replace <code class="literal">ZuulFallbackProvder</code> in future versions.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyFallbackProvider <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> FallbackProvider {
 
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getRoute() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"*"</span>;
     }
 
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> Throwable cause) {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">if</span> (cause <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">instanceof</span> HystrixTimeoutException) {
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> response(HttpStatus.GATEWAY_TIMEOUT);
@@ -398,38 +398,38 @@ type <code class="literal">ZuulFallbackProvider</code> and have the <code class=
         }
     }
 
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> response(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ClientHttpResponse response(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> HttpStatus status) {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ClientHttpResponse() {
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpStatus getStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status;
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> getRawStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status.value();
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getStatusText() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status.getReasonPhrase();
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> close() {
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> InputStream getBody() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ByteArrayInputStream(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>.getBytes());
             }
 
-            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpHeaders getHeaders() {
                 HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
@@ -458,31 +458,31 @@ into account the Ribbon connect and read timeouts as well as any retries that ma
 A <code class="literal">LocationRewriteFilter</code> Zuul filter can  be configured to re-write the Location header to the Zuul&#8217;s url, it also adds back the stripped global and route specific prefixes. The filter can be added the following way via a Spring Configuration file:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">import</span> org.springframework.cloud.netflix.zuul.filters.post.LocationRewriteFilter;
 ...
 
-<em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableZuulProxy</span></em>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableZuulProxy</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> ZuulConfig {
-    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> LocationRewriteFilter locationRewriteFilter() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> LocationRewriteFilter();
     }
 }</pre><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>Use this filter with caution though, the filter acts on the <code class="literal">Location</code> header of ALL 3XX response codes which may not be appropriate in all scenarios, say if the user is redirecting to an external URL.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="zuul-developer-guide" href="#zuul-developer-guide"></a>9.15&nbsp;Zuul Developer Guide</h2></div></div></div><p>For a general overview of how Zuul works, please see <a class="link" href="https://github.com/Netflix/zuul/wiki/How-it-Works" target="_top">the Zuul Wiki</a>.</p><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_the_zuul_servlet" href="#_the_zuul_servlet"></a>9.15.1&nbsp;The Zuul Servlet</h3></div></div></div><p>Zuul is implemented as a Servlet. For the general cases, Zuul is embedded into the Spring Dispatch mechanism. This allows Spring MVC to be in control of the routing. In this case, Zuul is configured to buffer requests. If there is a need to go through Zuul without buffering requests (e.g. for large file uploads), the Servlet is also installed outside of the Spring Dispatcher. By default, this is located at <code class="literal">/zuul</code>. This path can be changed with the <code class="literal">zuul.servlet-path</code> property.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_zuul_requestcontext" href="#_zuul_requestcontext"></a>9.15.2&nbsp;Zuul RequestContext</h3></div></div></div><p>To pass information between filters, Zuul uses a <a class="link" href="https://github.com/Netflix/zuul/blob/1.x/zuul-core/src/main/java/com/netflix/zuul/context/RequestContext.java" target="_top"><code class="literal">RequestContext</code></a>. Its data is held in a <code class="literal">ThreadLocal</code> specific to each request. Information about where to route requests, errors and the actual <code class="literal">HttpServletRequest</code> and <code class="literal">HttpServletResponse</code> are stored there. The <code class="literal">RequestContext</code> extends <code class="literal">ConcurrentHashMap</code>, so anything can be stored in the context. <a class="link" href="https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java" target="_top"><code class="literal">FilterConstants</code></a> contains the keys that are used by the filters installed by Spring Cloud Netflix (more on these later).</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="__literal_enablezuulproxy_literal_vs_literal_enablezuulserver_literal" href="#__literal_enablezuulproxy_literal_vs_literal_enablezuulserver_literal"></a>9.15.3&nbsp;<code class="literal">@EnableZuulProxy</code> vs. <code class="literal">@EnableZuulServer</code></h3></div></div></div><p>Spring Cloud Netflix installs a number of filters based on which annotation was used to enable Zuul. <code class="literal">@EnableZuulProxy</code> is a superset of <code class="literal">@EnableZuulServer</code>. In other words, <code class="literal">@EnableZuulProxy</code> contains all filters installed by <code class="literal">@EnableZuulServer</code>. The additional filters in the "proxy" enable routing functionality. If you want a "blank" Zuul, you should use <code class="literal">@EnableZuulServer</code>.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="__literal_enablezuulserver_literal_filters" href="#__literal_enablezuulserver_literal_filters"></a>9.15.4&nbsp;<code class="literal">@EnableZuulServer</code> Filters</h3></div></div></div><p>Creates a <code class="literal">SimpleRouteLocator</code> that loads route definitions from Spring Boot configuration files.</p><p>The following filters are installed (as normal Spring Beans):</p><p>Pre filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">ServletDetectionFilter</code>: Detects if the request is through the Spring Dispatcher. Sets boolean with key <code class="literal">FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY</code>.</li><li class="listitem"><code class="literal">FormBodyWrapperFilter</code>: Parses form data and reencodes it for downstream requests.</li><li class="listitem"><code class="literal">DebugFilter</code>: if the <code class="literal">debug</code> request parameter is set, this filter sets <code class="literal">RequestContext.setDebugRouting()</code> and <code class="literal">RequestContext.setDebugRequest()</code> to true.</li></ul></div><p>Route filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">SendForwardFilter</code>: This filter forwards requests using the Servlet <code class="literal">RequestDispatcher</code>. The forwarding location is stored in the <code class="literal">RequestContext</code> attribute <code class="literal">FilterConstants.FORWARD_TO_KEY</code>. This is useful for forwarding to endpoints in the current application.</li></ul></div><p>Post filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">SendResponseFilter</code>: Writes responses from proxied requests to the current response.</li></ul></div><p>Error filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">SendErrorFilter</code>: Forwards to /error (by default) if <code class="literal">RequestContext.getThrowable()</code> is not null. The default forwarding path (<code class="literal">/error</code>) can be changed by setting the <code class="literal">error.path</code> property.</li></ul></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="__literal_enablezuulproxy_literal_filters" href="#__literal_enablezuulproxy_literal_filters"></a>9.15.5&nbsp;<code class="literal">@EnableZuulProxy</code> Filters</h3></div></div></div><p>Creates a <code class="literal">DiscoveryClientRouteLocator</code> that loads route definitions from a <code class="literal">DiscoveryClient</code> (like Eureka), as well as from properties. A route is created for each <code class="literal">serviceId</code> from the <code class="literal">DiscoveryClient</code>. As new services are added, the routes will be refreshed.</p><p>In addition to the filters described above, the following filters are installed (as normal Spring Beans):</p><p>Pre filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">PreDecorationFilter</code>: This filter determines where and how to route based on the supplied <code class="literal">RouteLocator</code>. It also sets various proxy-related headers for downstream requests.</li></ul></div><p>Route filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p class="simpara"><code class="literal">RibbonRoutingFilter</code>: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the <code class="literal">RequestContext</code> attribute <code class="literal">FilterConstants.SERVICE_ID_KEY</code>. This filter can use different HTTP clients. They are:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">Apache <code class="literal">HttpClient</code>. This is the default client.</li><li class="listitem">Squareup <code class="literal">OkHttpClient</code> v3. This is enabled by having the <code class="literal">com.squareup.okhttp3:okhttp</code> library on the classpath and setting <code class="literal">ribbon.okhttp.enabled=true</code>.</li><li class="listitem">Netflix Ribbon HTTP client. This is enabled by setting <code class="literal">ribbon.restclient.enabled=true</code>. This client has limitations, such as it doesn&#8217;t support the PATCH method, but also has built-in retry.</li></ul></div></li><li class="listitem"><code class="literal">SimpleHostRoutingFilter</code>: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in <code class="literal">RequestContext.getRouteHost()</code>.</li></ul></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_custom_zuul_filter_examples" href="#_custom_zuul_filter_examples"></a>9.15.6&nbsp;Custom Zuul Filter examples</h3></div></div></div><p>Most of the following "How to Write" examples below are included <a class="link" href="https://github.com/spring-cloud-samples/sample-zuul-filters" target="_top">Sample Zuul Filters</a> project. There are also examples of manipulating the request or response body in that repository.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_how_to_write_a_pre_filter" href="#_how_to_write_a_pre_filter"></a>9.15.7&nbsp;How to Write a Pre Filter</h3></div></div></div><p>Pre filters are used to set up data in the <code class="literal">RequestContext</code> for use in filters downstream. The main use case is to set information required for route filters.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> QueryParamPreFilter <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> ZuulFilter {
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> filterOrder() {
-		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> PRE_DECORATION_FILTER_ORDER - <span class="hl-number">1</span>; <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// run before PreDecoration</span>
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> PRE_DECORATION_FILTER_ORDER - <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">1</xslthl:number>; <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// run before PreDecoration</span>
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String filterType() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> PRE_TYPE;
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">boolean</span> shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> !ctx.containsKey(FORWARD_TO_KEY) <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// a filter has already forwarded</span>
 				&amp;&amp; !ctx.containsKey(SERVICE_ID_KEY); <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// a filter has already determined serviceId</span>
 	}
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
@@ -493,26 +493,26 @@ A <code class="literal">LocationRewriteFilter</code> Zuul filter can  be configu
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> null;
     }
 }</pre><p>The filter above populates <code class="literal">SERVICE_ID_KEY</code> from the <code class="literal">foo</code> request parameter. In reality, it&#8217;s not a good idea to do that kind of direct mapping, but the service id should be looked up from the value of <code class="literal">foo</code> instead.</p><p>Now that <code class="literal">SERVICE_ID_KEY</code> is populated, <code class="literal">PreDecorationFilter</code> won&#8217;t run and <code class="literal">RibbonRoutingFilter</code> will. If you wanted to route to a full URL instead, call <code class="literal">ctx.setRouteHost(url)</code> instead.</p><p>To modify the path that routing filters will forward to, set the <code class="literal">REQUEST_URI_KEY</code>.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_how_to_write_a_route_filter" href="#_how_to_write_a_route_filter"></a>9.15.8&nbsp;How to Write a Route Filter</h3></div></div></div><p>Route filters are run after pre filters and are used to make requests to other services. Much of the work here is to translate request and response data to and from the client required model.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> OkHttpRoutingFilter <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> ZuulFilter {
-	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ProxyRequestHelper helper;
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String filterType() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> ROUTE_TYPE;
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> filterOrder() {
-		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> SIMPLE_HOST_ROUTING_FILTER_ORDER - <span class="hl-number">1</span>;
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> SIMPLE_HOST_ROUTING_FILTER_ORDER - <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">1</xslthl:number>;
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">boolean</span> shouldFilter() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> RequestContext.getCurrentContext().getRouteHost() != null
 				&amp;&amp; RequestContext.getCurrentContext().sendZuulResponse();
 	}
 
-    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Object run() {
 		OkHttpClient httpClient = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> OkHttpClient.Builder()
 				<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// customize</span>
@@ -567,22 +567,22 @@ A <code class="literal">LocationRewriteFilter</code> Zuul filter can  be configu
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> null;
     }
 }</pre><p>The above filter translates Servlet request information into OkHttp3 request information, executes an HTTP request, then translates OkHttp3 reponse information to the Servlet response. WARNING: this filter might have bugs and not function correctly.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_how_to_write_a_post_filter" href="#_how_to_write_a_post_filter"></a>9.15.9&nbsp;How to Write a Post Filter</h3></div></div></div><p>Post filters typically manipulate the response. In the filter below, we add a random <code class="literal">UUID</code> as the <code class="literal">X-Foo</code> header. Other manipulations, such as transforming the response body, are much more complex and compute-intensive.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> AddResponseHeaderFilter <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> ZuulFilter {
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String filterType() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> POST_TYPE;
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> filterOrder() {
-		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> SEND_RESPONSE_FILTER_ORDER - <span class="hl-number">1</span>;
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> SEND_RESPONSE_FILTER_ORDER - <xslthl:number xmlns:xslthl="http://xslthl.sourceforge.net/">1</xslthl:number>;
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">boolean</span> shouldFilter() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> true;
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Override</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
     	HttpServletResponse servletResponse = context.getResponse();

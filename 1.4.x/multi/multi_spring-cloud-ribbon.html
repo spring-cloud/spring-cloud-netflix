@@ -18,8 +18,8 @@ configuration files. The native options can
 be inspected as static fields in <a class="link" href="https://github.com/Netflix/ribbon/blob/master/ribbon-core/src/main/java/com/netflix/client/config/CommonClientConfigKey.java" target="_top"><code class="literal">CommonClientConfigKey</code></a> (part of
 ribbon-core).</p><p>Spring Cloud also lets you take full control of the client by
 declaring additional configuration (on top of the
-<code class="literal">RibbonClientConfiguration</code>) using <code class="literal">@RibbonClient</code>. Example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@RibbonClient(name = "foo", configuration = FooConfiguration.class)</span></em>
+<code class="literal">RibbonClientConfiguration</code>) using <code class="literal">@RibbonClient</code>. Example:</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@RibbonClient(name = "foo", configuration = FooConfiguration.class)</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> TestConfiguration {
 }</pre><p>In this case the client is composed from the components already in
 <code class="literal">RibbonClientConfiguration</code> together with any in <code class="literal">FooConfiguration</code>
@@ -32,20 +32,20 @@ separate, non-overlapping package, or specify the packages to scan
 explicitly in the <code class="literal">@ComponentScan</code>).</p></td></tr></table></div><p>Spring Cloud Netflix provides the following beans by default for ribbon
 (<code class="literal">BeanType</code> beanName: <code class="literal">ClassName</code>):</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">IClientConfig</code> ribbonClientConfig: <code class="literal">DefaultClientConfigImpl</code></li><li class="listitem"><code class="literal">IRule</code> ribbonRule: <code class="literal">ZoneAvoidanceRule</code></li><li class="listitem"><code class="literal">IPing</code> ribbonPing: <code class="literal">DummyPing</code></li><li class="listitem"><code class="literal">ServerList&lt;Server&gt;</code> ribbonServerList: <code class="literal">ConfigurationBasedServerList</code></li><li class="listitem"><code class="literal">ServerListFilter&lt;Server&gt;</code> ribbonServerListFilter: <code class="literal">ZonePreferenceServerListFilter</code></li><li class="listitem"><code class="literal">ILoadBalancer</code> ribbonLoadBalancer: <code class="literal">ZoneAwareLoadBalancer</code></li><li class="listitem"><code class="literal">ServerListUpdater</code> ribbonServerListUpdater: <code class="literal">PollingServerListUpdater</code></li></ul></div><p>Creating a bean of one of those type and placing it in a <code class="literal">@RibbonClient</code>
 configuration (such as <code class="literal">FooConfiguration</code> above) allows you to override each
-one of the beans described.  Example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+one of the beans described.  Example:</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">protected</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> FooConfiguration {
-	<em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ZonePreferenceServerListFilter serverListFilter() {
 		ZonePreferenceServerListFilter filter = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ZonePreferenceServerListFilter();
 		filter.setZone(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"myTestZone"</span>);
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> filter;
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> IPing ribbonPing() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PingUrl();
 	}
-}</pre><p>This replaces the <code class="literal">NoOpPing</code> with <code class="literal">PingUrl</code> and provides a custom <code class="literal">serverListFilter</code></p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_customizing_default_for_all_ribbon_clients" href="#_customizing_default_for_all_ribbon_clients"></a>6.3&nbsp;Customizing default for all Ribbon Clients</h2></div></div></div><p>A default configuration can be provided for all Ribbon Clients using the <code class="literal">@RibbonClients</code> annotation and registering a default configuration as shown in the following example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)</span></em>
+}</pre><p>This replaces the <code class="literal">NoOpPing</code> with <code class="literal">PingUrl</code> and provides a custom <code class="literal">serverListFilter</code></p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_customizing_default_for_all_ribbon_clients" href="#_customizing_default_for_all_ribbon_clients"></a>6.3&nbsp;Customizing default for all Ribbon Clients</h2></div></div></div><p>A default configuration can be provided for all Ribbon Clients using the <code class="literal">@RibbonClients</code> annotation and registering a default configuration as shown in the following example:</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> RibbonClientDefaultConfigurationTestsConfig {
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> BazServiceList <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> ConfigurationBasedServerList {
@@ -55,25 +55,25 @@ one of the beans described.  Example:</p><pre class="programlisting"><em><span c
 	}
 }
 
-<em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> DefaultRibbonConfig {
 
-	<em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> IRule ribbonRule() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> BestAvailableRule();
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> IPing ribbonPing() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PingUrl();
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ServerList&lt;Server&gt; ribbonServerList(IClientConfig config) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> RibbonClientDefaultConfigurationTestsConfig.BazServiceList(config);
 	}
 
-	<em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+	<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ServerListSubsetFilter serverListFilter() {
 		ServerListSubsetFilter filter = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ServerListSubsetFilter();
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> filter;
@@ -125,7 +125,7 @@ disable the use of Eureka in Ribbon.</p><p><b>application.yml.&nbsp;</b>
   eureka:
    enabled: false</pre><p>
 </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_the_ribbon_api_directly" href="#_using_the_ribbon_api_directly"></a>6.8&nbsp;Using the Ribbon API Directly</h2></div></div></div><p>You can also use the <code class="literal">LoadBalancerClient</code> directly. Example:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyClass {
-    <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Autowired</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> LoadBalancerClient loadBalancer;
 
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> doStuff() {

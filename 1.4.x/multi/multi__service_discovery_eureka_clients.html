@@ -6,13 +6,13 @@ for details on setting up your build system with the current Spring Cloud Releas
 such as host and port, health indicator URL, home page etc.  Eureka
 receives heartbeat messages from each instance belonging to a service.
 If the heartbeat fails over a configurable timetable, the instance is
-normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
-<em><span class="hl-annotation" style="color: gray">@RestController</span></em>
+normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Configuration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@ComponentScan</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@EnableAutoConfiguration</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@RestController</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
 
-    <em><span class="hl-annotation" style="color: gray">@RequestMapping("/")</span></em>
+    <xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@RequestMapping("/")</xslthl:annotation>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String home() {
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Hello world"</span>;
     }
@@ -104,8 +104,8 @@ implementing your own <code class="literal">com.netflix.appinfo.HealthCheckHandl
   instance:
     hostname: ${vcap.application.uris[0]}
     nonSecurePort: 80</pre><p>
-</p><p>Depending on the way the security rules are set up in your Cloud Foundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (<a class="link" href="https://run.pivotal.io" target="_top">PWS</a>).</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_eureka_on_aws" href="#_using_eureka_on_aws"></a>1.7.2&nbsp;Using Eureka on AWS</h3></div></div></div><p>If the application is planned to be deployed to an AWS cloud, then the Eureka instance will have to be configured to be AWS aware and this can be done by customizing the <a class="link" href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java" target="_top">EurekaInstanceConfigBean</a> the following way:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Bean</span></em>
-<em><span class="hl-annotation" style="color: gray">@Profile("!default")</span></em>
+</p><p>Depending on the way the security rules are set up in your Cloud Foundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (<a class="link" href="https://run.pivotal.io" target="_top">PWS</a>).</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_using_eureka_on_aws" href="#_using_eureka_on_aws"></a>1.7.2&nbsp;Using Eureka on AWS</h3></div></div></div><p>If the application is planned to be deployed to an AWS cloud, then the Eureka instance will have to be configured to be AWS aware and this can be done by customizing the <a class="link" href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java" target="_top">EurekaInstanceConfigBean</a> the following way:</p><pre class="programlisting"><xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Bean</xslthl:annotation>
+<xslthl:annotation xmlns:xslthl="http://xslthl.sourceforge.net/">@Profile("!default")</xslthl:annotation>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
   EurekaInstanceConfigBean b = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> EurekaInstanceConfigBean(inetUtils);
   AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"eureka"</span>);
