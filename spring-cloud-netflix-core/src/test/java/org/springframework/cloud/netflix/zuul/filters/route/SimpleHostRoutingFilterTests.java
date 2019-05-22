@@ -148,7 +148,7 @@ public class SimpleHostRoutingFilterTests {
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
 		Long timeToLive = getField(pool, "timeToLive");
-		TimeUnit timeUnit = getField(pool, "tunit");
+		TimeUnit timeUnit = getField(pool, "timeUnit");
 		assertEquals(new Long(5), timeToLive);
 		assertEquals(TimeUnit.SECONDS, timeUnit);
 	}
