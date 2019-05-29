@@ -65,9 +65,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = RANDOM_PORT, properties = {
-		"zuul.routes[simplefzspat].path:/simplefzspat/**",
-		"zuul.routes[simplefzspat].serviceId:simplefzspat" })
+@SpringBootTest(classes = FormZuulServletProxyApplication.class,
+		webEnvironment = RANDOM_PORT,
+		properties = { "zuul.routes[simplefzspat].path:/simplefzspat/**",
+				"zuul.routes[simplefzspat].serviceId:simplefzspat" })
 @DirtiesContext
 public class FormZuulServletProxyApplicationTests {
 
@@ -150,7 +151,8 @@ public class FormZuulServletProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@RibbonClients(@RibbonClient(name = "simplefzspat", configuration = ServletFormRibbonClientConfiguration.class))
+@RibbonClients(@RibbonClient(name = "simplefzspat",
+		configuration = ServletFormRibbonClientConfiguration.class))
 @Import(NoSecurityConfiguration.class)
 class FormZuulServletProxyApplication {
 

@@ -66,8 +66,9 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.util.StreamUtils.copyToString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simplefzpat:/simplefzpat/**" })
+@SpringBootTest(classes = FormZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "zuul.routes.simplefzpat:/simplefzpat/**" })
 @DirtiesContext
 public class FormZuulProxyApplicationTests {
 
@@ -225,8 +226,8 @@ public class FormZuulProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@RibbonClients({
-		@RibbonClient(name = "simplefzpat", configuration = FormRibbonClientConfiguration.class) })
+@RibbonClients({ @RibbonClient(name = "simplefzpat",
+		configuration = FormRibbonClientConfiguration.class) })
 @Import(NoSecurityConfiguration.class)
 class FormZuulProxyApplication {
 

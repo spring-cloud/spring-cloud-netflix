@@ -50,9 +50,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-		"zuul.routes.aservice.path:/service/**", "zuul.routes.aservice.strip-prefix:true",
-		"eureka.client.enabled:false" })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		properties = { "zuul.routes.aservice.path:/service/**",
+				"zuul.routes.aservice.strip-prefix:true", "eureka.client.enabled:false" })
 @DirtiesContext
 public class LocationRewriteFilterIntegrationTests {
 

@@ -61,9 +61,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Stéphane Leroy
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-		"spring.application.name=regex-test-application", "spring.jmx.enabled=false",
-		"eureka.client.enabled=false" })
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		properties = { "spring.application.name=regex-test-application",
+				"spring.jmx.enabled=false", "eureka.client.enabled=false" })
 @DirtiesContext
 public class PatternServiceRouteMapperIntegrationTests {
 
@@ -114,7 +114,8 @@ public class PatternServiceRouteMapperIntegrationTests {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
-	@RibbonClient(value = SERVICE_ID, configuration = SimpleRibbonClientConfiguration.class)
+	@RibbonClient(value = SERVICE_ID,
+			configuration = SimpleRibbonClientConfiguration.class)
 	@Import(NoSecurityConfiguration.class)
 	protected static class SampleCustomZuulProxyApplication {
 

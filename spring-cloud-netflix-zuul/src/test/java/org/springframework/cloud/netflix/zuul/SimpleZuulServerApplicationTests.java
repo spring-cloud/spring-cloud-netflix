@@ -47,7 +47,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = "zuul.routes[testclient]:/testing123/**")
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		properties = "zuul.routes[testclient]:/testing123/**")
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
 

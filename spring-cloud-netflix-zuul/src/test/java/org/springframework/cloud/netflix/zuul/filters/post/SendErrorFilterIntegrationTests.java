@@ -61,7 +61,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = "zuul.routes.filtertest:/filtertest/**", webEnvironment = RANDOM_PORT)
+@SpringBootTest(properties = "zuul.routes.filtertest:/filtertest/**",
+		webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class SendErrorFilterIntegrationTests {
 

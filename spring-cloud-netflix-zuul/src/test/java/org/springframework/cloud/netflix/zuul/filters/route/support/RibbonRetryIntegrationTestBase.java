@@ -142,10 +142,14 @@ public abstract class RibbonRetryIntegrationTestBase {
 	@RestController
 	@EnableZuulProxy
 	@RibbonClients({
-			@RibbonClient(name = "retryable", configuration = RibbonClientConfiguration.class),
-			@RibbonClient(name = "disableretry", configuration = RibbonClientConfiguration.class),
-			@RibbonClient(name = "globalretrydisabled", configuration = RibbonClientConfiguration.class),
-			@RibbonClient(name = "getretryable", configuration = RibbonClientConfiguration.class) })
+			@RibbonClient(name = "retryable",
+					configuration = RibbonClientConfiguration.class),
+			@RibbonClient(name = "disableretry",
+					configuration = RibbonClientConfiguration.class),
+			@RibbonClient(name = "globalretrydisabled",
+					configuration = RibbonClientConfiguration.class),
+			@RibbonClient(name = "getretryable",
+					configuration = RibbonClientConfiguration.class) })
 	@Import(NoSecurityConfiguration.class)
 	public static class RetryableTestConfig {
 

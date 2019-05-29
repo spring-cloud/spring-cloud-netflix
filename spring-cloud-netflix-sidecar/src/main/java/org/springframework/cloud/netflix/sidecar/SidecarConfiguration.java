@@ -69,7 +69,8 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  */
 @Configuration
 @EnableConfigurationProperties
-@ConditionalOnProperty(value = "spring.cloud.netflix.sidecar.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = "spring.cloud.netflix.sidecar.enabled",
+		matchIfMissing = true)
 public class SidecarConfiguration {
 
 	@Bean

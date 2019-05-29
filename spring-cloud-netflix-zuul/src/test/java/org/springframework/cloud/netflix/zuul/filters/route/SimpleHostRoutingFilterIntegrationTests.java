@@ -53,8 +53,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Gang Li
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-		"server.servlet.context-path: /app" })
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		properties = { "server.servlet.context-path: /app" })
 @DirtiesContext
 public class SimpleHostRoutingFilterIntegrationTests {
 

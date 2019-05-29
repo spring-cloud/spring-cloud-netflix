@@ -42,7 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TurbineHttpTests.TurbineHttpSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = TurbineHttpTests.TurbineHttpSampleApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TurbineHttpTests {
 
 	private static final ClusterInformation foo = new ClusterInformation("foo",

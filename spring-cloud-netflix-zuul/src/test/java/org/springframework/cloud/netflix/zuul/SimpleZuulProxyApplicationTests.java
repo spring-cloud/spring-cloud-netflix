@@ -51,8 +51,10 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.forceOriginalQueryStringEncoding: true" })
+@SpringBootTest(
+		classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "zuul.forceOriginalQueryStringEncoding: true" })
 @DirtiesContext
 public class SimpleZuulProxyApplicationTests {
 

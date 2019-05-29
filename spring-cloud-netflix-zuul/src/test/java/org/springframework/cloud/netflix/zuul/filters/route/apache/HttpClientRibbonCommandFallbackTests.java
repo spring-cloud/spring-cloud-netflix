@@ -31,9 +31,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RibbonCommandFallbackTests.TestConfig.class, webEnvironment = RANDOM_PORT, properties = {
-		"zuul.routes.simple: /simple/**", "zuul.routes.another: /another/twolevel/**",
-		"ribbon.ReadTimeout: 1" })
+@SpringBootTest(classes = RibbonCommandFallbackTests.TestConfig.class,
+		webEnvironment = RANDOM_PORT, properties = { "zuul.routes.simple: /simple/**",
+				"zuul.routes.another: /another/twolevel/**", "ribbon.ReadTimeout: 1" })
 @DirtiesContext
 public class HttpClientRibbonCommandFallbackTests extends RibbonCommandFallbackTests {
 

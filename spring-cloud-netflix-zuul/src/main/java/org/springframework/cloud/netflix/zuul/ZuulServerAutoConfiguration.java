@@ -153,7 +153,8 @@ public class ZuulServerAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServlet")
-	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "false", matchIfMissing = true)
+	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "false",
+			matchIfMissing = true)
 	public ServletRegistrationBean zuulServlet() {
 		ServletRegistrationBean<ZuulServlet> servlet = new ServletRegistrationBean<>(
 				new ZuulServlet(), this.zuulProperties.getServletPattern());
@@ -165,7 +166,8 @@ public class ZuulServerAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServletFilter")
-	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "true", matchIfMissing = false)
+	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "true",
+			matchIfMissing = false)
 	public FilterRegistrationBean zuulServletFilter() {
 		final FilterRegistrationBean<ZuulServletFilter> filterRegistration = new FilterRegistrationBean<>();
 		filterRegistration.setUrlPatterns(

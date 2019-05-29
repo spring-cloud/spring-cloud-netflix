@@ -382,7 +382,8 @@ public class EurekaClientAutoConfiguration {
 	@Documented
 	@ConditionalOnClass(RefreshScope.class)
 	@ConditionalOnBean(RefreshAutoConfiguration.class)
-	@ConditionalOnProperty(value = "eureka.client.refresh.enable", havingValue = "true", matchIfMissing = true)
+	@ConditionalOnProperty(value = "eureka.client.refresh.enable", havingValue = "true",
+			matchIfMissing = true)
 	@interface ConditionalOnRefreshScope {
 
 	}
@@ -403,7 +404,8 @@ public class EurekaClientAutoConfiguration {
 
 		}
 
-		@ConditionalOnProperty(value = "eureka.client.refresh.enable", havingValue = "false")
+		@ConditionalOnProperty(value = "eureka.client.refresh.enable",
+				havingValue = "false")
 		static class OnPropertyDisabled {
 
 		}

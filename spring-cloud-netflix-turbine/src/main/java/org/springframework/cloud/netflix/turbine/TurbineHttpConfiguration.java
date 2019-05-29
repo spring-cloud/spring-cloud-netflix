@@ -63,7 +63,8 @@ public class TurbineHttpConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "turbine.endpoints.clusters.enabled", matchIfMissing = true)
+	@ConditionalOnProperty(value = "turbine.endpoints.clusters.enabled",
+			matchIfMissing = true)
 	public TurbineController turbineController(TurbineInformationService service) {
 		return new TurbineController(service);
 	}

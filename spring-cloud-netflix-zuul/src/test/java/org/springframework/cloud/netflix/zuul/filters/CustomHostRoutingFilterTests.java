@@ -68,8 +68,10 @@ import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = CustomHostRoutingFilterTests.SampleCustomZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"server.servlet.context-path: /app" })
+@SpringBootTest(
+		classes = CustomHostRoutingFilterTests.SampleCustomZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "server.servlet.context-path: /app" })
 @DirtiesContext
 public class CustomHostRoutingFilterTests {
 

@@ -60,8 +60,9 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Yongsung Yoon
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = CanaryTestZuulProxyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simple.path: /simple/**" })
+@SpringBootTest(classes = CanaryTestZuulProxyApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "zuul.routes.simple.path: /simple/**" })
 @DirtiesContext
 public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 

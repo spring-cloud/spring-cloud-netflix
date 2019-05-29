@@ -74,12 +74,13 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.other: /test/**=http://localhost:7777/local",
-		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
-		"zuul.routes.singleton.id: singleton",
-		"zuul.routes.singleton.path: /singleton/**",
-		"zuul.routes.singleton.sensitiveHeaders: " })
+@SpringBootTest(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "zuul.routes.other: /test/**=http://localhost:7777/local",
+				"zuul.routes.another: /another/twolevel/**",
+				"zuul.routes.simple: /simple/**", "zuul.routes.singleton.id: singleton",
+				"zuul.routes.singleton.path: /singleton/**",
+				"zuul.routes.singleton.sensitiveHeaders: " })
 @DirtiesContext
 public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
@@ -155,10 +156,12 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
-	@RibbonClients({
-			@RibbonClient(name = "simple", configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
-			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class),
-			@RibbonClient(name = "singleton", configuration = SingletonRibbonClientConfiguration.class) })
+	@RibbonClients({ @RibbonClient(name = "simple",
+			configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
+			@RibbonClient(name = "another",
+					configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class),
+			@RibbonClient(name = "singleton",
+					configuration = SingletonRibbonClientConfiguration.class) })
 	@Import(NoSecurityConfiguration.class)
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 

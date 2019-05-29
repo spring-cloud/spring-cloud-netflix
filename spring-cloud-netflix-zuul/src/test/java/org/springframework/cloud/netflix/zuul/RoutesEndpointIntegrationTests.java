@@ -48,10 +48,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Gregor Zurowski
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, value = {
-		"zuul.routes.sslservice.url=https://localhost:8443",
-		"management.security.enabled=false",
-		"management.endpoints.web.exposure.include=*" })
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		value = { "zuul.routes.sslservice.url=https://localhost:8443",
+				"management.security.enabled=false",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class RoutesEndpointIntegrationTests {
 

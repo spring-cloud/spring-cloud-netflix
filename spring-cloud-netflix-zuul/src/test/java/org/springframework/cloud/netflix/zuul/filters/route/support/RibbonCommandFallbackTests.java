@@ -85,9 +85,10 @@ public abstract class RibbonCommandFallbackTests {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
-	@RibbonClients({
-			@RibbonClient(name = "simple", configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
-			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class) })
+	@RibbonClients({ @RibbonClient(name = "simple",
+			configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
+			@RibbonClient(name = "another",
+					configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class) })
 	@Import(NoSecurityConfiguration.class)
 	public static class TestConfig
 			extends ZuulProxyTestBase.AbstractZuulProxyApplication {

@@ -29,9 +29,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonCommandFallbackTests.TestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simple: /simple/**", "zuul.routes.another: /another/twolevel/**",
-		"ribbon.ReadTimeout: 1" })
+@SpringBootTest(classes = RibbonCommandFallbackTests.TestConfig.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "zuul.routes.simple: /simple/**",
+				"zuul.routes.another: /another/twolevel/**", "ribbon.ReadTimeout: 1" })
 @DirtiesContext
 public class RestClientRibbonCommandFallbackTests extends RibbonCommandFallbackTests {
 

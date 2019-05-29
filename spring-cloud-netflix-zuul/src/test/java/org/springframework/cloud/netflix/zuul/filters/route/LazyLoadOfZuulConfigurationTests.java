@@ -48,9 +48,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-		"zuul.routes.lazyroute.service-id=lazy", "zuul.routes.lazyroute.path=/lazy/**",
-		"zuul.ribbon.eager-load.enabled=false" })
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		properties = { "zuul.routes.lazyroute.service-id=lazy",
+				"zuul.routes.lazyroute.path=/lazy/**",
+				"zuul.ribbon.eager-load.enabled=false" })
 @DirtiesContext
 public class LazyLoadOfZuulConfigurationTests {
 

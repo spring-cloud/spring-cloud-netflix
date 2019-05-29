@@ -47,8 +47,10 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ContextPathZuulProxyApplicationTests.ContextPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"server.servlet.contextPath: /app" })
+@SpringBootTest(
+		classes = ContextPathZuulProxyApplicationTests.ContextPathZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "server.servlet.contextPath: /app" })
 @DirtiesContext
 public class ContextPathZuulProxyApplicationTests {
 

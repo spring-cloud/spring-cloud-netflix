@@ -85,12 +85,15 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.other: /test/**=http://localhost:7777/local",
-		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
-		"zuul.routes.badhost: /badhost/**", "zuul.ignored-headers: X-Header",
-		"zuul.routes.rnd: /rnd/**", "rnd.ribbon.listOfServers: ${random.value}",
-		"zuul.remove-semicolon-content: false", "ribbon.restclient.enabled=true" })
+@SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "zuul.routes.other: /test/**=http://localhost:7777/local",
+				"zuul.routes.another: /another/twolevel/**",
+				"zuul.routes.simple: /simple/**", "zuul.routes.badhost: /badhost/**",
+				"zuul.ignored-headers: X-Header", "zuul.routes.rnd: /rnd/**",
+				"rnd.ribbon.listOfServers: ${random.value}",
+				"zuul.remove-semicolon-content: false",
+				"ribbon.restclient.enabled=true" })
 @DirtiesContext
 public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
@@ -286,9 +289,12 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	@RestController
 	@EnableZuulProxy
 	@RibbonClients({
-			@RibbonClient(name = "badhost", configuration = TestConfig.BadHostRibbonClientConfiguration.class),
-			@RibbonClient(name = "simple", configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
-			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class) })
+			@RibbonClient(name = "badhost",
+					configuration = TestConfig.BadHostRibbonClientConfiguration.class),
+			@RibbonClient(name = "simple",
+					configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
+			@RibbonClient(name = "another",
+					configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class) })
 	@Import(NoSecurityConfiguration.class)
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 

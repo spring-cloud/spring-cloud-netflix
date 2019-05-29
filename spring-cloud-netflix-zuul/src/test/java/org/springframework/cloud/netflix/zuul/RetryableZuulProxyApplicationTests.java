@@ -57,12 +57,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RetryableZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes[simplerzpat].path: /simplerzpat/**",
-		"zuul.routes[simplerzpat].retryable: true",
-		"zuul.routes[simplerzpat].serviceId: simplerzpat",
-		"ribbon.OkToRetryOnAllOperations: true",
-		"simplerzpat.ribbon.retryableStatusCodes: 404" })
+@SpringBootTest(classes = RetryableZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = { "zuul.routes[simplerzpat].path: /simplerzpat/**",
+				"zuul.routes[simplerzpat].retryable: true",
+				"zuul.routes[simplerzpat].serviceId: simplerzpat",
+				"ribbon.OkToRetryOnAllOperations: true",
+				"simplerzpat.ribbon.retryableStatusCodes: 404" })
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
 
@@ -107,7 +108,8 @@ public class RetryableZuulProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@RibbonClient(name = "simplerzpat", configuration = RetryableRibbonClientConfiguration.class)
+@RibbonClient(name = "simplerzpat",
+		configuration = RetryableRibbonClientConfiguration.class)
 @Import(NoSecurityConfiguration.class)
 class RetryableZuulProxyApplication {
 

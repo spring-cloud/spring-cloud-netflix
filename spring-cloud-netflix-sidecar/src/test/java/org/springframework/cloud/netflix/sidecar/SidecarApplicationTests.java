@@ -31,10 +31,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class SidecarApplicationTests {
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
-			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-			"spring.application.instance_id=1", "eureka.instance.hostname=mhhost",
-			"sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			properties = { "spring.application.name=mytest",
+					"spring.cloud.client.hostname=mhhost",
+					"spring.application.instance_id=1", "eureka.instance.hostname=mhhost",
+					"sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
 	public static class EurekaTestConfigBeanTest {
 
 		@Autowired
@@ -51,10 +52,11 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
-			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-			"spring.application.instance_id=1", "sidecar.hostname=mhhost",
-			"sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			properties = { "spring.application.name=mytest",
+					"spring.cloud.client.hostname=mhhost",
+					"spring.application.instance_id=1", "sidecar.hostname=mhhost",
+					"sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
 	public static class NewPropertyEurekaTestConfigBeanTest {
 
 		@Autowired
@@ -71,11 +73,12 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
-			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-			"spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-			"sidecar.hostname=mhhost2", "sidecar.port=7000",
-			"sidecar.ip-address=127.0.0.1" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			properties = { "spring.application.name=mytest",
+					"spring.cloud.client.hostname=mhhost",
+					"spring.application.instance_id=1",
+					"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2",
+					"sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
 	public static class BothPropertiesEurekaTestConfigBeanTest {
 
 		@Autowired
@@ -92,11 +95,13 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
-			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-			"spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-			"sidecar.hostname=mhhost2", "sidecar.port=7000",
-			"sidecar.ip-address=10.0.0.1", "eureka.instance.prefer-ip-address=true" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			properties = { "spring.application.name=mytest",
+					"spring.cloud.client.hostname=mhhost",
+					"spring.application.instance_id=1",
+					"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2",
+					"sidecar.port=7000", "sidecar.ip-address=10.0.0.1",
+					"eureka.instance.prefer-ip-address=true" })
 	public static class PreferIpAddressTest {
 
 		@Autowired
@@ -113,11 +118,13 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
-			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-			"spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-			"sidecar.hostname=mhhost2", "sidecar.port=7000",
-			"sidecar.ipAddress=127.0.0.1", "management.context-path=/foo" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			value = { "spring.application.name=mytest",
+					"spring.cloud.client.hostname=mhhost",
+					"spring.application.instance_id=1",
+					"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2",
+					"sidecar.port=7000", "sidecar.ipAddress=127.0.0.1",
+					"management.context-path=/foo" })
 	public static class ManagementContextPathStatusAndHealthCheckUrls {
 
 		@Autowired
@@ -132,11 +139,13 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
-			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-			"spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-			"sidecar.hostname=mhhost2", "sidecar.port=7000",
-			"sidecar.ipAddress=127.0.0.1", "server.context-path=/foo" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			value = { "spring.application.name=mytest",
+					"spring.cloud.client.hostname=mhhost",
+					"spring.application.instance_id=1",
+					"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2",
+					"sidecar.port=7000", "sidecar.ipAddress=127.0.0.1",
+					"server.context-path=/foo" })
 	public static class ServerContextPathStatusAndHealthCheckUrls {
 
 		@Autowired
@@ -152,8 +161,8 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
-			"sidecar.accept-all-ssl-certificates=false" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			value = { "sidecar.accept-all-ssl-certificates=false" })
 	public static class AcceptAllSslCertificatesContext {
 
 		@Autowired
@@ -167,9 +176,9 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
-			"sidecar.port=7000", "sidecar.ip-address=127.0.0.1",
-			"sidecar.secure-port-enabled=true" })
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT,
+			value = { "sidecar.port=7000", "sidecar.ip-address=127.0.0.1",
+					"sidecar.secure-port-enabled=true" })
 	public static class SecurePortEnabled {
 
 		@Autowired

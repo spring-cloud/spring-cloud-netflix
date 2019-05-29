@@ -56,8 +56,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ZuulProxyApplicationTests.ZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"zuul.routes.simplezpat:/simplezpat/**", "logging.level.org.apache.http: DEBUG" })
+@SpringBootTest(classes = ZuulProxyApplicationTests.ZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "zuul.routes.simplezpat:/simplezpat/**",
+				"logging.level.org.apache.http: DEBUG" })
 @DirtiesContext
 public class ZuulProxyApplicationTests {
 
@@ -138,13 +140,14 @@ public class ZuulProxyApplicationTests {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
-	@RibbonClient(name = "simplezpat", configuration = TestRibbonClientConfiguration.class)
+	@RibbonClient(name = "simplezpat",
+			configuration = TestRibbonClientConfiguration.class)
 	@Import(NoSecurityConfiguration.class)
 	static class ZuulProxyApplication {
 
 		@RequestMapping(value = "/transferencoding", method = RequestMethod.GET)
-		public String get(
-				@RequestHeader(name = "Transfer-Encoding", required = false) String transferEncoding) {
+		public String get(@RequestHeader(name = "Transfer-Encoding",
+				required = false) String transferEncoding) {
 			if (transferEncoding == null) {
 				return "missing";
 			}
@@ -153,7 +156,8 @@ public class ZuulProxyApplicationTests {
 
 		@RequestMapping(value = "/transferencoding", method = RequestMethod.POST)
 		public String post(
-				@RequestHeader(name = "Transfer-Encoding", required = false) String transferEncoding,
+				@RequestHeader(name = "Transfer-Encoding",
+						required = false) String transferEncoding,
 				@RequestBody String hello) {
 			if (transferEncoding == null) {
 				return "missing";
