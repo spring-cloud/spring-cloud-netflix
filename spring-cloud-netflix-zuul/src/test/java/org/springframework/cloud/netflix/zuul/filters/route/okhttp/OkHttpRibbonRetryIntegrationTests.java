@@ -27,38 +27,47 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonRetryIntegrationTestBase.RetryableTestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"zuul.retryable: false", /* Disable retry by default, have each route enable it */
-		"ribbon.okhttp.enabled: true",
-		"hystrix.command.default.execution.timeout.enabled: false", /*
-																	 * Disable hystrix so
-																	 * its timeout doesnt
-																	 * get in the way
-																	 */
-		"ribbon.ReadTimeout: 1000", /*
-									 * Make sure ribbon will timeout before the thread is
-									 * done sleeping
-									 */
-		"zuul.routes.retryable.id: retryable",
-		"zuul.routes.retryable.path: /retryable/**",
-		"zuul.routes.retryable.retryable: true",
-		"retryable.ribbon.OkToRetryOnAllOperations: true",
-		"retryable.ribbon.retryableStatusCodes: 404",
-		"retryable.ribbon.MaxAutoRetries: 1",
-		"retryable.ribbon.MaxAutoRetriesNextServer: 1",
-		"zuul.routes.getretryable.id: getretryable",
-		"zuul.routes.getretryable.path: /getretryable/**",
-		"zuul.routes.getretryable.retryable: true",
-		"getretryable.ribbon.MaxAutoRetries: 1",
-		"getretryable.ribbon.MaxAutoRetriesNextServer: 1",
-		"zuul.routes.disableretry.path: /disableretry/**",
-		"zuul.routes.disableretry.path: /disableretry/**",
-		"zuul.routes.disableretry.retryable: false", /* This will override the global */
-		"disableretry.ribbon.MaxAutoRetries: 1",
-		"disableretry.ribbon.MaxAutoRetriesNextServer: 1",
-		"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
-		"globalretrydisabled.ribbon.MaxAutoRetries: 1",
-		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1" })
+@SpringBootTest(classes = RibbonRetryIntegrationTestBase.RetryableTestConfig.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "zuul.retryable: false", /*
+											 * Disable retry by default, have each route
+											 * enable it
+											 */
+				"ribbon.okhttp.enabled: true",
+				"hystrix.command.default.execution.timeout.enabled: false", /*
+																			 * Disable
+																			 * hystrix so
+																			 * its timeout
+																			 * doesnt get
+																			 * in the way
+																			 */
+				"ribbon.ReadTimeout: 1000", /*
+											 * Make sure ribbon will timeout before the
+											 * thread is done sleeping
+											 */
+				"zuul.routes.retryable.id: retryable",
+				"zuul.routes.retryable.path: /retryable/**",
+				"zuul.routes.retryable.retryable: true",
+				"retryable.ribbon.OkToRetryOnAllOperations: true",
+				"retryable.ribbon.retryableStatusCodes: 404",
+				"retryable.ribbon.MaxAutoRetries: 1",
+				"retryable.ribbon.MaxAutoRetriesNextServer: 1",
+				"zuul.routes.getretryable.id: getretryable",
+				"zuul.routes.getretryable.path: /getretryable/**",
+				"zuul.routes.getretryable.retryable: true",
+				"getretryable.ribbon.MaxAutoRetries: 1",
+				"getretryable.ribbon.MaxAutoRetriesNextServer: 1",
+				"zuul.routes.disableretry.path: /disableretry/**",
+				"zuul.routes.disableretry.path: /disableretry/**",
+				"zuul.routes.disableretry.retryable: false", /*
+																 * This will override the
+																 * global
+																 */
+				"disableretry.ribbon.MaxAutoRetries: 1",
+				"disableretry.ribbon.MaxAutoRetriesNextServer: 1",
+				"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
+				"globalretrydisabled.ribbon.MaxAutoRetries: 1",
+				"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1" })
 @DirtiesContext
 public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {
 
