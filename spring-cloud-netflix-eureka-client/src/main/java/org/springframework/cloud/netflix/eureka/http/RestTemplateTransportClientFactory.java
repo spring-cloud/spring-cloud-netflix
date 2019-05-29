@@ -76,7 +76,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		}
 
 		restTemplate.getMessageConverters().add(0, mappingJacksonHttpMessageConverter());
-		restTemplate.setErrorHandler(new ErrorHanlder());
+		restTemplate.setErrorHandler(new ErrorHandler());
 
 		return restTemplate;
 	}
@@ -150,7 +150,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	public void shutdown() {
 	}
 
-	class ErrorHanlder extends DefaultResponseErrorHandler {
+	class ErrorHandler extends DefaultResponseErrorHandler {
 
 		@Override
 		protected boolean hasError(HttpStatus statusCode) {
