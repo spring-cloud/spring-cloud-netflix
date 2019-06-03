@@ -1768,7 +1768,7 @@ The following filters are installed (as normal Spring Beans):
 ** `ServletDetectionFilter`: Detects whether the request is through the Spring Dispatcher. Sets a boolean with a key of `FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY`.
 ** `FormBodyWrapperFilter`: Parses form data and re-encodes it for downstream requests.
 ** `DebugFilter`: If the `debug` request parameter is set, sets `RequestContext.setDebugRouting()` and `RequestContext.setDebugRequest()` to `true`.
-*Route filters:
+* Route filters:
 ** `SendForwardFilter`: Forwards requests by using the Servlet `RequestDispatcher`. The forwarding location is stored in the `RequestContext` attribute, `FilterConstants.FORWARD_TO_KEY`. This is useful for forwarding to endpoints in the current application.
 * Post filters:
 ** `SendResponseFilter`: Writes responses from proxied requests to the current response.
