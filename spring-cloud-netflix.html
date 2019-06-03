@@ -2656,9 +2656,15 @@ The <code>RequestContext</code> extends <code>ConcurrentHashMap</code>, so anyth
 <p><code>FormBodyWrapperFilter</code>: Parses form data and re-encodes it for downstream requests.</p>
 </li>
 <li>
-<p><code>DebugFilter</code>: If the <code>debug</code> request parameter is set, sets <code>RequestContext.setDebugRouting()</code> and <code>RequestContext.setDebugRequest()</code> to <code>true</code>.
-*Route filters:</p>
+<p><code>DebugFilter</code>: If the <code>debug</code> request parameter is set, sets <code>RequestContext.setDebugRouting()</code> and <code>RequestContext.setDebugRequest()</code> to <code>true</code>.</p>
 </li>
+</ul>
+</div>
+</li>
+<li>
+<p>Route filters:</p>
+<div class="ulist">
+<ul>
 <li>
 <p><code>SendForwardFilter</code>: Forwards requests by using the Servlet <code>RequestDispatcher</code>. The forwarding location is stored in the <code>RequestContext</code> attribute, <code>FilterConstants.FORWARD_TO_KEY</code>. This is useful for forwarding to endpoints in the current application.</p>
 </li>
