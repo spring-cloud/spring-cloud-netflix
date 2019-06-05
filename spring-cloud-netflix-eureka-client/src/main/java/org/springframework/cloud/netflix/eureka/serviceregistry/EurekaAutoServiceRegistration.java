@@ -30,7 +30,6 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Dave Syer
