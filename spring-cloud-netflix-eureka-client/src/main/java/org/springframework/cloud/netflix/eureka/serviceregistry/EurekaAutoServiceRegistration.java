@@ -138,11 +138,14 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 
 	public void onApplicationEvent(WebServerInitializedEvent event) {
 		// TODO: take SSL into account
-		int localPort = event.getWebServer().getPort();
-		if (this.port.get() == 0) {
-			log.info("Updating port to " + localPort);
-			this.port.compareAndSet(0, localPort);
-			start();
+		String contextName = event.getApplicationContext().getServerNamespace();
+		if (contextName == null || !contextName.equals("management")) {
+			int localPort = event.getWebServer().getPort();
+			if (this.port.get() == 0) {
+				log.info("Updating port to " + localPort);
+				this.port.compareAndSet(0, localPort);
+				start();
+			}
 		}
 	}
 
