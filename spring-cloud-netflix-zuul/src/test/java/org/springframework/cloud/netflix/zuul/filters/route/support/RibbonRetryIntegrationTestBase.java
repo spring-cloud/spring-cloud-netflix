@@ -21,7 +21,6 @@ package org.springframework.cloud.netflix.zuul.filters.route.support;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.context.RequestContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
@@ -35,8 +34,8 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -49,7 +48,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.junit.Assert.assertEquals;
@@ -181,7 +179,6 @@ public abstract class RibbonRetryIntegrationTestBase {
 		}
 
 		@RequestMapping("/404everyothererror")
-		@ResponseStatus(HttpStatus.NOT_FOUND)
 		public ResponseEntity<String> fourOFourError() {
 			boolean shouldError = error;
 			error = !error;
