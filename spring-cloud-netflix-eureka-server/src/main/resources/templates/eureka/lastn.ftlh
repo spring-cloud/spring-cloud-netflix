@@ -15,10 +15,10 @@
       <p>You are using an <strong>outdated</strong> browser. Please upgrade your browser to improve your experience.</p>
     <![endif]-->
 
-    <#include "header.ftl">
+    <#include "header.ftlh">
 
     <div class="container-fluid xd-container">
-      <#include "navbar.ftl">
+      <#include "navbar.ftlh">
 
     <div id="xd-jobs" class="tab-pane active col-md-12">
         <ul class="nav nav-tabs" role="tablist" id="myTab">

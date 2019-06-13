@@ -17,9 +17,9 @@
   </head>
 
   <body id="one">
-    <#include "header.ftl">
+    <#include "header.ftlh">
     <div class="container-fluid xd-container">
-      <#include "navbar.ftl">
+      <#include "navbar.ftlh">
       <h1>Instances currently registered with Eureka</h1>
       <table id='instances' class="table table-striped table-hover">
         <thead>
