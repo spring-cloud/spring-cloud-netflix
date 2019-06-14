@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Import;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(SidecarConfiguration.class)
+@Import(SidecarMarkerConfiguration.class)
 public @interface EnableSidecar {
 
 }
