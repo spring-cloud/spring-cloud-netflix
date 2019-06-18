@@ -27,6 +27,8 @@ import org.apache.http.impl.client.HttpClients;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -35,6 +37,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.metadata.DefaultManagementMetadataProvider;
 import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadata;
@@ -68,19 +71,16 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @see EurekaInstanceConfigBeanConfiguration
  */
 @Configuration
-@EnableConfigurationProperties
+@ConditionalOnBean(SidecarMarkerConfiguration.Marker.class)
+@EnableConfigurationProperties(SidecarProperties.class)
+@AutoConfigureBefore(EurekaClientAutoConfiguration.class)
 @ConditionalOnProperty(value = "spring.cloud.netflix.sidecar.enabled",
 		matchIfMissing = true)
-public class SidecarConfiguration {
+public class SidecarAutoConfiguration {
 
 	@Bean
 	public HasFeatures Feature() {
-		return HasFeatures.namedFeature("Netflix Sidecar", SidecarConfiguration.class);
-	}
-
-	@Bean
-	public SidecarProperties sidecarProperties() {
-		return new SidecarProperties();
+		return HasFeatures.namedFeature("Netflix Sidecar", SidecarAutoConfiguration.class);
 	}
 
 	@Bean
@@ -148,6 +148,7 @@ public class SidecarConfiguration {
 		}
 
 		@Bean
+		@ConditionalOnMissingBean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean(
 				ManagementMetadataProvider managementMetadataProvider) {
 			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);

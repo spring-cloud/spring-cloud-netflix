@@ -20,8 +20,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
@@ -187,6 +191,34 @@ public class SidecarApplicationTests {
 		@Test
 		public void testThatSecureEnabledOptionIsSetFromPropertyFile() {
 			assertThat(this.config.isSecurePortEnabled()).isEqualTo(true);
+		}
+
+	}
+
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = EurekaInstanceConfigBeanOverrideApplication.class, webEnvironment = RANDOM_PORT)
+	public static class EurekaInstanceConfigBeanOverrideTest {
+
+		@Autowired
+		EurekaInstanceConfigBean config;
+
+		@Test
+		public void testEurekaConfigBeanOverride() {
+			assertThat(this.config.getHostname()).isEqualTo("overridden");
+		}
+
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableSidecar
+	protected static class EurekaInstanceConfigBeanOverrideApplication {
+
+		@Bean
+		public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
+			EurekaInstanceConfigBean eurekaInstanceConfigBean = new EurekaInstanceConfigBean(inetUtils);
+			eurekaInstanceConfigBean.setHostname("overridden");
+			return eurekaInstanceConfigBean;
 		}
 
 	}
