@@ -61,8 +61,10 @@ public class PropertiesFactory {
 			String className = environment
 					.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
 			if(className==null)
+			{
 				className=environment
 						.getProperty(NAMESPACE + "." + classNameProperty);
+			}
 			return className;
 		}
 		return null;
