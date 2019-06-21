@@ -34,6 +34,7 @@ import static org.springframework.cloud.netflix.ribbon.SpringClientFactory.NAMES
 
 /**
  * @author Spencer Gibb
+ * @author Sabareesh Kannan
  */
 public class PropertiesFactory {
 
@@ -59,6 +60,9 @@ public class PropertiesFactory {
 			String classNameProperty = this.classToProperty.get(clazz);
 			String className = environment
 					.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
+			if(className==null)
+				className=environment
+						.getProperty(NAMESPACE + "." + classNameProperty);
 			return className;
 		}
 		return null;
