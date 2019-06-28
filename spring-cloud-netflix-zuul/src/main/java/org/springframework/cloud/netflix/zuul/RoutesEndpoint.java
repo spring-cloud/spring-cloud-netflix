@@ -64,7 +64,7 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 	public Map<String, String> invoke() {
 		Map<String, String> map = new LinkedHashMap<>();
 		for (Route route : this.routes.getRoutes()) {
-			map.put(route.getFullPath(), route.getLocation());
+			map.putIfAbsent(route.getFullPath(), route.getLocation());
 		}
 		return map;
 	}
@@ -72,7 +72,7 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 	Map<String, RouteDetails> invokeRouteDetails() {
 		Map<String, RouteDetails> map = new LinkedHashMap<>();
 		for (Route route : this.routes.getRoutes()) {
-			map.put(route.getFullPath(), new RouteDetails(route));
+			map.putIfAbsent(route.getFullPath(), new RouteDetails(route));
 		}
 		return map;
 	}
