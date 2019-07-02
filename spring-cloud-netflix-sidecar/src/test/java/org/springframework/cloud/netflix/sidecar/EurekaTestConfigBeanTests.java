@@ -31,22 +31,21 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
+@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
 		"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-		"spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-		"sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1",
-		"server.servlet.context-path=/foo" })
-public class ServerContextPathStatusAndHealthCheckUrls {
+		"spring.application.instance_id=1", "eureka.instance.hostname=mhhost",
+		"sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
+public class EurekaTestConfigBeanTests {
 
 	@Autowired
 	EurekaInstanceConfigBean config;
 
 	@Test
-	public void testStatusAndHealthCheckUrls() {
-		assertThat(config.getStatusPageUrl())
-				.isEqualTo("http://mhhost2:0/foo/actuator/info");
-		assertThat(config.getHealthCheckUrl())
-				.isEqualTo("http://mhhost2:0/foo/actuator/health");
+	public void testEurekaConfigBean() {
+		assertThat(this.config.getAppname()).isEqualTo("mytest");
+		assertThat(this.config.getHostname()).isEqualTo("mhhost");
+		assertThat(this.config.getInstanceId()).isEqualTo("mhhost:mytest:1");
+		assertThat(this.config.getNonSecurePort()).isEqualTo(7000);
 	}
 
 }

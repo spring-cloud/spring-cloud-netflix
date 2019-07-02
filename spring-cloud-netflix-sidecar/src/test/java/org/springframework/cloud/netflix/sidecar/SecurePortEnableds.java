@@ -31,21 +31,17 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
-		"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
-		"spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-		"sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
-public class BothPropertiesEurekaTestConfigBeanTest {
+@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
+		"sidecar.port=7000", "sidecar.ip-address=127.0.0.1",
+		"sidecar.secure-port-enabled=true" })
+public class SecurePortEnableds {
 
 	@Autowired
 	EurekaInstanceConfigBean config;
 
 	@Test
-	public void testEurekaConfigBeanEurekaInstanceHostnamePropertyShouldBeUsed() {
-		assertThat(config.getAppname()).isEqualTo("mytest");
-		assertThat(config.getHostname()).isEqualTo("mhhost1");
-		assertThat(config.getInstanceId()).isEqualTo("mhhost:mytest:1");
-		assertThat(config.getNonSecurePort()).isEqualTo(7000);
+	public void testThatSecureEnabledOptionIsSetFromPropertyFile() {
+		assertThat(this.config.isSecurePortEnabled()).isEqualTo(true);
 	}
 
 }

@@ -46,7 +46,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
 		"sidecar.accept-all-ssl-certificates=false" })
-public class AcceptAllSslCertificatesContext {
+public class AcceptAllSslCertificatesContextTests {
 
 	@Autowired
 	RestTemplate restTemplate;

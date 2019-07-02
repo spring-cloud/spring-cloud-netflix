@@ -34,17 +34,16 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
 		"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost",
 		"spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-		"sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ip-address=10.0.0.1",
-		"eureka.instance.prefer-ip-address=true" })
-public class PreferIpAddressTest {
+		"sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
+public class BothPropertiesEurekaTestConfigBeanTests {
 
 	@Autowired
 	EurekaInstanceConfigBean config;
 
 	@Test
-	public void testEurekaConfigBeanPreferIpAddress() {
+	public void testEurekaConfigBeanEurekaInstanceHostnamePropertyShouldBeUsed() {
 		assertThat(config.getAppname()).isEqualTo("mytest");
-		assertThat(config.getHostname()).isEqualTo("10.0.0.1");
+		assertThat(config.getHostname()).isEqualTo("mhhost1");
 		assertThat(config.getInstanceId()).isEqualTo("mhhost:mytest:1");
 		assertThat(config.getNonSecurePort()).isEqualTo(7000);
 	}
