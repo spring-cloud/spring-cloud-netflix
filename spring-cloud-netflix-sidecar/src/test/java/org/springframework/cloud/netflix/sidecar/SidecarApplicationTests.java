@@ -196,7 +196,8 @@ public class SidecarApplicationTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	@SpringBootTest(classes = EurekaInstanceConfigBeanOverrideApplication.class, webEnvironment = RANDOM_PORT)
+	@SpringBootTest(classes = EurekaInstanceConfigBeanOverrideApplication.class,
+			webEnvironment = RANDOM_PORT)
 	public static class EurekaInstanceConfigBeanOverrideTest {
 
 		@Autowired
@@ -216,7 +217,8 @@ public class SidecarApplicationTests {
 
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
-			EurekaInstanceConfigBean eurekaInstanceConfigBean = new EurekaInstanceConfigBean(inetUtils);
+			EurekaInstanceConfigBean eurekaInstanceConfigBean = new EurekaInstanceConfigBean(
+					inetUtils);
 			eurekaInstanceConfigBean.setHostname("overridden");
 			return eurekaInstanceConfigBean;
 		}

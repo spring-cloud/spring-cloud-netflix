@@ -80,7 +80,8 @@ public class SidecarAutoConfiguration {
 
 	@Bean
 	public HasFeatures Feature() {
-		return HasFeatures.namedFeature("Netflix Sidecar", SidecarAutoConfiguration.class);
+		return HasFeatures.namedFeature("Netflix Sidecar",
+				SidecarAutoConfiguration.class);
 	}
 
 	@Bean
