@@ -289,28 +289,29 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 		RefreshablePeerEurekaNodes(final PeerAwareInstanceRegistry registry,
 				final EurekaServerConfig serverConfig,
-				final EurekaClientConfig clientConfig,
-				final ServerCodecs serverCodecs,
+				final EurekaClientConfig clientConfig, final ServerCodecs serverCodecs,
 				final ApplicationInfoManager applicationInfoManager,
 				final ReplicationClientAdditionalFilters replicationClientAdditionalFilters) {
-			super(registry, serverConfig, clientConfig, serverCodecs, applicationInfoManager);
+			super(registry, serverConfig, clientConfig, serverCodecs,
+					applicationInfoManager);
 			this.replicationClientAdditionalFilters = replicationClientAdditionalFilters;
 		}
 
 		@Override
 		protected PeerEurekaNode createPeerEurekaNode(String peerEurekaNodeUrl) {
 			JerseyReplicationClient replicationClient = JerseyReplicationClient
-					.createReplicationClient(serverConfig, serverCodecs, peerEurekaNodeUrl);
+					.createReplicationClient(serverConfig, serverCodecs,
+							peerEurekaNodeUrl);
 
-			this.replicationClientAdditionalFilters
-					.getFilters()
+			this.replicationClientAdditionalFilters.getFilters()
 					.forEach(replicationClient::addReplicationClientFilter);
 
 			String targetHost = hostFromUrl(peerEurekaNodeUrl);
 			if (targetHost == null) {
 				targetHost = "host";
 			}
-			return new PeerEurekaNode(registry, targetHost, peerEurekaNodeUrl, replicationClient, serverConfig);
+			return new PeerEurekaNode(registry, targetHost, peerEurekaNodeUrl,
+					replicationClient, serverConfig);
 		}
 
 		@Override

@@ -159,7 +159,8 @@ public class RefreshablePeerEurekaNodesTests {
 					EurekaServerConfig serverConfig, EurekaClientConfig clientConfig,
 					ServerCodecs serverCodecs,
 					ApplicationInfoManager applicationInfoManager) {
-				super(registry, serverConfig, clientConfig, serverCodecs, applicationInfoManager,
+				super(registry, serverConfig, clientConfig, serverCodecs,
+						applicationInfoManager,
 						new ReplicationClientAdditionalFilters(Collections.emptySet()));
 			}
 

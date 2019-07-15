@@ -58,14 +58,17 @@ public class RefreshablePeerEurekaNodesWithCustomFiltersTests {
 				.as("PeerEurekaNodes should be an instance of RefreshablePeerEurekaNodes")
 				.isTrue();
 
-		ReplicationClientAdditionalFilters filters = getField(RefreshablePeerEurekaNodes.class,
-				(RefreshablePeerEurekaNodes) peerEurekaNodes, "replicationClientAdditionalFilters");
-		assertThat(filters.getFilters())
-				.as("PeerEurekaNodes'should have only one filter set on replicationClientAdditionalFilters")
+		ReplicationClientAdditionalFilters filters = getField(
+				RefreshablePeerEurekaNodes.class,
+				(RefreshablePeerEurekaNodes) peerEurekaNodes,
+				"replicationClientAdditionalFilters");
+		assertThat(filters.getFilters()).as(
+				"PeerEurekaNodes'should have only one filter set on replicationClientAdditionalFilters")
 				.hasSize(1);
-		assertThat(filters.getFilters().iterator().next() instanceof Application.CustomClientFilter)
-				.as("The type of the filter should be CustomClientFilter as user declared so")
-				.isTrue();
+		assertThat(filters.getFilters().iterator()
+				.next() instanceof Application.CustomClientFilter).as(
+						"The type of the filter should be CustomClientFilter as user declared so")
+						.isTrue();
 	}
 
 	private static <T, R> R getField(Class<T> clazz, T target, String fieldName) {
@@ -83,7 +86,8 @@ public class RefreshablePeerEurekaNodesWithCustomFiltersTests {
 
 		@Bean
 		public ReplicationClientAdditionalFilters customFilters() {
-			return new ReplicationClientAdditionalFilters(Collections.singletonList(new CustomClientFilter()));
+			return new ReplicationClientAdditionalFilters(
+					Collections.singletonList(new CustomClientFilter()));
 		}
 
 		protected class CustomClientFilter extends ClientFilter {
@@ -92,8 +96,9 @@ public class RefreshablePeerEurekaNodesWithCustomFiltersTests {
 			public ClientResponse handle(ClientRequest cr) throws ClientHandlerException {
 				return getNext().handle(cr);
 			}
-		}
-	}
 
+		}
+
+	}
 
 }
