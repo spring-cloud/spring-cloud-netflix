@@ -8,6 +8,7 @@
 <title>Spring Cloud Netflix</title>
 <link rel="stylesheet" href="css/spring.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <style>
 .hidden {
 	display: none;
@@ -28,12 +29,18 @@
 	cursor: pointer;
 }
 
+.switch--item:not(:first-child) {
+	border-width: 0 0 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+}
+
 .switch--item.selected {
 	background-color: #7a2519;
 	color: #ffffff;
 }
 </style>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
 <script type="text/javascript">
 function addBlockSwitches() {
 	$('.primary').each(function() {
@@ -81,8 +88,8 @@ function createSwitchItem(block, blockSwitch) {
 
 $(addBlockSwitches);
 </script>
-</head>
 
+</head>
 <body class="book toc2 toc-left">
 <div id="header">
 <h1>Spring Cloud Netflix</h1>
