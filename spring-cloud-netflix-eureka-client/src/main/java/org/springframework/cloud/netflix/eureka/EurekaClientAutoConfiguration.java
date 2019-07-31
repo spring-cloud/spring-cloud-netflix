@@ -165,6 +165,12 @@ public class EurekaClientAutoConfiguration {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 
 		instance.setNonSecurePort(serverPort);
+		Integer nonSecurePort = env.getProperty("eureka.instance.non-secure-port",
+				Integer.class);
+		if (nonSecurePort != null) {
+			instance.setNonSecurePort(nonSecurePort);
+		}
+		
 		instance.setInstanceId(getDefaultInstanceId(env));
 		instance.setPreferIpAddress(preferIpAddress);
 		instance.setSecurePortEnabled(isSecurePortEnabled);
@@ -174,6 +180,11 @@ public class EurekaClientAutoConfiguration {
 
 		if (isSecurePortEnabled) {
 			instance.setSecurePort(serverPort);
+			Integer securePort = env.getProperty("eureka.instance.secure-port",
+					Integer.class);
+			if (securePort != null) {
+				instance.setSecurePort(securePort);
+			}
 		}
 
 		if (StringUtils.hasText(hostname)) {
@@ -189,6 +200,10 @@ public class EurekaClientAutoConfiguration {
 			instance.setHealthCheckUrlPath(healthCheckUrlPath);
 		}
 
+		Integer instanceManagementPort = instance.getNonSecurePort();
+		if (isSecurePortEnabled) {
+			instanceManagementPort = instance.getSecurePort();
+		}
 		ManagementMetadata metadata = managementMetadataProvider.get(instance, serverPort,
 				serverContextPath, managementContextPath, managementPort);
 
