@@ -159,7 +159,8 @@ public class RefreshablePeerEurekaNodesTests {
 					ServerCodecs serverCodecs,
 					ApplicationInfoManager applicationInfoManager) {
 				super(registry, serverConfig, clientConfig, serverCodecs,
-						applicationInfoManager);
+						applicationInfoManager,
+						new ReplicationClientAdditionalFilters(Collections.emptySet()));
 			}
 
 			protected void updatePeerEurekaNodes(List<String> newPeerUrls) {
