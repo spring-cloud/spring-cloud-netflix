@@ -36,10 +36,12 @@ import com.netflix.discovery.converters.wrappers.CodecWrappers;
 import com.netflix.eureka.DefaultEurekaServerContext;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerContext;
+import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.DefaultServerCodecs;
 import com.netflix.eureka.resources.ServerCodecs;
+import com.netflix.eureka.transport.JerseyReplicationClient;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
@@ -141,6 +143,12 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
+	public ReplicationClientAdditionalFilters replicationClientAdditionalFilters() {
+		return new ReplicationClientAdditionalFilters(Collections.emptySet());
+	}
+
+	@Bean
 	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(
 			ServerCodecs serverCodecs) {
 		this.eurekaClient.getApplications(); // force initialization
@@ -153,9 +161,11 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	@Bean
 	@ConditionalOnMissingBean
 	public PeerEurekaNodes peerEurekaNodes(PeerAwareInstanceRegistry registry,
-			ServerCodecs serverCodecs) {
+			ServerCodecs serverCodecs,
+			ReplicationClientAdditionalFilters replicationClientAdditionalFilters) {
 		return new RefreshablePeerEurekaNodes(registry, this.eurekaServerConfig,
-				this.eurekaClientConfig, serverCodecs, this.applicationInfoManager);
+				this.eurekaClientConfig, serverCodecs, this.applicationInfoManager,
+				replicationClientAdditionalFilters);
 	}
 
 	@Bean
@@ -275,12 +285,33 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	static class RefreshablePeerEurekaNodes extends PeerEurekaNodes
 			implements ApplicationListener<EnvironmentChangeEvent> {
 
+		private ReplicationClientAdditionalFilters replicationClientAdditionalFilters;
+
 		RefreshablePeerEurekaNodes(final PeerAwareInstanceRegistry registry,
 				final EurekaServerConfig serverConfig,
 				final EurekaClientConfig clientConfig, final ServerCodecs serverCodecs,
-				final ApplicationInfoManager applicationInfoManager) {
+				final ApplicationInfoManager applicationInfoManager,
+				final ReplicationClientAdditionalFilters replicationClientAdditionalFilters) {
 			super(registry, serverConfig, clientConfig, serverCodecs,
 					applicationInfoManager);
+			this.replicationClientAdditionalFilters = replicationClientAdditionalFilters;
+		}
+
+		@Override
+		protected PeerEurekaNode createPeerEurekaNode(String peerEurekaNodeUrl) {
+			JerseyReplicationClient replicationClient = JerseyReplicationClient
+					.createReplicationClient(serverConfig, serverCodecs,
+							peerEurekaNodeUrl);
+
+			this.replicationClientAdditionalFilters.getFilters()
+					.forEach(replicationClient::addReplicationClientFilter);
+
+			String targetHost = hostFromUrl(peerEurekaNodeUrl);
+			if (targetHost == null) {
+				targetHost = "host";
+			}
+			return new PeerEurekaNode(registry, targetHost, peerEurekaNodeUrl,
+					replicationClient, serverConfig);
 		}
 
 		@Override
