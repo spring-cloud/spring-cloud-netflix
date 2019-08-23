@@ -65,12 +65,7 @@ public class EurekaHealthCheckTests {
 
 		@Bean
 		public HealthIndicator healthIndicator() {
-			return new HealthIndicator() {
-				@Override
-				public Health health() {
-					return new Health.Builder().outOfService().build();
-				}
-			};
+			return () -> new Health.Builder().outOfService().build();
 		}
 
 	}
