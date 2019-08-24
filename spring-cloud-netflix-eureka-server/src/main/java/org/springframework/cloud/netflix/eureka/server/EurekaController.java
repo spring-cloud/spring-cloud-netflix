@@ -197,11 +197,7 @@ public class EurekaController {
 				else {
 					zoneCounts.put(zone, 1);
 				}
-				List<Pair<String, String>> list = instancesByStatus.get(status);
-				if (list == null) {
-					list = new ArrayList<>();
-					instancesByStatus.put(status, list);
-				}
+				List<Pair<String, String>> list = instancesByStatus.computeIfAbsent(status, k -> new ArrayList<>());
 				list.add(new Pair<>(id, url));
 			}
 			appData.put("amiCounts", amiCounts.entrySet());

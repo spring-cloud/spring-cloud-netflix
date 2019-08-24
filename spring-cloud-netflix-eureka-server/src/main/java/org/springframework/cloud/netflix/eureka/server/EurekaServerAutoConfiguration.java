@@ -191,7 +191,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	@Bean
 	public FilterRegistrationBean<?> jerseyFilterRegistration(
 			javax.ws.rs.core.Application eurekaJerseyApp) {
-		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
+		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
 		bean.setFilter(new ServletContainer(eurekaJerseyApp));
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
 		bean.setUrlPatterns(
@@ -248,7 +248,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	@ConditionalOnBean(name = "httpTraceFilter")
 	public FilterRegistrationBean<?> traceFilterRegistration(
 			@Qualifier("httpTraceFilter") Filter filter) {
-		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
+		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
 		bean.setFilter(filter);
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
 		return bean;
