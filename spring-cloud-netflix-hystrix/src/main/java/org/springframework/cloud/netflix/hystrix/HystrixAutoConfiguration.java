@@ -16,11 +16,6 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
 import com.netflix.hystrix.Hystrix;
 import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
@@ -31,7 +26,6 @@ import org.reactivestreams.Publisher;
 import rx.Observable;
 import rx.RxReactiveStreams;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
@@ -39,14 +33,10 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
-import org.springframework.cloud.client.circuitbreaker.Customizer;
-import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.DispatcherHandler;
@@ -70,20 +60,6 @@ public class HystrixAutoConfiguration {
 	@ConditionalOnEnabledHealthIndicator("hystrix")
 	public HystrixHealthIndicator hystrixHealthIndicator() {
 		return new HystrixHealthIndicator();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(CircuitBreakerFactory.class)
-	public CircuitBreakerFactory hystrixCircuitBreakerFactory() {
-		return new HystrixCircuitBreakerFactory();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(ReactiveCircuitBreakerFactory.class)
-	@ConditionalOnClass(
-			name = { "reactor.core.publisher.Mono", "reactor.core.publisher.Flux" })
-	public ReactiveHystrixCircuitBreakerFactory reactiveHystrixCircuitBreakerFactory() {
-		return new ReactiveHystrixCircuitBreakerFactory();
 	}
 
 	@Configuration
@@ -147,40 +123,6 @@ public class HystrixAutoConfiguration {
 		public HasFeatures hystrixStreamFeature() {
 			return HasFeatures.namedFeature("Hystrix Stream Webflux",
 					HystrixWebfluxEndpoint.class);
-		}
-
-	}
-
-	@Configuration
-	protected static class HystrixCircuitBreakerCustomizerConfiguration {
-
-		@Autowired(required = false)
-		private List<Customizer<HystrixCircuitBreakerFactory>> customizers = new ArrayList<>();
-
-		@Autowired(required = false)
-		private HystrixCircuitBreakerFactory factory;
-
-		@PostConstruct
-		public void init() {
-			customizers.forEach(customizer -> customizer.customize(factory));
-		}
-
-	}
-
-	@Configuration
-	@ConditionalOnClass(
-			name = { "reactor.core.publisher.Mono", "reactor.core.publisher.Flux" })
-	protected static class ReactiveHystrixCircuitBreakerCustomizerConfiguration {
-
-		@Autowired(required = false)
-		private List<Customizer<ReactiveHystrixCircuitBreakerFactory>> customizers = new ArrayList<>();
-
-		@Autowired(required = false)
-		private ReactiveHystrixCircuitBreakerFactory factory;
-
-		@PostConstruct
-		public void init() {
-			customizers.forEach(customizer -> customizer.customize(factory));
 		}
 
 	}
