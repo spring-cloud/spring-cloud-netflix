@@ -124,6 +124,11 @@ $(addBlockSwitches);
 <li><a href="#_jdk_11_support">JDK 11 Support</a></li>
 </ul>
 </li>
+<li><a href="#_circuit_breaker_spring_cloud_circuit_breaker_with_hystrix">Circuit Breaker: Spring Cloud Circuit Breaker With Hystrix</a>
+<ul class="sectlevel2">
+<li><a href="#_configuring_hystrix_circuit_breakers">Configuring Hystrix Circuit Breakers</a></li>
+</ul>
+</li>
 <li><a href="#_circuit_breaker_hystrix_clients">Circuit Breaker: Hystrix Clients</a>
 <ul class="sectlevel2">
 <li><a href="#_how_to_include_hystrix">How to Include Hystrix</a></li>
@@ -919,6 +924,91 @@ when running a Eureka server you must include these dependencies in your POM or 
 	&lt;groupId&gt;org.glassfish.jaxb&lt;/groupId&gt;
 	&lt;artifactId&gt;jaxb-runtime&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_circuit_breaker_spring_cloud_circuit_breaker_with_hystrix"><a class="link" href="#_circuit_breaker_spring_cloud_circuit_breaker_with_hystrix">Circuit Breaker: Spring Cloud Circuit Breaker With Hystrix</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_configuring_hystrix_circuit_breakers"><a class="link" href="#_configuring_hystrix_circuit_breakers">Configuring Hystrix Circuit Breakers</a></h3>
+<div class="sect3">
+<h4 id="_default_configuration"><a class="link" href="#_default_configuration">Default Configuration</a></h4>
+<div class="paragraph">
+<p>To provide a default configuration for all of your circuit breakers create a <code>Customize</code> bean that is passed a
+<code>HystrixCircuitBreakerFactory</code> or <code>ReactiveHystrixCircuitBreakerFactory</code>.
+The <code>configureDefault</code> method can be used to provide a default configuration.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
+public Customizer&lt;HystrixCircuitBreakerFactory&gt; defaultConfig() {
+	return factory -&gt; factory.configureDefault(id -&gt; HystrixCommand.Setter
+			.withGroupKey(HystrixCommandGroupKey.Factory.asKey(id))
+			.andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+			.withExecutionTimeoutInMilliseconds(4000)));
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_reactive_example"><a class="link" href="#_reactive_example">Reactive Example</a></h5>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
+public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; defaultConfig() {
+	return factory -&gt; factory.configureDefault(id -&gt; HystrixObservableCommand.Setter
+			.withGroupKey(HystrixCommandGroupKey.Factory.asKey(id))
+			.andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+					.withExecutionTimeoutInMilliseconds(4000)));
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_specific_circuit_breaker_configuration"><a class="link" href="#_specific_circuit_breaker_configuration">Specific Circuit Breaker Configuration</a></h4>
+<div class="paragraph">
+<p>Similarly to providing a default configuration, you can create a <code>Customize</code> bean this is passed a
+<code>HystrixCircuitBreakerFactory</code></p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
+public Customizer&lt;HystrixCircuitBreakerFactory&gt; customizer() {
+	return factory -&gt; factory.configure(builder -&gt; builder.commandProperties(
+					HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(2000)), "foo", "bar");
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_reactive_example_2"><a class="link" href="#_reactive_example_2">Reactive Example</a></h5>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
+public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; customizer() {
+	return factory -&gt; factory.configure(builder -&gt; builder.commandProperties(
+					HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(2000)), "foo", "bar");
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
