@@ -554,6 +554,10 @@ when running a Eureka server you must include these dependencies in your POM or 
 </dependency>
 ----
 
+== Circuit Breaker: Spring Cloud Circuit Breaker With Hystrix
+
+include::spring-cloud-circuitbreaker-hystrix.adoc[]
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the https://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].
