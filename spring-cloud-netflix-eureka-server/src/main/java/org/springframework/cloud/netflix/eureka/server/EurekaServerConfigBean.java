@@ -148,7 +148,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private String[] remoteRegionUrls;
 
-	private Map<String, Set<String>> remoteRegionAppWhitelist;
+	private Map<String, Set<String>> remoteRegionAppWhitelist = new HashMap<>();
 
 	private int remoteRegionRegistryFetchInterval = 30;
 
