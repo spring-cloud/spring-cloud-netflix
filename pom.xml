@@ -38,7 +38,6 @@
 		<maven-checkstyle-plugin.failOnViolation>true
 		</maven-checkstyle-plugin.failOnViolation>
 		<eureka-jersey.version>1.19.1</eureka-jersey.version>
-		<okhttp3.version>3.8.1</okhttp3.version>
 		<xstream.version>1.4.11.1</xstream.version>
 	</properties>
 	<build>
@@ -178,16 +177,6 @@
 				<version>${xstream.version}</version>
 			</dependency>
 			<!-- end eureka deps -->
-			<dependency>
-				<groupId>com.squareup.okhttp3</groupId>
-				<artifactId>okhttp</artifactId>
-				<version>${okhttp3.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.squareup.okhttp3</groupId>
-				<artifactId>logging-interceptor</artifactId>
-				<version>${okhttp3.version}</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<reporting>
