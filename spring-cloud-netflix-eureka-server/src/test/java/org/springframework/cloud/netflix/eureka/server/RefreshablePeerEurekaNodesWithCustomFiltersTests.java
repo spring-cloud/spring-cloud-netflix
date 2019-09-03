@@ -42,9 +42,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Yuxin Bai
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RefreshablePeerEurekaNodesWithCustomFiltersTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=eureka", "server.contextPath=/context",
-		"management.security.enabled=false" })
+@SpringBootTest(
+		classes = RefreshablePeerEurekaNodesWithCustomFiltersTests.Application.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "spring.application.name=eureka", "server.contextPath=/context",
+				"management.security.enabled=false" })
 public class RefreshablePeerEurekaNodesWithCustomFiltersTests {
 
 	@Autowired
