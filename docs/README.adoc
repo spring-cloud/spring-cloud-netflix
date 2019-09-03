@@ -143,6 +143,9 @@ from the `file` menu.
 
 
 
+NOTE:  To build the module `spring-cloud-netflix-hystrix-contract` along with the entire Netflix project run the
+`build.sh` script in the `scripts` directory.
+
 == Contributing
 
 :spring-cloud-build-branch: master
@@ -278,6 +281,7 @@ $ touch .springformat
 ==== Intellij IDEA
 
 In order to setup Intellij you should import our coding conventions, inspection profiles and set up the checkstyle plugin.
+The following files can be found in the https://github.com/spring-cloud/spring-cloud-build/tree/master/spring-cloud-build-tools[Spring Cloud Build] project.
 
 .spring-cloud-build-tools/
 ----
