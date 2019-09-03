@@ -143,6 +143,9 @@ from the `file` menu.
 
 
 
+NOTE:  To build the module `spring-cloud-netflix-hystrix-contract` along with the entire Netflix project run the
+`build.sh` script in the `scripts` directory.
+
 == Contributing
 
 :spring-cloud-build-branch: master
