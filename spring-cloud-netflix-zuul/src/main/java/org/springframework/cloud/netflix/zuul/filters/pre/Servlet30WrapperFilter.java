@@ -20,6 +20,8 @@ import java.lang.reflect.Field;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -38,6 +40,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  */
 public class Servlet30WrapperFilter extends ZuulFilter {
 
+	@Autowired
+	private ZuulProperties zuulProperties;
 	private Field requestField = null;
 
 	public Servlet30WrapperFilter() {
@@ -78,6 +82,10 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 		}
 		else if (RequestUtils.isDispatcherServletRequest()) {
 			// If it's going through the dispatcher we need to buffer the body
+			ctx.setRequest(new Servlet30RequestWrapper(request));
+		}
+		else if (zuulProperties.isTraceRequestBody()) {
+			// If requesty body tracing we need to buffer the body
 			ctx.setRequest(new Servlet30RequestWrapper(request));
 		}
 		return null;
