@@ -541,6 +541,34 @@ For more information on CSRF see the https://docs.spring.io/spring-security/site
 
 A demo Eureka Server can be found in the Spring Cloud Samples https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security[repo].
 
+=== Disabling Ribbon with Eureka Server and Client starters
+
+`spring-cloud-starter-netflix-eureka-server` and `spring-cloud-starter-netflix-eureka-client` come along with
+a `spring-cloud-starter-netflix-ribbon`. Since Ribbon load-balancer is now in maintenance mode,
+we suggest switching to using the Spring Cloud LoadBalancer, also included in Eureka starters, instead.
+
+In order to that, you can set the value of `spring.cloud.loadbalancer.ribbon.enabled` property to `false`.
+
+You can then also exclude ribbon-related dependencies from Eureka starters in your build files, like so:
+
+[source,xml,indent=0]
+----
+<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-ribbon</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.netflix.ribbon</groupId>
+					<artifactId>ribbon-eureka</artifactId>
+				</exclusion>
+			</exclusions>
+</dependency>
+----
+
 === JDK 11 Support
 
 The JAXB modules which the Eureka server depends upon were removed in JDK 11.  If you intend to use JDK 11
