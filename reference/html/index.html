@@ -121,6 +121,7 @@ $(addBlockSwitches);
 <li><a href="#spring-cloud-eureka-server-peer-awareness">Peer Awareness</a></li>
 <li><a href="#spring-cloud-eureka-server-prefer-ip-address">When to Prefer IP Address</a></li>
 <li><a href="#_securing_the_eureka_server">Securing The Eureka Server</a></li>
+<li><a href="#_disabling_ribbon_with_eureka_server_and_client_starters">Disabling Ribbon with Eureka Server and Client starters</a></li>
 <li><a href="#_jdk_11_support">JDK 11 Support</a></li>
 </ul>
 </li>
@@ -910,6 +911,38 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 </div>
 <div class="paragraph">
 <p>A demo Eureka Server can be found in the Spring Cloud Samples <a href="https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security">repo</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_disabling_ribbon_with_eureka_server_and_client_starters"><a class="link" href="#_disabling_ribbon_with_eureka_server_and_client_starters">Disabling Ribbon with Eureka Server and Client starters</a></h3>
+<div class="paragraph">
+<p><code>spring-cloud-starter-netflix-eureka-server</code> and <code>spring-cloud-starter-netflix-eureka-client</code> come along with
+a <code>spring-cloud-starter-netflix-ribbon</code>. Since Ribbon load-balancer is now in maintenance mode,
+we suggest switching to using the Spring Cloud LoadBalancer, also included in Eureka starters, instead.</p>
+</div>
+<div class="paragraph">
+<p>In order to that, you can set the value of <code>spring.cloud.loadbalancer.ribbon.enabled</code> property to <code>false</code>.</p>
+</div>
+<div class="paragraph">
+<p>You can then also exclude ribbon-related dependencies from Eureka starters in your build files, like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+			&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+			&lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+			&lt;exclusions&gt;
+				&lt;exclusion&gt;
+					&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+					&lt;artifactId&gt;spring-cloud-starter-ribbon&lt;/artifactId&gt;
+				&lt;/exclusion&gt;
+				&lt;exclusion&gt;
+					&lt;groupId&gt;com.netflix.ribbon&lt;/groupId&gt;
+					&lt;artifactId&gt;ribbon-eureka&lt;/artifactId&gt;
+				&lt;/exclusion&gt;
+			&lt;/exclusions&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
