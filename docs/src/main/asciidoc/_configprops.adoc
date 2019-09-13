@@ -1,0 +1,25 @@
+|===
+|Name | Default | Description
+
+|eureka.client.eureka-connection-idle-timeout-seconds | 30 | Indicates how much time (in seconds) that the HTTP connections to eureka server can stay idle before it can be closed. In the AWS environment, it is recommended that the values is 30 seconds or less, since the firewall cleans up the connection information after a few mins leaving the connection hanging in limbo.
+|eureka.client.eureka-server-connect-timeout-seconds | 5 | Indicates how long to wait (in seconds) before a connection to eureka server needs to timeout. Note that the connections in the client are pooled by org.apache.http.client.HttpClient and this setting affects the actual connection creation and also the wait time to get the connection from the pool.
+|eureka.client.eureka-server-d-n-s-name |  | Gets the DNS name to be queried to get the list of eureka servers.This information is not required if the contract returns the service urls by implementing serviceUrls. The DNS mechanism is used when useDnsForFetchingServiceUrls is set to true and the eureka client expects the DNS to configured a certain way so that it can fetch changing eureka servers dynamically. The changes are effective at runtime.
+|eureka.client.eureka-server-port |  | Gets the port to be used to construct the service url to contact eureka server when the list of eureka servers come from the DNS.This information is not required if the contract returns the service urls eurekaServerServiceUrls(String). The DNS mechanism is used when useDnsForFetchingServiceUrls is set to true and the eureka client expects the DNS to configured a certain way so that it can fetch changing eureka servers dynamically. The changes are effective at runtime.
+|eureka.client.eureka-server-read-timeout-seconds | 8 | Indicates how long to wait (in seconds) before a read from eureka server needs to timeout.
+|eureka.client.eureka-server-total-connections | 200 | Gets the total number of connections that is allowed from eureka client to all eureka servers.
+|eureka.client.eureka-server-total-connections-per-host | 50 | Gets the total number of connections that is allowed from eureka client to a eureka server host.
+|eureka.client.eureka-server-u-r-l-context |  | Gets the URL context to be used to construct the service url to contact eureka server when the list of eureka servers come from the DNS. This information is not required if the contract returns the service urls from eurekaServerServiceUrls. The DNS mechanism is used when useDnsForFetchingServiceUrls is set to true and the eureka client expects the DNS to configured a certain way so that it can fetch changing eureka servers dynamically. The changes are effective at runtime.
+|eureka.client.eureka-service-url-poll-interval-seconds | 0 | Indicates how often(in seconds) to poll for changes to eureka server information. Eureka servers could be added or removed and this setting controls how soon the eureka clients should know about it.
+|eureka.client.prefer-same-zone-eureka | true | Indicates whether or not this instance should try to use the eureka server in the same zone for latency and/or other reason. Ideally eureka clients are configured to talk to servers in the same zone The changes are effective at runtime at the next registry fetch cycle as specified by registryFetchIntervalSeconds
+|eureka.client.register-with-eureka | true | Indicates whether or not this instance should register its information with eureka server for discovery by others. In some cases, you do not want your instances to be discovered whereas you just want do discover other instances.
+|eureka.server.peer-eureka-nodes-update-interval-ms | 0 | 
+|eureka.server.peer-eureka-status-refresh-time-interval-ms | 0 | 
+|management.endpoint.hystrix.config |  | Hystrix settings. These are traditionally set using servlet parameters. Refer to the documentation of Hystrix for more details.
+|management.endpoint.hystrix.stream.enabled | true | Whether to enable the hystrix.stream endpoint.
+|management.metrics.binders.hystrix.enabled | true | Enables creation of OK Http Client factory beans.
+|ribbon.eureka.enabled | true | Enables the use of Eureka with Ribbon.
+|spring.cloud.loadbalancer.ribbon.enabled | true | Causes `RibbonLoadBalancerClient` to be used by default.
+|zuul.ribbon-isolation-strategy |  | 
+|zuul.ribbon.eager-load.enabled | false | Enables eager loading of Ribbon clients on startup.
+
+|===
