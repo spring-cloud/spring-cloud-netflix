@@ -1,3 +1,4 @@
+include::_attributes.adoc[]
 
 == Modules In Maintenance Mode
 

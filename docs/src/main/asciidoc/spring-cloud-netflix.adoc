@@ -1,3 +1,6 @@
+include::_attributes.adoc[]
+
+
 :github-tag: master
 :github-repo: spring-cloud/spring-cloud-netflix
 :github-raw: https://raw.github.com/{github-repo}/{github-tag}
@@ -5,6 +8,7 @@
 :all: {asterisk}{asterisk}
 :nofooter:
 :branch: master
+
 = Spring Cloud Netflix
 
 *{spring-cloud-version}*
@@ -920,7 +924,7 @@ Creating a bean of one of those type and placing it in a `@RibbonClient` configu
 
 [source,java,indent=0]
 ----
-include::../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
+include::{project-root}/spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
 ----
 
 The include statement in the preceding example replaces `NoOpPing` with `PingUrl` and provides a custom `serverListFilter`.
@@ -931,7 +935,7 @@ A default configuration can be provided for all Ribbon Clients by using the `@Ri
 
 [source,java,indent=0]
 ----
-include::../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
+include::{project-root}/spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
 
 ----
 
@@ -2194,4 +2198,10 @@ Doing so improperly can result in resource management issues.
 // TODO Can we provide a link to how to do so?
 
 include::maintenance-mode.adoc[]
+
+== Configuration properties
+
+To see the list of all Spring Cloud Netflix related configuration properties please check link:appendix.html[the Appendix page].
+
+
 
