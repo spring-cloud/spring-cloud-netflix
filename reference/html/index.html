@@ -96,103 +96,157 @@ $(addBlockSwitches);
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_service_discovery_eureka_clients">Service Discovery: Eureka Clients</a>
+<li><a href="#service-discovery-eureka-clients">1. Service Discovery: Eureka Clients</a>
 <ul class="sectlevel2">
-<li><a href="#netflix-eureka-client-starter">How to Include Eureka Client</a></li>
-<li><a href="#_registering_with_eureka">Registering with Eureka</a></li>
-<li><a href="#_authenticating_with_the_eureka_server">Authenticating with the Eureka Server</a></li>
-<li><a href="#_status_page_and_health_indicator">Status Page and Health Indicator</a></li>
-<li><a href="#_registering_a_secure_application">Registering a Secure Application</a></li>
-<li><a href="#_eurekas_health_checks">Eureka&#8217;s Health Checks</a></li>
-<li><a href="#_eureka_metadata_for_instances_and_clients">Eureka Metadata for Instances and Clients</a></li>
-<li><a href="#_using_the_eurekaclient">Using the EurekaClient</a></li>
-<li><a href="#_alternatives_to_the_native_netflix_eurekaclient">Alternatives to the Native Netflix EurekaClient</a></li>
-<li><a href="#_why_is_it_so_slow_to_register_a_service">Why Is It so Slow to Register a Service?</a></li>
-<li><a href="#_zones">Zones</a></li>
-<li><a href="#_refreshing_eureka_clients">Refreshing Eureka Clients</a></li>
+<li><a href="#netflix-eureka-client-starter">1.1. How to Include Eureka Client</a></li>
+<li><a href="#registering-with-eureka">1.2. Registering with Eureka</a></li>
+<li><a href="#authenticating-with-the-eureka-server">1.3. Authenticating with the Eureka Server</a></li>
+<li><a href="#status-page-and-health-indicator">1.4. Status Page and Health Indicator</a></li>
+<li><a href="#registering-a-secure-application">1.5. Registering a Secure Application</a></li>
+<li><a href="#eurekas-health-checks">1.6. Eureka&#8217;s Health Checks</a></li>
+<li><a href="#eureka-metadata-for-instances-and-clients">1.7. Eureka Metadata for Instances and Clients</a>
+<ul class="sectlevel3">
+<li><a href="#using-eureka-on-cloud-foundry">1.7.1. Using Eureka on Cloud Foundry</a></li>
+<li><a href="#using-eureka-on-aws">1.7.2. Using Eureka on AWS</a></li>
+<li><a href="#changing-the-eureka-instance-id">1.7.3. Changing the Eureka Instance ID</a></li>
 </ul>
 </li>
-<li><a href="#spring-cloud-eureka-server">Service Discovery: Eureka Server</a>
-<ul class="sectlevel2">
-<li><a href="#netflix-eureka-server-starter">How to Include Eureka Server</a></li>
-<li><a href="#spring-cloud-running-eureka-server">How to Run a Eureka Server</a></li>
-<li><a href="#spring-cloud-eureka-server-zones-and-regions">High Availability, Zones and Regions</a></li>
-<li><a href="#spring-cloud-eureka-server-standalone-mode">Standalone Mode</a></li>
-<li><a href="#spring-cloud-eureka-server-peer-awareness">Peer Awareness</a></li>
-<li><a href="#spring-cloud-eureka-server-prefer-ip-address">When to Prefer IP Address</a></li>
-<li><a href="#_securing_the_eureka_server">Securing The Eureka Server</a></li>
-<li><a href="#_disabling_ribbon_with_eureka_server_and_client_starters">Disabling Ribbon with Eureka Server and Client starters</a></li>
-<li><a href="#_jdk_11_support">JDK 11 Support</a></li>
+<li><a href="#using-the-eurekaclient">1.8. Using the EurekaClient</a>
+<ul class="sectlevel3">
+<li><a href="#eurekaclient-without-jersey">1.8.1. EurekaClient without Jersey</a></li>
 </ul>
 </li>
-<li><a href="#_circuit_breaker_spring_cloud_circuit_breaker_with_hystrix">Circuit Breaker: Spring Cloud Circuit Breaker With Hystrix</a>
-<ul class="sectlevel2">
-<li><a href="#_configuring_hystrix_circuit_breakers">Configuring Hystrix Circuit Breakers</a></li>
+<li><a href="#alternatives-to-the-native-netflix-eurekaclient">1.9. Alternatives to the Native Netflix EurekaClient</a></li>
+<li><a href="#why-is-it-so-slow-to-register-a-service">1.10. Why Is It so Slow to Register a Service?</a></li>
+<li><a href="#zones">1.11. Zones</a></li>
+<li><a href="#refreshing-eureka-clients">1.12. Refreshing Eureka Clients</a></li>
 </ul>
 </li>
-<li><a href="#_circuit_breaker_hystrix_clients">Circuit Breaker: Hystrix Clients</a>
+<li><a href="#spring-cloud-eureka-server">2. Service Discovery: Eureka Server</a>
 <ul class="sectlevel2">
-<li><a href="#_how_to_include_hystrix">How to Include Hystrix</a></li>
-<li><a href="#netflix-hystrix-starter">Propagating the Security Context or Using Spring Scopes</a></li>
-<li><a href="#_health_indicator">Health Indicator</a></li>
-<li><a href="#_hystrix_metrics_stream">Hystrix Metrics Stream</a></li>
+<li><a href="#netflix-eureka-server-starter">2.1. How to Include Eureka Server</a></li>
+<li><a href="#spring-cloud-running-eureka-server">2.2. How to Run a Eureka Server</a></li>
+<li><a href="#spring-cloud-eureka-server-zones-and-regions">2.3. High Availability, Zones and Regions</a></li>
+<li><a href="#spring-cloud-eureka-server-standalone-mode">2.4. Standalone Mode</a></li>
+<li><a href="#spring-cloud-eureka-server-peer-awareness">2.5. Peer Awareness</a></li>
+<li><a href="#spring-cloud-eureka-server-prefer-ip-address">2.6. When to Prefer IP Address</a></li>
+<li><a href="#securing-the-eureka-server">2.7. Securing The Eureka Server</a></li>
+<li><a href="#disabling-ribbon-with-eureka-server-and-client-starters">2.8. Disabling Ribbon with Eureka Server and Client starters</a></li>
+<li><a href="#jdk-11-support">2.9. JDK 11 Support</a></li>
 </ul>
 </li>
-<li><a href="#_circuit_breaker_hystrix_dashboard">Circuit Breaker: Hystrix Dashboard</a></li>
-<li><a href="#_hystrix_timeouts_and_ribbon_clients">Hystrix Timeouts And Ribbon Clients</a>
+<li><a href="#circuit-breaker-spring-cloud-circuit-breaker-with-hystrix">3. Circuit Breaker: Spring Cloud Circuit Breaker With Hystrix</a>
 <ul class="sectlevel2">
-<li><a href="#netflix-hystrix-dashboard-starter">How to Include the Hystrix Dashboard</a></li>
-<li><a href="#_turbine">Turbine</a></li>
-<li><a href="#_turbine_stream">Turbine Stream</a></li>
+<li><a href="#configuring-hystrix-circuit-breakers">3.1. Configuring Hystrix Circuit Breakers</a>
+<ul class="sectlevel3">
+<li><a href="#default-configuration">3.1.1. Default Configuration</a>
+<ul class="sectlevel4">
+<li><a href="#reactive-example">Reactive Example</a></li>
 </ul>
 </li>
-<li><a href="#spring-cloud-ribbon">Client Side Load Balancer: Ribbon</a>
-<ul class="sectlevel2">
-<li><a href="#netflix-ribbon-starter">How to Include Ribbon</a></li>
-<li><a href="#_customizing_the_ribbon_client">Customizing the Ribbon Client</a></li>
-<li><a href="#_customizing_the_default_for_all_ribbon_clients">Customizing the Default for All Ribbon Clients</a></li>
-<li><a href="#_customizing_the_ribbon_client_by_setting_properties">Customizing the Ribbon Client by Setting Properties</a></li>
-<li><a href="#_using_ribbon_with_eureka">Using Ribbon with Eureka</a></li>
-<li><a href="#spring-cloud-ribbon-without-eureka">Example: How to Use Ribbon Without Eureka</a></li>
-<li><a href="#_example_disable_eureka_use_in_ribbon">Example: Disable Eureka Use in Ribbon</a></li>
-<li><a href="#_using_the_ribbon_api_directly">Using the Ribbon API Directly</a></li>
-<li><a href="#ribbon-child-context-eager-load">Caching of Ribbon Configuration</a></li>
-<li><a href="#how-to-configure-hystrix-thread-pools">How to Configure Hystrix Thread Pools</a></li>
-<li><a href="#how-to-provdie-a-key-to-ribbon">How to Provide a Key to Ribbon&#8217;s <code>IRule</code></a></li>
+<li><a href="#specific-circuit-breaker-configuration">3.1.2. Specific Circuit Breaker Configuration</a>
+<ul class="sectlevel4">
+<li><a href="#reactive-example-2">Reactive Example</a></li>
 </ul>
 </li>
-<li><a href="#_external_configuration_archaius">External Configuration: Archaius</a></li>
-<li><a href="#_router_and_filter_zuul">Router and Filter: Zuul</a>
-<ul class="sectlevel2">
-<li><a href="#netflix-zuul-starter">How to Include Zuul</a></li>
-<li><a href="#netflix-zuul-reverse-proxy">Embedded Zuul Reverse Proxy</a></li>
-<li><a href="#_zuul_http_client">Zuul Http Client</a></li>
-<li><a href="#_cookies_and_sensitive_headers">Cookies and Sensitive Headers</a></li>
-<li><a href="#_ignored_headers">Ignored Headers</a></li>
-<li><a href="#_management_endpoints">Management Endpoints</a></li>
-<li><a href="#_strangulation_patterns_and_local_forwards">Strangulation Patterns and Local Forwards</a></li>
-<li><a href="#_uploading_files_through_zuul">Uploading Files through Zuul</a></li>
-<li><a href="#_query_string_encoding">Query String Encoding</a></li>
-<li><a href="#_request_uri_encoding">Request URI Encoding</a></li>
-<li><a href="#_plain_embedded_zuul">Plain Embedded Zuul</a></li>
-<li><a href="#_disable_zuul_filters">Disable Zuul Filters</a></li>
-<li><a href="#hystrix-fallbacks-for-routes">Providing Hystrix Fallbacks For Routes</a></li>
-<li><a href="#_zuul_timeouts">Zuul Timeouts</a></li>
-<li><a href="#zuul-redirect-location-rewrite">Rewriting the <code>Location</code> header</a></li>
-<li><a href="#_enabling_cross_origin_requests">Enabling Cross Origin Requests</a></li>
-<li><a href="#_metrics">Metrics</a></li>
-<li><a href="#zuul-developer-guide">Zuul Developer Guide</a></li>
 </ul>
 </li>
-<li><a href="#_polyglot_support_with_sidecar">Polyglot support with Sidecar</a></li>
-<li><a href="#retrying-failed-requests">Retrying Failed Requests</a>
-<ul class="sectlevel2">
-<li><a href="#_backoff_policies">BackOff Policies</a></li>
-<li><a href="#_configuration">Configuration</a></li>
 </ul>
 </li>
-<li><a href="#_http_clients">HTTP Clients</a></li>
-<li><a href="#_modules_in_maintenance_mode">Modules In Maintenance Mode</a></li>
+<li><a href="#circuit-breaker-hystrix-clients">4. Circuit Breaker: Hystrix Clients</a>
+<ul class="sectlevel2">
+<li><a href="#how-to-include-hystrix">4.1. How to Include Hystrix</a></li>
+<li><a href="#netflix-hystrix-starter">4.2. Propagating the Security Context or Using Spring Scopes</a></li>
+<li><a href="#health-indicator">4.3. Health Indicator</a></li>
+<li><a href="#hystrix-metrics-stream">4.4. Hystrix Metrics Stream</a></li>
+</ul>
+</li>
+<li><a href="#circuit-breaker-hystrix-dashboard">5. Circuit Breaker: Hystrix Dashboard</a></li>
+<li><a href="#hystrix-timeouts-and-ribbon-clients">6. Hystrix Timeouts And Ribbon Clients</a>
+<ul class="sectlevel2">
+<li><a href="#netflix-hystrix-dashboard-starter">6.1. How to Include the Hystrix Dashboard</a></li>
+<li><a href="#turbine">6.2. Turbine</a>
+<ul class="sectlevel3">
+<li><a href="#clusters-endpoint">6.2.1. Clusters Endpoint</a></li>
+</ul>
+</li>
+<li><a href="#turbine-stream">6.3. Turbine Stream</a></li>
+</ul>
+</li>
+<li><a href="#spring-cloud-ribbon">7. Client Side Load Balancer: Ribbon</a>
+<ul class="sectlevel2">
+<li><a href="#netflix-ribbon-starter">7.1. How to Include Ribbon</a></li>
+<li><a href="#customizing-the-ribbon-client">7.2. Customizing the Ribbon Client</a></li>
+<li><a href="#customizing-the-default-for-all-ribbon-clients">7.3. Customizing the Default for All Ribbon Clients</a></li>
+<li><a href="#customizing-the-ribbon-client-by-setting-properties">7.4. Customizing the Ribbon Client by Setting Properties</a></li>
+<li><a href="#using-ribbon-with-eureka">7.5. Using Ribbon with Eureka</a></li>
+<li><a href="#spring-cloud-ribbon-without-eureka">7.6. Example: How to Use Ribbon Without Eureka</a></li>
+<li><a href="#example-disable-eureka-use-in-ribbon">7.7. Example: Disable Eureka Use in Ribbon</a></li>
+<li><a href="#using-the-ribbon-api-directly">7.8. Using the Ribbon API Directly</a></li>
+<li><a href="#ribbon-child-context-eager-load">7.9. Caching of Ribbon Configuration</a></li>
+<li><a href="#how-to-configure-hystrix-thread-pools">7.10. How to Configure Hystrix Thread Pools</a></li>
+<li><a href="#how-to-provdie-a-key-to-ribbon">7.11. How to Provide a Key to Ribbon&#8217;s <code>IRule</code></a></li>
+</ul>
+</li>
+<li><a href="#external-configuration-archaius">8. External Configuration: Archaius</a></li>
+<li><a href="#router-and-filter-zuul">9. Router and Filter: Zuul</a>
+<ul class="sectlevel2">
+<li><a href="#netflix-zuul-starter">9.1. How to Include Zuul</a></li>
+<li><a href="#netflix-zuul-reverse-proxy">9.2. Embedded Zuul Reverse Proxy</a></li>
+<li><a href="#zuul-http-client">9.3. Zuul Http Client</a></li>
+<li><a href="#cookies-and-sensitive-headers">9.4. Cookies and Sensitive Headers</a></li>
+<li><a href="#ignored-headers">9.5. Ignored Headers</a></li>
+<li><a href="#management-endpoints">9.6. Management Endpoints</a>
+<ul class="sectlevel3">
+<li><a href="#routes-endpoint">9.6.1. Routes Endpoint</a></li>
+<li><a href="#filters-endpoint">9.6.2. Filters Endpoint</a></li>
+</ul>
+</li>
+<li><a href="#strangulation-patterns-and-local-forwards">9.7. Strangulation Patterns and Local Forwards</a></li>
+<li><a href="#uploading-files-through-zuul">9.8. Uploading Files through Zuul</a></li>
+<li><a href="#query-string-encoding">9.9. Query String Encoding</a></li>
+<li><a href="#request-uri-encoding">9.10. Request URI Encoding</a></li>
+<li><a href="#plain-embedded-zuul">9.11. Plain Embedded Zuul</a></li>
+<li><a href="#disable-zuul-filters">9.12. Disable Zuul Filters</a></li>
+<li><a href="#hystrix-fallbacks-for-routes">9.13. Providing Hystrix Fallbacks For Routes</a></li>
+<li><a href="#zuul-timeouts">9.14. Zuul Timeouts</a></li>
+<li><a href="#zuul-redirect-location-rewrite">9.15. Rewriting the <code>Location</code> header</a></li>
+<li><a href="#enabling-cross-origin-requests">9.16. Enabling Cross Origin Requests</a></li>
+<li><a href="#metrics">9.17. Metrics</a></li>
+<li><a href="#zuul-developer-guide">9.18. Zuul Developer Guide</a>
+<ul class="sectlevel3">
+<li><a href="#the-zuul-servlet">9.18.1. The Zuul Servlet</a></li>
+<li><a href="#zuul-requestcontext">9.18.2. Zuul RequestContext</a></li>
+<li><a href="#enablezuulproxy-vs-enablezuulserver">9.18.3. <code>@EnableZuulProxy</code> vs. <code>@EnableZuulServer</code></a></li>
+<li><a href="#zuul-developer-guide-enable-filters">9.18.4. <code>@EnableZuulServer</code> Filters</a></li>
+<li><a href="#enablezuulproxy-filters">9.18.5. <code>@EnableZuulProxy</code> Filters</a></li>
+<li><a href="#custom-zuul-filter-examples">9.18.6. Custom Zuul Filter Examples</a>
+<ul class="sectlevel4">
+<li><a href="#zuul-developer-guide-sample-pre-filter">How to Write a Pre Filter</a></li>
+<li><a href="#zuul-developer-guide-sample-route-filter">How to Write a Route Filter</a></li>
+<li><a href="#zuul-developer-guide-sample-post-filter">How to Write a Post Filter</a></li>
+</ul>
+</li>
+<li><a href="#how-zuul-errors-work">9.18.7. How Zuul Errors Work</a></li>
+<li><a href="#zuul-eager-application-context-loading">9.18.8. Zuul Eager Application Context Loading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#polyglot-support-with-sidecar">10. Polyglot support with Sidecar</a></li>
+<li><a href="#retrying-failed-requests">11. Retrying Failed Requests</a>
+<ul class="sectlevel2">
+<li><a href="#backoff-policies">11.1. BackOff Policies</a></li>
+<li><a href="#configuration">11.2. Configuration</a>
+<ul class="sectlevel3">
+<li><a href="#zuul">11.2.1. Zuul</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#http-clients">12. HTTP Clients</a></li>
+<li><a href="#modules-in-maintenance-mode">13. Modules In Maintenance Mode</a></li>
+<li><a href="#configuration-properties">14. Configuration properties</a></li>
 </ul>
 </div>
 </div>
@@ -213,7 +267,7 @@ Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_service_discovery_eureka_clients"><a class="link" href="#_service_discovery_eureka_clients">Service Discovery: Eureka Clients</a></h2>
+<h2 id="service-discovery-eureka-clients"><a class="anchor" href="#service-discovery-eureka-clients"></a><a class="link" href="#service-discovery-eureka-clients">1. Service Discovery: Eureka Clients</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Service Discovery is one of the key tenets of a microservice-based architecture.
@@ -222,14 +276,14 @@ Eureka is the Netflix Service Discovery Server and Client.
 The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.</p>
 </div>
 <div class="sect2">
-<h3 id="netflix-eureka-client-starter"><a class="link" href="#netflix-eureka-client-starter">How to Include Eureka Client</a></h3>
+<h3 id="netflix-eureka-client-starter"><a class="anchor" href="#netflix-eureka-client-starter"></a><a class="link" href="#netflix-eureka-client-starter">1.1. How to Include Eureka Client</a></h3>
 <div class="paragraph">
 <p>To include the Eureka Client in your project, use the starter with a group ID of <code>org.springframework.cloud</code> and an artifact ID of  <code>spring-cloud-starter-netflix-eureka-client</code>.
 See the <a href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</a> for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_registering_with_eureka"><a class="link" href="#_registering_with_eureka">Registering with Eureka</a></h3>
+<h3 id="registering-with-eureka"><a class="anchor" href="#registering-with-eureka"></a><a class="link" href="#registering-with-eureka">1.2. Registering with Eureka</a></h3>
 <div class="paragraph">
 <p>When a client registers with Eureka, it provides meta-data about itself&#8201;&#8212;&#8201;such as host, port, health indicator URL, home page, and other details.
 Eureka receives heartbeat messages from each instance belonging to a service.
@@ -280,16 +334,16 @@ By having <code>spring-cloud-starter-netflix-eureka-client</code> on the classpa
 The instance behaviour is driven by <code>eureka.instance.*</code> configuration keys, but the defaults are fine if you ensure that your application has a value for <code>spring.application.name</code> (this is the default for the Eureka service ID or VIP).</p>
 </div>
 <div class="paragraph">
-<p>See <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/${github-tag}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> and <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/${github-tag}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</a> for more details on the configurable options.</p>
+<p>See <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> and <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</a> for more details on the configurable options.</p>
 </div>
 <div class="paragraph">
 <p>To disable the Eureka Discovery Client, you can set <code>eureka.client.enabled</code> to <code>false</code>. Eureka Discovery Client will also be disabled when <code>spring.cloud.discovery.enabled</code> is set to <code>false</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_authenticating_with_the_eureka_server"><a class="link" href="#_authenticating_with_the_eureka_server">Authenticating with the Eureka Server</a></h3>
+<h3 id="authenticating-with-the-eureka-server"><a class="anchor" href="#authenticating-with-the-eureka-server"></a><a class="link" href="#authenticating-with-the-eureka-server">1.3. Authenticating with the Eureka Server</a></h3>
 <div class="paragraph">
-<p>HTTP basic authentication is automatically added to your eureka client if one of the <code>eureka.client.serviceUrl.defaultZone</code> URLs has credentials embedded in it (curl style, as follows: <code><a href="https://user:password@localhost:8761/eureka" class="bare">https://user:password@localhost:8761/eureka</a></code>).
+<p>HTTP basic authentication is automatically added to your eureka client if one of the <code>eureka.client.serviceUrl.defaultZone</code> URLs has credentials embedded in it (curl style, as follows: <code><a href="https://user:password@localhost:8761/eureka" class="bare">user:password@localhost:8761/eureka</a></code>).
 For more complex needs, you can create a <code>@Bean</code> of type <code>DiscoveryClientOptionalArgs</code> and inject <code>ClientFilter</code> instances into it, all of which is applied to the calls from the client to the server.</p>
 </div>
 <div class="admonitionblock note">
@@ -306,7 +360,7 @@ Because of a limitation in Eureka, it is not possible to support per-server basi
 </div>
 </div>
 <div class="sect2">
-<h3 id="_status_page_and_health_indicator"><a class="link" href="#_status_page_and_health_indicator">Status Page and Health Indicator</a></h3>
+<h3 id="status-page-and-health-indicator"><a class="anchor" href="#status-page-and-health-indicator"></a><a class="link" href="#status-page-and-health-indicator">1.4. Status Page and Health Indicator</a></h3>
 <div class="paragraph">
 <p>The status page and health indicators for a Eureka instance default to <code>/info</code> and <code>/health</code> respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
 You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as <code>server.servletPath=/custom</code>). The following example shows the default values for the two settings:</p>
@@ -338,7 +392,7 @@ that management context path.  This requirement was removed beginning in Edgware
 </div>
 </div>
 <div class="sect2">
-<h3 id="_registering_a_secure_application"><a class="link" href="#_registering_a_secure_application">Registering a Secure Application</a></h3>
+<h3 id="registering-a-secure-application"><a class="anchor" href="#registering-a-secure-application"></a><a class="link" href="#registering-a-secure-application">1.5. Registering a Secure Application</a></h3>
 <div class="paragraph">
 <p>If your app wants to be contacted over HTTPS, you can set two flags in the <code>EurekaInstanceConfig</code>:</p>
 </div>
@@ -392,7 +446,7 @@ The links rendered by your app to itself being wrong (the wrong host, port, or p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_eurekas_health_checks"><a class="link" href="#_eurekas_health_checks">Eureka&#8217;s Health Checks</a></h3>
+<h3 id="eurekas-health-checks"><a class="anchor" href="#eurekas-health-checks"></a><a class="link" href="#eurekas-health-checks">1.6. Eureka&#8217;s Health Checks</a></h3>
 <div class="paragraph">
 <p>By default, Eureka uses the client heartbeat to determine if a client is up.
 Unless specified otherwise, the Discovery Client does not propagate the current health check status of the application, per the Spring Boot Actuator.
@@ -426,7 +480,7 @@ The following example shows how to enable health checks for the client:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_eureka_metadata_for_instances_and_clients"><a class="link" href="#_eureka_metadata_for_instances_and_clients">Eureka Metadata for Instances and Clients</a></h3>
+<h3 id="eureka-metadata-for-instances-and-clients"><a class="anchor" href="#eureka-metadata-for-instances-and-clients"></a><a class="link" href="#eureka-metadata-for-instances-and-clients">1.7. Eureka Metadata for Instances and Clients</a></h3>
 <div class="paragraph">
 <p>It is worth spending a bit of time understanding how the Eureka metadata works, so you can use it in a way that makes sense in your platform.
 There is standard metadata for information such as hostname, IP address, port numbers, the status page, and health check.
@@ -436,7 +490,7 @@ In general, additional metadata does not change the behavior of the client, unle
 There are a couple of special cases, described later in this document, where Spring Cloud already assigns meaning to the metadata map.</p>
 </div>
 <div class="sect3">
-<h4 id="_using_eureka_on_cloud_foundry"><a class="link" href="#_using_eureka_on_cloud_foundry">Using Eureka on Cloud Foundry</a></h4>
+<h4 id="using-eureka-on-cloud-foundry"><a class="anchor" href="#using-eureka-on-cloud-foundry"></a><a class="link" href="#using-eureka-on-cloud-foundry">1.7.1. Using Eureka on Cloud Foundry</a></h4>
 <div class="paragraph">
 <p>Cloud Foundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
 This is not necessarily a barrier to using Eureka.
@@ -459,9 +513,9 @@ This feature is not yet available on Pivotal Web Services (<a href="https://run.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_using_eureka_on_aws"><a class="link" href="#_using_eureka_on_aws">Using Eureka on AWS</a></h4>
+<h4 id="using-eureka-on-aws"><a class="anchor" href="#using-eureka-on-aws"></a><a class="link" href="#using-eureka-on-aws">1.7.2. Using Eureka on AWS</a></h4>
 <div class="paragraph">
-<p>If the application is planned to be deployed to an AWS cloud, the Eureka instance must be configured to be AWS-aware. You can do so by customizing the <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/${github-tag}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> as follows:</p>
+<p>If the application is planned to be deployed to an AWS cloud, the Eureka instance must be configured to be AWS-aware. You can do so by customizing the <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -477,7 +531,7 @@ public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
 </div>
 </div>
 <div class="sect3">
-<h4 id="_changing_the_eureka_instance_id"><a class="link" href="#_changing_the_eureka_instance_id">Changing the Eureka Instance ID</a></h4>
+<h4 id="changing-the-eureka-instance-id"><a class="anchor" href="#changing-the-eureka-instance-id"></a><a class="link" href="#changing-the-eureka-instance-id">1.7.3. Changing the Eureka Instance ID</a></h4>
 <div class="paragraph">
 <p>A vanilla Netflix Eureka instance is registered with an ID that is equal to its host name (that is, there is only one service per host).
 Spring Cloud Eureka provides a sensible default, which is defined as follows:</p>
@@ -506,7 +560,7 @@ In Cloud Foundry, the <code>vcap.application.instance_id</code> is populated aut
 </div>
 </div>
 <div class="sect2">
-<h3 id="_using_the_eurekaclient"><a class="link" href="#_using_the_eurekaclient">Using the EurekaClient</a></h3>
+<h3 id="using-the-eurekaclient"><a class="anchor" href="#using-the-eurekaclient"></a><a class="link" href="#using-the-eurekaclient">1.8. Using the EurekaClient</a></h3>
 <div class="paragraph">
 <p>Once you have an application that is a discovery client, you can use it to discover service instances from the <a href="#spring-cloud-eureka-server">Eureka Server</a>.
 One way to do so is to use the native <code>com.netflix.discovery.EurekaClient</code> (as opposed to the Spring Cloud <code>DiscoveryClient</code>), as shown in the following example:</p>
@@ -538,7 +592,7 @@ It is initialized in a <code>SmartLifecycle</code> (with <code>phase=0</code>), 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_eurekaclient_without_jersey"><a class="link" href="#_eurekaclient_without_jersey">EurekaClient without Jersey</a></h4>
+<h4 id="eurekaclient-without-jersey"><a class="anchor" href="#eurekaclient-without-jersey"></a><a class="link" href="#eurekaclient-without-jersey">1.8.1. EurekaClient without Jersey</a></h4>
 <div class="paragraph">
 <p>By default, EurekaClient uses Jersey for HTTP communication.
 If you wish to avoid dependencies from Jersey, you can exclude it from your dependencies.
@@ -570,7 +624,7 @@ The following example shows Jersey being excluded:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_alternatives_to_the_native_netflix_eurekaclient"><a class="link" href="#_alternatives_to_the_native_netflix_eurekaclient">Alternatives to the Native Netflix EurekaClient</a></h3>
+<h3 id="alternatives-to-the-native-netflix-eurekaclient"><a class="anchor" href="#alternatives-to-the-native-netflix-eurekaclient"></a><a class="link" href="#alternatives-to-the-native-netflix-eurekaclient">1.9. Alternatives to the Native Netflix EurekaClient</a></h3>
 <div class="paragraph">
 <p>You need not use the raw Netflix <code>EurekaClient</code>.
 Also, it is usually more convenient to use it behind a wrapper of some sort.
@@ -596,7 +650,7 @@ public String serviceUrl() {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_is_it_so_slow_to_register_a_service"><a class="link" href="#_why_is_it_so_slow_to_register_a_service">Why Is It so Slow to Register a Service?</a></h3>
+<h3 id="why-is-it-so-slow-to-register-a-service"><a class="anchor" href="#why-is-it-so-slow-to-register-a-service"></a><a class="link" href="#why-is-it-so-slow-to-register-a-service">1.10. Why Is It so Slow to Register a Service?</a></h3>
 <div class="paragraph">
 <p>Being an instance also involves a periodic heartbeat to the registry
 (through the client&#8217;s <code>serviceUrl</code>) with a default duration of 30 seconds.
@@ -608,7 +662,7 @@ In production, it is probably better to stick with the default, because of inter
 </div>
 </div>
 <div class="sect2">
-<h3 id="_zones"><a class="link" href="#_zones">Zones</a></h3>
+<h3 id="zones"><a class="anchor" href="#zones"></a><a class="link" href="#zones">1.11. Zones</a></h3>
 <div class="paragraph">
 <p>If you have deployed Eureka clients to multiple zones, you may prefer that those clients use services within the same zone before trying services in another zone.
 To set that up, you need to configure your Eureka clients correctly.</p>
@@ -644,7 +698,7 @@ eureka.client.preferSameZoneEureka = true</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_refreshing_eureka_clients"><a class="link" href="#_refreshing_eureka_clients">Refreshing Eureka Clients</a></h3>
+<h3 id="refreshing-eureka-clients"><a class="anchor" href="#refreshing-eureka-clients"></a><a class="link" href="#refreshing-eureka-clients">1.12. Refreshing Eureka Clients</a></h3>
 <div class="paragraph">
 <p>By default, the <code>EurekaClient</code> bean is refreshable, meaning the Eureka client properties can be changed and refreshed.
 When a refresh occurs clients will be unregistered from the Eureka server and there might be a brief moment of time
@@ -655,13 +709,13 @@ the ability to refresh Eureka clients.  To do this set <code>eureka.client.refre
 </div>
 </div>
 <div class="sect1">
-<h2 id="spring-cloud-eureka-server"><a class="link" href="#spring-cloud-eureka-server">Service Discovery: Eureka Server</a></h2>
+<h2 id="spring-cloud-eureka-server"><a class="anchor" href="#spring-cloud-eureka-server"></a><a class="link" href="#spring-cloud-eureka-server">2. Service Discovery: Eureka Server</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This section describes how to set up a Eureka server.</p>
 </div>
 <div class="sect2">
-<h3 id="netflix-eureka-server-starter"><a class="link" href="#netflix-eureka-server-starter">How to Include Eureka Server</a></h3>
+<h3 id="netflix-eureka-server-starter"><a class="anchor" href="#netflix-eureka-server-starter"></a><a class="link" href="#netflix-eureka-server-starter">2.1. How to Include Eureka Server</a></h3>
 <div class="paragraph">
 <p>To include Eureka Server in your project, use the starter with a group ID of <code>org.springframework.cloud</code> and an artifact ID of <code>spring-cloud-starter-netflix-eureka-server</code>.
 See the <a href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</a> for details on setting up your build system with the current Spring Cloud Release Train.</p>
@@ -689,7 +743,7 @@ If your project already uses Thymeleaf as its template engine, the Freemarker te
 </div>
 </div>
 <div class="sect2">
-<h3 id="spring-cloud-running-eureka-server"><a class="link" href="#spring-cloud-running-eureka-server">How to Run a Eureka Server</a></h3>
+<h3 id="spring-cloud-running-eureka-server"><a class="anchor" href="#spring-cloud-running-eureka-server"></a><a class="link" href="#spring-cloud-running-eureka-server">2.2. How to Run a Eureka Server</a></h3>
 <div class="paragraph">
 <p>The following example shows a minimal Eureka server:</p>
 </div>
@@ -747,7 +801,7 @@ dependencyManagement {
 </div>
 </div>
 <div class="sect2">
-<h3 id="spring-cloud-eureka-server-zones-and-regions"><a class="link" href="#spring-cloud-eureka-server-zones-and-regions">High Availability, Zones and Regions</a></h3>
+<h3 id="spring-cloud-eureka-server-zones-and-regions"><a class="anchor" href="#spring-cloud-eureka-server-zones-and-regions"></a><a class="link" href="#spring-cloud-eureka-server-zones-and-regions">2.3. High Availability, Zones and Regions</a></h3>
 <div class="paragraph">
 <p>The Eureka server does not have a back end store, but the service instances in the registry all have to send heartbeats to keep their registrations up to date (so this can be done in memory).
 Clients also have an in-memory cache of Eureka registrations (so they do not have to go to the registry for every request to a service).</p>
@@ -761,7 +815,7 @@ If you do not provide it, the service runs and works, but it fills your logs wit
 </div>
 </div>
 <div class="sect2">
-<h3 id="spring-cloud-eureka-server-standalone-mode"><a class="link" href="#spring-cloud-eureka-server-standalone-mode">Standalone Mode</a></h3>
+<h3 id="spring-cloud-eureka-server-standalone-mode"><a class="anchor" href="#spring-cloud-eureka-server-standalone-mode"></a><a class="link" href="#spring-cloud-eureka-server-standalone-mode">2.4. Standalone Mode</a></h3>
 <div class="paragraph">
 <p>The combination of the two caches (client and server) and the heartbeats make a standalone Eureka server fairly resilient to failure, as long as there is some sort of monitor or elastic runtime (such as Cloud Foundry) keeping it alive.
 In standalone mode, you might prefer to switch off the client side behavior so that it does not keep trying and failing to reach its peers.
@@ -788,7 +842,7 @@ eureka:
 </div>
 </div>
 <div class="sect2">
-<h3 id="spring-cloud-eureka-server-peer-awareness"><a class="link" href="#spring-cloud-eureka-server-peer-awareness">Peer Awareness</a></h3>
+<h3 id="spring-cloud-eureka-server-peer-awareness"><a class="anchor" href="#spring-cloud-eureka-server-peer-awareness"></a><a class="link" href="#spring-cloud-eureka-server-peer-awareness">2.5. Peer Awareness</a></h3>
 <div class="paragraph">
 <p>Eureka can be made even more resilient and available by running multiple instances and asking them to register with each other.
 In fact, this is the default behavior, so all you need to do to make it work is add a valid <code>serviceUrl</code> to a peer, as shown in the following example:</p>
@@ -862,7 +916,7 @@ eureka:
 </div>
 </div>
 <div class="sect2">
-<h3 id="spring-cloud-eureka-server-prefer-ip-address"><a class="link" href="#spring-cloud-eureka-server-prefer-ip-address">When to Prefer IP Address</a></h3>
+<h3 id="spring-cloud-eureka-server-prefer-ip-address"><a class="anchor" href="#spring-cloud-eureka-server-prefer-ip-address"></a><a class="link" href="#spring-cloud-eureka-server-prefer-ip-address">2.6. When to Prefer IP Address</a></h3>
 <div class="paragraph">
 <p>In some cases, it is preferable for Eureka to advertise the IP addresses of services rather than the hostname.
 Set <code>eureka.instance.preferIpAddress</code> to <code>true</code> and, when the application registers with eureka, it uses its IP address rather than its hostname.</p>
@@ -885,7 +939,7 @@ You can set your hostname at the run-time by using an environment variable&#8201
 </div>
 </div>
 <div class="sect2">
-<h3 id="_securing_the_eureka_server"><a class="link" href="#_securing_the_eureka_server">Securing The Eureka Server</a></h3>
+<h3 id="securing-the-eureka-server"><a class="anchor" href="#securing-the-eureka-server"></a><a class="link" href="#securing-the-eureka-server">2.7. Securing The Eureka Server</a></h3>
 <div class="paragraph">
 <p>You can secure your Eureka server simply by adding Spring Security to your
 server&#8217;s classpath via <code>spring-boot-starter-security</code>.  By default when Spring Security is on the classpath it will require that
@@ -914,7 +968,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_disabling_ribbon_with_eureka_server_and_client_starters"><a class="link" href="#_disabling_ribbon_with_eureka_server_and_client_starters">Disabling Ribbon with Eureka Server and Client starters</a></h3>
+<h3 id="disabling-ribbon-with-eureka-server-and-client-starters"><a class="anchor" href="#disabling-ribbon-with-eureka-server-and-client-starters"></a><a class="link" href="#disabling-ribbon-with-eureka-server-and-client-starters">2.8. Disabling Ribbon with Eureka Server and Client starters</a></h3>
 <div class="paragraph">
 <p><code>spring-cloud-starter-netflix-eureka-server</code> and <code>spring-cloud-starter-netflix-eureka-client</code> come along with
 a <code>spring-cloud-starter-netflix-ribbon</code>. Since Ribbon load-balancer is now in maintenance mode,
@@ -929,24 +983,24 @@ we suggest switching to using the Spring Cloud LoadBalancer, also included in Eu
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
-			&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-			&lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
-			&lt;exclusions&gt;
-				&lt;exclusion&gt;
-					&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-					&lt;artifactId&gt;spring-cloud-starter-ribbon&lt;/artifactId&gt;
-				&lt;/exclusion&gt;
-				&lt;exclusion&gt;
-					&lt;groupId&gt;com.netflix.ribbon&lt;/groupId&gt;
-					&lt;artifactId&gt;ribbon-eureka&lt;/artifactId&gt;
-				&lt;/exclusion&gt;
-			&lt;/exclusions&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+            &lt;exclusions&gt;
+                &lt;exclusion&gt;
+                    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+                    &lt;artifactId&gt;spring-cloud-starter-ribbon&lt;/artifactId&gt;
+                &lt;/exclusion&gt;
+                &lt;exclusion&gt;
+                    &lt;groupId&gt;com.netflix.ribbon&lt;/groupId&gt;
+                    &lt;artifactId&gt;ribbon-eureka&lt;/artifactId&gt;
+                &lt;/exclusion&gt;
+            &lt;/exclusions&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_jdk_11_support"><a class="link" href="#_jdk_11_support">JDK 11 Support</a></h3>
+<h3 id="jdk-11-support"><a class="anchor" href="#jdk-11-support"></a><a class="link" href="#jdk-11-support">2.9. JDK 11 Support</a></h3>
 <div class="paragraph">
 <p>The JAXB modules which the Eureka server depends upon were removed in JDK 11.  If you intend to use JDK 11
 when running a Eureka server you must include these dependencies in your POM or Gradle file.</p>
@@ -954,8 +1008,8 @@ when running a Eureka server you must include these dependencies in your POM or 
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
-	&lt;groupId&gt;org.glassfish.jaxb&lt;/groupId&gt;
-	&lt;artifactId&gt;jaxb-runtime&lt;/artifactId&gt;
+    &lt;groupId&gt;org.glassfish.jaxb&lt;/groupId&gt;
+    &lt;artifactId&gt;jaxb-runtime&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
 </div>
@@ -963,12 +1017,12 @@ when running a Eureka server you must include these dependencies in your POM or 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_circuit_breaker_spring_cloud_circuit_breaker_with_hystrix"><a class="link" href="#_circuit_breaker_spring_cloud_circuit_breaker_with_hystrix">Circuit Breaker: Spring Cloud Circuit Breaker With Hystrix</a></h2>
+<h2 id="circuit-breaker-spring-cloud-circuit-breaker-with-hystrix"><a class="anchor" href="#circuit-breaker-spring-cloud-circuit-breaker-with-hystrix"></a><a class="link" href="#circuit-breaker-spring-cloud-circuit-breaker-with-hystrix">3. Circuit Breaker: Spring Cloud Circuit Breaker With Hystrix</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_configuring_hystrix_circuit_breakers"><a class="link" href="#_configuring_hystrix_circuit_breakers">Configuring Hystrix Circuit Breakers</a></h3>
+<h3 id="configuring-hystrix-circuit-breakers"><a class="anchor" href="#configuring-hystrix-circuit-breakers"></a><a class="link" href="#configuring-hystrix-circuit-breakers">3.1. Configuring Hystrix Circuit Breakers</a></h3>
 <div class="sect3">
-<h4 id="_default_configuration"><a class="link" href="#_default_configuration">Default Configuration</a></h4>
+<h4 id="default-configuration"><a class="anchor" href="#default-configuration"></a><a class="link" href="#default-configuration">3.1.1. Default Configuration</a></h4>
 <div class="paragraph">
 <p>To provide a default configuration for all of your circuit breakers create a <code>Customize</code> bean that is passed a
 <code>HystrixCircuitBreakerFactory</code> or <code>ReactiveHystrixCircuitBreakerFactory</code>.
@@ -980,27 +1034,27 @@ The <code>configureDefault</code> method can be used to provide a default config
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
 public Customizer&lt;HystrixCircuitBreakerFactory&gt; defaultConfig() {
-	return factory -&gt; factory.configureDefault(id -&gt; HystrixCommand.Setter
-			.withGroupKey(HystrixCommandGroupKey.Factory.asKey(id))
-			.andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
-			.withExecutionTimeoutInMilliseconds(4000)));
+    return factory -&gt; factory.configureDefault(id -&gt; HystrixCommand.Setter
+            .withGroupKey(HystrixCommandGroupKey.Factory.asKey(id))
+            .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+            .withExecutionTimeoutInMilliseconds(4000)));
 }</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_reactive_example"><a class="link" href="#_reactive_example">Reactive Example</a></h5>
+<h5 id="reactive-example"><a class="anchor" href="#reactive-example"></a><a class="link" href="#reactive-example">Reactive Example</a></h5>
 <div class="exampleblock">
 <div class="content">
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
 public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; defaultConfig() {
-	return factory -&gt; factory.configureDefault(id -&gt; HystrixObservableCommand.Setter
-			.withGroupKey(HystrixCommandGroupKey.Factory.asKey(id))
-			.andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
-					.withExecutionTimeoutInMilliseconds(4000)));
+    return factory -&gt; factory.configureDefault(id -&gt; HystrixObservableCommand.Setter
+            .withGroupKey(HystrixCommandGroupKey.Factory.asKey(id))
+            .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+                    .withExecutionTimeoutInMilliseconds(4000)));
 }</code></pre>
 </div>
 </div>
@@ -1009,7 +1063,7 @@ public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; defaultConfig() {
 </div>
 </div>
 <div class="sect3">
-<h4 id="_specific_circuit_breaker_configuration"><a class="link" href="#_specific_circuit_breaker_configuration">Specific Circuit Breaker Configuration</a></h4>
+<h4 id="specific-circuit-breaker-configuration"><a class="anchor" href="#specific-circuit-breaker-configuration"></a><a class="link" href="#specific-circuit-breaker-configuration">3.1.2. Specific Circuit Breaker Configuration</a></h4>
 <div class="paragraph">
 <p>Similarly to providing a default configuration, you can create a <code>Customize</code> bean this is passed a
 <code>HystrixCircuitBreakerFactory</code></p>
@@ -1020,23 +1074,23 @@ public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; defaultConfig() {
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
 public Customizer&lt;HystrixCircuitBreakerFactory&gt; customizer() {
-	return factory -&gt; factory.configure(builder -&gt; builder.commandProperties(
-					HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(2000)), "foo", "bar");
+    return factory -&gt; factory.configure(builder -&gt; builder.commandProperties(
+                    HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(2000)), "foo", "bar");
 }</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_reactive_example_2"><a class="link" href="#_reactive_example_2">Reactive Example</a></h5>
+<h5 id="reactive-example-2"><a class="anchor" href="#reactive-example-2"></a><a class="link" href="#reactive-example-2">Reactive Example</a></h5>
 <div class="exampleblock">
 <div class="content">
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
 public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; customizer() {
-	return factory -&gt; factory.configure(builder -&gt; builder.commandProperties(
-					HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(2000)), "foo", "bar");
+    return factory -&gt; factory.configure(builder -&gt; builder.commandProperties(
+                    HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(2000)), "foo", "bar");
 }</code></pre>
 </div>
 </div>
@@ -1048,7 +1102,7 @@ public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; customizer() {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_circuit_breaker_hystrix_clients"><a class="link" href="#_circuit_breaker_hystrix_clients">Circuit Breaker: Hystrix Clients</a></h2>
+<h2 id="circuit-breaker-hystrix-clients"><a class="anchor" href="#circuit-breaker-hystrix-clients"></a><a class="link" href="#circuit-breaker-hystrix-clients">4. Circuit Breaker: Hystrix Clients</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Netflix has created a library called <a href="https://github.com/Netflix/Hystrix">Hystrix</a> that implements the <a href="https://martinfowler.com/bliki/CircuitBreaker.html">circuit breaker pattern</a>.
@@ -1077,7 +1131,7 @@ The fallback can be another Hystrix protected call, static data, or a sensible e
 Fallbacks may be chained so that the first fallback makes some other business call, which in turn falls back to static data.</p>
 </div>
 <div class="sect2">
-<h3 id="_how_to_include_hystrix"><a class="link" href="#_how_to_include_hystrix">How to Include Hystrix</a></h3>
+<h3 id="how-to-include-hystrix"><a class="anchor" href="#how-to-include-hystrix"></a><a class="link" href="#how-to-include-hystrix">4.1. How to Include Hystrix</a></h3>
 <div class="paragraph">
 <p>To include Hystrix in your project, use the starter with a group ID of <code>org.springframework.cloud</code>
 and a artifact ID of <code>spring-cloud-starter-netflix-hystrix</code>.
@@ -1126,7 +1180,7 @@ for details on the properties available.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="netflix-hystrix-starter"><a class="link" href="#netflix-hystrix-starter">Propagating the Security Context or Using Spring Scopes</a></h3>
+<h3 id="netflix-hystrix-starter"><a class="anchor" href="#netflix-hystrix-starter"></a><a class="link" href="#netflix-hystrix-starter">4.2. Propagating the Security Context or Using Spring Scopes</a></h3>
 <div class="paragraph">
 <p>If you want some thread local context to propagate into a <code>@HystrixCommand</code>, the default declaration does not work, because it executes the command in a thread pool (in case of timeouts).
 You can switch Hystrix to use the same thread as the caller through configuration or directly in the annotation, by asking it to use a different &#8220;Isolation Strategy&#8221;.
@@ -1154,7 +1208,7 @@ Spring Cloud looks for your implementation within the Spring context and wrap it
 </div>
 </div>
 <div class="sect2">
-<h3 id="_health_indicator"><a class="link" href="#_health_indicator">Health Indicator</a></h3>
+<h3 id="health-indicator"><a class="anchor" href="#health-indicator"></a><a class="link" href="#health-indicator">4.3. Health Indicator</a></h3>
 <div class="paragraph">
 <p>The state of the connected circuit breakers are also exposed in the <code>/health</code> endpoint of the calling application, as shown in the following example:</p>
 </div>
@@ -1173,7 +1227,7 @@ Spring Cloud looks for your implementation within the Spring context and wrap it
 </div>
 </div>
 <div class="sect2">
-<h3 id="_hystrix_metrics_stream"><a class="link" href="#_hystrix_metrics_stream">Hystrix Metrics Stream</a></h3>
+<h3 id="hystrix-metrics-stream"><a class="anchor" href="#hystrix-metrics-stream"></a><a class="link" href="#hystrix-metrics-stream">4.4. Hystrix Metrics Stream</a></h3>
 <div class="paragraph">
 <p>To enable the Hystrix metrics stream, include a dependency on <code>spring-boot-starter-actuator</code> and set
 <code>management.endpoints.web.exposure.include: hystrix.stream</code>.
@@ -1191,7 +1245,7 @@ Doing so exposes the <code>/actuator/hystrix.stream</code> as a management endpo
 </div>
 </div>
 <div class="sect1">
-<h2 id="_circuit_breaker_hystrix_dashboard"><a class="link" href="#_circuit_breaker_hystrix_dashboard">Circuit Breaker: Hystrix Dashboard</a></h2>
+<h2 id="circuit-breaker-hystrix-dashboard"><a class="anchor" href="#circuit-breaker-hystrix-dashboard"></a><a class="link" href="#circuit-breaker-hystrix-dashboard">5. Circuit Breaker: Hystrix Dashboard</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>One of the main benefits of Hystrix is the set of metrics it gathers about each HystrixCommand.
@@ -1206,7 +1260,7 @@ The Hystrix Dashboard displays the health of each circuit breaker in an efficien
 </div>
 </div>
 <div class="sect1">
-<h2 id="_hystrix_timeouts_and_ribbon_clients"><a class="link" href="#_hystrix_timeouts_and_ribbon_clients">Hystrix Timeouts And Ribbon Clients</a></h2>
+<h2 id="hystrix-timeouts-and-ribbon-clients"><a class="anchor" href="#hystrix-timeouts-and-ribbon-clients"></a><a class="link" href="#hystrix-timeouts-and-ribbon-clients">6. Hystrix Timeouts And Ribbon Clients</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>When using Hystrix commands that wrap Ribbon clients you want to make sure your Hystrix timeout
@@ -1216,7 +1270,7 @@ the Ribbon client might retry the request three times, than your Hystrix timeout
 be slightly more than three seconds.</p>
 </div>
 <div class="sect2">
-<h3 id="netflix-hystrix-dashboard-starter"><a class="link" href="#netflix-hystrix-dashboard-starter">How to Include the Hystrix Dashboard</a></h3>
+<h3 id="netflix-hystrix-dashboard-starter"><a class="anchor" href="#netflix-hystrix-dashboard-starter"></a><a class="link" href="#netflix-hystrix-dashboard-starter">6.1. How to Include the Hystrix Dashboard</a></h3>
 <div class="paragraph">
 <p>To include the Hystrix Dashboard in your project, use the starter with a group ID of  <code>org.springframework.cloud</code> and an artifact ID of <code>spring-cloud-starter-netflix-hystrix-dashboard</code>.
 See the <a href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</a> for details on setting up your build system with the current Spring Cloud Release Train.</p>
@@ -1240,7 +1294,7 @@ If the certificate is not trusted, you must import the certificate into the JVM 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_turbine"><a class="link" href="#_turbine">Turbine</a></h3>
+<h3 id="turbine"><a class="anchor" href="#turbine"></a><a class="link" href="#turbine">6.2. Turbine</a></h3>
 <div class="paragraph">
 <p>Looking at an individual instance&#8217;s Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.
 Individual instances are located through Eureka.
@@ -1276,7 +1330,7 @@ It can be overridden though with following configuration:
 The turbine stream is then used in the Hystrix dashboard with a URL similar to the following:</p>
 </div>
 <div class="paragraph">
-<p><code><a href="https://my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME" class="bare">https://my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME</a></code></p>
+<p><code><a href="https://my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME" class="bare">my.turbine.server:8080/turbine.stream?cluster=CLUSTERNAME</a></code></p>
 </div>
 <div class="paragraph">
 <p>The cluster parameter can be omitted if the name is <code>default</code>.
@@ -1340,7 +1394,7 @@ If you want the native Netflix behavior built into Turbine to <em>not</em> allow
 </table>
 </div>
 <div class="sect3">
-<h4 id="_clusters_endpoint"><a class="link" href="#_clusters_endpoint">Clusters Endpoint</a></h4>
+<h4 id="clusters-endpoint"><a class="anchor" href="#clusters-endpoint"></a><a class="link" href="#clusters-endpoint">6.2.1. Clusters Endpoint</a></h4>
 <div class="paragraph">
 <p>In some situations it might be useful for other applications to know what custers have been configured
 in Turbine.  To support this you can use the <code>/clusters</code> endpoint which will return a JSON array of
@@ -1367,7 +1421,7 @@ all the configured clusters.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_turbine_stream"><a class="link" href="#_turbine_stream">Turbine Stream</a></h3>
+<h3 id="turbine-stream"><a class="anchor" href="#turbine-stream"></a><a class="link" href="#turbine-stream">6.3. Turbine Stream</a></h3>
 <div class="paragraph">
 <p>In some environments (such as in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands does not work.
 In that case, you might want to have your Hystrix commands push metrics to Turbine. Spring Cloud enables that with messaging.
@@ -1381,7 +1435,7 @@ By default <code>spring-boot-starter-webflux</code> is included when adding <cod
 </div>
 <div class="paragraph">
 <p>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.
-If Turbine Stream is running on port 8989 on myhost, then put <code><a href="https://myhost:8989" class="bare">https://myhost:8989</a></code> in the stream input field in the Hystrix Dashboard.
+If Turbine Stream is running on port 8989 on myhost, then put <code><a href="https://myhost:8989" class="bare">myhost:8989</a></code> in the stream input field in the Hystrix Dashboard.
 Circuits are prefixed by their respective <code>serviceId</code>, followed by a dot (<code>.</code>), and then the circuit name.</p>
 </div>
 <div class="paragraph">
@@ -1423,7 +1477,7 @@ Turbine Stream server gathers all metrics from the configured input channel with
 </div>
 </div>
 <div class="sect1">
-<h2 id="spring-cloud-ribbon"><a class="link" href="#spring-cloud-ribbon">Client Side Load Balancer: Ribbon</a></h2>
+<h2 id="spring-cloud-ribbon"><a class="anchor" href="#spring-cloud-ribbon"></a><a class="link" href="#spring-cloud-ribbon">7. Client Side Load Balancer: Ribbon</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Ribbon is a client-side load balancer that gives you a lot of control over the behavior of HTTP and TCP clients.
@@ -1437,14 +1491,14 @@ On demand, Spring Cloud creates a new ensemble as an <code>ApplicationContext</c
 This contains (amongst other things) an <code>ILoadBalancer</code>, a <code>RestClient</code>, and a <code>ServerListFilter</code>.</p>
 </div>
 <div class="sect2">
-<h3 id="netflix-ribbon-starter"><a class="link" href="#netflix-ribbon-starter">How to Include Ribbon</a></h3>
+<h3 id="netflix-ribbon-starter"><a class="anchor" href="#netflix-ribbon-starter"></a><a class="link" href="#netflix-ribbon-starter">7.1. How to Include Ribbon</a></h3>
 <div class="paragraph">
 <p>To include Ribbon in your project, use the starter with a group ID of <code>org.springframework.cloud</code> and an artifact ID of <code>spring-cloud-starter-netflix-ribbon</code>.
 See the <a href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</a> for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_customizing_the_ribbon_client"><a class="link" href="#_customizing_the_ribbon_client">Customizing the Ribbon Client</a></h3>
+<h3 id="customizing-the-ribbon-client"><a class="anchor" href="#customizing-the-ribbon-client"></a><a class="link" href="#customizing-the-ribbon-client">7.2. Customizing the Ribbon Client</a></h3>
 <div class="paragraph">
 <p>You can configure some bits of a Ribbon client by using external properties in <code>&lt;client&gt;.ribbon.*</code>, which is similar to using the Netflix APIs natively, except that you can use Spring Boot configuration files.
 The native options can be inspected as static fields in <a href="https://github.com/Netflix/ribbon/blob/master/ribbon-core/src/main/java/com/netflix/client/config/CommonClientConfigKey.java"><code>CommonClientConfigKey</code></a> (part of ribbon-core).</p>
@@ -1538,17 +1592,17 @@ Otherwise, it is shared by all the <code>@RibbonClients</code>. If you use <code
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Configuration
 protected static class FooConfiguration {
 
-	@Bean
-	public ZonePreferenceServerListFilter serverListFilter() {
-		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-		filter.setZone("myTestZone");
-		return filter;
-	}
+    @Bean
+    public ZonePreferenceServerListFilter serverListFilter() {
+        ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
+        filter.setZone("myTestZone");
+        return filter;
+    }
 
-	@Bean
-	public IPing ribbonPing() {
-		return new PingUrl();
-	}
+    @Bean
+    public IPing ribbonPing() {
+        return new PingUrl();
+    }
 
 }</code></pre>
 </div>
@@ -1558,7 +1612,7 @@ protected static class FooConfiguration {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_customizing_the_default_for_all_ribbon_clients"><a class="link" href="#_customizing_the_default_for_all_ribbon_clients">Customizing the Default for All Ribbon Clients</a></h3>
+<h3 id="customizing-the-default-for-all-ribbon-clients"><a class="anchor" href="#customizing-the-default-for-all-ribbon-clients"></a><a class="link" href="#customizing-the-default-for-all-ribbon-clients">7.3. Customizing the Default for All Ribbon Clients</a></h3>
 <div class="paragraph">
 <p>A default configuration can be provided for all Ribbon Clients by using the <code>@RibbonClients</code> annotation and registering a default configuration, as shown in the following example:</p>
 </div>
@@ -1567,46 +1621,46 @@ protected static class FooConfiguration {
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
 public class RibbonClientDefaultConfigurationTestsConfig {
 
-	public static class BazServiceList extends ConfigurationBasedServerList {
+    public static class BazServiceList extends ConfigurationBasedServerList {
 
-		public BazServiceList(IClientConfig config) {
-			super.initWithNiwsConfig(config);
-		}
+        public BazServiceList(IClientConfig config) {
+            super.initWithNiwsConfig(config);
+        }
 
-	}
+    }
 
 }
 
 @Configuration
 class DefaultRibbonConfig {
 
-	@Bean
-	public IRule ribbonRule() {
-		return new BestAvailableRule();
-	}
+    @Bean
+    public IRule ribbonRule() {
+        return new BestAvailableRule();
+    }
 
-	@Bean
-	public IPing ribbonPing() {
-		return new PingUrl();
-	}
+    @Bean
+    public IPing ribbonPing() {
+        return new PingUrl();
+    }
 
-	@Bean
-	public ServerList&lt;Server&gt; ribbonServerList(IClientConfig config) {
-		return new RibbonClientDefaultConfigurationTestsConfig.BazServiceList(config);
-	}
+    @Bean
+    public ServerList&lt;Server&gt; ribbonServerList(IClientConfig config) {
+        return new RibbonClientDefaultConfigurationTestsConfig.BazServiceList(config);
+    }
 
-	@Bean
-	public ServerListSubsetFilter serverListFilter() {
-		ServerListSubsetFilter filter = new ServerListSubsetFilter();
-		return filter;
-	}
+    @Bean
+    public ServerListSubsetFilter serverListFilter() {
+        ServerListSubsetFilter filter = new ServerListSubsetFilter();
+        return filter;
+    }
 
 }</code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_customizing_the_ribbon_client_by_setting_properties"><a class="link" href="#_customizing_the_ribbon_client_by_setting_properties">Customizing the Ribbon Client by Setting Properties</a></h3>
+<h3 id="customizing-the-ribbon-client-by-setting-properties"><a class="anchor" href="#customizing-the-ribbon-client-by-setting-properties"></a><a class="link" href="#customizing-the-ribbon-client-by-setting-properties">7.4. Customizing the Ribbon Client by Setting Properties</a></h3>
 <div class="paragraph">
 <p>Starting with version 1.2.0, Spring Cloud Netflix now supports customizing Ribbon clients by setting properties to be compatible with the <a href="https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers#components-of-load-balancer">Ribbon documentation</a>.</p>
 </div>
@@ -1664,7 +1718,7 @@ Classes defined in these properties have precedence over beans defined by using 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_using_ribbon_with_eureka"><a class="link" href="#_using_ribbon_with_eureka">Using Ribbon with Eureka</a></h3>
+<h3 id="using-ribbon-with-eureka"><a class="anchor" href="#using-ribbon-with-eureka"></a><a class="link" href="#using-ribbon-with-eureka">7.5. Using Ribbon with Eureka</a></h3>
 <div class="paragraph">
 <p>When Eureka is used in conjunction with Ribbon (that is, both are on the classpath), the <code>ribbonServerList</code> is overridden with an extension of <code>DiscoveryEnabledNIWSServerList</code>, which populates the list of servers from Eureka.
 It also replaces the <code>IPing</code> interface with <code>NIWSDiscoveryPing</code>, which delegates to Eureka to determine if a server is up.
@@ -1703,7 +1757,7 @@ We take <code>eureka.client.availabilityZones</code>, which is a map from region
 </div>
 </div>
 <div class="sect2">
-<h3 id="spring-cloud-ribbon-without-eureka"><a class="link" href="#spring-cloud-ribbon-without-eureka">Example: How to Use Ribbon Without Eureka</a></h3>
+<h3 id="spring-cloud-ribbon-without-eureka"><a class="anchor" href="#spring-cloud-ribbon-without-eureka"></a><a class="link" href="#spring-cloud-ribbon-without-eureka">7.6. Example: How to Use Ribbon Without Eureka</a></h3>
 <div class="paragraph">
 <p>Eureka is a convenient way to abstract the discovery of remote servers so that you do not have to hard code their URLs in clients.
 However, if you prefer not to use Eureka, Ribbon and Feign also work.
@@ -1721,7 +1775,7 @@ You can supply the configuration as follows:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_example_disable_eureka_use_in_ribbon"><a class="link" href="#_example_disable_eureka_use_in_ribbon">Example: Disable Eureka Use in Ribbon</a></h3>
+<h3 id="example-disable-eureka-use-in-ribbon"><a class="anchor" href="#example-disable-eureka-use-in-ribbon"></a><a class="link" href="#example-disable-eureka-use-in-ribbon">7.7. Example: Disable Eureka Use in Ribbon</a></h3>
 <div class="paragraph">
 <p>Setting the <code>ribbon.eureka.enabled</code> property to <code>false</code> explicitly disables the use of Eureka in Ribbon, as shown in the following example:</p>
 </div>
@@ -1735,7 +1789,7 @@ You can supply the configuration as follows:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_using_the_ribbon_api_directly"><a class="link" href="#_using_the_ribbon_api_directly">Using the Ribbon API Directly</a></h3>
+<h3 id="using-the-ribbon-api-directly"><a class="anchor" href="#using-the-ribbon-api-directly"></a><a class="link" href="#using-the-ribbon-api-directly">7.8. Using the Ribbon API Directly</a></h3>
 <div class="paragraph">
 <p>You can also use the <code>LoadBalancerClient</code> directly, as shown in the following example:</p>
 </div>
@@ -1755,7 +1809,7 @@ You can supply the configuration as follows:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ribbon-child-context-eager-load"><a class="link" href="#ribbon-child-context-eager-load">Caching of Ribbon Configuration</a></h3>
+<h3 id="ribbon-child-context-eager-load"><a class="anchor" href="#ribbon-child-context-eager-load"></a><a class="link" href="#ribbon-child-context-eager-load">7.9. Caching of Ribbon Configuration</a></h3>
 <div class="paragraph">
 <p>Each Ribbon named client has a corresponding child application Context that Spring Cloud maintains.
 This application context is lazily loaded on the first request to the named client.
@@ -1772,7 +1826,7 @@ This lazy loading behavior can be changed to instead eagerly load these child ap
 </div>
 </div>
 <div class="sect2">
-<h3 id="how-to-configure-hystrix-thread-pools"><a class="link" href="#how-to-configure-hystrix-thread-pools">How to Configure Hystrix Thread Pools</a></h3>
+<h3 id="how-to-configure-hystrix-thread-pools"><a class="anchor" href="#how-to-configure-hystrix-thread-pools"></a><a class="link" href="#how-to-configure-hystrix-thread-pools">7.10. How to Configure Hystrix Thread Pools</a></h3>
 <div class="paragraph">
 <p>If you change <code>zuul.ribbonIsolationStrategy</code> to <code>THREAD</code>, the thread isolation strategy for Hystrix is used for all routes.
 In that case, the <code>HystrixThreadPoolKey</code> is set to <code>RibbonCommand</code> as the default.
@@ -1805,7 +1859,7 @@ To add a prefix to <code>HystrixThreadPoolKey</code>, set <code>zuul.threadPool.
 </div>
 </div>
 <div class="sect2">
-<h3 id="how-to-provdie-a-key-to-ribbon"><a class="link" href="#how-to-provdie-a-key-to-ribbon">How to Provide a Key to Ribbon&#8217;s <code>IRule</code></a></h3>
+<h3 id="how-to-provdie-a-key-to-ribbon"><a class="anchor" href="#how-to-provdie-a-key-to-ribbon"></a><a class="link" href="#how-to-provdie-a-key-to-ribbon">7.11. How to Provide a Key to Ribbon&#8217;s <code>IRule</code></a></h3>
 <div class="paragraph">
 <p>If you need to provide your own <code>IRule</code> implementation to handle a special routing requirement like a &#8220;canary&#8221; test, pass some information to the <code>choose</code> method of <code>IRule</code>.</p>
 </div>
@@ -1837,7 +1891,7 @@ If you do not put any value with <code>LOAD_BALANCER_KEY</code> in <code>Request
 </div>
 </div>
 <div class="sect1">
-<h2 id="_external_configuration_archaius"><a class="link" href="#_external_configuration_archaius">External Configuration: Archaius</a></h2>
+<h2 id="external-configuration-archaius"><a class="anchor" href="#external-configuration-archaius"></a><a class="link" href="#external-configuration-archaius">8. External Configuration: Archaius</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://github.com/Netflix/archaius">Archaius</a> is the Netflix client-side configuration library.
@@ -1869,7 +1923,7 @@ This bridge allows Spring Boot projects to use the normal configuration toolchai
 </div>
 </div>
 <div class="sect1">
-<h2 id="_router_and_filter_zuul"><a class="link" href="#_router_and_filter_zuul">Router and Filter: Zuul</a></h2>
+<h2 id="router-and-filter-zuul"><a class="anchor" href="#router-and-filter-zuul"></a><a class="link" href="#router-and-filter-zuul">9. Router and Filter: Zuul</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Routing is an integral part of a microservice architecture.
@@ -1942,14 +1996,14 @@ The default Hystrix isolation pattern (<code>ExecutionIsolationStrategy</code>) 
 </table>
 </div>
 <div class="sect2">
-<h3 id="netflix-zuul-starter"><a class="link" href="#netflix-zuul-starter">How to Include Zuul</a></h3>
+<h3 id="netflix-zuul-starter"><a class="anchor" href="#netflix-zuul-starter"></a><a class="link" href="#netflix-zuul-starter">9.1. How to Include Zuul</a></h3>
 <div class="paragraph">
 <p>To include Zuul in your project, use the starter with a group ID of <code>org.springframework.cloud</code> and a artifact ID of <code>spring-cloud-starter-netflix-zuul</code>.
 See the <a href="https://projects.spring.io/spring-cloud/">Spring Cloud Project page</a> for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="netflix-zuul-reverse-proxy"><a class="link" href="#netflix-zuul-reverse-proxy">Embedded Zuul Reverse Proxy</a></h3>
+<h3 id="netflix-zuul-reverse-proxy"><a class="anchor" href="#netflix-zuul-reverse-proxy"></a><a class="link" href="#netflix-zuul-reverse-proxy">9.2. Embedded Zuul Reverse Proxy</a></h3>
 <div class="paragraph">
 <p>Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more back end services.
 This feature is useful for a user interface to proxy to the back end services it requires, avoiding the need to manage CORS and authentication concerns independently for all the back ends.</p>
@@ -2202,7 +2256,7 @@ path, rendering the <code>users</code> path unreachable.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_zuul_http_client"><a class="link" href="#_zuul_http_client">Zuul Http Client</a></h3>
+<h3 id="zuul-http-client"><a class="anchor" href="#zuul-http-client"></a><a class="link" href="#zuul-http-client">9.3. Zuul Http Client</a></h3>
 <div class="paragraph">
 <p>The default HTTP client used by Zuul is now backed by the Apache HTTP Client instead of the deprecated Ribbon <code>RestClient</code>.
 To use <code>RestClient</code> or <code>okhttp3.OkHttpClient</code>, set <code>ribbon.restclient.enabled=true</code> or <code>ribbon.okhttp.enabled=true</code>, respectively.
@@ -2210,7 +2264,7 @@ If you would like to customize the Apache HTTP client or the OK HTTP client, pro
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cookies_and_sensitive_headers"><a class="link" href="#_cookies_and_sensitive_headers">Cookies and Sensitive Headers</a></h3>
+<h3 id="cookies-and-sensitive-headers"><a class="anchor" href="#cookies-and-sensitive-headers"></a><a class="link" href="#cookies-and-sensitive-headers">9.4. Cookies and Sensitive Headers</a></h3>
 <div class="paragraph">
 <p>You can share headers between services in the same system, but you probably do not want sensitive headers leaking downstream into external servers.
 You can specify a list of ignored headers as part of the route configuration.
@@ -2272,7 +2326,7 @@ If <code>sensitiveHeaders</code> is set on a route, it overrides the global <cod
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ignored_headers"><a class="link" href="#_ignored_headers">Ignored Headers</a></h3>
+<h3 id="ignored-headers"><a class="anchor" href="#ignored-headers"></a><a class="link" href="#ignored-headers">9.5. Ignored Headers</a></h3>
 <div class="paragraph">
 <p>In addition to the route-sensitive headers, you can set a global value called <code>zuul.ignoredHeaders</code> for values (both request and response) that should be discarded during interactions with downstream services.
 By default, if Spring Security is not on the classpath, these are empty.
@@ -2283,7 +2337,7 @@ Doing so can be useful if you disabled the HTTP Security response headers in Spr
 </div>
 </div>
 <div class="sect2">
-<h3 id="_management_endpoints"><a class="link" href="#_management_endpoints">Management Endpoints</a></h3>
+<h3 id="management-endpoints"><a class="anchor" href="#management-endpoints"></a><a class="link" href="#management-endpoints">9.6. Management Endpoints</a></h3>
 <div class="paragraph">
 <p>By default, if you use <code>@EnableZuulProxy</code> with the Spring Boot Actuator, you enable two additional endpoints:</p>
 </div>
@@ -2298,7 +2352,7 @@ Doing so can be useful if you disabled the HTTP Security response headers in Spr
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_routes_endpoint"><a class="link" href="#_routes_endpoint">Routes Endpoint</a></h4>
+<h4 id="routes-endpoint"><a class="anchor" href="#routes-endpoint"></a><a class="link" href="#routes-endpoint">9.6.1. Routes Endpoint</a></h4>
 <div class="paragraph">
 <p>A GET to the routes endpoint at <code>/routes</code> returns a list of the mapped routes:</p>
 </div>
@@ -2350,7 +2404,7 @@ to happen immediately.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_filters_endpoint"><a class="link" href="#_filters_endpoint">Filters Endpoint</a></h4>
+<h4 id="filters-endpoint"><a class="anchor" href="#filters-endpoint"></a><a class="link" href="#filters-endpoint">9.6.2. Filters Endpoint</a></h4>
 <div class="paragraph">
 <p>A <code>GET</code> to the filters endpoint at <code>/filters</code> returns a map of Zuul filters by type.
 For each filter type in the map, you get a list of all the filters of that type, along with their details.</p>
@@ -2358,7 +2412,7 @@ For each filter type in the map, you get a list of all the filters of that type,
 </div>
 </div>
 <div class="sect2">
-<h3 id="_strangulation_patterns_and_local_forwards"><a class="link" href="#_strangulation_patterns_and_local_forwards">Strangulation Patterns and Local Forwards</a></h3>
+<h3 id="strangulation-patterns-and-local-forwards"><a class="anchor" href="#strangulation-patterns-and-local-forwards"></a><a class="link" href="#strangulation-patterns-and-local-forwards">9.7. Strangulation Patterns and Local Forwards</a></h3>
 <div class="paragraph">
 <p>A common pattern when migrating an existing application or API is to &#8220;strangle&#8221; old endpoints, slowly replacing them with different implementations.
 The Zuul proxy is a useful tool for this because you can use it to handle all traffic from the clients of the old endpoints but redirect some of the requests to new ones.</p>
@@ -2405,7 +2459,7 @@ The ignored patterns aren&#8217;t completely ignored, they just are not handled 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_uploading_files_through_zuul"><a class="link" href="#_uploading_files_through_zuul">Uploading Files through Zuul</a></h3>
+<h3 id="uploading-files-through-zuul"><a class="anchor" href="#uploading-files-through-zuul"></a><a class="link" href="#uploading-files-through-zuul">9.8. Uploading Files through Zuul</a></h3>
 <div class="paragraph">
 <p>If you use <code>@EnableZuulProxy</code>, you can use the proxy paths to upload files and it should work, so long as the files are small.
 For large files there is an alternative path that bypasses the Spring <code>DispatcherServlet</code> (to avoid multipart processing) in "/zuul/*".
@@ -2433,7 +2487,7 @@ ribbon:
 </div>
 </div>
 <div class="sect2">
-<h3 id="_query_string_encoding"><a class="link" href="#_query_string_encoding">Query String Encoding</a></h3>
+<h3 id="query-string-encoding"><a class="anchor" href="#query-string-encoding"></a><a class="link" href="#query-string-encoding">9.9. Query String Encoding</a></h3>
 <div class="paragraph">
 <p>When processing the incoming request, query params are decoded so that they can be available for possible modifications in Zuul filters.
 They are then re-encoded the back end request is rebuilt in the route filters.
@@ -2466,7 +2520,7 @@ the query string is now fetched directly on the original <code>HttpServletReques
 </div>
 </div>
 <div class="sect2">
-<h3 id="_request_uri_encoding"><a class="link" href="#_request_uri_encoding">Request URI Encoding</a></h3>
+<h3 id="request-uri-encoding"><a class="anchor" href="#request-uri-encoding"></a><a class="link" href="#request-uri-encoding">9.10. Request URI Encoding</a></h3>
 <div class="paragraph">
 <p>When processing the incoming request, request URI is decoded before matching them to routes.
 The request URI is then re-encoded when the back end request is rebuilt in the route filters.
@@ -2496,7 +2550,7 @@ If you are overriding request URI using <code>requestURI</code> RequestContext a
 </div>
 </div>
 <div class="sect2">
-<h3 id="_plain_embedded_zuul"><a class="link" href="#_plain_embedded_zuul">Plain Embedded Zuul</a></h3>
+<h3 id="plain-embedded-zuul"><a class="anchor" href="#plain-embedded-zuul"></a><a class="link" href="#plain-embedded-zuul">9.11. Plain Embedded Zuul</a></h3>
 <div class="paragraph">
 <p>If you use <code>@EnableZuulServer</code> (instead of <code>@EnableZuulProxy</code>), you can also run a Zuul server without proxying or selectively switch on parts of the proxying platform.
 Any beans that you add to the application of type <code>ZuulFilter</code> are installed automatically (as they are with <code>@EnableZuulProxy</code>) but without any of the proxy filters being added automatically.</p>
@@ -2515,7 +2569,7 @@ The following example maps all paths in "/api/**" to the Zuul filter chain:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_disable_zuul_filters"><a class="link" href="#_disable_zuul_filters">Disable Zuul Filters</a></h3>
+<h3 id="disable-zuul-filters"><a class="anchor" href="#disable-zuul-filters"></a><a class="link" href="#disable-zuul-filters">9.12. Disable Zuul Filters</a></h3>
 <div class="paragraph">
 <p>Zuul for Spring Cloud comes with a number of <code>ZuulFilter</code> beans enabled by default in both proxy and server mode.
 See <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-zuul/src/main/java/org/springframework/cloud/netflix/zuul/filters">the Zuul filters package</a> for the list of filters that you can enable.
@@ -2525,7 +2579,7 @@ For example to disable <code>org.springframework.cloud.netflix.zuul.filters.post
 </div>
 </div>
 <div class="sect2">
-<h3 id="hystrix-fallbacks-for-routes"><a class="link" href="#hystrix-fallbacks-for-routes">Providing Hystrix Fallbacks For Routes</a></h3>
+<h3 id="hystrix-fallbacks-for-routes"><a class="anchor" href="#hystrix-fallbacks-for-routes"></a><a class="link" href="#hystrix-fallbacks-for-routes">9.13. Providing Hystrix Fallbacks For Routes</a></h3>
 <div class="paragraph">
 <p>When a circuit for a given route in Zuul is tripped, you can provide a fallback response by creating a bean of type <code>FallbackProvider</code>.
 Within this bean, you need to specify the route ID the fallback is for and provide a <code>ClientHttpResponse</code> to return as a fallback.
@@ -2648,7 +2702,7 @@ The following example shows a relatively simple <code>FallbackProvider</code> im
 </div>
 </div>
 <div class="sect2">
-<h3 id="_zuul_timeouts"><a class="link" href="#_zuul_timeouts">Zuul Timeouts</a></h3>
+<h3 id="zuul-timeouts"><a class="anchor" href="#zuul-timeouts"></a><a class="link" href="#zuul-timeouts">9.14. Zuul Timeouts</a></h3>
 <div class="paragraph">
 <p>If you want to configure the socket timeouts and read timeouts for requests proxied through Zuul, you have two options, based on your configuration:</p>
 </div>
@@ -2666,7 +2720,7 @@ The following example shows a relatively simple <code>FallbackProvider</code> im
 </div>
 </div>
 <div class="sect2">
-<h3 id="zuul-redirect-location-rewrite"><a class="link" href="#zuul-redirect-location-rewrite">Rewriting the <code>Location</code> header</a></h3>
+<h3 id="zuul-redirect-location-rewrite"><a class="anchor" href="#zuul-redirect-location-rewrite"></a><a class="link" href="#zuul-redirect-location-rewrite">9.15. Rewriting the <code>Location</code> header</a></h3>
 <div class="paragraph">
 <p>If Zuul is fronting a web application, you may need to re-write the <code>Location</code> header when the web application redirects through a HTTP status code of <code>3XX</code>.
 Otherwise, the browser redirects to the web application&#8217;s URL instead of the Zuul URL.
@@ -2703,7 +2757,7 @@ Use this filter carefully. The filter acts on the <code>Location</code> header o
 </div>
 </div>
 <div class="sect2">
-<h3 id="_enabling_cross_origin_requests"><a class="link" href="#_enabling_cross_origin_requests">Enabling Cross Origin Requests</a></h3>
+<h3 id="enabling-cross-origin-requests"><a class="anchor" href="#enabling-cross-origin-requests"></a><a class="link" href="#enabling-cross-origin-requests">9.16. Enabling Cross Origin Requests</a></h3>
 <div class="paragraph">
 <p>By default Zuul routes all Cross Origin requests (CORS) to the services. If you want instead Zuul to handle these requests it can be done by providing custom <code>WebMvcConfigurer</code> bean:</p>
 </div>
@@ -2722,13 +2776,13 @@ public WebMvcConfigurer corsConfigurer() {
 </div>
 </div>
 <div class="paragraph">
-<p>In the example above, we allow <code>GET</code> and <code>POST</code> methods from <code><a href="https://allowed-origin.com" class="bare">https://allowed-origin.com</a></code> to send cross-origin requests to the endpoints starting with <code>path-1</code>.
+<p>In the example above, we allow <code>GET</code> and <code>POST</code> methods from <code><a href="https://allowed-origin.com" class="bare">allowed-origin.com</a></code> to send cross-origin requests to the endpoints starting with <code>path-1</code>.
 You can apply CORS configuration to a specific path pattern or globally for the whole application, using <code>/**</code> mapping.
 You can customize properties: <code>allowedOrigins</code>,<code>allowedMethods</code>,<code>allowedHeaders</code>,<code>exposedHeaders</code>,<code>allowCredentials</code> and <code>maxAge</code> via this configuration.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_metrics"><a class="link" href="#_metrics">Metrics</a></h3>
+<h3 id="metrics"><a class="anchor" href="#metrics"></a><a class="link" href="#metrics">9.17. Metrics</a></h3>
 <div class="paragraph">
 <p>Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
 These metrics can be viewed by hitting <code>/actuator/metrics</code>.  The metrics will have a name that has the format
@@ -2736,12 +2790,12 @@ These metrics can be viewed by hitting <code>/actuator/metrics</code>.  The metr
 </div>
 </div>
 <div class="sect2">
-<h3 id="zuul-developer-guide"><a class="link" href="#zuul-developer-guide">Zuul Developer Guide</a></h3>
+<h3 id="zuul-developer-guide"><a class="anchor" href="#zuul-developer-guide"></a><a class="link" href="#zuul-developer-guide">9.18. Zuul Developer Guide</a></h3>
 <div class="paragraph">
 <p>For a general overview of how Zuul works, see <a href="https://github.com/Netflix/zuul/wiki/How-it-Works">the Zuul Wiki</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="_the_zuul_servlet"><a class="link" href="#_the_zuul_servlet">The Zuul Servlet</a></h4>
+<h4 id="the-zuul-servlet"><a class="anchor" href="#the-zuul-servlet"></a><a class="link" href="#the-zuul-servlet">9.18.1. The Zuul Servlet</a></h4>
 <div class="paragraph">
 <p>Zuul is implemented as a Servlet. For the general cases, Zuul is embedded into the Spring Dispatch mechanism. This lets Spring MVC be in control of the routing.
 In this case, Zuul buffers requests.
@@ -2751,7 +2805,7 @@ This path can be changed with the <code>zuul.servlet-path</code> property.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_zuul_requestcontext"><a class="link" href="#_zuul_requestcontext">Zuul RequestContext</a></h4>
+<h4 id="zuul-requestcontext"><a class="anchor" href="#zuul-requestcontext"></a><a class="link" href="#zuul-requestcontext">9.18.2. Zuul RequestContext</a></h4>
 <div class="paragraph">
 <p>To pass information between filters, Zuul uses a <a href="https://github.com/Netflix/zuul/blob/1.x/zuul-core/src/main/java/com/netflix/zuul/context/RequestContext.java"><code>RequestContext</code></a>.
 Its data is held in a <code>ThreadLocal</code> specific to each request.
@@ -2760,13 +2814,13 @@ The <code>RequestContext</code> extends <code>ConcurrentHashMap</code>, so anyth
 </div>
 </div>
 <div class="sect3">
-<h4 id="_enablezuulproxy_vs_enablezuulserver"><a class="link" href="#_enablezuulproxy_vs_enablezuulserver"><code>@EnableZuulProxy</code> vs. <code>@EnableZuulServer</code></a></h4>
+<h4 id="enablezuulproxy-vs-enablezuulserver"><a class="anchor" href="#enablezuulproxy-vs-enablezuulserver"></a><a class="link" href="#enablezuulproxy-vs-enablezuulserver">9.18.3. <code>@EnableZuulProxy</code> vs. <code>@EnableZuulServer</code></a></h4>
 <div class="paragraph">
 <p>Spring Cloud Netflix installs a number of filters, depending on which annotation was used to enable Zuul. <code>@EnableZuulProxy</code> is a superset of <code>@EnableZuulServer</code>. In other words, <code>@EnableZuulProxy</code> contains all the filters installed by <code>@EnableZuulServer</code>. The additional filters in the &#8220;proxy&#8221; enable routing functionality. If you want a &#8220;blank&#8221; Zuul, you should use <code>@EnableZuulServer</code>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="zuul-developer-guide-enable-filters"><a class="link" href="#zuul-developer-guide-enable-filters"><code>@EnableZuulServer</code> Filters</a></h4>
+<h4 id="zuul-developer-guide-enable-filters"><a class="anchor" href="#zuul-developer-guide-enable-filters"></a><a class="link" href="#zuul-developer-guide-enable-filters">9.18.4. <code>@EnableZuulServer</code> Filters</a></h4>
 <div class="paragraph">
 <p><code>@EnableZuulServer</code> creates a <code>SimpleRouteLocator</code> that loads route definitions from Spring Boot configuration files.</p>
 </div>
@@ -2825,7 +2879,7 @@ The <code>RequestContext</code> extends <code>ConcurrentHashMap</code>, so anyth
 </div>
 </div>
 <div class="sect3">
-<h4 id="_enablezuulproxy_filters"><a class="link" href="#_enablezuulproxy_filters"><code>@EnableZuulProxy</code> Filters</a></h4>
+<h4 id="enablezuulproxy-filters"><a class="anchor" href="#enablezuulproxy-filters"></a><a class="link" href="#enablezuulproxy-filters">9.18.5. <code>@EnableZuulProxy</code> Filters</a></h4>
 <div class="paragraph">
 <p>Creates a <code>DiscoveryClientRouteLocator</code> that loads route definitions from a <code>DiscoveryClient</code> (such as Eureka) as well as from properties. A route is created for each <code>serviceId</code> from the <code>DiscoveryClient</code>. As new services are added, the routes are refreshed.</p>
 </div>
@@ -2874,7 +2928,7 @@ The <code>RequestContext</code> extends <code>ConcurrentHashMap</code>, so anyth
 </div>
 </div>
 <div class="sect3">
-<h4 id="_custom_zuul_filter_examples"><a class="link" href="#_custom_zuul_filter_examples">Custom Zuul Filter Examples</a></h4>
+<h4 id="custom-zuul-filter-examples"><a class="anchor" href="#custom-zuul-filter-examples"></a><a class="link" href="#custom-zuul-filter-examples">9.18.6. Custom Zuul Filter Examples</a></h4>
 <div class="paragraph">
 <p>Most of the following "How to Write" examples below are included <a href="https://github.com/spring-cloud-samples/sample-zuul-filters">Sample Zuul Filters</a> project. There are also examples of manipulating the request or response body in that repository.</p>
 </div>
@@ -2895,7 +2949,7 @@ The <code>RequestContext</code> extends <code>ConcurrentHashMap</code>, so anyth
 </ul>
 </div>
 <div class="sect4">
-<h5 id="zuul-developer-guide-sample-pre-filter"><a class="link" href="#zuul-developer-guide-sample-pre-filter">How to Write a Pre Filter</a></h5>
+<h5 id="zuul-developer-guide-sample-pre-filter"><a class="anchor" href="#zuul-developer-guide-sample-pre-filter"></a><a class="link" href="#zuul-developer-guide-sample-pre-filter">How to Write a Pre Filter</a></h5>
 <div class="paragraph">
 <p>Pre filters set up data in the <code>RequestContext</code> for use in filters downstream.
 The main use case is to set information required for route filters.
@@ -2904,30 +2958,30 @@ The following example shows a Zuul pre filter:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class QueryParamPreFilter extends ZuulFilter {
-	@Override
-	public int filterOrder() {
-		return PRE_DECORATION_FILTER_ORDER - 1; // run before PreDecoration
-	}
+    @Override
+    public int filterOrder() {
+        return PRE_DECORATION_FILTER_ORDER - 1; // run before PreDecoration
+    }
 
-	@Override
-	public String filterType() {
-		return PRE_TYPE;
-	}
+    @Override
+    public String filterType() {
+        return PRE_TYPE;
+    }
 
-	@Override
-	public boolean shouldFilter() {
-		RequestContext ctx = RequestContext.getCurrentContext();
-		return !ctx.containsKey(FORWARD_TO_KEY) // a filter has already forwarded
-				&amp;&amp; !ctx.containsKey(SERVICE_ID_KEY); // a filter has already determined serviceId
-	}
+    @Override
+    public boolean shouldFilter() {
+        RequestContext ctx = RequestContext.getCurrentContext();
+        return !ctx.containsKey(FORWARD_TO_KEY) // a filter has already forwarded
+                &amp;&amp; !ctx.containsKey(SERVICE_ID_KEY); // a filter has already determined serviceId
+    }
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-		HttpServletRequest request = ctx.getRequest();
-		if (request.getParameter("sample") != null) {
-		    // put the serviceId in `RequestContext`
-    		ctx.put(SERVICE_ID_KEY, request.getParameter("foo"));
-    	}
+        HttpServletRequest request = ctx.getRequest();
+        if (request.getParameter("sample") != null) {
+            // put the serviceId in `RequestContext`
+            ctx.put(SERVICE_ID_KEY, request.getParameter("foo"));
+        }
         return null;
     }
 }</code></pre>
@@ -2957,7 +3011,7 @@ If you want to route to a full URL, call <code>ctx.setRouteHost(url)</code> inst
 </div>
 </div>
 <div class="sect4">
-<h5 id="zuul-developer-guide-sample-route-filter"><a class="link" href="#zuul-developer-guide-sample-route-filter">How to Write a Route Filter</a></h5>
+<h5 id="zuul-developer-guide-sample-route-filter"><a class="anchor" href="#zuul-developer-guide-sample-route-filter"></a><a class="link" href="#zuul-developer-guide-sample-route-filter">How to Write a Route Filter</a></h5>
 <div class="paragraph">
 <p>Route filters run after pre filters and make requests to other services.
 Much of the work here is to translate request and response data to and from the model required by the client.
@@ -2966,78 +3020,78 @@ The following example shows a Zuul route filter:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class OkHttpRoutingFilter extends ZuulFilter {
-	@Autowired
-	private ProxyRequestHelper helper;
+    @Autowired
+    private ProxyRequestHelper helper;
 
-	@Override
-	public String filterType() {
-		return ROUTE_TYPE;
-	}
+    @Override
+    public String filterType() {
+        return ROUTE_TYPE;
+    }
 
-	@Override
-	public int filterOrder() {
-		return SIMPLE_HOST_ROUTING_FILTER_ORDER - 1;
-	}
+    @Override
+    public int filterOrder() {
+        return SIMPLE_HOST_ROUTING_FILTER_ORDER - 1;
+    }
 
-	@Override
-	public boolean shouldFilter() {
-		return RequestContext.getCurrentContext().getRouteHost() != null
-				&amp;&amp; RequestContext.getCurrentContext().sendZuulResponse();
-	}
+    @Override
+    public boolean shouldFilter() {
+        return RequestContext.getCurrentContext().getRouteHost() != null
+                &amp;&amp; RequestContext.getCurrentContext().sendZuulResponse();
+    }
 
     @Override
     public Object run() {
-		OkHttpClient httpClient = new OkHttpClient.Builder()
-				// customize
-				.build();
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                // customize
+                .build();
 
-		RequestContext context = RequestContext.getCurrentContext();
-		HttpServletRequest request = context.getRequest();
+        RequestContext context = RequestContext.getCurrentContext();
+        HttpServletRequest request = context.getRequest();
 
-		String method = request.getMethod();
+        String method = request.getMethod();
 
-		String uri = this.helper.buildZuulRequestURI(request);
+        String uri = this.helper.buildZuulRequestURI(request);
 
-		Headers.Builder headers = new Headers.Builder();
-		Enumeration&lt;String&gt; headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String name = headerNames.nextElement();
-			Enumeration&lt;String&gt; values = request.getHeaders(name);
+        Headers.Builder headers = new Headers.Builder();
+        Enumeration&lt;String&gt; headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String name = headerNames.nextElement();
+            Enumeration&lt;String&gt; values = request.getHeaders(name);
 
-			while (values.hasMoreElements()) {
-				String value = values.nextElement();
-				headers.add(name, value);
-			}
-		}
+            while (values.hasMoreElements()) {
+                String value = values.nextElement();
+                headers.add(name, value);
+            }
+        }
 
-		InputStream inputStream = request.getInputStream();
+        InputStream inputStream = request.getInputStream();
 
-		RequestBody requestBody = null;
-		if (inputStream != null &amp;&amp; HttpMethod.permitsRequestBody(method)) {
-			MediaType mediaType = null;
-			if (headers.get("Content-Type") != null) {
-				mediaType = MediaType.parse(headers.get("Content-Type"));
-			}
-			requestBody = RequestBody.create(mediaType, StreamUtils.copyToByteArray(inputStream));
-		}
+        RequestBody requestBody = null;
+        if (inputStream != null &amp;&amp; HttpMethod.permitsRequestBody(method)) {
+            MediaType mediaType = null;
+            if (headers.get("Content-Type") != null) {
+                mediaType = MediaType.parse(headers.get("Content-Type"));
+            }
+            requestBody = RequestBody.create(mediaType, StreamUtils.copyToByteArray(inputStream));
+        }
 
-		Request.Builder builder = new Request.Builder()
-				.headers(headers.build())
-				.url(uri)
-				.method(method, requestBody);
+        Request.Builder builder = new Request.Builder()
+                .headers(headers.build())
+                .url(uri)
+                .method(method, requestBody);
 
-		Response response = httpClient.newCall(builder.build()).execute();
+        Response response = httpClient.newCall(builder.build()).execute();
 
-		LinkedMultiValueMap&lt;String, String&gt; responseHeaders = new LinkedMultiValueMap&lt;&gt;();
+        LinkedMultiValueMap&lt;String, String&gt; responseHeaders = new LinkedMultiValueMap&lt;&gt;();
 
-		for (Map.Entry&lt;String, List&lt;String&gt;&gt; entry : response.headers().toMultimap().entrySet()) {
-			responseHeaders.put(entry.getKey(), entry.getValue());
-		}
+        for (Map.Entry&lt;String, List&lt;String&gt;&gt; entry : response.headers().toMultimap().entrySet()) {
+            responseHeaders.put(entry.getKey(), entry.getValue());
+        }
 
-		this.helper.setResponse(response.code(), response.body().byteStream(),
-				responseHeaders);
-		context.setRouteHost(null); // prevent SimpleHostRoutingFilter from running
-		return null;
+        this.helper.setResponse(response.code(), response.body().byteStream(),
+                responseHeaders);
+        context.setRouteHost(null); // prevent SimpleHostRoutingFilter from running
+        return null;
     }
 }</code></pre>
 </div>
@@ -3047,35 +3101,35 @@ The following example shows a Zuul route filter:</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="zuul-developer-guide-sample-post-filter"><a class="link" href="#zuul-developer-guide-sample-post-filter">How to Write a Post Filter</a></h5>
+<h5 id="zuul-developer-guide-sample-post-filter"><a class="anchor" href="#zuul-developer-guide-sample-post-filter"></a><a class="link" href="#zuul-developer-guide-sample-post-filter">How to Write a Post Filter</a></h5>
 <div class="paragraph">
 <p>Post filters typically manipulate the response. The following filter adds a random <code>UUID</code> as the <code>X-Sample</code> header:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class AddResponseHeaderFilter extends ZuulFilter {
-	@Override
-	public String filterType() {
-		return POST_TYPE;
-	}
+    @Override
+    public String filterType() {
+        return POST_TYPE;
+    }
 
-	@Override
-	public int filterOrder() {
-		return SEND_RESPONSE_FILTER_ORDER - 1;
-	}
+    @Override
+    public int filterOrder() {
+        return SEND_RESPONSE_FILTER_ORDER - 1;
+    }
 
-	@Override
-	public boolean shouldFilter() {
-		return true;
-	}
+    @Override
+    public boolean shouldFilter() {
+        return true;
+    }
 
-	@Override
-	public Object run() {
-		RequestContext context = RequestContext.getCurrentContext();
-    	HttpServletResponse servletResponse = context.getResponse();
-		servletResponse.addHeader("X-Sample", UUID.randomUUID().toString());
-		return null;
-	}
+    @Override
+    public Object run() {
+        RequestContext context = RequestContext.getCurrentContext();
+        HttpServletResponse servletResponse = context.getResponse();
+        servletResponse.addHeader("X-Sample", UUID.randomUUID().toString());
+        return null;
+    }
 }</code></pre>
 </div>
 </div>
@@ -3094,7 +3148,7 @@ Other manipulations, such as transforming the response body, are much more compl
 </div>
 </div>
 <div class="sect3">
-<h4 id="_how_zuul_errors_work"><a class="link" href="#_how_zuul_errors_work">How Zuul Errors Work</a></h4>
+<h4 id="how-zuul-errors-work"><a class="anchor" href="#how-zuul-errors-work"></a><a class="link" href="#how-zuul-errors-work">9.18.7. How Zuul Errors Work</a></h4>
 <div class="paragraph">
 <p>If an exception is thrown during any portion of the Zuul filter lifecycle, the error filters are executed.
 The <code>SendErrorFilter</code> is only run if <code>RequestContext.getThrowable()</code> is not <code>null</code>.
@@ -3102,7 +3156,7 @@ It then sets specific <code>javax.servlet.error.*</code> attributes in the reque
 </div>
 </div>
 <div class="sect3">
-<h4 id="_zuul_eager_application_context_loading"><a class="link" href="#_zuul_eager_application_context_loading">Zuul Eager Application Context Loading</a></h4>
+<h4 id="zuul-eager-application-context-loading"><a class="anchor" href="#zuul-eager-application-context-loading"></a><a class="link" href="#zuul-eager-application-context-loading">9.18.8. Zuul Eager Application Context Loading</a></h4>
 <div class="paragraph">
 <p>Zuul internally uses Ribbon for calling the remote URLs.
 By default, Ribbon clients are lazily loaded by Spring Cloud on first call.
@@ -3123,7 +3177,7 @@ The following example shows how to enable eager loading:</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_polyglot_support_with_sidecar"><a class="link" href="#_polyglot_support_with_sidecar">Polyglot support with Sidecar</a></h2>
+<h2 id="polyglot-support-with-sidecar"><a class="anchor" href="#polyglot-support-with-sidecar"></a><a class="link" href="#polyglot-support-with-sidecar">10. Polyglot support with Sidecar</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Do you have non-JVM languages with which you want to take advantage of Eureka, Ribbon, and Config Server?
@@ -3201,19 +3255,19 @@ The following example response for <code>/hosts/customers</code> returns two ins
 </div>
 </div>
 <div class="paragraph">
-<p>This API is accessible to the non-JVM application (if the sidecar is on port 5678) at <code><a href="http://localhost:5678/hosts/{serviceId}" class="bare">http://localhost:5678/hosts/{serviceId}</a></code>.</p>
+<p>This API is accessible to the non-JVM application (if the sidecar is on port 5678) at <code><a href="http://localhost:5678/hosts/{serviceId}" class="bare">localhost:5678/hosts/{serviceId}</a></code>.</p>
 </div>
 <div class="paragraph">
 <p>The Zuul proxy automatically adds routes for each service known in Eureka to <code>/&lt;serviceId&gt;</code>, so the customers service is available at <code>/customers</code>.
-The non-JVM application can access the customer service at <code><a href="http://localhost:5678/customers" class="bare">http://localhost:5678/customers</a></code> (assuming the sidecar is listening on port 5678).</p>
+The non-JVM application can access the customer service at <code><a href="http://localhost:5678/customers" class="bare">localhost:5678/customers</a></code> (assuming the sidecar is listening on port 5678).</p>
 </div>
 <div class="paragraph">
 <p>If the Config Server is registered with Eureka, the non-JVM application can access it through the Zuul proxy.
-If the <code>serviceId</code> of the ConfigServer is <code>configserver</code> and the Sidecar is on port 5678, then it can be accessed at <a href="http://localhost:5678/configserver" class="bare">http://localhost:5678/configserver</a>.</p>
+If the <code>serviceId</code> of the ConfigServer is <code>configserver</code> and the Sidecar is on port 5678, then it can be accessed at <a href="http://localhost:5678/configserver" class="bare">localhost:5678/configserver</a>.</p>
 </div>
 <div class="paragraph">
 <p>Non-JVM applications can take advantage of the Config Server&#8217;s ability to return YAML documents.
-For example, a call to <a href="https://sidecar.local.spring.io:5678/configserver/default-master.yml" class="bare">https://sidecar.local.spring.io:5678/configserver/default-master.yml</a>
+For example, a call to <a href="https://sidecar.local.spring.io:5678/configserver/default-master.yml" class="bare">sidecar.local.spring.io:5678/configserver/default-master.yml</a>
 might result in a YAML document resembling the following:</p>
 </div>
 <div class="listingblock">
@@ -3234,7 +3288,7 @@ info:
 </div>
 </div>
 <div class="sect1">
-<h2 id="retrying-failed-requests"><a class="link" href="#retrying-failed-requests">Retrying Failed Requests</a></h2>
+<h2 id="retrying-failed-requests"><a class="anchor" href="#retrying-failed-requests"></a><a class="link" href="#retrying-failed-requests">11. Retrying Failed Requests</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Spring Cloud Netflix offers a variety of ways to make HTTP requests.
@@ -3245,7 +3299,7 @@ To do so when using Sping Cloud Netflix, you need to include <a href="https://gi
 When Spring Retry is present, load-balanced <code>RestTemplates</code>, Feign, and Zuul automatically retry any failed requests (assuming your configuration allows doing so).</p>
 </div>
 <div class="sect2">
-<h3 id="_backoff_policies"><a class="link" href="#_backoff_policies">BackOff Policies</a></h3>
+<h3 id="backoff-policies"><a class="anchor" href="#backoff-policies"></a><a class="link" href="#backoff-policies">11.1. BackOff Policies</a></h3>
 <div class="paragraph">
 <p>By default, no backoff policy is used when retrying requests.
 If you would like to configure a backoff policy, you need to create a bean of type <code>LoadBalancedRetryFactory</code> and override the <code>createBackOffPolicy</code> method for a given service, as shown in the following example:</p>
@@ -3268,7 +3322,7 @@ public class MyConfiguration {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuration"><a class="link" href="#_configuration">Configuration</a></h3>
+<h3 id="configuration"><a class="anchor" href="#configuration"></a><a class="link" href="#configuration">11.2. Configuration</a></h3>
 <div class="paragraph">
 <p>When you use Ribbon with Spring Retry, you can control the retry functionality by configuring certain Ribbon properties.
 To do so, set the <code>client.ribbon.MaxAutoRetries</code>, <code>client.ribbon.MaxAutoRetriesNextServer</code>, and <code>client.ribbon.OkToRetryOnAllOperations</code> properties.
@@ -3314,7 +3368,7 @@ You can list the response codes you would like the Ribbon client to retry by set
 <p>You can also create a bean of type <code>LoadBalancedRetryPolicy</code> and implement the <code>retryableStatusCode</code> method to retry a request given the status code.</p>
 </div>
 <div class="sect3">
-<h4 id="_zuul"><a class="link" href="#_zuul">Zuul</a></h4>
+<h4 id="zuul"><a class="anchor" href="#zuul"></a><a class="link" href="#zuul">11.2.1. Zuul</a></h4>
 <div class="paragraph">
 <p>You can turn off Zuul&#8217;s retry functionality by setting <code>zuul.retryable</code> to <code>false</code>.
 You can also disable retry functionality on a route-by-route basis by setting <code>zuul.routes.routename.retryable</code> to <code>false</code>.</p>
@@ -3324,7 +3378,7 @@ You can also disable retry functionality on a route-by-route basis by setting <c
 </div>
 </div>
 <div class="sect1">
-<h2 id="_http_clients"><a class="link" href="#_http_clients">HTTP Clients</a></h2>
+<h2 id="http-clients"><a class="anchor" href="#http-clients"></a><a class="link" href="#http-clients">12. HTTP Clients</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Spring Cloud Netflix automatically creates the HTTP client used by Ribbon, Feign, and Zuul for you.
@@ -3348,7 +3402,7 @@ Doing so improperly can result in resource management issues.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_modules_in_maintenance_mode"><a class="link" href="#_modules_in_maintenance_mode">Modules In Maintenance Mode</a></h2>
+<h2 id="modules-in-maintenance-mode"><a class="anchor" href="#modules-in-maintenance-mode"></a><a class="link" href="#modules-in-maintenance-mode">13. Modules In Maintenance Mode</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Placing a module in maintenance mode means that the Spring Cloud team will no longer be adding new features to the module.
@@ -3403,6 +3457,14 @@ This does not include the Eureka or concurrency-limits modules.
 </td>
 </tr>
 </table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration-properties"><a class="anchor" href="#configuration-properties"></a><a class="link" href="#configuration-properties">14. Configuration properties</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To see the list of all Spring Cloud Netflix related configuration properties please check <a href="appendix.html">the Appendix page</a>.</p>
 </div>
 </div>
 </div>
