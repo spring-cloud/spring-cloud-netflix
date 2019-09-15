@@ -50,7 +50,6 @@ import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
 import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistryAutoConfiguration;
@@ -83,12 +82,12 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Ryan Baxter
  * @author Daniel Lavoie
  * @author Olga Maciaszek-Sharma
+ * @author Tim Ysewyn
  */
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @Import(DiscoveryClientOptionalArgsConfiguration.class)
-@ConditionalOnBean(EurekaDiscoveryClientConfiguration.Marker.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @ConditionalOnDiscoveryEnabled
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
@@ -223,12 +222,6 @@ public class EurekaClientAutoConfiguration {
 		if (metadataMap.get("jmx.port") == null && jmxPort != null) {
 			metadataMap.put("jmx.port", String.valueOf(jmxPort));
 		}
-	}
-
-	@Bean
-	public DiscoveryClient discoveryClient(EurekaClient client,
-			EurekaClientConfig clientConfig) {
-		return new EurekaDiscoveryClient(client, clientConfig);
 	}
 
 	@Bean

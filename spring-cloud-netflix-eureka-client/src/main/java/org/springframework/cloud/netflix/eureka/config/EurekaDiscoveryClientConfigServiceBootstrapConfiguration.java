@@ -18,9 +18,11 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.client.ReactiveCommonsClientAutoConfiguration;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
+import org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClientConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -38,7 +40,9 @@ import org.springframework.context.annotation.Import;
 		// @EnableDiscoveryClient, the import
 		// selector doesn't run before the
 		// bootstrap phase
-		EurekaClientAutoConfiguration.class })
+		EurekaClientAutoConfiguration.class,
+		EurekaReactiveDiscoveryClientConfiguration.class,
+		ReactiveCommonsClientAutoConfiguration.class })
 public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
 
 }
