@@ -188,16 +188,19 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public FormBodyWrapperFilter formBodyWrapperFilter() {
 		return new FormBodyWrapperFilter();
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public DebugFilter debugFilter() {
 		return new DebugFilter();
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Servlet30WrapperFilter servlet30WrapperFilter() {
 		return new Servlet30WrapperFilter();
 	}
