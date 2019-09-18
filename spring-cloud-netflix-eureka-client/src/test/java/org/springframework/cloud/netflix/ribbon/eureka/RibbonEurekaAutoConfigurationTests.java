@@ -66,12 +66,7 @@ public class RibbonEurekaAutoConfigurationTests {
 		@Bean
 		public CommandLineRunner commandLineRunner(
 				final TestLoadbalancerClient testLoadbalancerClient) {
-			return new CommandLineRunner() {
-				@Override
-				public void run(String... args) throws Exception {
-					testLoadbalancerClient.doStuff();
-				}
-			};
+			return args -> testLoadbalancerClient.doStuff();
 		}
 
 	}
