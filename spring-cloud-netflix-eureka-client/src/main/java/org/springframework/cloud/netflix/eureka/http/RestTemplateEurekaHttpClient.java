@@ -113,7 +113,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Void> statusUpdate(String appName, String id,
 			InstanceStatus newStatus, InstanceInfo info) {
-		String urlPath = serviceUrl + "apps/" + appName + '/' + id + "?status="
+		String urlPath = serviceUrl + "apps/" + appName + '/' + id + "/status?value="
 				+ newStatus.name() + "&lastDirtyTimestamp="
 				+ info.getLastDirtyTimestamp().toString();
 
