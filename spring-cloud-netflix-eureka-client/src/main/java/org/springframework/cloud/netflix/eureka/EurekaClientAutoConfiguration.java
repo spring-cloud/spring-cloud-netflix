@@ -144,8 +144,8 @@ public class EurekaClientAutoConfiguration {
 				.parseBoolean(getProperty("eureka.instance.secure-port-enabled"));
 
 		String serverContextPath = env.getProperty("server.servlet.context-path", "/");
-		int serverPort = Integer
-				.parseInt(env.getProperty("server.port", env.getProperty("port", "8080")));
+		int serverPort = Integer.parseInt(
+				env.getProperty("server.port", env.getProperty("port", "8080")));
 
 		Integer managementPort = env.getProperty("management.server.port", Integer.class);
 		String managementContextPath = env
