@@ -147,19 +147,11 @@ public class EurekaClientAutoConfiguration {
 		int serverPort = Integer.parseInt(
 				env.getProperty("server.port", env.getProperty("port", "8080")));
 
-		Integer managementPort = env.getProperty("management.server.port", Integer.class); // nullable.
-		// should
-		// be
-		// wrapped
-		// into
-		// optional
+		Integer managementPort = env.getProperty("management.server.port", Integer.class);
 		String managementContextPath = env
-				.getProperty("management.server.servlet.context-path"); // nullable.
-																		// should
-		// be wrapped into
-		// optional
+				.getProperty("management.server.servlet.context-path");
 		Integer jmxPort = env.getProperty("com.sun.management.jmxremote.port",
-				Integer.class); // nullable
+				Integer.class);
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 
 		instance.setNonSecurePort(serverPort);
