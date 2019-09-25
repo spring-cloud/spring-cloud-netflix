@@ -110,7 +110,7 @@ public class TurbineStreamTests {
 	}
 
 	private boolean containsMetrics(String line) {
-		return line.startsWith("data:") && !line.contains("Ping");
+		return line.startsWith("data:") && !line.contains("ping");
 	}
 
 	@SuppressWarnings("unchecked")
