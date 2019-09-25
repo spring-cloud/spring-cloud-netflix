@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
@@ -26,10 +28,13 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.actuate.health.CompositeHealthIndicator;
 import org.springframework.boot.actuate.health.DefaultHealthIndicatorRegistry;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthAggregator;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.HealthIndicatorRegistryFactory;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.actuate.health.StatusAggregator;
+import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthIndicator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -46,7 +51,9 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
  * all registered {@link HealthIndicator} through registered {@link HealthAggregator}.
  *
  * @author Jakub Narloch
+ * @author Spencer Gibb
  * @see HealthCheckHandler
+ * @see StatusAggregator
  * @see HealthAggregator
  */
 public class EurekaHealthCheckHandler
@@ -61,20 +68,34 @@ public class EurekaHealthCheckHandler
 		}
 	};
 
-	private CompositeHealthIndicator healthIndicator;
+	private StatusAggregator statusAggregator;
 
 	private ApplicationContext applicationContext;
 
+	private Map<String, HealthIndicator> healthIndicators;
+
+	@Deprecated
+	private CompositeHealthIndicator healthIndicator;
+
+	@Deprecated
 	private HealthIndicatorRegistryFactory healthIndicatorRegistryFactory;
 
+	@Deprecated
 	private HealthAggregator healthAggregator;
 
+	@Deprecated
 	public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
 		Assert.notNull(healthAggregator, "HealthAggregator must not be null");
 		this.healthAggregator = healthAggregator;
 		this.healthIndicatorRegistryFactory = new HealthIndicatorRegistryFactory();
 		this.healthIndicator = new CompositeHealthIndicator(this.healthAggregator,
 				new DefaultHealthIndicatorRegistry());
+	}
+
+	public EurekaHealthCheckHandler(StatusAggregator statusAggregator) {
+		this.statusAggregator = statusAggregator;
+		Assert.notNull(statusAggregator, "StatusAggregator must not be null");
+
 	}
 
 	@Override
@@ -87,8 +108,18 @@ public class EurekaHealthCheckHandler
 	public void afterPropertiesSet() throws Exception {
 		final Map<String, HealthIndicator> healthIndicators = applicationContext
 				.getBeansOfType(HealthIndicator.class);
-		Map<String, HealthIndicator> finalHealthIndicators = new HashMap<>();
+		this.healthIndicators = new HashMap<>();
 
+		if (statusAggregator != null) {
+			populateHealthIndicators(healthIndicators);
+		}
+		else {
+			createHealthIndicator(healthIndicators);
+		}
+	}
+
+	@Deprecated
+	void createHealthIndicator(Map<String, HealthIndicator> healthIndicators) {
 		for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
 
 			// ignore EurekaHealthIndicator and flatten the rest of the composite
@@ -99,18 +130,39 @@ public class EurekaHealthCheckHandler
 				for (DiscoveryCompositeHealthIndicator.Holder holder : indicator
 						.getHealthIndicators()) {
 					if (!(holder.getDelegate() instanceof EurekaHealthIndicator)) {
-						finalHealthIndicators.put(holder.getDelegate().getName(), holder);
+						this.healthIndicators.put(holder.getDelegate().getName(), holder);
 					}
 				}
 
 			}
 			else {
-				finalHealthIndicators.put(entry.getKey(), entry.getValue());
+				this.healthIndicators.put(entry.getKey(), entry.getValue());
 			}
 		}
 		this.healthIndicator = new CompositeHealthIndicator(healthAggregator,
 				healthIndicatorRegistryFactory
-						.createHealthIndicatorRegistry(finalHealthIndicators));
+						.createHealthIndicatorRegistry(this.healthIndicators));
+	}
+
+	void populateHealthIndicators(Map<String, HealthIndicator> healthIndicators) {
+		for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
+			// ignore EurekaHealthIndicator and flatten the rest of the composite
+			// otherwise there is a never ending cycle of down. See gh-643
+			if (entry.getValue() instanceof DiscoveryCompositeHealthContributor) {
+				DiscoveryCompositeHealthContributor indicator = (DiscoveryCompositeHealthContributor) entry
+						.getValue();
+				indicator.forEach(contributor -> {
+					if (!(contributor
+							.getContributor() instanceof EurekaHealthIndicator)) {
+						this.healthIndicators.put(contributor.getName(),
+								(HealthIndicator) contributor.getContributor());
+					}
+				});
+			}
+			else {
+				this.healthIndicators.put(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	@Override
@@ -119,8 +171,30 @@ public class EurekaHealthCheckHandler
 	}
 
 	protected InstanceStatus getHealthStatus() {
-		final Status status = getHealthIndicator().health().getStatus();
+		final Status status;
+		if (statusAggregator != null) {
+			status = getStatus(statusAggregator);
+		}
+		else {
+			status = getStatus(getHealthIndicator());
+		}
 		return mapToInstanceStatus(status);
+	}
+
+	@Deprecated
+	private Status getStatus(CompositeHealthIndicator healthIndicator) {
+		Status status;
+		status = healthIndicator.health().getStatus();
+		return status;
+	}
+
+	protected Status getStatus(StatusAggregator statusAggregator) {
+		Status status;
+		Set<Status> statusSet = healthIndicators.values().stream()
+				.map(HealthIndicator::health).map(Health::getStatus)
+				.collect(Collectors.toSet());
+		status = statusAggregator.getAggregateStatus(statusSet);
+		return status;
 	}
 
 	protected InstanceStatus mapToInstanceStatus(Status status) {
@@ -130,6 +204,7 @@ public class EurekaHealthCheckHandler
 		return STATUS_MAPPING.get(status);
 	}
 
+	@Deprecated
 	protected CompositeHealthIndicator getHealthIndicator() {
 		return healthIndicator;
 	}

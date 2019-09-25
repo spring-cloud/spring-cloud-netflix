@@ -46,7 +46,7 @@ public class TestAutoConfiguration {
 		}
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			StrictHttpFirewall httpFirewall = new StrictHttpFirewall();
 			httpFirewall.setAllowSemicolon(true);
 			web.httpFirewall(httpFirewall);
