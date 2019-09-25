@@ -59,14 +59,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-				// TODO: we don't need this if we harmonize the turbine and hystrix
-				// destinations
-				// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
-				"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
-				"spring.jmx.enabled=true", "stubrunner.workOffline=true",
-				"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.2.0.BUILD-SNAPSHOT}:stubs",
-				"logging.level.org.springframework=DEBUG"
-})
+		// TODO: we don't need this if we harmonize the turbine and hystrix
+		// destinations
+		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
+		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
+		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
+		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.2.0.BUILD-SNAPSHOT}:stubs",
+		"logging.level.org.springframework=DEBUG" })
 @AutoConfigureStubRunner(stubsMode = StubsMode.LOCAL)
 public class TurbineStreamTests {
 
