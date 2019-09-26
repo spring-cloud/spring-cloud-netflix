@@ -21,8 +21,8 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.HealthAggregator;
-import org.springframework.boot.actuate.health.OrderedHealthAggregator;
+import org.springframework.boot.actuate.health.SimpleStatusAggregator;
+import org.springframework.boot.actuate.health.StatusAggregator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -69,12 +69,12 @@ public class EurekaDiscoveryClientConfiguration {
 	protected static class EurekaHealthCheckHandlerConfiguration {
 
 		@Autowired(required = false)
-		private HealthAggregator healthAggregator = new OrderedHealthAggregator();
+		private StatusAggregator statusAggregator = new SimpleStatusAggregator();
 
 		@Bean
 		@ConditionalOnMissingBean(HealthCheckHandler.class)
 		public EurekaHealthCheckHandler eurekaHealthCheckHandler() {
-			return new EurekaHealthCheckHandler(this.healthAggregator);
+			return new EurekaHealthCheckHandler(this.statusAggregator);
 		}
 
 	}

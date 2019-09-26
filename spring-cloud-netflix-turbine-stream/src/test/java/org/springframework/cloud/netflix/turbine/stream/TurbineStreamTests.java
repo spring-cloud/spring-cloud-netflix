@@ -24,24 +24,18 @@ import java.net.URI;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.contract.stubrunner.StubTrigger;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
@@ -64,14 +58,14 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Daniel Lavoie
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TurbineStreamTests.Application.class,
-		webEnvironment = RANDOM_PORT, properties = {
-				// TODO: we don't need this if we harmonize the turbine and hystrix
-				// destinations
-				// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
-				"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
-				"spring.jmx.enabled=true", "stubrunner.workOffline=true",
-				"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.2.0.BUILD-SNAPSHOT}:stubs" })
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
+		// TODO: we don't need this if we harmonize the turbine and hystrix
+		// destinations
+		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
+		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
+		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
+		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.2.0.BUILD-SNAPSHOT}:stubs",
+		"logging.level.org.springframework=DEBUG" })
 @AutoConfigureStubRunner(stubsMode = StubsMode.LOCAL)
 public class TurbineStreamTests {
 
@@ -94,7 +88,6 @@ public class TurbineStreamTests {
 	int port;
 
 	@Test
-	@Ignore
 	public void contextLoads() throws Exception {
 		rest.getInterceptors().add(new NonClosingInterceptor());
 		int count = ((MessageChannelMetrics) input).getSendCount();
@@ -110,7 +103,7 @@ public class TurbineStreamTests {
 	}
 
 	private boolean containsMetrics(String line) {
-		return line.startsWith("data:") && !line.contains("Ping");
+		return line.startsWith("data:") && !line.contains("ping");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -149,28 +142,8 @@ public class TurbineStreamTests {
 
 	@EnableAutoConfiguration
 	@EnableTurbineStream
-	public static class Application {
-
-		// Workaround for stub runner lowercasing id somewhere
-		@Bean
-		BeanDefinitionRegistryPostProcessor myBeanDefinitionRegistryPostProcessor() {
-			return new BeanDefinitionRegistryPostProcessor() {
-				@Override
-				public void postProcessBeanDefinitionRegistry(
-						BeanDefinitionRegistry registry) throws BeansException {
-					BeanDefinition beanDefinition = registry
-							.getBeanDefinition(TurbineStreamClient.INPUT);
-					registry.registerBeanDefinition(
-							TurbineStreamClient.INPUT.toLowerCase(), beanDefinition);
-				}
-
-				@Override
-				public void postProcessBeanFactory(
-						ConfigurableListableBeanFactory beanFactory)
-						throws BeansException {
-				}
-			};
-		}
+	@Configuration
+	public static class TestConfig {
 
 	}
 
