@@ -65,13 +65,7 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 
 	@Bean
 	public HealthCheckHandler healthCheckHandler() {
-		return new HealthCheckHandler() {
-			@Override
-			public InstanceInfo.InstanceStatus getStatus(
-					InstanceInfo.InstanceStatus currentStatus) {
-				return InstanceInfo.InstanceStatus.UP;
-			}
-		};
+		return currentStatus -> InstanceInfo.InstanceStatus.UP;
 	}
 
 	@RequestMapping("/")

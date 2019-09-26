@@ -84,7 +84,7 @@ public class RefreshablePeerEurekaNodesTests {
 				"eureka.client.region=unavailable-region", // to force defaultZone
 				"eureka.client.service-url.defaultZone=http://default-host1:8678/eureka/");
 		this.context.publishEvent(new EnvironmentChangeEvent(
-				new HashSet<String>(Arrays.asList(USE_DNS, DEFAULT_ZONE))));
+				new HashSet<>(Arrays.asList(USE_DNS, DEFAULT_ZONE))));
 
 		assertThat(serviceUrlMatches("http://default-host1:8678/eureka/")).as(
 				"PeerEurekaNodes' are updated when eureka.client.use-dns-for-fetching-service-urls is true")
@@ -97,7 +97,7 @@ public class RefreshablePeerEurekaNodesTests {
 				"eureka.client.region=unavailable-region", // to force defaultZone
 				"eureka.client.service-url.defaultZone=http://default-host2:8678/eureka/");
 		this.context.publishEvent(new EnvironmentChangeEvent(
-				new HashSet<String>(Arrays.asList(USE_DNS, DEFAULT_ZONE))));
+				new HashSet<>(Arrays.asList(USE_DNS, DEFAULT_ZONE))));
 
 		assertThat(serviceUrlMatches("http://default-host2:8678/eureka/")).as(
 				"PeerEurekaNodes' are not updated when eureka.client.use-dns-for-fetching-service-urls is false")
