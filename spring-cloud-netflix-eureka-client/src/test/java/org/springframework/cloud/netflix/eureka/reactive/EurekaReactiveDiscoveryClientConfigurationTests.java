@@ -44,8 +44,8 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 	public void shouldWorkWithDefaults() {
 		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(ReactiveDiscoveryClient.class);
-			assertThat(context).hasSingleBean(
-					ReactiveDiscoveryClientHealthIndicator.class);
+			assertThat(context)
+					.hasSingleBean(ReactiveDiscoveryClientHealthIndicator.class);
 		});
 	}
 

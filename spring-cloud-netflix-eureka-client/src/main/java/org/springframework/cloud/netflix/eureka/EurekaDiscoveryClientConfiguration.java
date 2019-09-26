@@ -29,7 +29,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.ConditionalOnBlockingDiscoveryEnabled;
 import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
 import org.springframework.context.ApplicationListener;
@@ -52,13 +51,20 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnBlockingDiscoveryEnabled
 public class EurekaDiscoveryClientConfiguration {
 
+	/**
+	 * Deprecated in favor of auto configuration order.
+	 * @return Marker bean
+	 * @deprecated in favor of auto configuration order.
+	 */
+	@Deprecated
 	@Bean
 	public Marker eurekaDiscoverClientMarker() {
 		return new Marker();
 	}
 
 	@Bean
-	public DiscoveryClient discoveryClient(EurekaClient client,
+	@ConditionalOnMissingBean
+	public EurekaDiscoveryClient discoveryClient(EurekaClient client,
 			EurekaClientConfig clientConfig) {
 		return new EurekaDiscoveryClient(client, clientConfig);
 	}
@@ -79,6 +85,12 @@ public class EurekaDiscoveryClientConfiguration {
 
 	}
 
+	/**
+	 * Deprecated in favor of auto configuration order.
+	 *
+	 * @deprecated in favor of auto configuration order.
+	 */
+	@Deprecated
 	class Marker {
 
 	}
