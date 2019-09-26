@@ -66,7 +66,7 @@ public class DomainExtractingServerListTests {
 
 	@Test
 	public void testZoneInMetaData() {
-		this.metadata = new HashMap<String, String>();
+		this.metadata = new HashMap<>();
 		this.metadata.put("zone", "us-west-1");
 		this.metadata.put("instanceId", INSTANCE_ID);
 		DomainExtractingServerList serverList = getDomainExtractingServerList(

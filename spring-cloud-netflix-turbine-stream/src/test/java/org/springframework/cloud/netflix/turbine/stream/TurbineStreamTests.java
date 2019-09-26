@@ -64,8 +64,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
 		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
-		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.2.0.BUILD-SNAPSHOT}:stubs",
-		"logging.level.org.springframework=DEBUG" })
+		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.1.3.BUILD-SNAPSHOT}:stubs" })
 @AutoConfigureStubRunner(stubsMode = StubsMode.LOCAL)
 public class TurbineStreamTests {
 

@@ -131,10 +131,9 @@ public class EurekaServerMockApplication {
 		if ("fourOFour".equals(appName)) {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<InstanceInfo>(new InstanceInfo(null, null, null, null,
-				null, null, null, null, null, null, null, null, null, 0, null, null, null,
-				null, null, null, null, new HashMap<>(), 0L, 0L, null, null),
-				HttpStatus.OK);
+		return new ResponseEntity<>(new InstanceInfo(null, null, null, null, null, null,
+				null, null, null, null, null, null, null, 0, null, null, null, null, null,
+				null, null, new HashMap<>(), 0L, 0L, null, null), HttpStatus.OK);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
