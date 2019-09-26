@@ -8,9 +8,3 @@ org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClientC
 
 org.springframework.cloud.bootstrap.BootstrapConfiguration=\
 org.springframework.cloud.netflix.eureka.config.EurekaDiscoveryClientConfigServiceBootstrapConfiguration
-
-## Discovery Client Configuration
-org.springframework.cloud.client.discovery.EnableDiscoveryClient=\
-org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration, \
-org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClientConfiguration
-
