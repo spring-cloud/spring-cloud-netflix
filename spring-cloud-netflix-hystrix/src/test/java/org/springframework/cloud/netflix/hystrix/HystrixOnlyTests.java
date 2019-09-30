@@ -85,8 +85,10 @@ public class HystrixOnlyTests {
 	@SuppressWarnings("unchecked")
 	public void testHystrixHealth() {
 		Map map = getHealth();
-		assertThat(map).containsKeys("details");
-		Map details = (Map) map.get("details");
+		// https://github.com/spring-projects/spring-boot/issues/17929
+		// if the default changes back, this will need to be reverted.
+		assertThat(map).containsKeys("components");
+		Map details = (Map) map.get("components");
 		assertThat(details).containsKeys("hystrix");
 		Map hystrix = (Map) details.get("hystrix");
 		assertThat(hystrix).containsEntry("status", "UP");
