@@ -20,7 +20,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -197,21 +196,16 @@ public class EurekaController {
 				else {
 					zoneCounts.put(zone, 1);
 				}
-				List<Pair<String, String>> list = instancesByStatus.get(status);
-				if (list == null) {
-					list = new ArrayList<>();
-					instancesByStatus.put(status, list);
-				}
+				List<Pair<String, String>> list = instancesByStatus
+						.computeIfAbsent(status, k -> new ArrayList<>());
 				list.add(new Pair<>(id, url));
 			}
 			appData.put("amiCounts", amiCounts.entrySet());
 			appData.put("zoneCounts", zoneCounts.entrySet());
 			ArrayList<Map<String, Object>> instanceInfos = new ArrayList<>();
 			appData.put("instanceInfos", instanceInfos);
-			for (Iterator<Map.Entry<InstanceInfo.InstanceStatus, List<Pair<String, String>>>> iter = instancesByStatus
-					.entrySet().iterator(); iter.hasNext();) {
-				Map.Entry<InstanceInfo.InstanceStatus, List<Pair<String, String>>> entry = iter
-						.next();
+			for (Map.Entry<InstanceInfo.InstanceStatus, List<Pair<String, String>>> entry : instancesByStatus
+					.entrySet()) {
 				List<Pair<String, String>> value = entry.getValue();
 				InstanceInfo.InstanceStatus status = entry.getKey();
 				LinkedHashMap<String, Object> instanceData = new LinkedHashMap<>();
@@ -296,8 +290,8 @@ public class EurekaController {
 		StringBuilder filteredUrls = new StringBuilder();
 		for (String u : urls) {
 			if (u.contains("@")) {
-				filteredUrls.append(u.substring(0, u.indexOf("//") + 2))
-						.append(u.substring(u.indexOf("@") + 1, u.length())).append(",");
+				filteredUrls.append(u, 0, u.indexOf("//") + 2)
+						.append(u.substring(u.indexOf("@") + 1)).append(",");
 			}
 			else {
 				filteredUrls.append(u).append(",");

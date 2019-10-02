@@ -64,23 +64,20 @@ public class EurekaServerInitializerConfiguration
 
 	@Override
 	public void start() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// TODO: is this class even needed now?
-					eurekaServerBootstrap.contextInitialized(
-							EurekaServerInitializerConfiguration.this.servletContext);
-					log.info("Started Eureka Server");
+		new Thread(() -> {
+			try {
+				// TODO: is this class even needed now?
+				eurekaServerBootstrap.contextInitialized(
+						EurekaServerInitializerConfiguration.this.servletContext);
+				log.info("Started Eureka Server");
 
-					publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig()));
-					EurekaServerInitializerConfiguration.this.running = true;
-					publish(new EurekaServerStartedEvent(getEurekaServerConfig()));
-				}
-				catch (Exception ex) {
-					// Help!
-					log.error("Could not initialize Eureka servlet context", ex);
-				}
+				publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig()));
+				EurekaServerInitializerConfiguration.this.running = true;
+				publish(new EurekaServerStartedEvent(getEurekaServerConfig()));
+			}
+			catch (Exception ex) {
+				// Help!
+				log.error("Could not initialize Eureka servlet context", ex);
 			}
 		}).start();
 	}
