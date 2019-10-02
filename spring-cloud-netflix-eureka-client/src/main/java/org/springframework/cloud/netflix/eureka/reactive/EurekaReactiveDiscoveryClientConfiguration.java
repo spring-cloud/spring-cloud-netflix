@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.eureka.reactive;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
-import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -63,7 +62,8 @@ public class EurekaReactiveDiscoveryClientConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnClass(ReactiveHealthIndicator.class)
+	@ConditionalOnClass(
+			name = "org.springframework.boot.actuate.health.ReactiveHealthIndicator")
 	@ConditionalOnDiscoveryHealthIndicatorEnabled
 	public ReactiveDiscoveryClientHealthIndicator eurekaReactiveDiscoveryClientHealthIndicator(
 			EurekaReactiveDiscoveryClient client,
