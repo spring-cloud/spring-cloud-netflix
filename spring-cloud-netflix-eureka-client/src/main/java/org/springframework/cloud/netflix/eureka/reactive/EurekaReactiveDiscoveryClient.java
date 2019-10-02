@@ -16,10 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.reactive;
 
-import java.net.URI;
-import java.util.Map;
-
-import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
@@ -27,13 +23,10 @@ import com.netflix.discovery.shared.Applications;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 import org.springframework.core.Ordered;
-import org.springframework.util.Assert;
-
-import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
 
 /**
  * A {@link ReactiveDiscoveryClient} implementation for Eureka.
@@ -77,63 +70,6 @@ public class EurekaReactiveDiscoveryClient implements ReactiveDiscoveryClient {
 	public int getOrder() {
 		return clientConfig instanceof Ordered ? ((Ordered) clientConfig).getOrder()
 				: ReactiveDiscoveryClient.DEFAULT_ORDER;
-	}
-
-	/**
-	 * An Eureka-specific {@link ServiceInstance} implementation.
-	 */
-	public static class EurekaServiceInstance implements ServiceInstance {
-
-		private InstanceInfo instance;
-
-		public EurekaServiceInstance(InstanceInfo instance) {
-			Assert.notNull(instance, "Service instance required");
-			this.instance = instance;
-		}
-
-		public InstanceInfo getInstanceInfo() {
-			return instance;
-		}
-
-		@Override
-		public String getInstanceId() {
-			return this.instance.getId();
-		}
-
-		@Override
-		public String getServiceId() {
-			return this.instance.getAppName();
-		}
-
-		@Override
-		public String getHost() {
-			return this.instance.getHostName();
-		}
-
-		@Override
-		public int getPort() {
-			if (isSecure()) {
-				return this.instance.getSecurePort();
-			}
-			return this.instance.getPort();
-		}
-
-		@Override
-		public boolean isSecure() {
-			// assume if secure is enabled, that is the default
-			return this.instance.isPortEnabled(SECURE);
-		}
-
-		@Override
-		public URI getUri() {
-			return DefaultServiceInstance.getUri(this);
-		}
-
-		@Override
-		public Map<String, String> getMetadata() {
-			return this.instance.getMetadata();
-		}
-
 	}
 
 }
