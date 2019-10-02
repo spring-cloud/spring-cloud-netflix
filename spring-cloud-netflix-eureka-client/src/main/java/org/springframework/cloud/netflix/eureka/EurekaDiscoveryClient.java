@@ -16,11 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
@@ -29,13 +27,9 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
-import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.core.Ordered;
-import org.springframework.util.Assert;
-
-import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
 
 /**
  * A {@link DiscoveryClient} implementation for Eureka.
@@ -106,58 +100,19 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	}
 
 	/**
-	 * An Eureka-specific {@link ServiceInstance} implementation.
+	 * An Eureka-specific {@link ServiceInstance} implementation. Extends
+	 * {@link org.springframework.cloud.netflix.eureka.EurekaServiceInstance} for
+	 * backwards compatibility.
+	 *
+	 * @deprecated In favor of
+	 * {@link org.springframework.cloud.netflix.eureka.EurekaServiceInstance}.
 	 */
-	public static class EurekaServiceInstance implements ServiceInstance {
-
-		private InstanceInfo instance;
+	@Deprecated
+	public static class EurekaServiceInstance
+			extends org.springframework.cloud.netflix.eureka.EurekaServiceInstance {
 
 		public EurekaServiceInstance(InstanceInfo instance) {
-			Assert.notNull(instance, "Service instance required");
-			this.instance = instance;
-		}
-
-		public InstanceInfo getInstanceInfo() {
-			return instance;
-		}
-
-		@Override
-		public String getInstanceId() {
-			return this.instance.getId();
-		}
-
-		@Override
-		public String getServiceId() {
-			return this.instance.getAppName();
-		}
-
-		@Override
-		public String getHost() {
-			return this.instance.getHostName();
-		}
-
-		@Override
-		public int getPort() {
-			if (isSecure()) {
-				return this.instance.getSecurePort();
-			}
-			return this.instance.getPort();
-		}
-
-		@Override
-		public boolean isSecure() {
-			// assume if secure is enabled, that is the default
-			return this.instance.isPortEnabled(SECURE);
-		}
-
-		@Override
-		public URI getUri() {
-			return DefaultServiceInstance.getUri(this);
-		}
-
-		@Override
-		public Map<String, String> getMetadata() {
-			return this.instance.getMetadata();
+			super(instance);
 		}
 
 	}

@@ -33,14 +33,17 @@ import org.mockito.Mockito;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.context.refresh.ContextRefresher;
@@ -63,6 +66,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.fail;
  * @author Spencer Gibb
  * @author Matt Jenkins
  * @author Olga Maciaszek-Sharma
+ * @author Tim Ysewyn
  */
 public class EurekaClientAutoConfigurationTests {
 
@@ -581,6 +585,20 @@ public class EurekaClientAutoConfigurationTests {
 		assertBeanNotPresent(EurekaServiceRegistry.class);
 		assertBeanNotPresent(EurekaClient.class);
 		assertBeanNotPresent(EurekaDiscoveryClientConfiguration.Marker.class);
+	}
+
+	@Test
+	public void shouldNotHaveDiscoveryClientWhenBlockingDiscoveryDisabled() {
+		new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
+						EurekaClientAutoConfiguration.class,
+						EurekaDiscoveryClientConfiguration.class))
+				.withPropertyValues("spring.cloud.discovery.blocking.enabled=false")
+				.run(context -> {
+					assertThat(context).doesNotHaveBean(DiscoveryClient.class);
+					assertThat(context)
+							.doesNotHaveBean(DiscoveryClientHealthIndicator.class);
+				});
 	}
 
 	private void assertBeanNotPresent(Class beanClass) {
