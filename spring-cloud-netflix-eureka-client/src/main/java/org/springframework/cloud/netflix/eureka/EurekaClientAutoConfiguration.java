@@ -164,7 +164,11 @@ public class EurekaClientAutoConfiguration {
 		}
 
 		if (isSecurePortEnabled) {
-			instance.setSecurePort(serverPort);
+			int secureEurekaPort = Integer
+					.parseInt(env.getProperty("eureka.instance.secure-port",
+							env.getProperty("secure-port", "443")));
+
+			instance.setSecurePort(secureEurekaPort);
 		}
 
 		if (StringUtils.hasText(hostname)) {

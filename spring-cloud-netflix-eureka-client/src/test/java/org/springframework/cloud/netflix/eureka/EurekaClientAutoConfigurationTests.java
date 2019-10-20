@@ -160,22 +160,16 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void securePortPeriods() {
-		testSecurePort("server.port");
-	}
-
-	@Test
-	public void securePortUnderscores() {
+	public void defaultSecurePort() {
 		TestPropertyValues.of("eureka.instance.secure-port-enabled=true")
 				.applyTo(this.context);
-		addSystemEnvironment(this.context.getEnvironment(), "SERVER_PORT:8443");
 		setupContext();
-		assertThat(getInstanceConfig().getSecurePort()).isEqualTo(8443);
+		assertThat(getInstanceConfig().getSecurePort()).isEqualTo(443);
 	}
 
 	@Test
 	public void securePort() {
-		testSecurePort("PORT");
+		testSecurePort("eureka.instance.secure-port");
 		assertThat(this.context.getBeanDefinition("eurekaClient").getFactoryMethodName())
 				.isEqualTo("eurekaClient");
 	}
