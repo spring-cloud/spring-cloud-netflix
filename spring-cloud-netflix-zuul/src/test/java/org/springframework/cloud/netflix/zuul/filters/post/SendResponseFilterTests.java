@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -118,14 +119,16 @@ public class SendResponseFilterTests {
 		properties.setSetContentLength(true);
 
 		SendResponseFilter filter = createFilter(properties, "hello", null,
-				new MockHttpServletResponse(), false);
+				new MockHttpServletResponse(), true);
 		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
 		RequestContext.getCurrentContext().setResponseGZipped(false);
 		filter.run();
 
-		String contentLength = RequestContext.getCurrentContext().getResponse()
-				.getHeader("Content-Length");
-		assertThat(contentLength).as("wrong origin content length").isEqualTo("6");
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext
+				.getCurrentContext().getResponse();
+		assertThat(response.getHeader("Content-Length")).as("wrong origin content length")
+				.isEqualTo("6");
+		assertThat(response.getHeader("Content-Encoding")).isNull();
 	}
 
 	/*
@@ -137,9 +140,9 @@ public class SendResponseFilterTests {
 		properties.setSetContentLength(true);
 
 		SendResponseFilter filter = createFilter(properties, "hello", null,
-				new MockHttpServletResponse(), false);
-		RequestContext.getCurrentContext().addZuulResponseHeader("Content-Encoding",
-				"unknown");
+				new MockHttpServletResponse(), true);
+		RequestContext.getCurrentContext().getResponse()
+				.setHeader(ZuulHeaders.ACCEPT_ENCODING, "unknown");
 		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
 		RequestContext.getCurrentContext().setResponseGZipped(false);
 		filter.run();
@@ -148,7 +151,7 @@ public class SendResponseFilterTests {
 				.getCurrentContext().getResponse();
 		assertThat(response.getHeader("Content-Length")).as("wrong origin content length")
 				.isEqualTo("6");
-		assertThat(response.getHeader("Content-Encoding")).isEqualTo("unknown");
+		assertThat(response.getHeader("Content-Encoding")).isNull();
 	}
 
 	/*
@@ -164,8 +167,7 @@ public class SendResponseFilterTests {
 
 		byte[] gzipData = gzipData("hello");
 
-		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for
-		// test
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length);
 		RequestContext.getCurrentContext().setResponseGZipped(true);
 		RequestContext.getCurrentContext()
 				.setResponseDataStream(new ByteArrayInputStream(gzipData));
@@ -188,6 +190,34 @@ public class SendResponseFilterTests {
 	}
 
 	/*
+	 * GZip requested and GZip response but gzipped response modified and injected as
+	 * String body -> response not compressed and content-length not passed
+	 */
+	@Test
+	public void runWithOriginContentLength_gzipRequested_gzipResponse_modifiedStringBody()
+			throws Exception {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
+
+		SendResponseFilter filter = createFilter(properties, "hello", null,
+				new MockHttpServletResponse(), false);
+
+		RequestContext.getCurrentContext().setResponseGZipped(true);
+		RequestContext.getCurrentContext().addZuulResponseHeader("Content-Encoding",
+				"gzip");
+		RequestContext.getCurrentContext().setOriginContentLength(6L);
+		((MockHttpServletRequest) RequestContext.getCurrentContext().getRequest())
+				.addHeader(ZuulHeaders.ACCEPT_ENCODING, "gzip");
+
+		filter.run();
+
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext
+				.getCurrentContext().getResponse();
+		assertThat(response.getHeader("Content-Encoding")).isNull();
+		assertThat(response.getHeader("Content-Length")).isNull();
+	}
+
+	/*
 	 * GZip NOT requested and GZip response -> Content-Length discarded and response
 	 * uncompressed
 	 */
@@ -201,8 +231,7 @@ public class SendResponseFilterTests {
 
 		byte[] gzipData = gzipData("hello");
 
-		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for
-		// test
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length);
 		RequestContext.getCurrentContext().setResponseGZipped(true);
 		RequestContext.getCurrentContext()
 				.setResponseDataStream(new ByteArrayInputStream(gzipData));
@@ -399,8 +428,9 @@ public class SendResponseFilterTests {
 		}
 
 		if (streamContent) {
-			context.setResponseDataStream(
-					new ByteArrayInputStream(content.getBytes(characterEncoding)));
+			context.setResponseDataStream(new ByteArrayInputStream(
+					content.getBytes(characterEncoding == null ? Charset.defaultCharset()
+							: Charset.forName(characterEncoding))));
 		}
 		else {
 			context.setResponseBody(content);

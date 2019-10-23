@@ -137,6 +137,7 @@ public class SendResponseFilter extends ZuulFilter {
 				String body = context.getResponseBody();
 				is = new ByteArrayInputStream(
 						body.getBytes(servletResponse.getCharacterEncoding()));
+				servletResponseContentEncoding = null;
 			}
 			else {
 				is = context.getResponseDataStream();
@@ -198,7 +199,7 @@ public class SendResponseFilter extends ZuulFilter {
 				// The container will close the stream for us
 			}
 			catch (IOException ex) {
-				log.warn("Error while sending response to client: " + ex.getMessage());
+				log.warn("Error while sending response to client: " + ex);
 			}
 		}
 	}
@@ -305,6 +306,12 @@ public class SendResponseFilter extends ZuulFilter {
 	protected boolean includeContentLengthHeader(RequestContext context) {
 		// Not configured to forward the header
 		if (!this.zuulProperties.isSetContentLength()) {
+			return false;
+		}
+
+		// If a specified String body is to be returned, we can't base it of the origin
+		// content length
+		if (context.getResponseBody() != null) {
 			return false;
 		}
 
