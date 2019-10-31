@@ -1,4 +1,8 @@
 include::_attributes.adoc[]
+=== Disabling Spring Cloud Circuit Breaker Hystrix
+
+You can disable the auto-configuration by setting `spring.cloud.circuitbreaker.hystrix.enabled`
+to `false`.
 
 === Configuring Hystrix Circuit Breakers
 
