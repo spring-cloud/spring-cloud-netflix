@@ -57,8 +57,10 @@ public class PropertiesFactory {
 	public String getClassName(Class clazz, String name) {
 		if (this.classToProperty.containsKey(clazz)) {
 			String classNameProperty = this.classToProperty.get(clazz);
-			String className = environment
-					.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
+			String className = environment.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
+			if(!StringUtils.hasText(className)){
+			    className = environment.getProperty(NAMESPACE + "." + classNameProperty);
+			}
 			return className;
 		}
 		return null;
