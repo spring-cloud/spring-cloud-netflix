@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>Configuring Hystrix Circuit Breakers</title>
+<title>Disabling Spring Cloud Circuit Breaker Hystrix</title>
 <link rel="stylesheet" href="css/spring.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -95,14 +95,15 @@ $(addBlockSwitches);
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel2">
-<li><a href="#configuring-hystrix-circuit-breakers">1. Configuring Hystrix Circuit Breakers</a>
+<li><a href="#disabling-spring-cloud-circuit-breaker-hystrix">1. Disabling Spring Cloud Circuit Breaker Hystrix</a></li>
+<li><a href="#configuring-hystrix-circuit-breakers">2. Configuring Hystrix Circuit Breakers</a>
 <ul class="sectlevel3">
-<li><a href="#default-configuration">1.1. Default Configuration</a>
+<li><a href="#default-configuration">2.1. Default Configuration</a>
 <ul class="sectlevel4">
 <li><a href="#reactive-example">Reactive Example</a></li>
 </ul>
 </li>
-<li><a href="#specific-circuit-breaker-configuration">1.2. Specific Circuit Breaker Configuration</a>
+<li><a href="#specific-circuit-breaker-configuration">2.2. Specific Circuit Breaker Configuration</a>
 <ul class="sectlevel4">
 <li><a href="#reactive-example-2">Reactive Example</a></li>
 </ul>
@@ -114,9 +115,16 @@ $(addBlockSwitches);
 </div>
 <div id="content">
 <div class="sect2">
-<h3 id="configuring-hystrix-circuit-breakers"><a class="anchor" href="#configuring-hystrix-circuit-breakers"></a><a class="link" href="#configuring-hystrix-circuit-breakers">1. Configuring Hystrix Circuit Breakers</a></h3>
+<h3 id="disabling-spring-cloud-circuit-breaker-hystrix"><a class="anchor" href="#disabling-spring-cloud-circuit-breaker-hystrix"></a><a class="link" href="#disabling-spring-cloud-circuit-breaker-hystrix">1. Disabling Spring Cloud Circuit Breaker Hystrix</a></h3>
+<div class="paragraph">
+<p>You can disable the auto-configuration by setting <code>spring.cloud.circuitbreaker.hystrix.enabled</code>
+to <code>false</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-hystrix-circuit-breakers"><a class="anchor" href="#configuring-hystrix-circuit-breakers"></a><a class="link" href="#configuring-hystrix-circuit-breakers">2. Configuring Hystrix Circuit Breakers</a></h3>
 <div class="sect3">
-<h4 id="default-configuration"><a class="anchor" href="#default-configuration"></a><a class="link" href="#default-configuration">1.1. Default Configuration</a></h4>
+<h4 id="default-configuration"><a class="anchor" href="#default-configuration"></a><a class="link" href="#default-configuration">2.1. Default Configuration</a></h4>
 <div class="paragraph">
 <p>To provide a default configuration for all of your circuit breakers create a <code>Customize</code> bean that is passed a
 <code>HystrixCircuitBreakerFactory</code> or <code>ReactiveHystrixCircuitBreakerFactory</code>.
@@ -157,7 +165,7 @@ public Customizer&lt;ReactiveHystrixCircuitBreakerFactory&gt; defaultConfig() {
 </div>
 </div>
 <div class="sect3">
-<h4 id="specific-circuit-breaker-configuration"><a class="anchor" href="#specific-circuit-breaker-configuration"></a><a class="link" href="#specific-circuit-breaker-configuration">1.2. Specific Circuit Breaker Configuration</a></h4>
+<h4 id="specific-circuit-breaker-configuration"><a class="anchor" href="#specific-circuit-breaker-configuration"></a><a class="link" href="#specific-circuit-breaker-configuration">2.2. Specific Circuit Breaker Configuration</a></h4>
 <div class="paragraph">
 <p>Similarly to providing a default configuration, you can create a <code>Customize</code> bean this is passed a
 <code>HystrixCircuitBreakerFactory</code></p>
