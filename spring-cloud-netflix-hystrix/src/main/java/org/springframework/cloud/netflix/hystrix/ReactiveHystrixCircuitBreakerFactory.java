@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.hystrix;
 import java.util.function.Function;
 
 import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixObservableCommand;
 
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
@@ -32,7 +33,9 @@ public class ReactiveHystrixCircuitBreakerFactory extends
 		ReactiveCircuitBreakerFactory<HystrixObservableCommand.Setter, ReactiveHystrixCircuitBreakerFactory.ReactiveHystrixConfigBuilder> {
 
 	private Function<String, HystrixObservableCommand.Setter> defaultConfiguration = id -> HystrixObservableCommand.Setter
-			.withGroupKey(HystrixCommandGroupKey.Factory.asKey(id));
+			.withGroupKey(
+					HystrixCommandGroupKey.Factory.asKey(getClass().getSimpleName()))
+			.andCommandKey(HystrixCommandKey.Factory.asKey(id));
 
 	@Override
 	protected ReactiveHystrixConfigBuilder configBuilder(String id) {

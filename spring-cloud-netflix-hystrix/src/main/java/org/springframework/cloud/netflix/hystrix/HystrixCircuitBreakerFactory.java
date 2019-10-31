@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
 
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.util.Assert;
@@ -33,7 +34,9 @@ public class HystrixCircuitBreakerFactory extends
 		CircuitBreakerFactory<HystrixCommand.Setter, HystrixCircuitBreakerFactory.HystrixConfigBuilder> {
 
 	private Function<String, HystrixCommand.Setter> defaultConfiguration = id -> HystrixCommand.Setter
-			.withGroupKey(HystrixCommandGroupKey.Factory.asKey(id));
+			.withGroupKey(
+					HystrixCommandGroupKey.Factory.asKey(getClass().getSimpleName()))
+			.andCommandKey(HystrixCommandKey.Factory.asKey(id));
 
 	public void configureDefault(
 			Function<String, HystrixCommand.Setter> defaultConfiguration) {
