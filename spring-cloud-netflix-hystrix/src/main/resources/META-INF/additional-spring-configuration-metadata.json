@@ -11,6 +11,12 @@
       "name": "hystrix.shareSecurityContext",
       "description": "Enables auto-configuration of the Hystrix concurrency strategy plugin hook who will transfer the `SecurityContext` from your main thread to the one used by the Hystrix command.",
       "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": true,
+      "name": "spring.cloud.circuitbreaker.hystrix.enabled",
+      "description": "Enables auto-configuration of the Hystrix Spring Cloud CircuitBreaker API implementation.",
+      "type": "java.lang.Boolean"
     }
   ]
 }
