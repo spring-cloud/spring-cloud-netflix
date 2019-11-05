@@ -17,6 +17,7 @@
 		<archaius.version>0.7.6</archaius.version>
 		<concurrency-limits.version>0.1.12</concurrency-limits.version>
 		<eureka.version>1.9.13</eureka.version>
+		<eventbus.version>0.3.0</eventbus.version>
 		<hystrix.version>1.5.18</hystrix.version>
 		<ribbon.version>2.3.0</ribbon.version>
 		<servo.version>0.12.21</servo.version>
@@ -367,6 +368,11 @@
 						<groupId>org.mockito</groupId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>com.netflix.netflix-commons</groupId>
+				<artifactId>netflix-eventbus</artifactId>
+				<version>${eventbus.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
