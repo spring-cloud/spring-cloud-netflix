@@ -88,6 +88,11 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.netflix.netflix-commons</groupId>
+			<artifactId>netflix-eventbus</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>com.netflix.ribbon</groupId>
 			<artifactId>ribbon-core</artifactId>
 			<optional>true</optional>
