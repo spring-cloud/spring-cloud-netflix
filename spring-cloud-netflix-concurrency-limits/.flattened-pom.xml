@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-netflix</artifactId>
-    <version>2.2.0.BUILD-SNAPSHOT</version>
+    <version>2.2.0.RC2</version>
     <relativePath>..</relativePath>
   </parent>
   <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-netflix-concurrency-limits</artifactId>
-  <version>2.2.0.BUILD-SNAPSHOT</version>
+  <version>2.2.0.RC2</version>
   <name>Spring Cloud Netflix Concurrency Limits</name>
   <description>Spring Cloud Netflix</description>
   <url>https://projects.spring.io/spring-cloud/</url>
