@@ -335,7 +335,7 @@ By having <code>spring-cloud-starter-netflix-eureka-client</code> on the classpa
 The instance behaviour is driven by <code>eureka.instance.*</code> configuration keys, but the defaults are fine if you ensure that your application has a value for <code>spring.application.name</code> (this is the default for the Eureka service ID or VIP).</p>
 </div>
 <div class="paragraph">
-<p>See <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> and <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</a> for more details on the configurable options.</p>
+<p>See <a href="https://github.com/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> and <a href="https://github.com/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</a> for more details on the configurable options.</p>
 </div>
 <div class="paragraph">
 <p>To disable the Eureka Discovery Client, you can set <code>eureka.client.enabled</code> to <code>false</code>. Eureka Discovery Client will also be disabled when <code>spring.cloud.discovery.enabled</code> is set to <code>false</code>.</p>
@@ -516,7 +516,7 @@ This feature is not yet available on Pivotal Web Services (<a href="https://run.
 <div class="sect3">
 <h4 id="using-eureka-on-aws"><a class="anchor" href="#using-eureka-on-aws"></a><a class="link" href="#using-eureka-on-aws">1.7.2. Using Eureka on AWS</a></h4>
 <div class="paragraph">
-<p>If the application is planned to be deployed to an AWS cloud, the Eureka instance must be configured to be AWS-aware. You can do so by customizing the <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> as follows:</p>
+<p>If the application is planned to be deployed to an AWS cloud, the Eureka instance must be configured to be AWS-aware. You can do so by customizing the <a href="https://github.com/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
