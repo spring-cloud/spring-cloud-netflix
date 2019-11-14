@@ -1597,7 +1597,7 @@ Otherwise, it is shared by all the <code>@RibbonClients</code>. If you use <code
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Configuration
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Configuration(proxyBeanMethods = false)
 protected static class FooConfiguration {
 
     @Bean
@@ -1639,7 +1639,7 @@ public class RibbonClientDefaultConfigurationTestsConfig {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class DefaultRibbonConfig {
 
     @Bean
