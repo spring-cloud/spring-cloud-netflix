@@ -62,7 +62,7 @@ public class RibbonClientConfigurationIntegrationTests {
 		assertThat(updater).isSameAs(serverListUpdater);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	protected static class TestLBConfig {
 

@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Dave Syer
  * @author Biju Kunjummen
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnRibbonAndEurekaEnabled
 @AutoConfigureAfter(RibbonAutoConfiguration.class)

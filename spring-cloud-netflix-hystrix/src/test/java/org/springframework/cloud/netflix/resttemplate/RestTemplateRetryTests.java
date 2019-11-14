@@ -207,7 +207,7 @@ public class RestTemplateRetryTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@RibbonClient(name = "badClients", configuration = LocalBadClientConfiguration.class)
@@ -255,7 +255,7 @@ public class RestTemplateRetryTests {
 
 	// Load balancer with fixed server list for "local" pointing to localhost
 	// and some bogus servers are thrown in to test retry
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	static class LocalBadClientConfiguration {
 
 		static BaseLoadBalancer balancer;

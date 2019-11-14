@@ -342,7 +342,7 @@ public class SimpleHostRoutingFilterTests {
 		return this.context.getBean(SimpleHostRoutingFilter.class);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
 

@@ -141,7 +141,7 @@ public class TurbineStreamTests {
 
 	@EnableAutoConfiguration
 	@EnableTurbineStream
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class TestConfig {
 
 	}

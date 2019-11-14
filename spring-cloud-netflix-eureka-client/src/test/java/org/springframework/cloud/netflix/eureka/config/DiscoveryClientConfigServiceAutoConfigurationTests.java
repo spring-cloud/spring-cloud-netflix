@@ -97,7 +97,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		this.context.refresh();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class EnvironmentKnobbler {
 
 		@Bean

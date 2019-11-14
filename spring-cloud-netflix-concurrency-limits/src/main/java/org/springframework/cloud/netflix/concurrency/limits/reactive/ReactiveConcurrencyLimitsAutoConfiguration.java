@@ -36,7 +36,7 @@ import org.springframework.web.server.WebFilter;
  *
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnWebApplication(type = Type.REACTIVE)
 @ConditionalOnClass({ WebFilter.class, Mono.class })
 public class ReactiveConcurrencyLimitsAutoConfiguration {

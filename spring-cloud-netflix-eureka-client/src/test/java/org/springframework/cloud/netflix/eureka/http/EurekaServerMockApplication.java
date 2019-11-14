@@ -58,7 +58,7 @@ import static org.springframework.util.Assert.isTrue;
  *
  * @author Daniel Lavoie
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RestController
 @SpringBootApplication
 public class EurekaServerMockApplication {
@@ -171,7 +171,7 @@ public class EurekaServerMockApplication {
 		return INFO;
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	protected static class TestSecurityConfiguration
 			extends WebSecurityConfigurerAdapter {

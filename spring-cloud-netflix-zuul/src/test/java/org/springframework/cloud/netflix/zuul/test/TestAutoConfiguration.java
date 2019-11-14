@@ -31,12 +31,12 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 /**
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import({ NoopDiscoveryClientAutoConfiguration.class })
 @AutoConfigureBefore(SecurityAutoConfiguration.class)
 public class TestAutoConfiguration {
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	protected static class TestSecurityConfiguration
 			extends WebSecurityConfigurerAdapter {

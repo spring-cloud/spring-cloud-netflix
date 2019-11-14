@@ -71,7 +71,7 @@ public class RibbonClientsPreprocessorIntegrationTests {
 		assertThat(getLoadBalancer().getPing()).isInstanceOf(PingUrl.class);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClients(@RibbonClient(name = "foo", configuration = FooConfiguration.class))
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
@@ -81,7 +81,7 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	}
 
 	// tag::sample_override_ribbon_config[]
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class FooConfiguration {
 
 		@Bean

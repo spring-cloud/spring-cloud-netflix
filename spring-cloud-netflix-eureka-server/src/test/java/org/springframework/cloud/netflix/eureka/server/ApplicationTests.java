@@ -115,7 +115,7 @@ public class ApplicationTests {
 		assertThat(decoded.getInstanceId()).as("instanceId was wrong").isEqualTo("foo");
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {

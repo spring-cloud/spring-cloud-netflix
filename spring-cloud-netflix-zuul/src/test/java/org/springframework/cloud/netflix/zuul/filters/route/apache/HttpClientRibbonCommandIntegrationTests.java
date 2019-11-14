@@ -152,7 +152,7 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
@@ -202,7 +202,7 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	}
 
 	// Load balancer with fixed server list and defined ribbon rest client
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class SingletonRibbonClientConfiguration {
 
 		@Value("${local.server.port}")

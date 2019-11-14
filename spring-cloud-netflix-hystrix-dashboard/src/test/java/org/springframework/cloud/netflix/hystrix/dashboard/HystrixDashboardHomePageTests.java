@@ -69,7 +69,7 @@ public class HystrixDashboardHomePageTests {
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	@Controller

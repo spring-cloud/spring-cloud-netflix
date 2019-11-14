@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Ryan Baxter
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ComponentScan
 @EnableAutoConfiguration
 @RestController

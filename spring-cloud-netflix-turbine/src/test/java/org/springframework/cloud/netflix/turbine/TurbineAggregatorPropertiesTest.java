@@ -66,7 +66,7 @@ public class TurbineAggregatorPropertiesTest {
 		return this.context.getBean(TurbineAggregatorProperties.class);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties(TurbineAggregatorProperties.class)
 	static class TestConfiguration {
 

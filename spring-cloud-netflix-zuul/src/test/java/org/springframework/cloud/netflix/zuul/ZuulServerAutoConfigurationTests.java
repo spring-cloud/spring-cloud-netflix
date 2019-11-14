@@ -53,7 +53,7 @@ public class ZuulServerAutoConfigurationTests {
 		assertThat(ribbonRoutingFilter).isNull();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableZuulServer
 	static class TestConfig {

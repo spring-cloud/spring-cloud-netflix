@@ -53,7 +53,7 @@ public class RibbonAutoConfigurationIntegrationTests {
 						.isEqualTo(25000);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient("client")
 	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 			RibbonAutoConfiguration.class })

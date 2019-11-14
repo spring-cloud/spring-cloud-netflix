@@ -102,7 +102,7 @@ public class RoutesEndpointIntegrationTests {
 		assertThat(details.isPrefixStripped()).isTrue();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy

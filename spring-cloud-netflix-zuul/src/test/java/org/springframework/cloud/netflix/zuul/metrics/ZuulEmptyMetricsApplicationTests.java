@@ -75,7 +75,7 @@ public class ZuulEmptyMetricsApplicationTests {
 	}
 
 	@EnableAutoConfiguration(exclude = TestAutoConfiguration.class)
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	// @Import(NoSecurityConfiguration.class)
 	@EnableZuulServer
 	@EnableConfigurationProperties(ServerProperties.class)

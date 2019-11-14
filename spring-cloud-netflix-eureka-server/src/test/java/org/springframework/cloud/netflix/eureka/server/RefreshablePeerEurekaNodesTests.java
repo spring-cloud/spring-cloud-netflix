@@ -260,7 +260,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@EnableEurekaServer
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
 	protected static class Application {
 

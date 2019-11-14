@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Ryan Baxter
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ Hystrix.class })
 @ConditionalOnProperty(name = "spring.cloud.circuitbreaker.hystrix.enabled",
 		matchIfMissing = true)
@@ -56,7 +56,7 @@ public class HystrixCircuitBreakerAutoConfiguration {
 		return new ReactiveHystrixCircuitBreakerFactory();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class HystrixCircuitBreakerCustomizerConfiguration {
 
 		@Autowired(required = false)
@@ -72,7 +72,7 @@ public class HystrixCircuitBreakerAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(
 			name = { "reactor.core.publisher.Mono", "reactor.core.publisher.Flux" })
 	protected static class ReactiveHystrixCircuitBreakerCustomizerConfiguration {

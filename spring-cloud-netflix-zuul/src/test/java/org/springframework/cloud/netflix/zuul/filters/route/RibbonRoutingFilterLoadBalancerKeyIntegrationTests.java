@@ -101,7 +101,7 @@ public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
@@ -157,7 +157,7 @@ class CanaryTestZuulProxyApplication {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class CanaryTestRibbonClientConfiguration {
 
 	@LocalServerPort

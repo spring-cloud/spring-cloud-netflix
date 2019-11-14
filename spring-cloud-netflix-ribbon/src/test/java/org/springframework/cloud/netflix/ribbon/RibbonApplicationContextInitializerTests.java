@@ -68,7 +68,7 @@ public class RibbonApplicationContextInitializerTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient(name = "testspec", configuration = FooConfig.class)
 	static class RibbonInitializerConfig {
 

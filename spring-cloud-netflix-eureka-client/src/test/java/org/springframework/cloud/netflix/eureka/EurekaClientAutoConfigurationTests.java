@@ -640,7 +640,7 @@ public class EurekaClientAutoConfigurationTests {
 				EurekaClient.class)).getTargetSource().getTarget();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties
 	@Import({ UtilAutoConfiguration.class, EurekaClientAutoConfiguration.class })
 	protected static class TestConfiguration {
@@ -674,7 +674,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class MockClientConfiguration {
 
 		@Bean
@@ -698,7 +698,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties(AutoServiceRegistrationProperties.class)
 	public static class AutoServiceRegistrationConfiguration {
 

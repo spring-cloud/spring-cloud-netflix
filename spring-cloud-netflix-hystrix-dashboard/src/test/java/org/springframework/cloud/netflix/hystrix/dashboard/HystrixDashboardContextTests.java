@@ -93,7 +93,7 @@ public class HystrixDashboardContextTests {
 				.as("wrong base path rendered in template").isTrue();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	protected static class Application {

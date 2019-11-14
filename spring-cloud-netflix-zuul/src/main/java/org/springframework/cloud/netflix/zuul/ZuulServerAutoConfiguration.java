@@ -82,7 +82,7 @@ import static java.util.Collections.emptyList;
  * @author Dave Syer
  * @author Biju Kunjummen
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties({ ZuulProperties.class })
 @ConditionalOnClass({ ZuulServlet.class, ZuulServletFilter.class })
 @ConditionalOnBean(ZuulServerMarkerConfiguration.Marker.class)
@@ -130,8 +130,9 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes) {
-		ZuulHandlerMapping mapping = new ZuulHandlerMapping(routes, zuulController());
+	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes,
+			ZuulController zuulController) {
+		ZuulHandlerMapping mapping = new ZuulHandlerMapping(routes, zuulController);
 		mapping.setErrorController(this.errorController);
 		mapping.setCorsConfigurations(getCorsConfigurations());
 		return mapping;
@@ -230,7 +231,7 @@ public class ZuulServerAutoConfiguration {
 				zuulProperties);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class ZuulFilterConfiguration {
 
 		@Autowired
@@ -247,7 +248,7 @@ public class ZuulServerAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(MeterRegistry.class)
 	protected static class ZuulCounterFactoryConfiguration {
 
@@ -260,7 +261,7 @@ public class ZuulServerAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class ZuulMetricsConfiguration {
 
 		@Bean

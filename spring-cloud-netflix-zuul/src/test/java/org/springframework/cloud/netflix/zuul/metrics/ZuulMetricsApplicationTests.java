@@ -89,14 +89,14 @@ public class ZuulMetricsApplicationTests {
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableZuulServer
 	static class ZuulConfig {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	static class ZuulMetricsApplicationTestsConfiguration {
 
 		@Bean

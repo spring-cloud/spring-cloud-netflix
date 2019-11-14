@@ -70,7 +70,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 		return (ZoneAwareLoadBalancer<Server>) this.factory.getLoadBalancer("foo");
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient(name = "foo")
 	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 			RibbonAutoConfiguration.class })

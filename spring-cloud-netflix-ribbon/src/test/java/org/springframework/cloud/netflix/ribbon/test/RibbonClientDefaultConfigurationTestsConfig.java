@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Import;
 /**
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 		UtilAutoConfiguration.class, RibbonAutoConfiguration.class,
 		HttpClientConfiguration.class })
@@ -57,7 +57,7 @@ public class RibbonClientDefaultConfigurationTestsConfig {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class DefaultRibbonConfig {
 
 	@Bean

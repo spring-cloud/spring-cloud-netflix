@@ -55,7 +55,7 @@ public class ZuulProxyAutoConfigurationTests {
 		assertThat(this.ribbonRoutingFilter).isNotNull();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableZuulProxy
 	static class TestConfig {

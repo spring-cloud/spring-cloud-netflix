@@ -62,7 +62,7 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
  * @author Tim Ysewyn
  */
 @SuppressWarnings("deprecation")
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 // Order is important here, last should be the default, first should be optional
 // see

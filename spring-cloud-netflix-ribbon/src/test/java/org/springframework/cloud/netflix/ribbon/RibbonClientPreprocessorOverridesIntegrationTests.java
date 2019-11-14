@@ -86,7 +86,7 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 				.isEqualTo("FooTestZone");
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClients({ @RibbonClient(name = "foo", configuration = FooConfiguration.class),
 			@RibbonClient(name = "bar", configuration = BarConfiguration.class) })
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
@@ -95,7 +95,7 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class FooConfiguration {
 
 		@Bean
@@ -130,7 +130,7 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class BarConfiguration {
 
 		@Bean

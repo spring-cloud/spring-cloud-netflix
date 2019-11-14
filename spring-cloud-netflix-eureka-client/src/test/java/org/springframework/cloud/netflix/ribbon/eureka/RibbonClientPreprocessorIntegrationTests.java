@@ -80,7 +80,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 				.getZone()).isEqualTo("myTestZone");
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient("foo")
 	@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
@@ -88,7 +88,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
 	@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
@@ -102,7 +102,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class FooConfiguration {
 
 		@Bean

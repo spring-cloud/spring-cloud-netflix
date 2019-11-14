@@ -71,7 +71,7 @@ public class HystrixDashboardTests {
 		assertThat(body.contains("<base href=\"/hystrix/monitor\">")).isTrue();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	protected static class Application {

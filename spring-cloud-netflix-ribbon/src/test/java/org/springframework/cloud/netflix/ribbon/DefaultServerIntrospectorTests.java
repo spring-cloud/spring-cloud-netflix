@@ -54,7 +54,7 @@ public class DefaultServerIntrospectorTests {
 		assertThat(serverIntrospector.isSecure(serverMock)).isFalse();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties(ServerIntrospectorProperties.class)
 	protected static class TestConfiguration {
 

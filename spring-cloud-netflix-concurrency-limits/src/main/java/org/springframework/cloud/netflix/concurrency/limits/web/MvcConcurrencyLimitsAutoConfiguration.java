@@ -40,7 +40,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @ConditionalOnClass({ HttpServletRequest.class, HandlerInterceptor.class })
 public class MvcConcurrencyLimitsAutoConfiguration implements WebMvcConfigurer {
@@ -62,7 +62,7 @@ public class MvcConcurrencyLimitsAutoConfiguration implements WebMvcConfigurer {
 		return builder.build();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class HandlerInterceptorConfiguration implements WebMvcConfigurer {
 
 		@Autowired

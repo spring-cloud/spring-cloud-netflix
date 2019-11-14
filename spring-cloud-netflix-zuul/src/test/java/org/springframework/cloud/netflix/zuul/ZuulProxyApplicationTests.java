@@ -136,7 +136,7 @@ public class ZuulProxyApplicationTests {
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
@@ -180,7 +180,7 @@ public class ZuulProxyApplicationTests {
 	}
 
 	// Load balancer with fixed server list for "simplezpat" pointing to localhost
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	static class TestRibbonClientConfiguration {
 
 		@LocalServerPort

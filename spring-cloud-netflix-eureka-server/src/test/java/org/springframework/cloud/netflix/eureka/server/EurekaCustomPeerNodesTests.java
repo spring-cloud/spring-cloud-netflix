@@ -50,7 +50,7 @@ public class EurekaCustomPeerNodesTests {
 				.as("PeerEurekaNodes should be the user created one").isTrue();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {

@@ -74,7 +74,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author Biju Kunjummen
  * @author Fahim Farook
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import(EurekaServerInitializerConfiguration.class)
 @ConditionalOnBean(EurekaServerMarkerConfiguration.Marker.class)
 @EnableConfigurationProperties({ EurekaDashboardProperties.class,
@@ -254,7 +254,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 		return bean;
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class EurekaServerConfigBeanConfiguration {
 
 		@Bean

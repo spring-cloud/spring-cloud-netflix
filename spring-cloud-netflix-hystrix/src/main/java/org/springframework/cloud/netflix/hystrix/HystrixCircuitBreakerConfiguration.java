@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Christian Dupuis
  * @author Venil Noronha
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class HystrixCircuitBreakerConfiguration {
 
 	@Bean

@@ -137,7 +137,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
@@ -197,7 +197,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class RibbonClientConfiguration {
 
 		@Value("${local.server.port}")
@@ -210,7 +210,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class FourOFourRetryableRibbonConfiguration
 			extends RibbonClientConfiguration {
 

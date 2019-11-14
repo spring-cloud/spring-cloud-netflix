@@ -496,7 +496,7 @@ public abstract class ZuulProxyTestBase {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public class FormEncodedMessageConverterConfiguration
 			extends WebMvcConfigurerAdapter {
 
@@ -513,7 +513,7 @@ public abstract class ZuulProxyTestBase {
 	}
 
 	// Load balancer with fixed server list for "simple" pointing to localhost
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class SimpleRibbonClientConfiguration {
 
 		@Value("${local.server.port}")
@@ -526,7 +526,7 @@ public abstract class ZuulProxyTestBase {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	public static class AnotherRibbonClientConfiguration {
 
 		@Value("${local.server.port}")

@@ -67,7 +67,7 @@ public class RibbonClientPreprocessorOverridesRetryTests {
 				.isCircuitTrippingException(new UnknownHostException("Unknown Host")));
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient(name = "customRetry", configuration = RetryRibbonConfiguration.class)
 	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 			RibbonAutoConfiguration.class })
@@ -77,7 +77,7 @@ public class RibbonClientPreprocessorOverridesRetryTests {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class RetryRibbonConfiguration {
 
 	@Bean

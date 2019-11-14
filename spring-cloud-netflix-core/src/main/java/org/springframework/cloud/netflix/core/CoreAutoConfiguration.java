@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
  * @deprecated Module spring-cloud-netflix-core is deprecated as of 2.1.0, use
  * spring-cloud-netflix-hystrix instead.
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Deprecated
 public class CoreAutoConfiguration {
 

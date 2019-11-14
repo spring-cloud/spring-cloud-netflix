@@ -79,7 +79,7 @@ public class RefreshablePeerEurekaNodesWithCustomFiltersTests {
 		return value;
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {

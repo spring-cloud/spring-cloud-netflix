@@ -102,7 +102,7 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 		return (ZoneAwareLoadBalancer<Server>) this.factory.getLoadBalancer(name);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClients
 	@Import({ UtilAutoConfiguration.class, HttpClientConfiguration.class,
 			PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,

@@ -190,7 +190,7 @@ public class RibbonClientConfigurationTests {
 				requiredType).length > 0;
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	protected static class TestLBConfig {
 

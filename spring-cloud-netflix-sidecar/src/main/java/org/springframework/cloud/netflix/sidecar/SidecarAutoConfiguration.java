@@ -70,7 +70,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Fabrizio Di Napoli
  * @see EurekaInstanceConfigBeanConfiguration
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(SidecarMarkerConfiguration.Marker.class)
 @EnableConfigurationProperties(SidecarProperties.class)
 @AutoConfigureBefore(EurekaClientAutoConfiguration.class)
@@ -114,7 +114,7 @@ public class SidecarAutoConfiguration {
 		return new SidecarController();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(EurekaClientConfig.class)
 	protected static class EurekaInstanceConfigBeanConfiguration {
 

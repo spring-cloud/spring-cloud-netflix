@@ -263,7 +263,7 @@ public class EurekaInstanceConfigBeanTests {
 		return this.context.getBean(EurekaInstanceConfigBean.class);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
 

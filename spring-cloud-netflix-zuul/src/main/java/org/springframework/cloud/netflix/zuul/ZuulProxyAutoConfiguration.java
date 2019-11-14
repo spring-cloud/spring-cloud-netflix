@@ -57,7 +57,7 @@ import org.springframework.context.annotation.Import;
  * @author Dave Syer
  * @author Biju Kunjummen
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import({ RibbonCommandFactoryConfiguration.RestClientRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.OkHttpRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.HttpClientRibbonConfiguration.class,
@@ -136,7 +136,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		return new SimpleServiceRouteMapper();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnMissingClass("org.springframework.boot.actuate.health.Health")
 	protected static class NoActuatorConfiguration {
 
@@ -148,7 +148,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(Health.class)
 	protected static class EndpointConfiguration {
 

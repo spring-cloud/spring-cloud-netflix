@@ -45,7 +45,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty("ribbon.okhttp.enabled")
 @ConditionalOnClass(name = "okhttp3.OkHttpClient")
 public class OkHttpRibbonConfiguration {
@@ -84,7 +84,7 @@ public class OkHttpRibbonConfiguration {
 		return client;
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class OkHttpClientConfiguration {
 
 		private OkHttpClient httpClient;

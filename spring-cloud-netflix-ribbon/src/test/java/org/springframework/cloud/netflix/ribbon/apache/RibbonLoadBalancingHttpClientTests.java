@@ -1029,7 +1029,7 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class DoNotFollowRedirects {
 
 		@Bean
@@ -1041,7 +1041,7 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class Connections {
 
 		@Bean
@@ -1054,7 +1054,7 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class Timeouts {
 
 		@Bean
@@ -1067,12 +1067,12 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class UseDefaults {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class FollowRedirects {
 
 		@Bean

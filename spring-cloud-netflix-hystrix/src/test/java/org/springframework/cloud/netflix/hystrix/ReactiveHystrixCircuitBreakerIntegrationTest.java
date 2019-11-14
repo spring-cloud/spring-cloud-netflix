@@ -78,7 +78,7 @@ public class ReactiveHystrixCircuitBreakerIntegrationTest {
 		assertThat(service.normal().block()).isEqualTo("normal");
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	protected static class Application {

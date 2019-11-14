@@ -112,7 +112,7 @@ public class RibbonAutoConfiguration {
 				ribbonEagerLoadProperties.getClients());
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(HttpRequest.class)
 	@ConditionalOnRibbonRestClient
 	protected static class RibbonClientHttpRequestFactoryConfiguration {

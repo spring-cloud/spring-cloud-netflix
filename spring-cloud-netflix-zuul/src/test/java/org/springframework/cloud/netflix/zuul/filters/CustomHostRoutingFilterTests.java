@@ -169,7 +169,7 @@ public class CustomHostRoutingFilterTests {
 		assertThat(result2.getBody()).isEqualTo("GetCookie 1");
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@Import(NoSecurityConfiguration.class)
@@ -212,7 +212,7 @@ public class CustomHostRoutingFilterTests {
 			SpringApplication.run(SampleCustomZuulProxyApplication.class, args);
 		}
 
-		@Configuration
+		@Configuration(proxyBeanMethods = false)
 		@EnableZuulProxy
 		protected static class CustomZuulProxyConfig {
 

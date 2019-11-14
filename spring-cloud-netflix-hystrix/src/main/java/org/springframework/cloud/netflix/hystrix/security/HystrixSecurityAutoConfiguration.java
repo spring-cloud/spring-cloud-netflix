@@ -41,7 +41,7 @@ import org.springframework.security.core.context.SecurityContext;
 /**
  * @author Daniel Lavoie
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Conditional(HystrixSecurityCondition.class)
 @ConditionalOnClass({ Hystrix.class, SecurityContext.class })
 public class HystrixSecurityAutoConfiguration {

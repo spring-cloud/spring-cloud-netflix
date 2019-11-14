@@ -50,7 +50,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
  * @author Christian Dupuis
  * @author Dave Syer
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ Hystrix.class, HealthIndicator.class,
 		HealthIndicatorAutoConfiguration.class })
 @AutoConfigureAfter({ HealthIndicatorAutoConfiguration.class })
@@ -62,7 +62,7 @@ public class HystrixAutoConfiguration {
 		return new HystrixHealthIndicator();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnProperty(value = "management.metrics.binders.hystrix.enabled",
 			matchIfMissing = true)
 	@ConditionalOnClass({ HystrixMetricsBinder.class })
@@ -79,7 +79,7 @@ public class HystrixAutoConfiguration {
 	 * See original
 	 * {@link org.springframework.boot.actuate.autoconfigure.jolokia.JolokiaEndpointAutoConfiguration}.
 	 */
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnWebApplication(type = SERVLET)
 	@ConditionalOnBean(HystrixCommandAspect.class) // only install the stream if enabled
 	@ConditionalOnClass({ HystrixMetricsStreamServlet.class })
@@ -100,7 +100,7 @@ public class HystrixAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnWebApplication(type = REACTIVE)
 	@ConditionalOnBean(HystrixCommandAspect.class) // only install the stream if enabled
 	@ConditionalOnClass({ DispatcherHandler.class })

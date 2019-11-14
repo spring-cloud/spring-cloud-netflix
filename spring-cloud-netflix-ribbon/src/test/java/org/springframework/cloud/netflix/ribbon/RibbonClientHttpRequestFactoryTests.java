@@ -154,7 +154,7 @@ public class RibbonClientHttpRequestFactoryTests {
 		this.restTemplate.getForEntity("https://simple_bad", String.class);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@RibbonClient(value = "simple", configuration = SimpleRibbonClientConfiguration.class)
@@ -203,7 +203,7 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	static class SimpleRibbonClientConfiguration {
 
 		@Value("${local.server.port}")

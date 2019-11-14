@@ -54,7 +54,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
  * @author Roy Clarkson
  * @author Fahim Farook
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(HystrixDashboardProperties.class)
 public class HystrixDashboardConfiguration {
 

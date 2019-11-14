@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Olga Maciaszek-Sharma
  * @author Tim Ysewyn
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
@@ -69,7 +69,7 @@ public class EurekaDiscoveryClientConfiguration {
 		return new EurekaDiscoveryClient(client, clientConfig);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled",
 			matchIfMissing = false)
 	protected static class EurekaHealthCheckHandlerConfiguration {
@@ -95,7 +95,7 @@ public class EurekaDiscoveryClientConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(RefreshScopeRefreshedEvent.class)
 	protected static class EurekaClientConfigurationRefresher
 			implements ApplicationListener<RefreshScopeRefreshedEvent> {

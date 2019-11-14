@@ -51,7 +51,7 @@ public class PlainRibbonClientPreprocessorIntegrationTests {
 		ConfigurationBasedServerList.class.cast(loadBalancer.getServerListImpl());
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient("foo")
 	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 			RibbonAutoConfiguration.class })

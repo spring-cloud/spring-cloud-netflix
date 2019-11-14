@@ -60,7 +60,7 @@ public class EagerLoadOfZuulConfigurationTests {
 	}
 
 	@EnableAutoConfiguration
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableZuulProxy
 	@RibbonClients(@RibbonClient(name = "eager", configuration = FooConfig.class))
 	static class TestConfig {

@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Spencer Gibb
  * @author Daniel Lavoie
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(TurbineStreamProperties.class)
 public class TurbineStreamConfiguration {
 

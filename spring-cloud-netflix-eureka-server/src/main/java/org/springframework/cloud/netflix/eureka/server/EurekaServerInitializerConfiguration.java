@@ -35,7 +35,7 @@ import org.springframework.web.context.ServletContextAware;
 /**
  * @author Dave Syer
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class EurekaServerInitializerConfiguration
 		implements ServletContextAware, SmartLifecycle, Ordered {
 

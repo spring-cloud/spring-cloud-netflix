@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Alexandru-George Burghelea
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class TestArchaiusExternalConfiguration {
 
 	@Bean

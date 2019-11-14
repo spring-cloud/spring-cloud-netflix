@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Biju Kunjummen
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class EurekaServerMarkerConfiguration {
 
 	@Bean

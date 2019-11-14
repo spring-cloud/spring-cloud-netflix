@@ -140,7 +140,7 @@ public class OkHttpLoadBalancingClientTests {
 		return client.getOkHttpClient(configOverride, false);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class OkHttpClientConfiguration {
 
 		@Autowired(required = false)
@@ -157,12 +157,12 @@ public class OkHttpLoadBalancingClientTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class UseDefaults {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class FollowRedirects {
 
 		@Bean
@@ -174,7 +174,7 @@ public class OkHttpLoadBalancingClientTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class DoNotFollowRedirects {
 
 		@Bean
@@ -186,7 +186,7 @@ public class OkHttpLoadBalancingClientTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class Timeouts {
 
 		@Bean

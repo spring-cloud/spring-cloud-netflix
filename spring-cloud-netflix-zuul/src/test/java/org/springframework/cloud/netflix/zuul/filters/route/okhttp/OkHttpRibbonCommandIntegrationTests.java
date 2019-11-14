@@ -106,7 +106,7 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy

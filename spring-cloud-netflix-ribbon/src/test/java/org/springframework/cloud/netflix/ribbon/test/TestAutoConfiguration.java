@@ -33,7 +33,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 /**
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import({ NoopDiscoveryClientAutoConfiguration.class })
 @AutoConfigureBefore(SecurityAutoConfiguration.class)
 public class TestAutoConfiguration {
@@ -48,7 +48,7 @@ public class TestAutoConfiguration {
 	 */
 	public static final String PASSWORD = "{noop}password";
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
 

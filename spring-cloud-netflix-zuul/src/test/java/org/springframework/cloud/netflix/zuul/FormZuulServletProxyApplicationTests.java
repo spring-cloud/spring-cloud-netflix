@@ -147,7 +147,7 @@ public class FormZuulServletProxyApplicationTests {
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
@@ -222,7 +222,7 @@ class FormZuulServletProxyApplication {
 }
 
 // Load balancer with fixed server list for "simplefzspat" pointing to localhost
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class ServletFormRibbonClientConfiguration {
 
 	@LocalServerPort

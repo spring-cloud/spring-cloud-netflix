@@ -171,7 +171,7 @@ public class SendErrorFilterIntegrationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	private static class RibbonConfig {
 
 		@LocalServerPort

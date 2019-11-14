@@ -84,7 +84,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Olga Maciaszek-Sharma
  * @author Tim Ysewyn
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @Import(DiscoveryClientOptionalArgsConfiguration.class)
@@ -246,7 +246,7 @@ public class EurekaClientAutoConfiguration {
 		return new EurekaAutoServiceRegistration(context, registry, registration);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnMissingRefreshScope
 	protected static class EurekaClientConfiguration {
 
@@ -289,7 +289,7 @@ public class EurekaClientAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnRefreshScope
 	protected static class RefreshableEurekaClientConfiguration {
 
@@ -397,7 +397,7 @@ public class EurekaClientAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(Health.class)
 	protected static class EurekaHealthIndicatorConfiguration {
 

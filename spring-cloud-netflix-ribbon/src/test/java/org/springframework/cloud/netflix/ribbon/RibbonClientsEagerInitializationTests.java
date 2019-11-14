@@ -54,7 +54,7 @@ public class RibbonClientsEagerInitializationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RibbonClients({ @RibbonClient(name = "testspec1", configuration = FooConfig.class),
 			@RibbonClient(name = "testspec2", configuration = FooConfig.class),

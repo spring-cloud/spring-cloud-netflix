@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Tim Ysewyn
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnDiscoveryEnabled
 @ConditionalOnReactiveDiscoveryEnabled

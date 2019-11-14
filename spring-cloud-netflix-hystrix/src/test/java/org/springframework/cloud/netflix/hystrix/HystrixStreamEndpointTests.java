@@ -98,7 +98,7 @@ public class HystrixStreamEndpointTests {
 		fail("/hystrix.stream didn't contain 'data:' was " + data);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@EnableCircuitBreaker

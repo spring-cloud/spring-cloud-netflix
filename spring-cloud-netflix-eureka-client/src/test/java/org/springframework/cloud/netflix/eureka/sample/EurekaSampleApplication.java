@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ComponentScan
 @EnableAutoConfiguration
 @RestController

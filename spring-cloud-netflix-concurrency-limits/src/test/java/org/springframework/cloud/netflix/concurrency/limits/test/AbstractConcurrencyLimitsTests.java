@@ -66,7 +66,7 @@ public class AbstractConcurrencyLimitsTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RestController
 	protected static class HelloControllerConfiguration {
 

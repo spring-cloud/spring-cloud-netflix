@@ -77,7 +77,7 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 		return (ZoneAwareLoadBalancer<Server>) this.factory.getLoadBalancer("foo");
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@RibbonClient("foo")
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,

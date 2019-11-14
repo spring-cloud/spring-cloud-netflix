@@ -59,7 +59,7 @@ public class EurekaHealthCheckTests {
 		assertThat(status).isEqualTo(InstanceInfo.InstanceStatus.OUT_OF_SERVICE);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	protected static class EurekaHealthCheckApplication {
 

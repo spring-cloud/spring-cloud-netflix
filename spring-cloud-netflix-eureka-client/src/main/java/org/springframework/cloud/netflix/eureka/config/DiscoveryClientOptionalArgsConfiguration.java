@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Daniel Lavoie
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean

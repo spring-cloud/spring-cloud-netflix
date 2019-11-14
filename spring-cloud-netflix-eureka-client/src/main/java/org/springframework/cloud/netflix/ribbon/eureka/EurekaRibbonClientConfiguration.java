@@ -52,7 +52,7 @@ import org.springframework.util.StringUtils;
  * @author Dave Syer
  * @author Ryan Baxter
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class EurekaRibbonClientConfiguration {
 
 	private static final Log log = LogFactory

@@ -34,7 +34,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Dave Syer
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass({ EurekaInstanceConfigBean.class, EurekaClient.class,
 		ConfigServerProperties.class })

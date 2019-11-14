@@ -183,7 +183,7 @@ public class InstanceRegistryTests {
 		return builder.build();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class TestApplication {

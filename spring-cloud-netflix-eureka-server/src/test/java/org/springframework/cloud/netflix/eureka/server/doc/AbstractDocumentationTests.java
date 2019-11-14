@@ -152,7 +152,7 @@ public abstract class AbstractDocumentationTests {
 		return RestAssured.given(spec(filter)).filter(filter);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {

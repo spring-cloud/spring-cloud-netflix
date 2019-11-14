@@ -210,7 +210,7 @@ public class SidecarApplicationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableSidecar
 	protected static class EurekaInstanceConfigBeanOverrideApplication {

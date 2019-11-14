@@ -50,7 +50,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(name = "org.apache.http.client.HttpClient")
 @ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 public class HttpClientRibbonConfiguration {
@@ -91,7 +91,7 @@ public class HttpClientRibbonConfiguration {
 		return client;
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class ApacheHttpClientConfiguration {
 
 		private final Timer connectionManagerTimer = new Timer(

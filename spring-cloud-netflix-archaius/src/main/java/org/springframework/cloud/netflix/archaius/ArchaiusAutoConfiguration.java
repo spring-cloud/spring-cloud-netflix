@@ -66,7 +66,7 @@ import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
 /**
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ ConcurrentCompositeConfiguration.class,
 		ConfigurationBuilder.class })
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
@@ -194,7 +194,7 @@ public class ArchaiusAutoConfiguration {
 		ReflectionUtils.setField(field, null, value);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(Health.class)
 	protected static class ArchaiusEndpointConfiguration {
 
@@ -206,7 +206,7 @@ public class ArchaiusAutoConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent",
 			matchIfMissing = true)
 	@ConditionalOnClass(EnvironmentChangeEvent.class)

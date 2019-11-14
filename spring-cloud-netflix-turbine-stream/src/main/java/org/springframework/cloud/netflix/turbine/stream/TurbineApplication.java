@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Dave Syer
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableAutoConfiguration
 @EnableTurbineStream
 public class TurbineApplication {

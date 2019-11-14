@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Spencer Gibb
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 public class TurbineHttpConfiguration {
 
@@ -96,7 +96,7 @@ public class TurbineHttpConfiguration {
 		return new ConfigurationBasedTurbineClustersProvider(turbineAggregatorProperties);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(EurekaClient.class)
 	protected static class EurekaTurbineConfiguration {
 
@@ -109,7 +109,7 @@ public class TurbineHttpConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnMissingClass("com.netflix.discovery.EurekaClient")
 	protected static class DiscoveryClientTurbineConfiguration {
 

@@ -284,7 +284,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
@@ -418,7 +418,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		// Load balancer with fixed server list for "simple" pointing to bad host
-		@Configuration
+		@Configuration(proxyBeanMethods = false)
 		static class BadHostRibbonClientConfiguration {
 
 			@Bean
@@ -430,7 +430,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		// This is needed to allow semicolon separators used in matrix variables
-		@Configuration
+		@Configuration(proxyBeanMethods = false)
 		static class CustomHttpFirewallConfig
 				implements WebSecurityConfigurer<WebSecurity> {
 

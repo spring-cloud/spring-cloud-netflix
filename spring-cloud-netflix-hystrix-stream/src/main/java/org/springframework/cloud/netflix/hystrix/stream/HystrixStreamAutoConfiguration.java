@@ -50,7 +50,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ HystrixCircuitBreaker.class, EnableBinding.class })
 @ConditionalOnProperty(value = "hystrix.stream.queue.enabled", matchIfMissing = true)
 @EnableConfigurationProperties

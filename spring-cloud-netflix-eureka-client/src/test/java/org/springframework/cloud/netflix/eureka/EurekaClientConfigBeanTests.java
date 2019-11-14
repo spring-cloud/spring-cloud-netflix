@@ -129,7 +129,7 @@ public class EurekaClientConfigBeanTests {
 				.getEurekaServerServiceUrls(myZone).toString();
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties(EurekaClientConfigBean.class)
 	protected static class TestConfiguration {
 

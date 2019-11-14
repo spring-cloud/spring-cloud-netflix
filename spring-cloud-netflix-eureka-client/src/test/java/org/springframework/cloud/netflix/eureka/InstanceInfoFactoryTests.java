@@ -72,7 +72,7 @@ public class InstanceInfoFactoryTests {
 		return this.context.getBean(EurekaInstanceConfigBean.class);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
 

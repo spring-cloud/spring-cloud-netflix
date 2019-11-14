@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Lazy;
  * @author Spencer Gibb
  */
 @SuppressWarnings("deprecation")
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RibbonAutoConfiguration.ConditionalOnRibbonRestClient
 class RestClientRibbonConfiguration {
 

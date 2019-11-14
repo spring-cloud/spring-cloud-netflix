@@ -72,7 +72,7 @@ public class ConditionalOnRefreshScopeTests {
 				});
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	protected static class Beans {
 
 		@Bean

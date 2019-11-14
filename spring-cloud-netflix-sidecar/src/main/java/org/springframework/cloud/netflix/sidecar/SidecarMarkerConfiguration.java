@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Greg Adams
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SidecarMarkerConfiguration {
 
 	@Bean

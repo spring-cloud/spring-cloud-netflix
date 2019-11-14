@@ -40,7 +40,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(EnableBinding.class)
 @ConditionalOnProperty(value = "turbine.stream.enabled", matchIfMissing = true)
 @EnableBinding(TurbineStreamClient.class)
