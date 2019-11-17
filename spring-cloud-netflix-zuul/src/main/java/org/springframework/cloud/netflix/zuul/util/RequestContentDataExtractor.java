@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -98,7 +99,7 @@ public final class RequestContentDataExtractor {
 
 			if (listOfOnlyQueryParams != null) {
 				listOfOnlyQueryParams = listOfOnlyQueryParams.stream()
-						.filter(queryParam -> queryParam != null)
+						.filter(Objects::nonNull)
 						.map(param -> uriDecode(param, Charset.defaultCharset()))
 						.collect(Collectors.toList());
 				if (!listOfOnlyQueryParams.containsAll(listOfAllParams)) {

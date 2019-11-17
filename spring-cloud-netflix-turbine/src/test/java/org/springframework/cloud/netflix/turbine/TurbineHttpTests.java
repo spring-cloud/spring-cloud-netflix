@@ -76,7 +76,7 @@ public class TurbineHttpTests {
 				@Override
 				public Collection<ClusterInformation> getClusterInformations(
 						HttpServletRequest request) {
-					List<ClusterInformation> clusterInformationList = new ArrayList<ClusterInformation>();
+					List<ClusterInformation> clusterInformationList = new ArrayList<>();
 					clusterInformationList.add(foo);
 					clusterInformationList.add(bar);
 					return clusterInformationList;
