@@ -195,11 +195,9 @@ public class SendResponseFilter extends ZuulFilter {
 				if (zuulResponse instanceof Closeable) {
 					((Closeable) zuulResponse).close();
 				}
-				outStream.flush();
-				// The container will close the stream for us
 			}
 			catch (IOException ex) {
-				log.warn("Error while sending response to client: " + ex);
+				log.warn("Error while closing zuul response.", ex);
 			}
 		}
 	}
