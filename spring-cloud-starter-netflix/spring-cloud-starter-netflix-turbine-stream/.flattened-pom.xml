@@ -129,7 +129,7 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-stream</artifactId>
-      <version>3.0.0.BUILD-SNAPSHOT</version>
+      <version>3.0.1.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
