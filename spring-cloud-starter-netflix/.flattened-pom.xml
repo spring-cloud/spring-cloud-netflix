@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-netflix</artifactId>
-    <version>2.2.0.BUILD-SNAPSHOT</version>
+    <version>2.2.0.RELEASE</version>
     <relativePath>..</relativePath>
   </parent>
   <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-starter-netflix</artifactId>
-  <version>2.2.0.BUILD-SNAPSHOT</version>
+  <version>2.2.0.RELEASE</version>
   <packaging>pom</packaging>
   <name>Spring Cloud Netflix Starters</name>
   <description>Spring Cloud Netflix Starters</description>
