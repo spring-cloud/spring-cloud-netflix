@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-netflix</artifactId>
-    <version>2.2.0.BUILD-SNAPSHOT</version>
+    <version>2.2.1.BUILD-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-netflix-core</artifactId>
-  <version>2.2.0.BUILD-SNAPSHOT</version>
+  <version>2.2.1.BUILD-SNAPSHOT</version>
   <name>Spring Cloud Netflix Core - Deprecated</name>
   <description>Deprecated Spring Cloud Netflix Core - will be removed. Please use spring-cloud-netflix-hystrix instead.</description>
   <url>https://spring.io/spring-cloud/spring-cloud-netflix/spring-cloud-netflix-core</url>
@@ -100,7 +100,7 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-netflix-hystrix</artifactId>
-      <version>2.2.0.BUILD-SNAPSHOT</version>
+      <version>2.2.1.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
