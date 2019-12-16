@@ -1532,7 +1532,7 @@ public class TestConfiguration {
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-The <code>CustomConfiguration</code> clas must be a <code>@Configuration</code> class, but take care that it is not in a <code>@ComponentScan</code> for the main application context.
+The <code>CustomConfiguration</code> class must be a <code>@Configuration</code> class, but take care that it is not in a <code>@ComponentScan</code> for the main application context.
 Otherwise, it is shared by all the <code>@RibbonClients</code>. If you use <code>@ComponentScan</code> (or <code>@SpringBootApplication</code>), you need to take steps to avoid it being included (for instance, you can put it in a separate, non-overlapping package or specify the packages to scan explicitly in the <code>@ComponentScan</code>).
 </td>
 </tr>
