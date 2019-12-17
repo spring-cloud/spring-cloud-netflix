@@ -19,3 +19,4 @@ _site/
 *.swp
 *.swo
 .vscode/
+.flattened-pom.xml
