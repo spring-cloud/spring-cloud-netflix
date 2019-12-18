@@ -99,10 +99,10 @@ public class RibbonClientConfiguration {
 	@ConditionalOnMissingBean
 	public IClientConfig ribbonClientConfig() {
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
-		config.loadProperties(this.name);
 		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT);
 		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT);
 		config.set(CommonClientConfigKey.GZipPayload, DEFAULT_GZIP_PAYLOAD);
+		config.loadProperties(this.name);
 		return config;
 	}
 
