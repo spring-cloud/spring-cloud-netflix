@@ -34,7 +34,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.util.StringUtils;
 
 /**
- * A configuration for Spring Cloud LoadBalancerthat retrieves client instance zone from
+ * A configuration for Spring Cloud LoadBalancer that retrieves client instance zone from
  * Eureka and sets it as a property. Based on
  * {@link EurekaLoadBalancerClientConfiguration}.
  *

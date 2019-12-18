@@ -335,6 +335,18 @@ When a refresh occurs clients will be unregistered from the Eureka server and th
 where all instance of a given service are not available. One way to eliminate this from happening is to disable
 the ability to refresh Eureka clients.  To do this set `eureka.client.refresh.enable=false`.
 
+=== Using Eureka with Spring Cloud LoadBalancer
+
+We offer support for the Spring Cloud LoadBalancer `ZonePreferenceServiceInstanceListSupplier`.
+The `zone` value from the Eureka instance metadata (`eureka.instance.metadataMap.zone`) is used for setting the
+value of `spring-clod-loadbalancer-zone` property that is used to filter service instances by zone.
+
+If that is missing and if the `spring.cloud.loadbalancer.eureka.approximateZoneFromHostname` flag is set to `true`,
+it can use the domain name from the server hostname as a proxy for the zone.
+
+If there is no other source of zone data, then a guess is made, based on the client configuration (as opposed to the instance configuration).
+We take `eureka.client.availabilityZones`, which is a map from region name to a list of zones, and pull out the first zone for the instance's own region (that is, the `eureka.client.region`, which defaults to "us-east-1", for compatibility with native Netflix).
+
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
 
