@@ -120,6 +120,7 @@ $(addBlockSwitches);
 <li><a href="#why-is-it-so-slow-to-register-a-service">1.10. Why Is It so Slow to Register a Service?</a></li>
 <li><a href="#zones">1.11. Zones</a></li>
 <li><a href="#refreshing-eureka-clients">1.12. Refreshing Eureka Clients</a></li>
+<li><a href="#using-eureka-with-spring-cloud-loadbalancer">1.13. Using Eureka with Spring Cloud LoadBalancer</a></li>
 </ul>
 </li>
 <li><a href="#spring-cloud-eureka-server">2. Service Discovery: Eureka Server</a>
@@ -705,6 +706,22 @@ eureka.client.preferSameZoneEureka = true</code></pre>
 When a refresh occurs clients will be unregistered from the Eureka server and there might be a brief moment of time
 where all instance of a given service are not available. One way to eliminate this from happening is to disable
 the ability to refresh Eureka clients.  To do this set <code>eureka.client.refresh.enable=false</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using-eureka-with-spring-cloud-loadbalancer"><a class="anchor" href="#using-eureka-with-spring-cloud-loadbalancer"></a><a class="link" href="#using-eureka-with-spring-cloud-loadbalancer">1.13. Using Eureka with Spring Cloud LoadBalancer</a></h3>
+<div class="paragraph">
+<p>We offer support for the Spring Cloud LoadBalancer <code>ZonePreferenceServiceInstanceListSupplier</code>.
+The <code>zone</code> value from the Eureka instance metadata (<code>eureka.instance.metadataMap.zone</code>) is used for setting the
+value of <code>spring-clod-loadbalancer-zone</code> property that is used to filter service instances by zone.</p>
+</div>
+<div class="paragraph">
+<p>If that is missing and if the <code>spring.cloud.loadbalancer.eureka.approximateZoneFromHostname</code> flag is set to <code>true</code>,
+it can use the domain name from the server hostname as a proxy for the zone.</p>
+</div>
+<div class="paragraph">
+<p>If there is no other source of zone data, then a guess is made, based on the client configuration (as opposed to the instance configuration).
+We take <code>eureka.client.availabilityZones</code>, which is a map from region name to a list of zones, and pull out the first zone for the instance&#8217;s own region (that is, the <code>eureka.client.region</code>, which defaults to "us-east-1", for compatibility with native Netflix).</p>
 </div>
 </div>
 </div>
