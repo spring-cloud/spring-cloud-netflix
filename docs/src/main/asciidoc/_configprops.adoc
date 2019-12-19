@@ -19,6 +19,7 @@
 |management.metrics.binders.hystrix.enabled | true | Enables creation of OK Http Client factory beans.
 |ribbon.eureka.enabled | true | Enables the use of Eureka with Ribbon.
 |spring.cloud.circuitbreaker.hystrix.enabled | true | Enables auto-configuration of the Hystrix Spring Cloud CircuitBreaker API implementation.
+|spring.cloud.loadbalancer.eureka.approximate-zone-from-hostname | false | Used to determine whether we should try to get the `zone` value from host name.
 |spring.cloud.loadbalancer.ribbon.enabled | true | Causes `RibbonLoadBalancerClient` to be used by default.
 |zuul.ribbon-isolation-strategy |  | 
 |zuul.ribbon.eager-load.enabled | false | Enables eager loading of Ribbon clients on startup.
