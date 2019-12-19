@@ -42,7 +42,7 @@ class EurekaLoadBalancerClientConfigurationTests {
 
 	private EurekaLoadBalancerProperties eurekaLoadBalancerProperties = new EurekaLoadBalancerProperties();
 
-	private EurekaLoadBalancerClientConfiguration preprocessor = new EurekaLoadBalancerClientConfiguration(
+	private EurekaLoadBalancerClientConfiguration postprocessor = new EurekaLoadBalancerClientConfiguration(
 			eurekaClientConfig, eurekaInstanceConfig, loadBalancerProperties,
 			eurekaLoadBalancerProperties);
 
@@ -50,14 +50,14 @@ class EurekaLoadBalancerClientConfigurationTests {
 	void shouldSetZoneFromInstanceMetadata() {
 		eurekaInstanceConfig.getMetadataMap().put("zone", "myZone");
 
-		preprocessor.preprocess();
+		postprocessor.postprocess();
 
 		assertThat(loadBalancerProperties.getZone()).isEqualTo("myZone");
 	}
 
 	@Test
 	public void shouldSetZoneToDefaultWhenNotSetInMetadata() {
-		preprocessor.preprocess();
+		postprocessor.postprocess();
 
 		assertThat(loadBalancerProperties.getZone()).isEqualTo("defaultZone");
 	}
@@ -67,7 +67,7 @@ class EurekaLoadBalancerClientConfigurationTests {
 		eurekaInstanceConfig.setHostname("this.is.a.test.com");
 		eurekaLoadBalancerProperties.setApproximateZoneFromHostname(true);
 
-		preprocessor.preprocess();
+		postprocessor.postprocess();
 
 		assertThat(loadBalancerProperties.getZone()).isEqualTo("is.a.test.com");
 	}

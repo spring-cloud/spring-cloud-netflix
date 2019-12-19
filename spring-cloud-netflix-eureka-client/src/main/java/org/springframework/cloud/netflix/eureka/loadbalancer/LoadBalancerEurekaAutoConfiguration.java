@@ -34,14 +34,13 @@ import org.springframework.context.annotation.Configuration;
  * @see EurekaLoadBalancerClientConfiguration
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties
+@EnableConfigurationProperties(EurekaLoadBalancerProperties.class)
 @ConditionalOnClass(LoadBalancerClientConfigurationRegistrar.class)
 @LoadBalancerClients(defaultConfiguration = EurekaLoadBalancerClientConfiguration.class)
 public class LoadBalancerEurekaAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	@ConfigurationProperties("spring.cloud.loadbalancer.eureka")
 	EurekaLoadBalancerProperties eurekaLoadBalancerProperties() {
 		return new EurekaLoadBalancerProperties();
 	}
