@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.loadbalancer;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.PostConstruct;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
@@ -27,10 +24,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerProperties;
 import org.springframework.cloud.netflix.ribbon.eureka.ZoneUtils;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MutablePropertySources;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 /**
@@ -42,13 +39,11 @@ import org.springframework.util.StringUtils;
  * @since 2.2.1
  * @see EurekaLoadBalancerClientConfiguration
  */
+@Configuration
+@ConditionalOnBean({ LoadBalancerProperties.class, EurekaLoadBalancerProperties.class })
 public class EurekaLoadBalancerClientConfiguration {
 
-	// Visible for tests
-	static final String LOADBALANCER_ZONE = "spring.cloud.loadbalancer.zone";
-
-	// Visible for tests
-	static final String APPROXIMATE_ZONE_FROM_HOSTNAME = "spring.cloud.loadbalancer.eureka.approximateZoneFromHostname";
+	private static final String LOADBALANCER_ZONE = "spring.cloud.loadbalancer.zone";
 
 	private static final Log LOG = LogFactory
 			.getLog(EurekaLoadBalancerClientConfiguration.class);
@@ -57,42 +52,39 @@ public class EurekaLoadBalancerClientConfiguration {
 
 	private final EurekaInstanceConfig eurekaConfig;
 
-	private final ConfigurableEnvironment environment;
+	private final LoadBalancerProperties loadBalancerProperties;
+
+	private final EurekaLoadBalancerProperties eurekaLoadBalancerProperties;
 
 	public EurekaLoadBalancerClientConfiguration(
 			@Autowired(required = false) EurekaClientConfig clientConfig,
 			@Autowired(required = false) EurekaInstanceConfig eurekaInstanceConfig,
-			ConfigurableEnvironment environment) {
+			LoadBalancerProperties loadBalancerProperties,
+			EurekaLoadBalancerProperties eurekaLoadBalancerProperties) {
 		this.clientConfig = clientConfig;
 		this.eurekaConfig = eurekaInstanceConfig;
-		this.environment = environment;
+		this.loadBalancerProperties = loadBalancerProperties;
+		this.eurekaLoadBalancerProperties = eurekaLoadBalancerProperties;
 	}
 
 	@PostConstruct
 	public void preprocess() {
-		if (!StringUtils.isEmpty(environment.getProperty(LOADBALANCER_ZONE))) {
+		if (!StringUtils.isEmpty(loadBalancerProperties.getZone())) {
 			return;
 		}
 		String zone = getZoneFromEureka();
-		if (zone != null) {
+		if (!StringUtils.isEmpty(zone)) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Setting the value of '" + LOADBALANCER_ZONE + "' to " + zone);
 			}
-			addZoneProperty(zone);
+			loadBalancerProperties.setZone(zone);
 		}
-	}
-
-	private void addZoneProperty(String zone) {
-		MutablePropertySources propertySources = environment.getPropertySources();
-		Map<String, Object> myMap = new HashMap<>();
-		myMap.put(LOADBALANCER_ZONE, zone);
-		propertySources.addLast(new MapPropertySource("LOADBALANCER_MAP", myMap));
 	}
 
 	private String getZoneFromEureka() {
 		String zone;
-		boolean approximateZoneFromHostname = Boolean.parseBoolean(
-				environment.getProperty(APPROXIMATE_ZONE_FROM_HOSTNAME, "false"));
+		boolean approximateZoneFromHostname = eurekaLoadBalancerProperties
+				.isApproximateZoneFromHostname();
 		if (approximateZoneFromHostname && eurekaConfig != null) {
 			return ZoneUtils.extractApproximateZone(this.eurekaConfig.getHostName(false));
 		}

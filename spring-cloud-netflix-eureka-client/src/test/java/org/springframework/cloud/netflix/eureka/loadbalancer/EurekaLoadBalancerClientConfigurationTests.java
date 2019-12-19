@@ -18,15 +18,13 @@ package org.springframework.cloud.netflix.eureka.loadbalancer;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
-import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.cloud.netflix.eureka.loadbalancer.EurekaLoadBalancerClientConfiguration.APPROXIMATE_ZONE_FROM_HOSTNAME;
-import static org.springframework.cloud.netflix.eureka.loadbalancer.EurekaLoadBalancerClientConfiguration.LOADBALANCER_ZONE;
 
 /**
  * Tests for {@link EurekaLoadBalancerClientConfiguration}.
@@ -40,10 +38,13 @@ class EurekaLoadBalancerClientConfigurationTests {
 	private EurekaInstanceConfigBean eurekaInstanceConfig = new EurekaInstanceConfigBean(
 			new InetUtils(new InetUtilsProperties()));
 
-	private MockEnvironment environment = new MockEnvironment();
+	private LoadBalancerProperties loadBalancerProperties = new LoadBalancerProperties();
+
+	private EurekaLoadBalancerProperties eurekaLoadBalancerProperties = new EurekaLoadBalancerProperties();
 
 	private EurekaLoadBalancerClientConfiguration preprocessor = new EurekaLoadBalancerClientConfiguration(
-			eurekaClientConfig, eurekaInstanceConfig, environment);
+			eurekaClientConfig, eurekaInstanceConfig, loadBalancerProperties,
+			eurekaLoadBalancerProperties);
 
 	@Test
 	void shouldSetZoneFromInstanceMetadata() {
@@ -51,24 +52,24 @@ class EurekaLoadBalancerClientConfigurationTests {
 
 		preprocessor.preprocess();
 
-		assertThat(environment.getProperty(LOADBALANCER_ZONE)).isEqualTo("myZone");
+		assertThat(loadBalancerProperties.getZone()).isEqualTo("myZone");
 	}
 
 	@Test
 	public void shouldSetZoneToDefaultWhenNotSetInMetadata() {
 		preprocessor.preprocess();
 
-		assertThat(environment.getProperty(LOADBALANCER_ZONE)).isEqualTo("defaultZone");
+		assertThat(loadBalancerProperties.getZone()).isEqualTo("defaultZone");
 	}
 
 	@Test
 	public void shouldResolveApproximateZoneFromHost() {
 		eurekaInstanceConfig.setHostname("this.is.a.test.com");
-		environment.setProperty(APPROXIMATE_ZONE_FROM_HOSTNAME, "true");
+		eurekaLoadBalancerProperties.setApproximateZoneFromHostname(true);
 
 		preprocessor.preprocess();
 
-		assertThat(environment.getProperty(LOADBALANCER_ZONE)).isEqualTo("is.a.test.com");
+		assertThat(loadBalancerProperties.getZone()).isEqualTo("is.a.test.com");
 	}
 
 }
