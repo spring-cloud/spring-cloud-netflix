@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.cloud.netflix.test.NoSecurityConfiguration;
@@ -103,16 +104,18 @@ public class HystrixCircuitBreakerIntegrationTest {
 
 			private TestRestTemplate rest;
 
-			private CircuitBreakerFactory cbFactory;
+			private final CircuitBreakerFactory cbFactory;
+			private final CircuitBreaker circuitBreakerSlow;
 
 			DemoControllerService(TestRestTemplate rest,
 					CircuitBreakerFactory cbBuilder) {
 				this.rest = rest;
 				this.cbFactory = cbBuilder;
+				this.circuitBreakerSlow = cbBuilder.create("slow");
 			}
 
 			public String slow() {
-				return cbFactory.create("slow").run(
+				return circuitBreakerSlow.run(
 						() -> rest.getForObject("/slow", String.class), t -> "fallback");
 			}
 
