@@ -69,7 +69,7 @@ eureka:
 
 In the preceding example, "defaultZone" is a magic string fallback value that provides the service URL for any client that does not express a preference (in other words, it is a useful default).
 
-The default application name (that is, the service ID), virtual host, and non-secure port (taken from the `Environment`) are `${spring.application.name}`, `${spring.application.name}` and `${server.port}`, respectively.
+The default application name (that is, the service ID), virtual host, and non-secure port (taken from the `Environment`) are `${spring.application.name}`, `${spring.application.host}` and `${server.port}`, respectively.
 
 Having `spring-cloud-starter-netflix-eureka-client` on the classpath makes the app into both a Eureka "`instance`" (that is, it registers itself) and a "`client`" (it can query the registry to locate other services).
 The instance behaviour is driven by `eureka.instance.*` configuration keys, but the defaults are fine if you ensure that your application has a value for `spring.application.name` (this is the default for the Eureka service ID or VIP).
