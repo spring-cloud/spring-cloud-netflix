@@ -51,6 +51,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -65,7 +66,9 @@ import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
 
 /**
  * @author Spencer Gibb
+ * @author Liang Yong
  */
+@Lazy(false)
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ ConcurrentCompositeConfiguration.class,
 		ConfigurationBuilder.class })
