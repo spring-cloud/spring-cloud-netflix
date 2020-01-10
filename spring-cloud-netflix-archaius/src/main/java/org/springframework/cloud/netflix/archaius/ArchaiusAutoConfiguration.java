@@ -66,6 +66,7 @@ import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
 
 /**
  * @author Spencer Gibb
+ * @author Liang Yong
  */
 @Lazy(false)
 @Configuration(proxyBeanMethods = false)
