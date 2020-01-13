@@ -2285,7 +2285,7 @@ path, rendering the <code>users</code> path unreachable.</p>
 <div class="paragraph">
 <p>The default HTTP client used by Zuul is now backed by the Apache HTTP Client instead of the deprecated Ribbon <code>RestClient</code>.
 To use <code>RestClient</code> or <code>okhttp3.OkHttpClient</code>, set <code>ribbon.restclient.enabled=true</code> or <code>ribbon.okhttp.enabled=true</code>, respectively.
-If you would like to customize the Apache HTTP client or the OK HTTP client, provide a bean of type <code>ClosableHttpClient</code> or <code>OkHttpClient</code>.</p>
+If you would like to customize the Apache HTTP client or the OK HTTP client, provide a bean of type <code>CloseableHttpClient</code> or <code>OkHttpClient</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -3408,8 +3408,8 @@ You can also disable retry functionality on a route-by-route basis by setting <c
 <div class="paragraph">
 <p>Spring Cloud Netflix automatically creates the HTTP client used by Ribbon, Feign, and Zuul for you.
 However, you can also provide your own HTTP clients customized as you need them to be.
-To do so, you can create a bean of type <code>ClosableHttpClient</code> if you
-are using the Apache Http Cient or <code>OkHttpClient</code> if you are using OK HTTP.</p>
+To do so, you can create a bean of type <code>CloseableHttpClient</code> if you
+are using the Apache HTTP Client or <code>OkHttpClient</code> if you are using OK HTTP.</p>
 </div>
 <div class="admonitionblock note">
 <table>
