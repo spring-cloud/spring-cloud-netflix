@@ -19,34 +19,31 @@ package org.springframework.cloud.netflix.hystrix;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.netflix.hystrix.Hystrix;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author Ryan Baxter
  * @author Eric Bussieres
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass({ Hystrix.class })
+@ConditionalOnClass(name = { "reactor.core.publisher.Mono", "reactor.core.publisher.Flux",
+		"com.netflix.hystrix.Hystrix"})
 @ConditionalOnProperty(name = "spring.cloud.circuitbreaker.hystrix.enabled",
 		matchIfMissing = true)
-public class HystrixCircuitBreakerAutoConfiguration {
-
+public class ReactiveHystrixCircuitBreakerAutoConfiguration {
 	@Autowired(required = false)
-	private List<Customizer<HystrixCircuitBreakerFactory>> customizers = new ArrayList<>();
+	private List<Customizer<ReactiveHystrixCircuitBreakerFactory>> customizers = new ArrayList<>();
 
 	@Bean
-	@ConditionalOnMissingBean(CircuitBreakerFactory.class)
-	public CircuitBreakerFactory hystrixCircuitBreakerFactory() {
-		HystrixCircuitBreakerFactory factory = new HystrixCircuitBreakerFactory();
+	@ConditionalOnMissingBean(ReactiveCircuitBreakerFactory.class)
+	public ReactiveHystrixCircuitBreakerFactory reactiveHystrixCircuitBreakerFactory() {
+		ReactiveHystrixCircuitBreakerFactory factory = new ReactiveHystrixCircuitBreakerFactory();
 		customizers.forEach(customizer -> customizer.customize(factory));
 		return factory;
 	}
