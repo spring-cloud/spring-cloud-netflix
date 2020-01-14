@@ -76,7 +76,8 @@ public class LocationRewriteFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		int statusCode = ctx.getResponseStatusCode();
-		return HttpStatus.valueOf(statusCode).is3xxRedirection();
+		HttpStatus resolve = HttpStatus.resolve(statusCode);
+		return resolve!=null && resolve.is3xxRedirection();		
 	}
 
 	@Override
