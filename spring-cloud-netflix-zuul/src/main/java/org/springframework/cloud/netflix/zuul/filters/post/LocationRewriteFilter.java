@@ -122,7 +122,7 @@ public class LocationRewriteFilter extends ZuulFilter {
 				: redirectedUriComps.getPath();
 
 		if (downstreamHasGlobalPrefix(zuulProperties)) {
-			path.append("/" + zuulProperties.getPrefix());
+			path.append("/").append(zuulProperties.getPrefix());
 		}
 		else {
 			path.append(zuulHasGlobalPrefix(zuulProperties)

@@ -270,7 +270,7 @@ public class SendResponseFilter extends ZuulFilter {
 			if (rd != null) {
 				StringBuilder debugHeader = new StringBuilder();
 				for (String it : rd) {
-					debugHeader.append("[[[" + it + "]]]");
+					debugHeader.append("[[[").append(it).append("]]]");
 				}
 				servletResponse.addHeader(X_ZUUL_DEBUG_HEADER, debugHeader.toString());
 			}

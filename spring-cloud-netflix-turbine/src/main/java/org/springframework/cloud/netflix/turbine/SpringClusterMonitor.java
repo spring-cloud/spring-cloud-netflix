@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.turbine;
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
-import com.netflix.turbine.data.DataFromSingleInstance;
 import com.netflix.turbine.discovery.Instance;
 import com.netflix.turbine.handler.PerformanceCriteria;
 import com.netflix.turbine.monitor.MonitorConsole;
@@ -37,7 +36,7 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 	public SpringClusterMonitor(String name, String clusterName) {
 		super(name, new ObservationCriteria.ClusterBasedObservationCriteria(clusterName),
 				new PerformanceCriteria.AggClusterPerformanceCriteria(clusterName),
-				new MonitorConsole<DataFromSingleInstance>(), InstanceMonitorDispatcher,
+				new MonitorConsole<>(), InstanceMonitorDispatcher,
 				SpringClusterMonitor.ClusterConfigBasedUrlClosure);
 	}
 
