@@ -481,7 +481,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter
 			try {
 				return Long.parseLong(contentLengthHeader);
 			}
-			catch (NumberFormatException e) {
+			catch (NumberFormatException ignored) {
 			}
 		}
 		return request.getContentLength();

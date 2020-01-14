@@ -57,7 +57,7 @@ public class TurbineController {
 				.interval(Duration.ofSeconds(5), Duration.ofSeconds(10))
 				.map(l -> Collections.singletonMap("type", (Object) "ping")).share();
 		flux = Flux.merge(RxReactiveStreams.toPublisher(stream), ping).share()
-				.map(map -> JsonUtility.mapToJson(map));
+				.map(JsonUtility::mapToJson);
 	}
 
 	@GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
