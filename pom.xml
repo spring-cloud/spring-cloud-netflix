@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-netflix</artifactId>
-	<version>2.2.2.BUILD-SNAPSHOT</version>
+	<version>3.0.0.BUILD-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
@@ -81,12 +81,6 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-netflix-hystrix-contract</artifactId>
-				<version>${project.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-dependencies</artifactId>
 				<version>${project.version}</version>
 				<type>pom</type>
@@ -131,19 +125,6 @@
 				<artifactId>javax.inject</artifactId>
 				<version>1</version>
 			</dependency>
-			<!-- archaius dependencies that are now runtime -->
-			<dependency>
-				<groupId>commons-configuration</groupId>
-				<artifactId>commons-configuration</artifactId>
-				<version>1.8</version>
-				<exclusions>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<!-- end archaius deps -->
 			<!-- Eureka core dep that is now optional -->
 			<dependency>
 				<groupId>com.sun.jersey</groupId>
@@ -188,22 +169,11 @@
 	</reporting>
 	<modules>
 		<module>spring-cloud-netflix-dependencies</module>
-		<module>spring-cloud-netflix-archaius</module>
-		<!-- Not part of the reactor build: build and deploy separately -->
-		<!--module>spring-cloud-netflix-hystrix-contract</module-->
-		<module>spring-cloud-netflix-core</module>
 		<module>spring-cloud-netflix-concurrency-limits</module>
-		<module>spring-cloud-netflix-hystrix-dashboard</module>
-		<module>spring-cloud-netflix-hystrix-stream</module>
 		<module>spring-cloud-netflix-eureka-client</module>
 		<module>spring-cloud-netflix-eureka-server</module>
-		<module>spring-cloud-netflix-turbine</module>
-		<module>spring-cloud-netflix-turbine-stream</module>
-		<module>spring-cloud-netflix-sidecar</module>
-		<module>spring-cloud-netflix-zuul</module>
-		<module>spring-cloud-netflix-ribbon</module>
-		<module>spring-cloud-starter-netflix</module>
-		<module>spring-cloud-netflix-hystrix</module>
+		<module>spring-cloud-starter-netflix-eureka-client</module>
+		<module>spring-cloud-starter-netflix-eureka-server</module>
 		<module>docs</module>
     </modules>
 	<profiles>
