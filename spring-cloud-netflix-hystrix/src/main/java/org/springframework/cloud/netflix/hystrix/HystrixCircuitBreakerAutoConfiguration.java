@@ -50,4 +50,5 @@ public class HystrixCircuitBreakerAutoConfiguration {
 		customizers.forEach(customizer -> customizer.customize(factory));
 		return factory;
 	}
+
 }

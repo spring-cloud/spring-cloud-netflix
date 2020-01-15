@@ -33,10 +33,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(name = { "reactor.core.publisher.Mono", "reactor.core.publisher.Flux",
-		"com.netflix.hystrix.Hystrix"})
+		"com.netflix.hystrix.Hystrix" })
 @ConditionalOnProperty(name = "spring.cloud.circuitbreaker.hystrix.enabled",
 		matchIfMissing = true)
 public class ReactiveHystrixCircuitBreakerAutoConfiguration {
+
 	@Autowired(required = false)
 	private List<Customizer<ReactiveHystrixCircuitBreakerFactory>> customizers = new ArrayList<>();
 
@@ -47,4 +48,5 @@ public class ReactiveHystrixCircuitBreakerAutoConfiguration {
 		customizers.forEach(customizer -> customizer.customize(factory));
 		return factory;
 	}
+
 }

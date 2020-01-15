@@ -105,6 +105,7 @@ public class HystrixCircuitBreakerIntegrationTest {
 			private TestRestTemplate rest;
 
 			private final CircuitBreakerFactory cbFactory;
+
 			private final CircuitBreaker circuitBreakerSlow;
 
 			DemoControllerService(TestRestTemplate rest,

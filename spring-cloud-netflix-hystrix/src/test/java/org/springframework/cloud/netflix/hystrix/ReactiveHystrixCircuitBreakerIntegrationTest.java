@@ -118,6 +118,7 @@ public class ReactiveHystrixCircuitBreakerIntegrationTest {
 			private int port = 0;
 
 			private final ReactiveCircuitBreakerFactory cbFactory;
+
 			private final ReactiveCircuitBreaker circuitBreakerSlow;
 
 			DemoControllerService(ReactiveCircuitBreakerFactory cbBuilder) {
