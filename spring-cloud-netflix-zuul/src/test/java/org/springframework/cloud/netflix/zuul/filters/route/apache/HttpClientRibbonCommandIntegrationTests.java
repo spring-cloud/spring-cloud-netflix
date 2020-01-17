@@ -80,7 +80,8 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 				"zuul.routes.another: /another/twolevel/**",
 				"zuul.routes.simple: /simple/**", "zuul.routes.singleton.id: singleton",
 				"zuul.routes.singleton.path: /singleton/**",
-				"zuul.routes.singleton.sensitiveHeaders: " })
+				"zuul.routes.singleton.sensitiveHeaders: ",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 

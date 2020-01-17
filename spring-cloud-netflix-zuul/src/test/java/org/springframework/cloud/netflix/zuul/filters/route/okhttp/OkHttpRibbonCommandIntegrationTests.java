@@ -63,7 +63,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 		webEnvironment = WebEnvironment.RANDOM_PORT,
 		value = { "zuul.routes.other: /test/**=http://localhost:7777/local",
 				"zuul.routes.another: /another/twolevel/**",
-				"zuul.routes.simple: /simple/**" })
+				"zuul.routes.simple: /simple/**",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 

@@ -38,7 +38,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.Assert;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tyler Van Gorder
@@ -59,12 +60,13 @@ public class RibbonClientPreprocessorOverridesRetryTests {
 	public void customRetryIsConfigured() throws Exception {
 		RibbonLoadBalancerContext context = (RibbonLoadBalancerContext) this.factory
 				.getLoadBalancerContext("customRetry");
-		Assert.isInstanceOf(RetryRibbonConfiguration.CustomRetryHandler.class,
-				context.getRetryHandler());
-		Assert.isTrue(context.getRetryHandler().getMaxRetriesOnSameServer() == 0);
-		Assert.isTrue(context.getRetryHandler().getMaxRetriesOnNextServer() == 1);
-		Assert.isTrue(context.getRetryHandler()
-				.isCircuitTrippingException(new UnknownHostException("Unknown Host")));
+		assertThat(context.getRetryHandler())
+				.isInstanceOf(RetryRibbonConfiguration.CustomRetryHandler.class);
+		assertThat(context.getRetryHandler().getMaxRetriesOnSameServer()).isEqualTo(0);
+		assertThat(context.getRetryHandler().getMaxRetriesOnNextServer()).isEqualTo(1);
+		assertThat(context.getRetryHandler()
+				.isCircuitTrippingException(new UnknownHostException("Unknown Host")))
+						.isTrue();
 	}
 
 	@Configuration(proxyBeanMethods = false)

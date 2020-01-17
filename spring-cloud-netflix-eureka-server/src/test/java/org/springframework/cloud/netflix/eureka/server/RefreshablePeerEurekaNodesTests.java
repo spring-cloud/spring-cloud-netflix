@@ -47,7 +47,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -179,7 +179,7 @@ public class RefreshablePeerEurekaNodesTests {
 
 		mock.onApplicationEvent(new EnvironmentChangeEvent(
 				Collections.singleton("some.irrelevant.property")));
-		verify(mock, never()).updatePeerEurekaNodes(anyListOf(String.class));
+		verify(mock, never()).updatePeerEurekaNodes(anyList());
 	}
 
 	@Test

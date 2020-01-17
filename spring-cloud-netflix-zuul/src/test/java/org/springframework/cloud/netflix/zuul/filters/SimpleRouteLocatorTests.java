@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.springframework.boot.test.rule.OutputCapture;
+import org.springframework.boot.test.system.OutputCaptureRule;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.containsString;
 public class SimpleRouteLocatorTests {
 
 	@Rule
-	public OutputCapture output = new OutputCapture();
+	public OutputCaptureRule output = new OutputCaptureRule();
 
 	private ZuulProperties properties;
 

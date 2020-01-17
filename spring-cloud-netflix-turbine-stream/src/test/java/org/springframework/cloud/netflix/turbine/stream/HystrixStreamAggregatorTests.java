@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import rx.subjects.PublishSubject;
 
-import org.springframework.boot.test.rule.OutputCapture;
+import org.springframework.boot.test.system.OutputCaptureRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -39,7 +39,7 @@ public class HystrixStreamAggregatorTests {
 			this.publisher);
 
 	@Rule
-	public OutputCapture output = new OutputCapture();
+	public OutputCaptureRule output = new OutputCaptureRule();
 
 	private static String PAYLOAD = "{\"origin\":{\"host\":\"dsyer\",\"port\":-1,"
 			+ "\"serviceId\":\"application\",\"id\":\"application\"},\"data\":{\"type\":"

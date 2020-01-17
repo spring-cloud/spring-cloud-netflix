@@ -182,6 +182,7 @@ public class RibbonAutoConfiguration {
 
 		}
 
+		@SuppressWarnings("deprecation")
 		@ConditionalOnClass(AsyncRestTemplate.class)
 		static class AsyncRestTemplatePresent {
 

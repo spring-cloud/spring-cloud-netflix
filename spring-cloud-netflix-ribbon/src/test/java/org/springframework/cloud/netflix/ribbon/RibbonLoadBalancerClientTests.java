@@ -40,12 +40,12 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -327,8 +327,7 @@ public class RibbonLoadBalancerClientTests {
 	protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(
 			RibbonServer ribbonServer) {
 		given(this.loadBalancer.getName()).willReturn(ribbonServer.getServiceId());
-		given(this.loadBalancer.chooseServer(anyObject()))
-				.willReturn(ribbonServer.getServer());
+		given(this.loadBalancer.chooseServer(any())).willReturn(ribbonServer.getServer());
 		given(this.loadBalancer.getLoadBalancerStats())
 				.willReturn(this.loadBalancerStats);
 		given(this.loadBalancerStats.getSingleServerStat(ribbonServer.getServer()))

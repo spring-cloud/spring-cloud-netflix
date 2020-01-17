@@ -39,7 +39,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * Tests for Filters endpoint
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT,
+		properties = "management.endpoints.web.exposure.include=*")
 @DirtiesContext
 public class FiltersEndpointTests {
 

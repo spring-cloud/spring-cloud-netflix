@@ -92,8 +92,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 				"zuul.routes.simple: /simple/**", "zuul.routes.badhost: /badhost/**",
 				"zuul.ignored-headers: X-Header", "zuul.routes.rnd: /rnd/**",
 				"rnd.ribbon.listOfServers: ${random.value}",
-				"zuul.remove-semicolon-content: false",
-				"ribbon.restclient.enabled=true" })
+				"zuul.remove-semicolon-content: false", "ribbon.restclient.enabled=true",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 

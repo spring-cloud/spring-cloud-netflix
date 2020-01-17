@@ -54,7 +54,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
 		classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT,
-		value = { "zuul.forceOriginalQueryStringEncoding: true" })
+		value = { "zuul.forceOriginalQueryStringEncoding: true",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class SimpleZuulProxyApplicationTests {
 

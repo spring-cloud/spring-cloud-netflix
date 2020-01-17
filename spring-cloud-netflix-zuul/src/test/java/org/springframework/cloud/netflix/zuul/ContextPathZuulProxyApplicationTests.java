@@ -50,7 +50,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
 		classes = ContextPathZuulProxyApplicationTests.ContextPathZuulProxyApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT,
-		value = { "server.servlet.contextPath: /app" })
+		value = { "server.servlet.contextPath: /app",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class ContextPathZuulProxyApplicationTests {
 

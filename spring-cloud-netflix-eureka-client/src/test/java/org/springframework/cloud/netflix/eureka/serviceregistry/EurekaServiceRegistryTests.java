@@ -34,7 +34,7 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus.OUT_OF_SERVICE;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -62,7 +62,7 @@ public class EurekaServiceRegistryTests {
 
 		registry.deregister(registration);
 
-		verifyZeroInteractions(eurekaClient);
+		verifyNoInteractions(eurekaClient);
 	}
 
 	@Test

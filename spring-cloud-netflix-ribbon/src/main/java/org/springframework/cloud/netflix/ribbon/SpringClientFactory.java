@@ -102,7 +102,7 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 		}
 
 		if (result == null) {
-			result = BeanUtils.instantiate(clazz);
+			result = BeanUtils.instantiateClass(clazz);
 
 			if (result instanceof IClientConfigAware) {
 				((IClientConfigAware) result).initWithNiwsConfig(config);

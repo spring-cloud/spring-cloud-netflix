@@ -71,7 +71,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
 		classes = CustomHostRoutingFilterTests.SampleCustomZuulProxyApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT,
-		properties = { "server.servlet.context-path: /app" })
+		properties = { "server.servlet.context-path: /app",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class CustomHostRoutingFilterTests {
 

@@ -63,7 +63,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT,
 		properties = { "spring.application.name=regex-test-application",
-				"spring.jmx.enabled=false", "eureka.client.enabled=false" })
+				"spring.jmx.enabled=false", "eureka.client.enabled=false",
+				"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class PatternServiceRouteMapperIntegrationTests {
 

@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
@@ -35,9 +35,9 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Marcin Grzejszczak
@@ -67,7 +67,7 @@ public class HystrixStreamTaskTests {
 	public void should_not_send_metrics_when_they_are_empty() throws Exception {
 		this.hystrixStreamTask.sendMetrics();
 
-		verifyZeroInteractions(this.outboundChannel);
+		verifyNoInteractions(this.outboundChannel);
 	}
 
 	@Test

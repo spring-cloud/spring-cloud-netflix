@@ -42,12 +42,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -331,8 +330,7 @@ public class RibbonLoadBalancedRetryFactoryTests {
 	protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(
 			RibbonServer ribbonServer) {
 		given(this.loadBalancer.getName()).willReturn(ribbonServer.getServiceId());
-		given(this.loadBalancer.chooseServer(anyObject()))
-				.willReturn(ribbonServer.getServer());
+		given(this.loadBalancer.chooseServer(any())).willReturn(ribbonServer.getServer());
 		given(this.loadBalancer.getLoadBalancerStats())
 				.willReturn(this.loadBalancerStats);
 		given(this.loadBalancerStats.getSingleServerStat(ribbonServer.getServer()))

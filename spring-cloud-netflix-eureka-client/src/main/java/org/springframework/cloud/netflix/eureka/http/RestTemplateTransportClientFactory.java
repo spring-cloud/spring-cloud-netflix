@@ -39,7 +39,7 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -66,7 +66,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 			if (serviceURI.getUserInfo() != null) {
 				String[] credentials = serviceURI.getUserInfo().split(":");
 				if (credentials.length == 2) {
-					restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(
+					restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(
 							credentials[0], credentials[1]));
 				}
 			}

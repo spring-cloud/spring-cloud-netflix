@@ -26,9 +26,9 @@ import org.reactivestreams.Publisher;
 import rx.Observable;
 import rx.RxReactiveStreams;
 
-import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
+import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
-import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.health.HealthContributorAutoConfiguration;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -52,8 +52,8 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ Hystrix.class, HealthIndicator.class,
-		HealthIndicatorAutoConfiguration.class })
-@AutoConfigureAfter({ HealthIndicatorAutoConfiguration.class })
+		HealthContributorAutoConfiguration.class })
+@AutoConfigureAfter({ HealthContributorAutoConfiguration.class })
 public class HystrixAutoConfiguration {
 
 	@Bean
@@ -87,7 +87,7 @@ public class HystrixAutoConfiguration {
 	protected static class HystrixServletAutoConfiguration {
 
 		@Bean
-		@ConditionalOnEnabledEndpoint
+		@ConditionalOnAvailableEndpoint
 		public HystrixStreamEndpoint hystrixStreamEndpoint(HystrixProperties properties) {
 			return new HystrixStreamEndpoint(properties.getConfig());
 		}
@@ -108,7 +108,7 @@ public class HystrixAutoConfiguration {
 	protected static class HystrixWebfluxManagementContextConfiguration {
 
 		@Bean
-		@ConditionalOnEnabledEndpoint
+		@ConditionalOnAvailableEndpoint
 		public HystrixWebfluxEndpoint hystrixWebfluxController() {
 			Observable<String> serializedDashboardData = HystrixDashboardStream
 					.getInstance().observe()
