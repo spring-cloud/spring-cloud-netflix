@@ -13,7 +13,7 @@
 	<description>Spring Cloud Docs</description>
 	<properties>
 		<docs.main>spring-cloud-netflix</docs.main>
-		<docs.whitelisted.branches>1.2.x,1.3.x,1.4.x</docs.whitelisted.branches>
+		<docs.whitelisted.branches>2.1.x,2.2.x</docs.whitelisted.branches>
 		<configprops.inclusionPattern>
 			.*.eureka.*
 		</configprops.inclusionPattern>
