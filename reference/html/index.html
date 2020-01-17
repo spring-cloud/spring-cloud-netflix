@@ -256,7 +256,7 @@ $(addBlockSwitches);
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>2.2.2.BUILD-SNAPSHOT</strong></p>
+<p><strong>3.0.0.BUILD-SNAPSHOT</strong></p>
 </div>
 <div class="paragraph">
 <p>This project provides Netflix OSS integrations for Spring Boot apps through autoconfiguration
@@ -1614,22 +1614,7 @@ Otherwise, it is shared by all the <code>@RibbonClients</code>. If you use <code
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Configuration(proxyBeanMethods = false)
-protected static class FooConfiguration {
-
-    @Bean
-    public ZonePreferenceServerListFilter serverListFilter() {
-        ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-        filter.setZone("myTestZone");
-        return filter;
-    }
-
-    @Bean
-    public IPing ribbonPing() {
-        return new PingUrl();
-    }
-
-}</code></pre>
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">Unresolved directive in index.adoc - include::/opt/jenkins/data/workspace/spring-cloud-netflix-master-ci/spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1643,44 +1628,7 @@ protected static class FooConfiguration {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
-public class RibbonClientDefaultConfigurationTestsConfig {
-
-    public static class BazServiceList extends ConfigurationBasedServerList {
-
-        public BazServiceList(IClientConfig config) {
-            super.initWithNiwsConfig(config);
-        }
-
-    }
-
-}
-
-@Configuration(proxyBeanMethods = false)
-class DefaultRibbonConfig {
-
-    @Bean
-    public IRule ribbonRule() {
-        return new BestAvailableRule();
-    }
-
-    @Bean
-    public IPing ribbonPing() {
-        return new PingUrl();
-    }
-
-    @Bean
-    public ServerList&lt;Server&gt; ribbonServerList(IClientConfig config) {
-        return new RibbonClientDefaultConfigurationTestsConfig.BazServiceList(config);
-    }
-
-    @Bean
-    public ServerListSubsetFilter serverListFilter() {
-        ServerListSubsetFilter filter = new ServerListSubsetFilter();
-        return filter;
-    }
-
-}</code></pre>
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">Unresolved directive in index.adoc - include::/opt/jenkins/data/workspace/spring-cloud-netflix-master-ci/spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]</code></pre>
 </div>
 </div>
 </div>
