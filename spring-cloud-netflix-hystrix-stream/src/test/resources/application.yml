@@ -1,6 +1,0 @@
-server:
-  port: 17642
-
-logging:
-  level:
-    org.springframework.netflix.hystrix.stream: TRACE

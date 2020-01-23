@@ -2,7 +2,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.springframework.cloud.netflix.eureka.config.EurekaClientConfigServerAutoConfiguration,\
 org.springframework.cloud.netflix.eureka.config.EurekaDiscoveryClientConfigServiceAutoConfiguration,\
 org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration,\
-org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration,\
 org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration,\
 org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClientConfiguration,\
 org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancerEurekaAutoConfiguration

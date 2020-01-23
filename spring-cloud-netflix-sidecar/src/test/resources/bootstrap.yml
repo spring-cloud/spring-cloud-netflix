@@ -1,7 +1,0 @@
-spring:
-  #application:
-  #  name: sideCarTest
-  cloud:
-    config:
-      username: user
-      password: password

@@ -30,7 +30,6 @@ import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Pair;
 import com.netflix.eureka.EurekaServerContext;
@@ -118,10 +117,8 @@ public class EurekaController {
 	private void populateHeader(Map<String, Object> model) {
 		model.put("currentTime", StatusResource.getCurrentTimeAsString());
 		model.put("upTime", StatusInfo.getUpTime());
-		model.put("environment",
-				ConfigurationManager.getDeploymentContext().getDeploymentEnvironment());
-		model.put("datacenter",
-				ConfigurationManager.getDeploymentContext().getDeploymentDatacenter());
+		model.put("environment", "N/A"); // FIXME:
+		model.put("datacenter", "N/A"); // FIXME:
 		PeerAwareInstanceRegistry registry = getRegistry();
 		model.put("registry", registry);
 		model.put("isBelowRenewThresold", registry.isBelowRenewThresold() == 1);

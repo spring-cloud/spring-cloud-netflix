@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerProperties;
-import org.springframework.cloud.netflix.ribbon.eureka.ZoneUtils;
+import org.springframework.cloud.netflix.eureka.support.ZoneUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 

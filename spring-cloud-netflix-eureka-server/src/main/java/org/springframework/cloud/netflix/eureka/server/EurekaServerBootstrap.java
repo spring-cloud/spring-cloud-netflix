@@ -21,7 +21,6 @@ import javax.servlet.ServletContext;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
@@ -43,18 +42,6 @@ import org.apache.commons.logging.LogFactory;
 public class EurekaServerBootstrap {
 
 	private static final Log log = LogFactory.getLog(EurekaServerBootstrap.class);
-
-	private static final String TEST = "test";
-
-	private static final String ARCHAIUS_DEPLOYMENT_ENVIRONMENT = "archaius.deployment.environment";
-
-	private static final String EUREKA_ENVIRONMENT = "eureka.environment";
-
-	private static final String DEFAULT = "default";
-
-	private static final String ARCHAIUS_DEPLOYMENT_DATACENTER = "archaius.deployment.datacenter";
-
-	private static final String EUREKA_DATACENTER = "eureka.datacenter";
 
 	protected EurekaServerConfig eurekaServerConfig;
 
@@ -109,30 +96,6 @@ public class EurekaServerBootstrap {
 	protected void initEurekaEnvironment() throws Exception {
 		log.info("Setting the eureka configuration..");
 
-		String dataCenter = ConfigurationManager.getConfigInstance()
-				.getString(EUREKA_DATACENTER);
-		if (dataCenter == null) {
-			log.info(
-					"Eureka data center value eureka.datacenter is not set, defaulting to default");
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, DEFAULT);
-		}
-		else {
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, dataCenter);
-		}
-		String environment = ConfigurationManager.getConfigInstance()
-				.getString(EUREKA_ENVIRONMENT);
-		if (environment == null) {
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_ENVIRONMENT, TEST);
-			log.info(
-					"Eureka environment value eureka.environment is not set, defaulting to test");
-		}
-		else {
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_ENVIRONMENT, environment);
-		}
 	}
 
 	protected void initEurekaServerContext() throws Exception {

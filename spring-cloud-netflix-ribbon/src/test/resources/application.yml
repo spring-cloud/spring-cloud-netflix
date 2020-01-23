@@ -1,8 +1,0 @@
-# for RibbonClientPreprocessorPropertiesOverridesIntegrationTests
-foo2:
-  ribbon:
-    NFLoadBalancerPingClassName: com.netflix.loadbalancer.NoOpPing
-    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
-    NIWSServerListClassName: org.springframework.cloud.netflix.ribbon.test.TestServerList
-    NIWSServerListFilterClassName: com.netflix.loadbalancer.ServerListSubsetFilter
-    NFLoadBalancerClassName: org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer
