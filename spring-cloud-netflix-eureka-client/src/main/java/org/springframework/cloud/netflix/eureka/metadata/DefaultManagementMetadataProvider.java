@@ -21,7 +21,6 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.util.StringUtils;
 
@@ -40,7 +39,7 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 	@Override
 	public ManagementMetadata get(EurekaInstanceConfigBean instance, int serverPort,
 			String serverContextPath, String managementContextPath,
-			Integer managementPort) {
+			Integer managementPort, int secureEurekaPort) {
 		if (isRandom(managementPort)) {
 			return null;
 		}
@@ -55,8 +54,9 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 		ManagementMetadata metadata = new ManagementMetadata(healthCheckUrl,
 				statusPageUrl, managementPort == null ? serverPort : managementPort);
 		if (instance.isSecurePortEnabled()) {
-			metadata.setSecureHealthCheckUrl(getHealthCheckUrl(instance, serverPort,
-					serverContextPath, managementContextPath, managementPort, true));
+			String secureHealthCheckUrl = getSecureHealthCheckUrl(instance,
+					secureEurekaPort, serverContextPath, managementContextPath);
+			metadata.setSecureHealthCheckUrl(secureHealthCheckUrl);
 		}
 		return metadata;
 	}
@@ -73,6 +73,17 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 				managementContextPath, managementPort, healthCheckUrlPath, isSecure);
 		log.debug("Constructed eureka meta-data healthcheckUrl: " + healthCheckUrl);
 		return healthCheckUrl;
+	}
+
+	protected String getSecureHealthCheckUrl(EurekaInstanceConfigBean instance,
+			int serverPort, String serverContextPath, String managementContextPath) {
+
+		String healthCheckUrlPath = instance.getHealthCheckUrlPath();
+		String secureHealthCheckUrl = getUrl(instance, serverPort, serverContextPath,
+				managementContextPath, null, healthCheckUrlPath, true);
+		log.debug("Constructed eureka meta-data secureHealthCheckUrl: "
+				+ secureHealthCheckUrl);
+		return secureHealthCheckUrl;
 	}
 
 	public String getStatusPageUrl(EurekaInstanceConfigBean instance, int serverPort,

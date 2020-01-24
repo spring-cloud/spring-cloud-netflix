@@ -147,6 +147,8 @@ public class EurekaClientAutoConfiguration {
 		String serverContextPath = env.getProperty("server.servlet.context-path", "/");
 		int serverPort = Integer.parseInt(
 				env.getProperty("server.port", env.getProperty("port", "8080")));
+		int secureEurekaPort = Integer.parseInt(env.getProperty(
+				"eureka.instance.secure-port", env.getProperty("secure-port", "443")));
 
 		Integer managementPort = env.getProperty("management.server.port", Integer.class);
 		String managementContextPath = env
@@ -181,7 +183,8 @@ public class EurekaClientAutoConfiguration {
 		}
 
 		ManagementMetadata metadata = managementMetadataProvider.get(instance, serverPort,
-				serverContextPath, managementContextPath, managementPort);
+				serverContextPath, managementContextPath, managementPort,
+				secureEurekaPort);
 
 		if (metadata != null) {
 			instance.setStatusPageUrl(metadata.getStatusPageUrl());
