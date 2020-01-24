@@ -21,6 +21,7 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.util.StringUtils;
 
