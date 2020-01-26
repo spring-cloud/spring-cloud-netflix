@@ -87,4 +87,8 @@ public class EurekaServiceInstance implements ServiceInstance {
 		return this.instance.getMetadata();
 	}
 
+	@Override
+	public String getScheme() {
+		return getUri().getScheme();
+	}
 }
