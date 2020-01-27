@@ -91,4 +91,5 @@ public class EurekaServiceInstance implements ServiceInstance {
 	public String getScheme() {
 		return getUri().getScheme();
 	}
+
 }
