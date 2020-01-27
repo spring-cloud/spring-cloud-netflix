@@ -160,6 +160,10 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 			return this.instance.getMetadata();
 		}
 
+		@Override
+		public String getScheme() {
+			return getUri().getScheme();
+		}
 	}
 
 }
