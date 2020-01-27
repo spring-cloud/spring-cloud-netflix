@@ -115,10 +115,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 			super(instance);
 		}
 
-		@Override
-		public String getScheme() {
-			return getUri().getScheme();
-		}
 	}
 
 }
