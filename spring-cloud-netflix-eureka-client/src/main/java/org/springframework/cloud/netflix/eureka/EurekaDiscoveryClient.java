@@ -99,22 +99,4 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 				: DiscoveryClient.DEFAULT_ORDER;
 	}
 
-	/**
-	 * An Eureka-specific {@link ServiceInstance} implementation. Extends
-	 * {@link org.springframework.cloud.netflix.eureka.EurekaServiceInstance} for
-	 * backwards compatibility.
-	 *
-	 * @deprecated In favor of
-	 * {@link org.springframework.cloud.netflix.eureka.EurekaServiceInstance}.
-	 */
-	@Deprecated
-	public static class EurekaServiceInstance
-			extends org.springframework.cloud.netflix.eureka.EurekaServiceInstance {
-
-		public EurekaServiceInstance(InstanceInfo instance) {
-			super(instance);
-		}
-
-	}
-
 }
