@@ -213,7 +213,19 @@ By having <code>spring-cloud-starter-netflix-eureka-client</code> on the classpa
 </div>
 </div>
 <div class="paragraph">
-<p>In the preceding example, "defaultZone" is a magic string fallback value that provides the service URL for any client that does not express a preference (in other words, it is a useful default).</p>
+<p>In the preceding example, <code>defaultZone</code> is a magic string fallback value that provides the service URL for any client that does not express a preference (in other words, it is a useful default).</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The <code>defaultZone</code> property is case sensitive and requires camel case because the <code>serviceUrl</code> property is a <code>Map&lt;String, String&gt;</code>. Therefore, the <code>defaultZone</code> property does not follow the normal Spring Boot snake-case convention of <code>default-zone</code>.
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>The default application name (that is, the service ID), virtual host, and non-secure port (taken from the <code>Environment</code>) are <code>${spring.application.name}</code>, <code>${spring.application.name}</code> and <code>${server.port}</code>, respectively.</p>
