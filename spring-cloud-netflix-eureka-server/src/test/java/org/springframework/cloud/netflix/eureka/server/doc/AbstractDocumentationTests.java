@@ -20,7 +20,13 @@ import java.util.UUID;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.eureka.DefaultEurekaServerContext;
+import com.netflix.eureka.EurekaServerConfig;
+import com.netflix.eureka.EurekaServerContext;
+import com.netflix.eureka.cluster.PeerEurekaNodes;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
+import com.netflix.eureka.resources.ServerCodecs;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.Filter;
@@ -28,6 +34,8 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -38,6 +46,7 @@ import org.springframework.cloud.contract.wiremock.restdocs.WireMockSnippet;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.cloud.netflix.eureka.server.doc.AbstractDocumentationTests.Application;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.restassured3.RestAssuredRestDocumentation;
@@ -156,6 +165,29 @@ public abstract class AbstractDocumentationTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
+
+		private static final Logger logger = LoggerFactory
+				.getLogger(DefaultEurekaServerContext.class);
+
+		@Bean
+		public EurekaServerContext testEurekaServerContext(ServerCodecs serverCodecs,
+				PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes,
+				ApplicationInfoManager applicationInfoManager,
+				EurekaServerConfig eurekaServerConfig) {
+			return new DefaultEurekaServerContext(eurekaServerConfig, serverCodecs,
+					registry, peerEurekaNodes, applicationInfoManager) {
+				@Override
+				public void shutdown() {
+					logger.info(
+							"Shutting down (except ServoControl and EurekaMonitors)..");
+					registry.shutdown();
+					peerEurekaNodes.shutdown();
+					// ServoControl.shutdown();
+					// EurekaMonitors.shutdown();
+					logger.info("Shut down");
+				}
+			};
+		}
 
 	}
 

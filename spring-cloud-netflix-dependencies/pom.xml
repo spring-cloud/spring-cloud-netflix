@@ -15,7 +15,7 @@
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
 		<concurrency-limits.version>0.1.12</concurrency-limits.version>
-		<eureka.version>1.9.13</eureka.version>
+		<eureka.version>1.9.17</eureka.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
