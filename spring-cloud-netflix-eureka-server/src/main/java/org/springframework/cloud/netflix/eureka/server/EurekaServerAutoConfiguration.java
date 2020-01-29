@@ -169,6 +169,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public EurekaServerContext eurekaServerContext(ServerCodecs serverCodecs,
 			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) {
 		return new DefaultEurekaServerContext(this.eurekaServerConfig, serverCodecs,
