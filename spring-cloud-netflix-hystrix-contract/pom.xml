@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>2.1.10.BUILD-SNAPSHOT</version>
+		<version>2.1.11.BUILD-SNAPSHOT</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-netflix-hystrix-contract</artifactId>
-	<version>2.1.5.BUILD-SNAPSHOT</version>
+	<version>2.1.6.BUILD-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>spring-cloud-netflix-hystrix-contract</name>
 	<description>Spring Cloud Netflix Hystrix Contract</description>
