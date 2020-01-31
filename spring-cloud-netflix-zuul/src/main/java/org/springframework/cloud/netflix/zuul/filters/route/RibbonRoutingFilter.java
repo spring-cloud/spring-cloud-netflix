@@ -234,8 +234,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	protected void setResponse(ClientHttpResponse resp)
 			throws ClientException, IOException {
 		RequestContext.getCurrentContext().set("zuulResponse", resp);
-		this.helper.setResponse(resp.getRawStatusCode(),
-				resp.getBody(), resp.getHeaders());
+		this.helper.setResponse(resp.getRawStatusCode(), resp.getBody(),
+				resp.getHeaders());
 	}
 
 }

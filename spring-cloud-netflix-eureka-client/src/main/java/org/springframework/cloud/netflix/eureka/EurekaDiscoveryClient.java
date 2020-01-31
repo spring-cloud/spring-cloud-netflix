@@ -164,6 +164,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		public String getScheme() {
 			return getUri().getScheme();
 		}
+
 	}
 
 }
