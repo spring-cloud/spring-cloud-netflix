@@ -25,10 +25,13 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerProperties;
+import org.springframework.cloud.loadbalancer.config.LoadBalancerZoneConfig;
+
 import org.springframework.cloud.netflix.eureka.support.ZoneUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancerEurekaAutoConfiguration.LOADBALANCER_ZONE;
 
 /**
  * A configuration for Spring Cloud LoadBalancer that retrieves client instance zone from
@@ -40,10 +43,8 @@ import org.springframework.util.StringUtils;
  * @see EurekaLoadBalancerClientConfiguration
  */
 @Configuration
-@ConditionalOnBean({ LoadBalancerProperties.class, EurekaLoadBalancerProperties.class })
+@ConditionalOnBean({ LoadBalancerZoneConfig.class, EurekaLoadBalancerProperties.class })
 public class EurekaLoadBalancerClientConfiguration {
-
-	private static final String LOADBALANCER_ZONE = "spring.cloud.loadbalancer.zone";
 
 	private static final Log LOG = LogFactory
 			.getLog(EurekaLoadBalancerClientConfiguration.class);
@@ -52,24 +53,24 @@ public class EurekaLoadBalancerClientConfiguration {
 
 	private final EurekaInstanceConfig eurekaConfig;
 
-	private final LoadBalancerProperties loadBalancerProperties;
+	private final LoadBalancerZoneConfig zoneConfig;
 
 	private final EurekaLoadBalancerProperties eurekaLoadBalancerProperties;
 
 	public EurekaLoadBalancerClientConfiguration(
 			@Autowired(required = false) EurekaClientConfig clientConfig,
 			@Autowired(required = false) EurekaInstanceConfig eurekaInstanceConfig,
-			LoadBalancerProperties loadBalancerProperties,
+			LoadBalancerZoneConfig zoneConfig,
 			EurekaLoadBalancerProperties eurekaLoadBalancerProperties) {
 		this.clientConfig = clientConfig;
 		this.eurekaConfig = eurekaInstanceConfig;
-		this.loadBalancerProperties = loadBalancerProperties;
+		this.zoneConfig = zoneConfig;
 		this.eurekaLoadBalancerProperties = eurekaLoadBalancerProperties;
 	}
 
 	@PostConstruct
 	public void postprocess() {
-		if (!StringUtils.isEmpty(loadBalancerProperties.getZone())) {
+		if (!StringUtils.isEmpty(zoneConfig.getZone())) {
 			return;
 		}
 		String zone = getZoneFromEureka();
@@ -77,7 +78,7 @@ public class EurekaLoadBalancerClientConfiguration {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Setting the value of '" + LOADBALANCER_ZONE + "' to " + zone);
 			}
-			loadBalancerProperties.setZone(zone);
+			zoneConfig.setZone(zone);
 		}
 	}
 

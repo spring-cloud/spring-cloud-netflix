@@ -18,9 +18,9 @@ package org.springframework.cloud.netflix.eureka.loadbalancer;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
+import org.springframework.cloud.loadbalancer.config.LoadBalancerZoneConfig;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 
@@ -38,12 +38,12 @@ class EurekaLoadBalancerClientConfigurationTests {
 	private EurekaInstanceConfigBean eurekaInstanceConfig = new EurekaInstanceConfigBean(
 			new InetUtils(new InetUtilsProperties()));
 
-	private LoadBalancerProperties loadBalancerProperties = new LoadBalancerProperties();
+	private LoadBalancerZoneConfig zoneConfig = new LoadBalancerZoneConfig(null);
 
 	private EurekaLoadBalancerProperties eurekaLoadBalancerProperties = new EurekaLoadBalancerProperties();
 
 	private EurekaLoadBalancerClientConfiguration postprocessor = new EurekaLoadBalancerClientConfiguration(
-			eurekaClientConfig, eurekaInstanceConfig, loadBalancerProperties,
+			eurekaClientConfig, eurekaInstanceConfig, zoneConfig,
 			eurekaLoadBalancerProperties);
 
 	@Test
@@ -52,14 +52,14 @@ class EurekaLoadBalancerClientConfigurationTests {
 
 		postprocessor.postprocess();
 
-		assertThat(loadBalancerProperties.getZone()).isEqualTo("myZone");
+		assertThat(zoneConfig.getZone()).isEqualTo("myZone");
 	}
 
 	@Test
 	public void shouldSetZoneToDefaultWhenNotSetInMetadata() {
 		postprocessor.postprocess();
 
-		assertThat(loadBalancerProperties.getZone()).isEqualTo("defaultZone");
+		assertThat(zoneConfig.getZone()).isEqualTo("defaultZone");
 	}
 
 	@Test
@@ -69,7 +69,7 @@ class EurekaLoadBalancerClientConfigurationTests {
 
 		postprocessor.postprocess();
 
-		assertThat(loadBalancerProperties.getZone()).isEqualTo("is.a.test.com");
+		assertThat(zoneConfig.getZone()).isEqualTo("is.a.test.com");
 	}
 
 }

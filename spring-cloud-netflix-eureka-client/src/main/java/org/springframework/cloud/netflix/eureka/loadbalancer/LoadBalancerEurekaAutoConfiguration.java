@@ -18,13 +18,13 @@ package org.springframework.cloud.netflix.eureka.loadbalancer;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerProperties;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClientConfigurationRegistrar;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClients;
+import org.springframework.cloud.loadbalancer.config.LoadBalancerZoneConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 /**
  * An Autoconfiguration that loads default config for Spring Cloud LoadBalancer clients.
@@ -39,6 +39,11 @@ import org.springframework.context.annotation.Configuration;
 @LoadBalancerClients(defaultConfiguration = EurekaLoadBalancerClientConfiguration.class)
 public class LoadBalancerEurekaAutoConfiguration {
 
+	/**
+	 * Spring Cloud LoadBalancer Zone property name.
+	 */
+	public static final String LOADBALANCER_ZONE = "spring.cloud.loadbalancer.zone";
+
 	@Bean
 	@ConditionalOnMissingBean
 	EurekaLoadBalancerProperties eurekaLoadBalancerProperties() {
@@ -47,9 +52,8 @@ public class LoadBalancerEurekaAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	@ConfigurationProperties("spring.cloud.loadbalancer")
-	LoadBalancerProperties loadBalancerProperties() {
-		return new LoadBalancerProperties();
+	LoadBalancerZoneConfig zoneConfig(Environment environment) {
+		return new LoadBalancerZoneConfig(environment.getProperty(LOADBALANCER_ZONE));
 	}
 
 }
