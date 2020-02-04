@@ -13,6 +13,7 @@
 	<url>https://projects.spring.io/spring-cloud/</url>
 	<properties>
 		<wro4j.version>1.8.0</wro4j.version>
+		<wiremock.version>2.26.0</wiremock.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -100,8 +101,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-contract-wiremock</artifactId>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock-jre8-standalone</artifactId>
+			<version>${wiremock.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

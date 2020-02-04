@@ -42,7 +42,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.cloud.contract.wiremock.restdocs.WireMockSnippet;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.cloud.netflix.eureka.server.doc.AbstractDocumentationTests.Application;
@@ -55,11 +54,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.modifyUris;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.restassured3.operation.preprocess.RestAssuredPreprocessors.modifyUris;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
@@ -128,8 +127,7 @@ public abstract class AbstractDocumentationTests {
 
 	private RequestSpecification spec(Object body, Filter... filters) {
 		RequestSpecBuilder builder = new RequestSpecBuilder()
-				.addFilter(documentationConfiguration(this.restDocumentation).snippets()
-						.withAdditionalDefaults(new WireMockSnippet()));
+				.addFilter(documentationConfiguration(this.restDocumentation));
 		for (Filter filter : filters) {
 			builder = builder.addFilter(filter);
 		}
