@@ -44,6 +44,10 @@
 				<version>${eureka.version}</version>
 				<exclusions>
 					<exclusion>
+						<groupId>com.netflix.archaius</groupId>
+						<artifactId>archaius-core</artifactId>
+					</exclusion>
+					<exclusion>
 						<groupId>com.github.vlsi.compactmap</groupId>
 						<artifactId>compactmap</artifactId>
 					</exclusion>
@@ -70,6 +74,10 @@
 				<artifactId>eureka-core</artifactId>
 				<version>${eureka.version}</version>
 				<exclusions>
+					<exclusion>
+						<groupId>com.netflix.archaius</groupId>
+						<artifactId>archaius-core</artifactId>
+					</exclusion>
 					<exclusion>
 						<groupId>javax.servlet</groupId>
 						<artifactId>servlet-api</artifactId>
