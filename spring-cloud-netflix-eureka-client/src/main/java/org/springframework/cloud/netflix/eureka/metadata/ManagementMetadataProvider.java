@@ -27,6 +27,6 @@ public interface ManagementMetadataProvider {
 
 	ManagementMetadata get(EurekaInstanceConfigBean instance, int serverPort,
 			String serverContextPath, String managementContextPath,
-			Integer managementPort, int secureEurekaPort);
+			Integer managementPort, Integer secureEurekaPort);
 
 }

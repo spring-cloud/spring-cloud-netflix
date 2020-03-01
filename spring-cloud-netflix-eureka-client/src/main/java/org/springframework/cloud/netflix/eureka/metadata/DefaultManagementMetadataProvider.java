@@ -40,7 +40,7 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 	@Override
 	public ManagementMetadata get(EurekaInstanceConfigBean instance, int serverPort,
 			String serverContextPath, String managementContextPath,
-			Integer managementPort, int secureEurekaPort) {
+			Integer managementPort, Integer secureEurekaPort) {
 		if (isRandom(managementPort)) {
 			return null;
 		}
@@ -55,8 +55,15 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 		ManagementMetadata metadata = new ManagementMetadata(healthCheckUrl,
 				statusPageUrl, managementPort == null ? serverPort : managementPort);
 		if (instance.isSecurePortEnabled()) {
-			String secureHealthCheckUrl = getSecureHealthCheckUrl(instance,
-					secureEurekaPort, serverContextPath, managementContextPath);
+			String secureHealthCheckUrl;
+			if (managementPort == null && secureEurekaPort != null) {
+				secureHealthCheckUrl = getSecureHealthCheckUrl(instance, secureEurekaPort,
+						serverContextPath, managementContextPath);
+			}
+			else {
+				secureHealthCheckUrl = getHealthCheckUrl(instance, serverPort,
+						serverContextPath, managementContextPath, managementPort, true);
+			}
 			metadata.setSecureHealthCheckUrl(secureHealthCheckUrl);
 		}
 		return metadata;
