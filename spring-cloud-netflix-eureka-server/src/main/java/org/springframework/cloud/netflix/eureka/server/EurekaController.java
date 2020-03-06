@@ -149,7 +149,8 @@ public class EurekaController {
 			try {
 				URI uri = new URI(node.getServiceUrl());
 				String href = scrubBasicAuth(node.getServiceUrl());
-				replicas.put(uri.getHost(), href);
+				String host = null == uri.getHost()?"127.0.0.1": uri.getHost(); 
+				replicas.put(host, href);
 			}
 			catch (Exception ex) {
 				// ignore?
