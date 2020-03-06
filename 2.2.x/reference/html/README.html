@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.8">
+<title>Features</title>
+<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+.hidden {
+	display: none;
+}
+
+.switch {
+	border-width: 1px 1px 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+	display: inline-block;
+}
+
+.switch--item {
+	padding: 10px;
+	background-color: #ffffff;
+	color: #7a2518;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.switch--item:not(:first-child) {
+	border-width: 0 0 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+}
+
+.switch--item.selected {
+	background-color: #7a2519;
+	color: #ffffff;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+	$('.primary').each(function() {
+		primary = $(this);
+		createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+		primary.children('.title').remove();
+	});
+	$('.secondary').each(function(idx, node) {
+		secondary = $(node);
+		primary = findPrimary(secondary);
+		switchItem = createSwitchItem(secondary, primary.children('.switch'));
+		switchItem.content.addClass('hidden');
+		findPrimary(secondary).append(switchItem.content);
+		secondary.remove();
+	});
+}
+
+function createBlockSwitch(primary) {
+	blockSwitch = $('<div class="switch"></div>');
+	primary.prepend(blockSwitch);
+	return blockSwitch;
+}
+
+function findPrimary(secondary) {
+	candidate = secondary.prev();
+	while (!candidate.is('.primary')) {
+		candidate = candidate.prev();
+	}
+	return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+	blockName = block.children('.title').text();
+	content = block.children('.content').first().append(block.next('.colist'));
+	item = $('<div class="switch--item">' + blockName + '</div>');
+	item.on('click', '', content, function(e) {
+		$(this).addClass('selected');
+		$(this).siblings().removeClass('selected');
+		e.data.siblings('.content').addClass('hidden');
+		e.data.removeClass('hidden');
+	});
+	blockSwitch.append(item);
+	return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+</script>
+
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#features">1. Features</a></li>
+<li><a href="#modules-in-maintenance-mode">2. Modules In Maintenance Mode</a></li>
+<li><a href="#building">3. Building</a>
+<ul class="sectlevel2">
+<li><a href="#basic-compile-and-test">3.1. Basic Compile and Test</a></li>
+<li><a href="#documentation">3.2. Documentation</a></li>
+<li><a href="#working-with-the-code">3.3. Working with the code</a>
+<ul class="sectlevel3">
+<li><a href="#importing-into-eclipse-with-m2eclipse">3.3.1. Importing into eclipse with m2eclipse</a></li>
+<li><a href="#importing-into-eclipse-without-m2eclipse">3.3.2. Importing into eclipse without m2eclipse</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#contributing">4. Contributing</a>
+<ul class="sectlevel2">
+<li><a href="#sign-the-contributor-license-agreement">4.1. Sign the Contributor License Agreement</a></li>
+<li><a href="#code-of-conduct">4.2. Code of Conduct</a></li>
+<li><a href="#code-conventions-and-housekeeping">4.3. Code Conventions and Housekeeping</a></li>
+<li><a href="#checkstyle">4.4. Checkstyle</a>
+<ul class="sectlevel3">
+<li><a href="#checkstyle-configuration">4.4.1. Checkstyle configuration</a></li>
+</ul>
+</li>
+<li><a href="#ide-setup">4.5. IDE setup</a>
+<ul class="sectlevel3">
+<li><a href="#intellij-idea">4.5.1. Intellij IDEA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/master"><img src="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/master.svg?style=svg" alt="CircleCI"></a>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/master"><img src="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/master/graph/badge.svg" alt="Codecov"></a>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://www.codacy.com/app/Spring-Cloud/spring-cloud-netflix?utm_source=github.com&utm_medium=referral&utm_content=spring-cloud/spring-cloud-netflix&utm_campaign=Badge_Grade"><img src="https://api.codacy.com/project/badge/Grade/a6885a06921e4f72a0df0b7aabd6d118" alt="Codacy code quality"></a>
+</div>
+</div>
+<div class="paragraph">
+<p>This project provides Netflix OSS integrations for Spring Boot apps through autoconfiguration
+and binding to the Spring Environment and other Spring programming model idioms. With a few
+simple annotations you can quickly enable and configure the common patterns inside your
+application and build large distributed systems with battle-tested Netflix components. The
+patterns provided include Service Discovery (Eureka), Circuit Breaker (Hystrix),
+Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features"><a class="anchor" href="#features"></a><a class="link" href="#features">1. Features</a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Service Discovery: Eureka instances can be registered and clients can discover the instances using Spring-managed beans</p>
+</li>
+<li>
+<p>Service Discovery: an embedded Eureka server can be created with declarative Java configuration</p>
+</li>
+<li>
+<p>Circuit Breaker: Hystrix clients can be built with a simple annotation-driven method decorator</p>
+</li>
+<li>
+<p>Circuit Breaker: embedded Hystrix dashboard with declarative Java configuration</p>
+</li>
+<li>
+<p>Client Side Load Balancer: Ribbon</p>
+</li>
+<li>
+<p>External Configuration: a bridge from the Spring Environment to Archaius (enables native configuration of Netflix components using Spring Boot conventions)</p>
+</li>
+<li>
+<p>Router and Filter: automatic registration of Zuul filters, and a simple convention over configuration approach to reverse proxy creation</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="modules-in-maintenance-mode"><a class="anchor" href="#modules-in-maintenance-mode"></a><a class="link" href="#modules-in-maintenance-mode">2. Modules In Maintenance Mode</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Placing a module in maintenance mode means that the Spring Cloud team will no longer be adding new features to the module.
+We will fix blocker bugs and security issues, and we will also consider and review small pull requests from the community.</p>
+</div>
+<div class="paragraph">
+<p>We intend to continue to support these modules for a period of at least a year from the general availability
+of the Greenwich release train.</p>
+</div>
+<div class="paragraph">
+<p>The following Spring Cloud Netflix modules and corresponding starters will be placed into maintenance mode:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>spring-cloud-netflix-archaius</p>
+</li>
+<li>
+<p>spring-cloud-netflix-hystrix-contract</p>
+</li>
+<li>
+<p>spring-cloud-netflix-hystrix-dashboard</p>
+</li>
+<li>
+<p>spring-cloud-netflix-hystrix-stream</p>
+</li>
+<li>
+<p>spring-cloud-netflix-hystrix</p>
+</li>
+<li>
+<p>spring-cloud-netflix-ribbon</p>
+</li>
+<li>
+<p>spring-cloud-netflix-turbine-stream</p>
+</li>
+<li>
+<p>spring-cloud-netflix-turbine</p>
+</li>
+<li>
+<p>spring-cloud-netflix-zuul</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This does not include the Eureka or concurrency-limits modules.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="building"><a class="anchor" href="#building"></a><a class="link" href="#building">3. Building</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic-compile-and-test"><a class="anchor" href="#basic-compile-and-test"></a><a class="link" href="#basic-compile-and-test">3.1. Basic Compile and Test</a></h3>
+<div class="paragraph">
+<p>To build the source you will need to install JDK 1.8.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud uses Maven for most build-related activities, and you
+should be able to get off the ground quite quickly by cloning the
+project you are interested in and typing</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ ./mvnw install</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You can also install Maven (&gt;=3.3.3) yourself and run the <code>mvn</code> command
+in place of <code>./mvnw</code> in the examples below. If you do that you also
+might need to add <code>-P spring</code> if your local Maven settings do not
+contain repository declarations for spring pre-release artifacts.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Be aware that you might need to increase the amount of memory
+available to Maven by setting a <code>MAVEN_OPTS</code> environment variable with
+a value like <code>-Xmx512m -XX:MaxPermSize=128m</code>. We try to cover this in
+the <code>.mvn</code> configuration, so if you find you have to do it to make a
+build succeed, please raise a ticket to get the settings added to
+source control.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For hints on how to build the project look in <code>.travis.yml</code> if there
+is one. There should be a "script" and maybe "install" command. Also
+look at the "services" section to see if any services need to be
+running locally (e.g. mongo or rabbit).  Ignore the git-related bits
+that you might find in "before_install" since they&#8217;re related to setting git
+credentials and you already have those.</p>
+</div>
+<div class="paragraph">
+<p>The projects that require middleware generally include a
+<code>docker-compose.yml</code>, so consider using
+<a href="https://docs.docker.com/compose/">Docker Compose</a> to run the middeware servers
+in Docker containers. See the README in the
+<a href="https://github.com/spring-cloud-samples/scripts">scripts demo
+repository</a> for specific instructions about the common cases of mongo,
+rabbit and redis.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If all else fails, build with the command from <code>.travis.yml</code> (usually
+<code>./mvnw install</code>).
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="documentation"><a class="anchor" href="#documentation"></a><a class="link" href="#documentation">3.2. Documentation</a></h3>
+<div class="paragraph">
+<p>The spring-cloud-build module has a "docs" profile, and if you switch
+that on it will try to build asciidoc sources from
+<code>src/main/asciidoc</code>. As part of that process it will look for a
+<code>README.adoc</code> and process it by loading all the includes, but not
+parsing or rendering it, just copying it to <code>${main.basedir}</code>
+(defaults to <code>${basedir}</code>, i.e. the root of the project). If there are
+any changes in the README it will then show up after a Maven build as
+a modified file in the correct place. Just commit it and push the change.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="working-with-the-code"><a class="anchor" href="#working-with-the-code"></a><a class="link" href="#working-with-the-code">3.3. Working with the code</a></h3>
+<div class="paragraph">
+<p>If you don&#8217;t have an IDE preference we would recommend that you use
+<a href="https://www.springsource.com/developer/sts">Spring Tools Suite</a> or
+<a href="https://eclipse.org">Eclipse</a> when working with the code. We use the
+<a href="https://eclipse.org/m2e/">m2eclipse</a> eclipse plugin for maven support. Other IDEs and tools
+should also work without issue as long as they use Maven 3.3.3 or better.</p>
+</div>
+<div class="sect3">
+<h4 id="importing-into-eclipse-with-m2eclipse"><a class="anchor" href="#importing-into-eclipse-with-m2eclipse"></a><a class="link" href="#importing-into-eclipse-with-m2eclipse">3.3.1. Importing into eclipse with m2eclipse</a></h4>
+<div class="paragraph">
+<p>We recommend the <a href="https://eclipse.org/m2e/">m2eclipse</a> eclipse plugin when working with
+eclipse. If you don&#8217;t already have m2eclipse installed it is available from the "eclipse
+marketplace".</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Older versions of m2e do not support Maven 3.3, so once the
+projects are imported into Eclipse you will also need to tell
+m2eclipse to use the right profile for the projects.  If you
+see many different errors related to the POMs in the projects, check
+that you have an up to date installation.  If you can&#8217;t upgrade m2e,
+add the "spring" profile to your <code>settings.xml</code>. Alternatively you can
+copy the repository settings from the "spring" profile of the parent
+pom into your <code>settings.xml</code>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="importing-into-eclipse-without-m2eclipse"><a class="anchor" href="#importing-into-eclipse-without-m2eclipse"></a><a class="link" href="#importing-into-eclipse-without-m2eclipse">3.3.2. Importing into eclipse without m2eclipse</a></h4>
+<div class="paragraph">
+<p>If you prefer not to use m2eclipse you can generate eclipse project metadata using the
+following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ ./mvnw eclipse:eclipse</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The generated eclipse projects can be imported by selecting <code>import existing projects</code>
+from the <code>file</code> menu.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+To build the module <code>spring-cloud-netflix-hystrix-contract</code> along with the entire Netflix project run the
+<code>build.sh</code> script in the <code>scripts</code> directory.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="contributing"><a class="anchor" href="#contributing"></a><a class="link" href="#contributing">4. Contributing</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud is released under the non-restrictive Apache 2.0 license,
+and follows a very standard Github development process, using Github
+tracker for issues and merging pull requests into master. If you want
+to contribute even something trivial please do not hesitate, but
+follow the guidelines below.</p>
+</div>
+<div class="sect2">
+<h3 id="sign-the-contributor-license-agreement"><a class="anchor" href="#sign-the-contributor-license-agreement"></a><a class="link" href="#sign-the-contributor-license-agreement">4.1. Sign the Contributor License Agreement</a></h3>
+<div class="paragraph">
+<p>Before we accept a non-trivial patch or pull request we will need you to sign the
+<a href="https://cla.pivotal.io/sign/spring">Contributor License Agreement</a>.
+Signing the contributor&#8217;s agreement does not grant anyone commit rights to the main
+repository, but it does mean that we can accept your contributions, and you will get an
+author credit if we do.  Active contributors might be asked to join the core team, and
+given the ability to merge pull requests.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="code-of-conduct"><a class="anchor" href="#code-of-conduct"></a><a class="link" href="#code-of-conduct">4.2. Code of Conduct</a></h3>
+<div class="paragraph">
+<p>This project adheres to the Contributor Covenant <a href="https://github.com/spring-cloud/spring-cloud-build/blob/master/docs/src/main/asciidoc/code-of-conduct.adoc">code of
+conduct</a>. By participating, you  are expected to uphold this code. Please report
+unacceptable behavior to <a href="mailto:spring-code-of-conduct@pivotal.io">spring-code-of-conduct@pivotal.io</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="code-conventions-and-housekeeping"><a class="anchor" href="#code-conventions-and-housekeeping"></a><a class="link" href="#code-conventions-and-housekeeping">4.3. Code Conventions and Housekeeping</a></h3>
+<div class="paragraph">
+<p>None of these is essential for a pull request, but they will all help.  They can also be
+added after the original pull request but before a merge.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use the Spring Framework code format conventions. If you use Eclipse
+you can import formatter settings using the
+<code>eclipse-code-formatter.xml</code> file from the
+<a href="https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-dependencies-parent/eclipse-code-formatter.xml">Spring
+Cloud Build</a> project. If using IntelliJ, you can use the
+<a href="https://plugins.jetbrains.com/plugin/6546">Eclipse Code Formatter
+Plugin</a> to import the same file.</p>
+</li>
+<li>
+<p>Make sure all new <code>.java</code> files to have a simple Javadoc class comment with at least an
+<code>@author</code> tag identifying you, and preferably at least a paragraph on what the class is
+for.</p>
+</li>
+<li>
+<p>Add the ASF license header comment to all new <code>.java</code> files (copy from existing files
+in the project)</p>
+</li>
+<li>
+<p>Add yourself as an <code>@author</code> to the .java files that you modify substantially (more
+than cosmetic changes).</p>
+</li>
+<li>
+<p>Add some Javadocs and, if you change the namespace, some XSD doc elements.</p>
+</li>
+<li>
+<p>A few unit tests would help a lot as well&#8201;&#8212;&#8201;someone has to do it.</p>
+</li>
+<li>
+<p>If no-one else is using your branch, please rebase it against the current master (or
+other target branch in the main project).</p>
+</li>
+<li>
+<p>When writing a commit message please follow <a href="https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">these conventions</a>,
+if you are fixing an existing issue please add <code>Fixes gh-XXXX</code> at the end of the commit
+message (where XXXX is the issue number).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="checkstyle"><a class="anchor" href="#checkstyle"></a><a class="link" href="#checkstyle">4.4. Checkstyle</a></h3>
+<div class="paragraph">
+<p>Spring Cloud Build comes with a set of checkstyle rules. You can find them in the <code>spring-cloud-build-tools</code> module. The most notable files under the module are:</p>
+</div>
+<div class="listingblock">
+<div class="title">spring-cloud-build-tools/</div>
+<div class="content">
+<pre>└── src
+    ├── checkstyle
+    │   └── checkstyle-suppressions.xml <i class="conum" data-value="3"></i><b>(3)</b>
+    └── main
+        └── resources
+            ├── checkstyle-header.txt <i class="conum" data-value="2"></i><b>(2)</b>
+            └── checkstyle.xml <i class="conum" data-value="1"></i><b>(1)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Default Checkstyle rules</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>File header setup</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Default suppression rules</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="checkstyle-configuration"><a class="anchor" href="#checkstyle-configuration"></a><a class="link" href="#checkstyle-configuration">4.4.1. Checkstyle configuration</a></h4>
+<div class="paragraph">
+<p>Checkstyle rules are <strong>disabled by default</strong>. To add checkstyle to your project just define the following properties and plugins.</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre>&lt;properties&gt;
+&lt;maven-checkstyle-plugin.failsOnError&gt;true&lt;/maven-checkstyle-plugin.failsOnError&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;maven-checkstyle-plugin.failsOnViolation&gt;true
+        &lt;/maven-checkstyle-plugin.failsOnViolation&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+        &lt;maven-checkstyle-plugin.includeTestSourceDirectory&gt;true
+        &lt;/maven-checkstyle-plugin.includeTestSourceDirectory&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+&lt;/properties&gt;
+
+&lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+                &lt;groupId&gt;io.spring.javaformat&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-javaformat-maven-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt; <i class="conum" data-value="5"></i><b>(5)</b>
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-checkstyle-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+
+    &lt;reporting&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt; <i class="conum" data-value="5"></i><b>(5)</b>
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-checkstyle-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/reporting&gt;
+&lt;/build&gt;</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Fails the build upon Checkstyle errors</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Fails the build upon Checkstyle violations</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Checkstyle analyzes also the test sources</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Add the Spring Java Format plugin that will reformat your code to pass most of the Checkstyle formatting rules</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Add checkstyle plugin to your build and reporting phases</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If you need to suppress some rules (e.g. line length needs to be longer), then it&#8217;s enough for you to define a file under <code>${project.root}/src/checkstyle/checkstyle-suppressions.xml</code> with your suppressions. Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">projectRoot/src/checkstyle/checkstyle-suppresions.xml</div>
+<div class="content">
+<pre>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "https://www.puppycrawl.com/dtds/suppressions_1_1.dtd"&gt;
+&lt;suppressions&gt;
+    &lt;suppress files=".*ConfigServerApplication\.java" checks="HideUtilityClassConstructor"/&gt;
+    &lt;suppress files=".*ConfigClientWatch\.java" checks="LineLengthCheck"/&gt;
+&lt;/suppressions&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s advisable to copy the <code>${spring-cloud-build.rootFolder}/.editorconfig</code> and <code>${spring-cloud-build.rootFolder}/.springformat</code> to your project. That way, some default formatting rules will be applied. You can do so by running this script:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/.editorconfig -o .editorconfig
+$ touch .springformat</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ide-setup"><a class="anchor" href="#ide-setup"></a><a class="link" href="#ide-setup">4.5. IDE setup</a></h3>
+<div class="sect3">
+<h4 id="intellij-idea"><a class="anchor" href="#intellij-idea"></a><a class="link" href="#intellij-idea">4.5.1. Intellij IDEA</a></h4>
+<div class="paragraph">
+<p>In order to setup Intellij you should import our coding conventions, inspection profiles and set up the checkstyle plugin.
+The following files can be found in the <a href="https://github.com/spring-cloud/spring-cloud-build/tree/master/spring-cloud-build-tools">Spring Cloud Build</a> project.</p>
+</div>
+<div class="listingblock">
+<div class="title">spring-cloud-build-tools/</div>
+<div class="content">
+<pre>└── src
+    ├── checkstyle
+    │   └── checkstyle-suppressions.xml <i class="conum" data-value="3"></i><b>(3)</b>
+    └── main
+        └── resources
+            ├── checkstyle-header.txt <i class="conum" data-value="2"></i><b>(2)</b>
+            ├── checkstyle.xml <i class="conum" data-value="1"></i><b>(1)</b>
+            └── intellij
+                ├── Intellij_Project_Defaults.xml <i class="conum" data-value="4"></i><b>(4)</b>
+                └── Intellij_Spring_Boot_Java_Conventions.xml <i class="conum" data-value="5"></i><b>(5)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Default Checkstyle rules</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>File header setup</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Default suppression rules</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Project defaults for Intellij that apply most of Checkstyle rules</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Project style conventions for Intellij that apply most of Checkstyle rules</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/images/intellij-code-style.png" alt="Code style">
+</div>
+<div class="title">Figure 1. Code style</div>
+</div>
+<div class="paragraph">
+<p>Go to <code>File</code> &#8594; <code>Settings</code> &#8594; <code>Editor</code> &#8594; <code>Code style</code>. There click on the icon next to the <code>Scheme</code> section. There, click on the <code>Import Scheme</code> value and pick the <code>Intellij IDEA code style XML</code> option. Import the <code>spring-cloud-build-tools/src/main/resources/intellij/Intellij_Spring_Boot_Java_Conventions.xml</code> file.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/images/intellij-inspections.png" alt="Code style">
+</div>
+<div class="title">Figure 2. Inspection profiles</div>
+</div>
+<div class="paragraph">
+<p>Go to <code>File</code> &#8594; <code>Settings</code> &#8594; <code>Editor</code> &#8594; <code>Inspections</code>. There click on the icon next to the <code>Profile</code> section. There, click on the <code>Import Profile</code> and import the <code>spring-cloud-build-tools/src/main/resources/intellij/Intellij_Project_Defaults.xml</code> file.</p>
+</div>
+<div class="paragraph">
+<div class="title">Checkstyle</div>
+<p>To have Intellij work with Checkstyle, you have to install the <code>Checkstyle</code> plugin. It&#8217;s advisable to also install the <code>Assertions2Assertj</code> to automatically convert the JUnit assertions</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/images/intellij-checkstyle.png" alt="Checkstyle">
+</div>
+</div>
+<div class="paragraph">
+<p>Go to <code>File</code> &#8594; <code>Settings</code> &#8594; <code>Other settings</code> &#8594; <code>Checkstyle</code>. There click on the <code>+</code> icon in the <code>Configuration file</code> section. There, you&#8217;ll have to define where the checkstyle rules should be picked from. In the image above, we&#8217;ve picked the rules from the cloned Spring Cloud Build repository. However, you can point to the Spring Cloud Build&#8217;s GitHub repository (e.g. for the <code>checkstyle.xml</code> : <code><a href="https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/main/resources/checkstyle.xml" class="bare">raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/main/resources/checkstyle.xml</a></code>). We need to provide the following variables:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>checkstyle.header.file</code> - please point it to the Spring Cloud Build&#8217;s, <code>spring-cloud-build-tools/src/main/resources/checkstyle-header.txt</code> file either in your cloned repo or via the <code><a href="https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/main/resources/checkstyle-header.txt" class="bare">raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/main/resources/checkstyle-header.txt</a></code> URL.</p>
+</li>
+<li>
+<p><code>checkstyle.suppressions.file</code> - default suppressions. Please point it to the Spring Cloud Build&#8217;s, <code>spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml</code> file either in your cloned repo or via the <code><a href="https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml" class="bare">raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml</a></code> URL.</p>
+</li>
+<li>
+<p><code>checkstyle.additional.suppressions.file</code> - this variable corresponds to suppressions in your local project. E.g. you&#8217;re working on <code>spring-cloud-contract</code>. Then point to the <code>project-root/src/checkstyle/checkstyle-suppressions.xml</code> folder. Example for <code>spring-cloud-contract</code> would be: <code>/home/username/spring-cloud-contract/src/checkstyle/checkstyle-suppressions.xml</code>.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Remember to set the <code>Scan Scope</code> to <code>All sources</code> since we apply checkstyle rules for production and test sources.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="js/tocbot/tocbot.min.js"></script>
+<script type="text/javascript" src="js/toc.js"></script>
+<link rel="stylesheet" href="js/highlight/styles/atom-one-dark-reasonable.min.css">
+<script src="js/highlight/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>
