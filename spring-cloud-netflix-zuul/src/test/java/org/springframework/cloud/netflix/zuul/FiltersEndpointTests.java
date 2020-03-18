@@ -32,7 +32,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
@@ -66,8 +65,9 @@ public class FiltersEndpointTests {
 			}
 		}
 
-		assertTrue(foundFilter,
-				"Could not find expected sample filter from filters endpoint");
+		assertThat(foundFilter)
+				.as("Could not find expected sample filter from filters endpoint")
+				.isTrue();
 	}
 
 	@SpringBootConfiguration
