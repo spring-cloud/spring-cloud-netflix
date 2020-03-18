@@ -79,6 +79,7 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public SpringClientFactory springClientFactory() {
 		SpringClientFactory factory = new SpringClientFactory();
 		factory.setConfigurations(this.configurations);
