@@ -216,7 +216,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		if (RequestUtils.isDispatcherServletRequest()
 				&& StringUtils.hasText(this.dispatcherServletPath)) {
 			if (!this.dispatcherServletPath.equals("/")
-					&& path.startsWith(this.dispatcherServletPath)) {
+					&& path.startsWith(this.dispatcherServletPath + "/")) {
 				adjustedPath = path.substring(this.dispatcherServletPath.length());
 				log.debug("Stripped dispatcherServletPath");
 			}
