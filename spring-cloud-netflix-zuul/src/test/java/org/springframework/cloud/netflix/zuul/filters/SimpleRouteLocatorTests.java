@@ -103,6 +103,16 @@ public class SimpleRouteLocatorTests {
 	}
 
 	@Test
+	public void test_getMatchingRouteFilterWithSimilarServletPath() {
+		RouteLocator locator = new FilteringRouteLocator("/foo", this.properties);
+		this.properties.getRoutes().clear();
+		this.properties.getRoutes().put("foobar", new ZuulRoute("/foo-bar/**", "foo"));
+
+		assertThat(locator.getMatchingRoute("/foo-bar/1"))
+				.isEqualTo(createRoute("foo", "/1", "/foo-bar"));
+	}
+
+	@Test
 	public void testBadRegex() {
 		this.properties.getRoutes().clear();
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo{}/**", "foo"));
