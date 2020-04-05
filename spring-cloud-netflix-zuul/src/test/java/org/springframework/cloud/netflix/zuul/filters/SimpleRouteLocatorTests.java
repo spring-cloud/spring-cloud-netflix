@@ -109,7 +109,7 @@ public class SimpleRouteLocatorTests {
 		this.properties.getRoutes().put("foobar", new ZuulRoute("/foo-bar/**", "foo"));
 
 		assertThat(locator.getMatchingRoute("/foo-bar/1"))
-				.isEqualTo(createRoute("foobar", "/1", "/foo-bar"));
+				.isEqualTo(createRoute("foo-bar", "/1", "/foo-bar"));
 	}
 
 	@Test
