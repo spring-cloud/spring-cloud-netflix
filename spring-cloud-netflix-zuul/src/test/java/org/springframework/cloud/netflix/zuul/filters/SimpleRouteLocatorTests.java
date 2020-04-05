@@ -109,7 +109,17 @@ public class SimpleRouteLocatorTests {
 		this.properties.getRoutes().put("foobar", new ZuulRoute("/foo-bar/**", "foo"));
 
 		assertThat(locator.getMatchingRoute("/foo-bar/1"))
-				.isEqualTo(createRoute("foo-bar", "/1", "/foo-bar"));
+				.isEqualTo(createRoute("foo-bar", "/1", "foo", "/foo-bar"));
+	}
+
+	@Test
+	public void test_getMatchingRouteFilterWithEqualServletPath() {
+		RouteLocator locator = new FilteringRouteLocator("/bar", this.properties);
+		this.properties.getRoutes().clear();
+		this.properties.getRoutes().put("barbar", new ZuulRoute("/bar/**", "bar"));
+
+		assertThat(locator.getMatchingRoute("/bar/1"))
+				.isEqualTo(createRoute("bar", "/1", "/bar"));
 	}
 
 	@Test
@@ -120,11 +130,14 @@ public class SimpleRouteLocatorTests {
 		locator.getRoutes();
 
 		this.output.expect(containsString("Invalid route, "));
+	}
 
+	private Route createRoute(String id, String path, String location, String prefix) {
+		return new Route(id, path, location, prefix, false, null);
 	}
 
 	private Route createRoute(String id, String path, String prefix) {
-		return new Route(id, path, id, prefix, false, null);
+		return createRoute(id, path, id, prefix);
 	}
 
 	private static class FilteringRouteLocator extends SimpleRouteLocator {
