@@ -54,7 +54,7 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration
         implements ApplicationListener<ApplicationReadyEvent> {
 
     @Override
-    public void onApplicationEvent(ApplicationReadyEvent event) {
+    public final void onApplicationEvent(final ApplicationReadyEvent event) {
         ConfigurableApplicationContext context = event.getApplicationContext();
 
         ConfigurableEnvironment env = context.getEnvironment();
@@ -65,10 +65,10 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration
             String[] beanNamesForType = context
                     .getBeanNamesForType(DiscoveryClient.class);
 
-            BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) context
+            BeanDefinitionRegistry registry = (BeanDefinitionRegistry) context
                     .getAutowireCapableBeanFactory();
             for (String name : beanNamesForType) {
-                beanDefinitionRegistry.removeBeanDefinition(name);
+                registry.removeBeanDefinition(name);
             }
         }
     }
