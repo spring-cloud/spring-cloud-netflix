@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.eureka.config;
 
 import com.netflix.discovery.EurekaClient;
+
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,36 +41,35 @@ import org.springframework.core.env.ConfigurableEnvironment;
  * @author Dave Syer
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
-@ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled",
-        matchIfMissing = false)
+@ConditionalOnProperty("spring.cloud.config.discovery.enabled")
 @Configuration(proxyBeanMethods = false)
 @Import({EurekaDiscoveryClientConfiguration.class, // this emulates
-        // @EnableDiscoveryClient, the import
-        // selector doesn't run before the
-        // bootstrap phase
-        EurekaClientAutoConfiguration.class,
-        EurekaReactiveDiscoveryClientConfiguration.class,
-        ReactiveCommonsClientAutoConfiguration.class})
+		// @EnableDiscoveryClient, the import
+		// selector doesn't run before the
+		// bootstrap phase
+		EurekaClientAutoConfiguration.class,
+		EurekaReactiveDiscoveryClientConfiguration.class,
+		ReactiveCommonsClientAutoConfiguration.class})
 public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration
-        implements ApplicationListener<ApplicationReadyEvent> {
+		implements ApplicationListener<ApplicationReadyEvent> {
 
-    @Override
-    public final void onApplicationEvent(final ApplicationReadyEvent event) {
-        ConfigurableApplicationContext context = event.getApplicationContext();
+	@Override
+	public final void onApplicationEvent(final ApplicationReadyEvent event) {
+		ConfigurableApplicationContext context = event.getApplicationContext();
 
-        ConfigurableEnvironment env = context.getEnvironment();
-        if ("bootstrap".equals(env.getProperty("spring.config.name"))) {
+		ConfigurableEnvironment env = context.getEnvironment();
+		if ("bootstrap".equals(env.getProperty("spring.config.name"))) {
 
-            context.getBean(EurekaClient.class).shutdown();
+			context.getBean(EurekaClient.class).shutdown();
 
-            String[] beanNamesForType = context
-                    .getBeanNamesForType(DiscoveryClient.class);
+			String[] beanNamesForType = context
+					.getBeanNamesForType(DiscoveryClient.class);
 
-            BeanDefinitionRegistry registry = (BeanDefinitionRegistry) context
-                    .getAutowireCapableBeanFactory();
-            for (String name : beanNamesForType) {
-                registry.removeBeanDefinition(name);
-            }
-        }
-    }
+			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) context
+					.getAutowireCapableBeanFactory();
+			for (String name : beanNamesForType) {
+				registry.removeBeanDefinition(name);
+			}
+		}
+	}
 }
