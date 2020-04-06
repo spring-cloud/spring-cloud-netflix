@@ -50,7 +50,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 		EurekaClientAutoConfiguration.class,
 		EurekaReactiveDiscoveryClientConfiguration.class,
 		ReactiveCommonsClientAutoConfiguration.class })
-public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration implements ApplicationListener<ApplicationReadyEvent> {
+public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration
+		implements ApplicationListener<ApplicationReadyEvent> {
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -61,9 +62,11 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration implements
 
 			context.getBean(EurekaClient.class).shutdown();
 
-			String[] beanNamesForType = context.getBeanNamesForType(DiscoveryClient.class);
+			String[] beanNamesForType = context
+					.getBeanNamesForType(DiscoveryClient.class);
 
-			BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) context.getAutowireCapableBeanFactory();
+			BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) context
+					.getAutowireCapableBeanFactory();
 			for (String name : beanNamesForType) {
 				beanDefinitionRegistry.removeBeanDefinition(name);
 			}
