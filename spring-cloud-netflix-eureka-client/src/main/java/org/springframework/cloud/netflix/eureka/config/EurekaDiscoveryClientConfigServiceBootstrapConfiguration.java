@@ -16,15 +16,22 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import com.netflix.discovery.EurekaClient;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.client.ReactiveCommonsClientAutoConfiguration;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClientConfiguration;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * Eureka-specific helper for config client that wants to lookup the config server via
@@ -43,6 +50,23 @@ import org.springframework.context.annotation.Import;
 		EurekaClientAutoConfiguration.class,
 		EurekaReactiveDiscoveryClientConfiguration.class,
 		ReactiveCommonsClientAutoConfiguration.class })
-public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
+public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration implements ApplicationListener<ApplicationReadyEvent> {
 
+	@Override
+	public void onApplicationEvent(ApplicationReadyEvent event) {
+		ConfigurableApplicationContext context = event.getApplicationContext();
+
+		ConfigurableEnvironment env = context.getEnvironment();
+		if ("bootstrap".equals(env.getProperty("spring.config.name"))) {
+
+			context.getBean(EurekaClient.class).shutdown();
+
+			String[] beanNamesForType = context.getBeanNamesForType(DiscoveryClient.class);
+
+			BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) context.getAutowireCapableBeanFactory();
+			for (String name : beanNamesForType) {
+				beanDefinitionRegistry.removeBeanDefinition(name);
+			}
+		}
+	}
 }
