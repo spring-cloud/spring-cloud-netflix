@@ -41,35 +41,35 @@ import org.springframework.core.env.ConfigurableEnvironment;
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled",
-		matchIfMissing = false)
+        matchIfMissing = false)
 @Configuration(proxyBeanMethods = false)
-@Import({ EurekaDiscoveryClientConfiguration.class, // this emulates
-		// @EnableDiscoveryClient, the import
-		// selector doesn't run before the
-		// bootstrap phase
-		EurekaClientAutoConfiguration.class,
-		EurekaReactiveDiscoveryClientConfiguration.class,
-		ReactiveCommonsClientAutoConfiguration.class })
+@Import({EurekaDiscoveryClientConfiguration.class, // this emulates
+        // @EnableDiscoveryClient, the import
+        // selector doesn't run before the
+        // bootstrap phase
+        EurekaClientAutoConfiguration.class,
+        EurekaReactiveDiscoveryClientConfiguration.class,
+        ReactiveCommonsClientAutoConfiguration.class})
 public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration
-		implements ApplicationListener<ApplicationReadyEvent> {
+        implements ApplicationListener<ApplicationReadyEvent> {
 
-	@Override
-	public void onApplicationEvent(ApplicationReadyEvent event) {
-		ConfigurableApplicationContext context = event.getApplicationContext();
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        ConfigurableApplicationContext context = event.getApplicationContext();
 
-		ConfigurableEnvironment env = context.getEnvironment();
-		if ("bootstrap".equals(env.getProperty("spring.config.name"))) {
+        ConfigurableEnvironment env = context.getEnvironment();
+        if ("bootstrap".equals(env.getProperty("spring.config.name"))) {
 
-			context.getBean(EurekaClient.class).shutdown();
+            context.getBean(EurekaClient.class).shutdown();
 
-			String[] beanNamesForType = context
-					.getBeanNamesForType(DiscoveryClient.class);
+            String[] beanNamesForType = context
+                    .getBeanNamesForType(DiscoveryClient.class);
 
-			BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) context
-					.getAutowireCapableBeanFactory();
-			for (String name : beanNamesForType) {
-				beanDefinitionRegistry.removeBeanDefinition(name);
-			}
-		}
-	}
+            BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) context
+                    .getAutowireCapableBeanFactory();
+            for (String name : beanNamesForType) {
+                beanDefinitionRegistry.removeBeanDefinition(name);
+            }
+        }
+    }
 }
