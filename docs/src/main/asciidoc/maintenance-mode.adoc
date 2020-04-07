@@ -11,6 +11,7 @@ of the Greenwich release train.
 The following Spring Cloud Netflix modules and corresponding starters will be placed into maintenance mode:
 
 * spring-cloud-netflix-archaius
+* spring-cloud-netflix-concurrency-limits
 * spring-cloud-netflix-hystrix-contract
 * spring-cloud-netflix-hystrix-dashboard
 * spring-cloud-netflix-hystrix-stream
@@ -20,5 +21,5 @@ The following Spring Cloud Netflix modules and corresponding starters will be pl
 * spring-cloud-netflix-turbine
 * spring-cloud-netflix-zuul
 
-NOTE: This does not include the Eureka or concurrency-limits modules.
+NOTE: This does not include the Eureka modules.
 
