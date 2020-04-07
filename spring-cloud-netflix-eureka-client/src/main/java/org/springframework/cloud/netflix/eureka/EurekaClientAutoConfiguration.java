@@ -384,7 +384,8 @@ public class EurekaClientAutoConfiguration {
 
 		}
 
-		@ConditionalOnMissingBean(RefreshAutoConfiguration.class)
+		@ConditionalOnMissingBean(value = RefreshAutoConfiguration.class,
+				search = SearchStrategy.CURRENT)
 		static class MissingScope {
 
 		}
@@ -402,7 +403,8 @@ public class EurekaClientAutoConfiguration {
 	protected static class EurekaHealthIndicatorConfiguration {
 
 		@Bean
-		@ConditionalOnMissingBean
+		@ConditionalOnMissingBean(value = EurekaHealthIndicator.class,
+				search = SearchStrategy.CURRENT)
 		@ConditionalOnEnabledHealthIndicator("eureka")
 		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
 				EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {

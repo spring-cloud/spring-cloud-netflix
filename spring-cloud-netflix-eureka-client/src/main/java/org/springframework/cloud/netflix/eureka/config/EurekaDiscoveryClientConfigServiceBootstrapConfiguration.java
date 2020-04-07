@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.client.ReactiveCommonsClientAutoConfiguration;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
@@ -67,6 +68,13 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration
 
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) context
 					.getAutowireCapableBeanFactory();
+			for (String name : beanNamesForType) {
+				registry.removeBeanDefinition(name);
+			}
+
+
+			beanNamesForType = context
+					.getBeanNamesForType(ReactiveDiscoveryClient.class);
 			for (String name : beanNamesForType) {
 				registry.removeBeanDefinition(name);
 			}
