@@ -34,7 +34,9 @@ import org.springframework.web.servlet.ModelAndView;
  * {@link Limiter} to handle requests.
  *
  * @author Spencer Gibb
+ * @deprecated to be removed in 3.0.0
  */
+@Deprecated
 public class ConcurrencyLimitsHandlerInterceptor implements HandlerInterceptor {
 
 	private final Limiter<HttpServletRequest> limiter;

@@ -27,7 +27,9 @@ import io.micrometer.core.instrument.Tags;
  * A Micrometer-specific {@link MetricRegistry} implementation.
  *
  * @author Spencer Gibb
+ * @deprecated to be removed in 3.0.0
  */
+@Deprecated
 public class MicrometerMetricRegistry implements MetricRegistry {
 
 	private final MeterRegistry meterRegistry;

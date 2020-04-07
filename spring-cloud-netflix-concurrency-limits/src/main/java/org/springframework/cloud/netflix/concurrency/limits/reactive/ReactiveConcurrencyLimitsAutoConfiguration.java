@@ -35,7 +35,9 @@ import org.springframework.web.server.WebFilter;
  * Reactive autoconfiguration class for registering Netflix {@link Limiter} bean.
  *
  * @author Spencer Gibb
+ * @deprecated to be removed in 3.0.0
  */
+@Deprecated
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnWebApplication(type = Type.REACTIVE)
 @ConditionalOnClass({ WebFilter.class, Mono.class })
