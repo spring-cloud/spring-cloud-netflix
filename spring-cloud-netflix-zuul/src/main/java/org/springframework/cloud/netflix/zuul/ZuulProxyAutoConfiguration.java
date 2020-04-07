@@ -75,9 +75,6 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Autowired
 	private DiscoveryClient discovery;
 
-	@Autowired
-	private ServiceRouteMapper serviceRouteMapper;
-
 	@Override
 	public HasFeatures zuulFeature() {
 		return HasFeatures.namedFeature("Zuul (Discovery)",
@@ -86,9 +83,10 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
-	public DiscoveryClientRouteLocator discoveryRouteLocator() {
+	public DiscoveryClientRouteLocator discoveryRouteLocator(
+			ServiceRouteMapper serviceRouteMapper) {
 		return new DiscoveryClientRouteLocator(this.server.getServlet().getContextPath(),
-				this.discovery, this.zuulProperties, this.serviceRouteMapper,
+				this.discovery, this.zuulProperties, serviceRouteMapper,
 				this.registration);
 	}
 
