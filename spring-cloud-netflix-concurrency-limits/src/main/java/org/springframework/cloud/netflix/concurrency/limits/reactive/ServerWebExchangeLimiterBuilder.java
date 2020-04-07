@@ -27,7 +27,9 @@ import org.springframework.web.server.ServerWebExchange;
  * Builder for ServerWebExchange Limiter.
  *
  * @author Spencer Gibb
+ * @deprecated to be removed in 3.0.0
  */
+@Deprecated
 public class ServerWebExchangeLimiterBuilder extends
 		AbstractPartitionedLimiter.Builder<ServerWebExchangeLimiterBuilder, ServerWebExchange> {
 
