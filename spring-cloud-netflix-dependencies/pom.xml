@@ -38,11 +38,6 @@
 				<artifactId>spring-cloud-netflix-eureka-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!--<dependency>
-				<groupId>com.netflix.netflix-commons</groupId>
-				<artifactId>netflix-commons-util</artifactId>
-				<version>0.3.0</version>
-			</dependency>-->
 			<dependency>
 				<groupId>com.netflix.eureka</groupId>
 				<artifactId>eureka-client</artifactId>
