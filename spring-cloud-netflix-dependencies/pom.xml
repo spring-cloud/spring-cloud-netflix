@@ -14,7 +14,6 @@
 	<name>spring-cloud-netflix-dependencies</name>
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
-		<concurrency-limits.version>0.1.12</concurrency-limits.version>
 		<eureka.version>1.9.17</eureka.version>
 	</properties>
 	<dependencyManagement>
@@ -44,16 +43,6 @@
 				<artifactId>netflix-commons-util</artifactId>
 				<version>0.3.0</version>
 			</dependency>-->
-			<dependency>
-				<groupId>com.netflix.concurrency-limits</groupId>
-				<artifactId>concurrency-limits-core</artifactId>
-				<version>${concurrency-limits.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.netflix.concurrency-limits</groupId>
-				<artifactId>concurrency-limits-servlet</artifactId>
-				<version>${concurrency-limits.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>com.netflix.eureka</groupId>
 				<artifactId>eureka-client</artifactId>

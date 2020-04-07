@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.cloud.netflix.concurrency.limits.reactive.ReactiveConcurrencyLimitsAutoConfiguration,\
-org.springframework.cloud.netflix.concurrency.limits.web.MvcConcurrencyLimitsAutoConfiguration
