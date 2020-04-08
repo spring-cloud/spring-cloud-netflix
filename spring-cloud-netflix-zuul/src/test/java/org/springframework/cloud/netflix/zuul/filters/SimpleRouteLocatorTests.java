@@ -16,16 +16,17 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.netflix.zuul.context.RequestContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.boot.test.system.OutputCaptureRule;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
