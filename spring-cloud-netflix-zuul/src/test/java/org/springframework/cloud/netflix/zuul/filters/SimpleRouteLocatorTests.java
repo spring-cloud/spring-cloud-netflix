@@ -16,19 +16,20 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import com.netflix.zuul.context.RequestContext;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.springframework.boot.test.system.OutputCaptureRule;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import org.springframework.boot.test.system.OutputCaptureRule;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY;
 
 /**
  * @author Tom Cawley
@@ -46,12 +47,13 @@ public class SimpleRouteLocatorTests {
 	@Before
 	public void init() {
 		properties = new ZuulProperties();
+		this.properties.getRoutes().clear();
+		RequestContext.getCurrentContext().remove(IS_DISPATCHER_SERVLET_REQUEST_KEY);
 	}
 
 	@Test
 	public void test_getRoutesDefaultRouteAcceptor() {
 		RouteLocator locator = new SimpleRouteLocator("/", this.properties);
-		this.properties.getRoutes().clear();
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 
 		assertThat(locator.getRoutes()).contains(createRoute("foo", "/**", "/foo"));
@@ -60,7 +62,6 @@ public class SimpleRouteLocatorTests {
 	@Test
 	public void test_getRoutesFilterRouteAcceptor() {
 		RouteLocator locator = new FilteringRouteLocator("/", this.properties);
-		this.properties.getRoutes().clear();
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
 
@@ -93,7 +94,6 @@ public class SimpleRouteLocatorTests {
 	@Test
 	public void test_getMatchingRouteFilterRouteAcceptor() {
 		RouteLocator locator = new FilteringRouteLocator("/", this.properties);
-		this.properties.getRoutes().clear();
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
 
@@ -105,7 +105,6 @@ public class SimpleRouteLocatorTests {
 	@Test
 	public void test_getMatchingRouteFilterWithSimilarServletPath() {
 		RouteLocator locator = new FilteringRouteLocator("/foo", this.properties);
-		this.properties.getRoutes().clear();
 		this.properties.getRoutes().put("foobar", new ZuulRoute("/foo-bar/**", "foo"));
 
 		assertThat(locator.getMatchingRoute("/foo-bar/1"))
@@ -114,17 +113,16 @@ public class SimpleRouteLocatorTests {
 
 	@Test
 	public void test_getMatchingRouteFilterWithEqualServletPath() {
+		RequestContext.getCurrentContext().set(IS_DISPATCHER_SERVLET_REQUEST_KEY, true);
+
 		RouteLocator locator = new FilteringRouteLocator("/bar", this.properties);
-		this.properties.getRoutes().clear();
 		this.properties.getRoutes().put("barbar", new ZuulRoute("/bar/**", "bar"));
 
-		assertThat(locator.getMatchingRoute("/bar/1"))
-				.isEqualTo(createRoute("bar", "/1", "/bar"));
+		assertThat(locator.getMatchingRoute("/bar/1")).isNull();
 	}
 
 	@Test
 	public void testBadRegex() {
-		this.properties.getRoutes().clear();
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo{}/**", "foo"));
 		RouteLocator locator = new FilteringRouteLocator("/", this.properties);
 		locator.getRoutes();
