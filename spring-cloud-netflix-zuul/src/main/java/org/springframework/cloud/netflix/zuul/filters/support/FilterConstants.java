@@ -173,7 +173,7 @@ public final class FilterConstants {
 	public static final String FORWARD_LOCATION_PREFIX = "forward:";
 
 	/**
-	 * Dfault http port.
+	 * Default http port.
 	 */
 	public static final int HTTP_PORT = 80;
 
