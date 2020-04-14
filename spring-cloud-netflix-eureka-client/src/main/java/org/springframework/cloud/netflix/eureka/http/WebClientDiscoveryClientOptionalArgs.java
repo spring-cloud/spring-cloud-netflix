@@ -16,16 +16,16 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-/**
- * @author Daniel Lavoie
- */
+import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 
 /**
- * public class RestTemplateDiscoveryClientOptionalArgs extends
- * AbstractDiscoveryClientOptionalArgs<Void> {
- *
- * public RestTemplateDiscoveryClientOptionalArgs() { setTransportClientFactories(new
- * RestTemplateTransportClientFactories()); }
- *
- * }
+ * @author Haytham Mohamed
  */
+public class WebClientDiscoveryClientOptionalArgs
+		extends AbstractDiscoveryClientOptionalArgs<Void> {
+
+	public WebClientDiscoveryClientOptionalArgs() {
+		setTransportClientFactories(new WebClientTransportClientFactories());
+	}
+
+}

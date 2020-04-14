@@ -23,12 +23,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.netflix.eureka.MutableDiscoveryClientOptionalArgs;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author Daniel Lavoie
+ * @author Haytham Mohamed
  */
 @Configuration(proxyBeanMethods = false)
 public class DiscoveryClientOptionalArgsConfiguration {
@@ -37,8 +37,8 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
 	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
 			search = SearchStrategy.CURRENT)
-	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
-		return new RestTemplateDiscoveryClientOptionalArgs();
+	public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs() {
+		return new WebClientDiscoveryClientOptionalArgs();
 	}
 
 	@Bean

@@ -23,7 +23,7 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Daniel Lavoie
+ * @author Haytham Mohamed
  */
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*" })
@@ -45,7 +46,7 @@ public class RestTemplateOptionalArgsConfigurationTest {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
 				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
 				.run()) {
-			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class))
+			assertThat(context.getBean(WebClientDiscoveryClientOptionalArgs.class))
 					.isNotNull();
 		}
 	}

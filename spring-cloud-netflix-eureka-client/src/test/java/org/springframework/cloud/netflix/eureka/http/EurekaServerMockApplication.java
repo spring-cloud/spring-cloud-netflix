@@ -99,8 +99,7 @@ public class EurekaServerMockApplication {
 	 */
 	@Bean
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		return new RestTemplateTransportClientFactory()
-				.mappingJacksonHttpMessageConverter();
+		return new WebClientTransportClientFactory().mappingJacksonHttpMessageConverter();
 	}
 
 	@ResponseStatus(HttpStatus.OK)

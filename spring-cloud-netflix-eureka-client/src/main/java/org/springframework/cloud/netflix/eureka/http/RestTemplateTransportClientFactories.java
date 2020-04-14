@@ -16,44 +16,28 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import java.util.Collection;
-import java.util.Optional;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.shared.transport.TransportClientFactory;
-import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
-import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
-
 /**
  * @author Daniel Lavoie
  */
-public class RestTemplateTransportClientFactories
-		implements TransportClientFactories<Void> {
 
-	@Override
-	public TransportClientFactory newTransportClientFactory(
-			Collection<Void> additionalFilters, EurekaJerseyClient providedJerseyClient) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public TransportClientFactory newTransportClientFactory(
-			EurekaClientConfig clientConfig, Collection<Void> additionalFilters,
-			InstanceInfo myInstanceInfo) {
-		return new RestTemplateTransportClientFactory();
-	}
-
-	@Override
-	public TransportClientFactory newTransportClientFactory(
-			final EurekaClientConfig clientConfig,
-			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
-			final Optional<SSLContext> sslContext,
-			final Optional<HostnameVerifier> hostnameVerifier) {
-		return new RestTemplateTransportClientFactory();
-	}
-
-}
+/**
+ * public class RestTemplateTransportClientFactories implements
+ * TransportClientFactories<Void> {
+ *
+ * @Override public TransportClientFactory newTransportClientFactory( Collection<Void>
+ * additionalFilters, EurekaJerseyClient providedJerseyClient) { throw new
+ * UnsupportedOperationException(); }
+ *
+ * @Override public TransportClientFactory newTransportClientFactory( EurekaClientConfig
+ * clientConfig, Collection<Void> additionalFilters, InstanceInfo myInstanceInfo) { return
+ * new RestTemplateTransportClientFactory(); }
+ *
+ * @Override public TransportClientFactory newTransportClientFactory( final
+ * EurekaClientConfig clientConfig, final Collection<Void> additionalFilters, final
+ * InstanceInfo myInstanceInfo, final Optional<SSLContext> sslContext, final
+ * Optional<HostnameVerifier> hostnameVerifier) { return new
+ * RestTemplateTransportClientFactory(); }
+ *
+ * }
+ *
+ */

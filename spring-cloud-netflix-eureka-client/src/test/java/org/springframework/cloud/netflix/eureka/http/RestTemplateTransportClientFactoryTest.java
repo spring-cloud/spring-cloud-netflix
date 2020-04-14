@@ -23,14 +23,15 @@ import org.junit.Test;
 
 /**
  * @author Daniel Lavoie
+ * @author Haytham Mohamed
  */
 public class RestTemplateTransportClientFactoryTest {
 
-	private RestTemplateTransportClientFactory transportClientFatory;
+	private WebClientTransportClientFactory transportClientFatory;
 
 	@Before
 	public void setup() {
-		transportClientFatory = new RestTemplateTransportClientFactory();
+		transportClientFatory = new WebClientTransportClientFactory();
 	}
 
 	@Test

@@ -60,7 +60,7 @@ public class RestTemplateEurekaHttpClientTest {
 
 	@Before
 	public void setup() {
-		eurekaHttpClient = new RestTemplateTransportClientFactory()
+		eurekaHttpClient = new WebClientTransportClientFactory()
 				.newClient(new DefaultEndpoint(serviceUrl));
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);

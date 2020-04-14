@@ -20,12 +20,13 @@ import org.junit.Test;
 
 /**
  * @author Daniel Lavoie
+ * @author Haytham Mohamed
  */
 public class RestTemplateTransportClientFactoriesTest {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testJerseyIsUnsuported() {
-		new RestTemplateTransportClientFactories().newTransportClientFactory(null, null);
+		new WebClientTransportClientFactories().newTransportClientFactory(null, null);
 	}
 
 }
