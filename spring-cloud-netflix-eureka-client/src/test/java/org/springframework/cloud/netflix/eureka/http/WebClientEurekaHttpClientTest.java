@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 		properties = { "debug=true", "security.basic.enabled=true" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class RestTemplateEurekaHttpClientTest {
+public class WebClientEurekaHttpClientTest {
 
 	@Autowired
 	private InetUtils inetUtils;
