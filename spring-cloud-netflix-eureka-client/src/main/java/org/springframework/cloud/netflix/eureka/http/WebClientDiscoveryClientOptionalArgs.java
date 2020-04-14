@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka.http;
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 
 /**
+ * @author Daniel Lavoie
  * @author Haytham Mohamed
  */
 public class WebClientDiscoveryClientOptionalArgs

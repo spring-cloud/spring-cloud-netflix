@@ -29,6 +29,7 @@ import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 /**
+ * @author Daniel Lavoie
  * @author Haytham Mohamed
  */
 public class WebClientTransportClientFactories implements TransportClientFactories<Void> {
