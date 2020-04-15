@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -40,27 +39,16 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 import reactor.core.publisher.Mono;
 
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
-import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
-import org.springframework.boot.web.reactive.error.ErrorAttributes;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
 
 /**
  * Provides the custom {@link WebClient.Builder} required by the
@@ -74,30 +62,15 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	@Override
 	public EurekaHttpClient newClient(EurekaEndpoint serviceUrl) {
-		return new WebClientEurekaHttpClient(webClient(serviceUrl.getServiceUrl()));
+		WebClient.Builder builder = of(serviceUrl.getServiceUrl());
+		this.setExchangeStrategies(builder);
+		this.skipHttp400Error(builder);
+		return new WebClientEurekaHttpClient(builder.build());
 	}
 
-	private WebClient.Builder webClient(String serviceUrl) {
+	private WebClient.Builder of(String serviceUrl) {
 		String url = serviceUrl;
-		ObjectMapper objectMapper = mappingJacksonHttpMessageConverter()
-				.getObjectMapper();
-
-		ExchangeStrategies strategies = ExchangeStrategies.builder()
-				.codecs(clientDefaultCodecsConfigurer -> {
-					clientDefaultCodecsConfigurer.defaultCodecs()
-							.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper,
-									MediaType.APPLICATION_JSON));
-					clientDefaultCodecsConfigurer.defaultCodecs()
-							.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper,
-									MediaType.APPLICATION_JSON));
-
-				}).build();
-
-		WebClient.Builder builder = WebClient.builder().exchangeStrategies(strategies);
-
-		// to skip over http 400 errors
-		builder.filter(Http4xxErrorExchangeFilterFunction());
-
+		WebClient.Builder builder = WebClient.builder();
 		try {
 			URI serviceURI = new URI(serviceUrl);
 			if (serviceURI.getUserInfo() != null) {
@@ -111,18 +84,35 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 			}
 		}
 		catch (URISyntaxException ignore) {
-
 		}
-
 		return builder.baseUrl(url);
+	}
+
+	private void setExchangeStrategies(WebClient.Builder builder) {
+		ObjectMapper objectMapper = mappingJacksonHttpMessageConverter()
+				.getObjectMapper();
+		ExchangeStrategies strategies = ExchangeStrategies.builder()
+				.codecs(clientDefaultCodecsConfigurer -> {
+					clientDefaultCodecsConfigurer.defaultCodecs()
+							.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper,
+									MediaType.APPLICATION_JSON));
+					clientDefaultCodecsConfigurer.defaultCodecs()
+							.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper,
+									MediaType.APPLICATION_JSON));
+
+				}).build();
+		builder.exchangeStrategies(strategies);
+	}
+
+	private void skipHttp400Error(WebClient.Builder builder) {
+		builder.filter(Http4xxErrorExchangeFilterFunction());
 	}
 
 	// Skip over 4xx http errors
 	private ExchangeFilterFunction Http4xxErrorExchangeFilterFunction() {
 		return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-			if (clientResponse.statusCode().value() == 400) { // literally 400 passes
-																// tests, not
-																// 4xxClientError
+			// literally 400 pass the tests, not 4xxClientError
+			if (clientResponse.statusCode().value() == 400) {
 				ClientResponse newResponse = ClientResponse.from(clientResponse)
 						.statusCode(HttpStatus.OK).build();
 				newResponse.body((clientHttpResponse, context) -> {
@@ -201,51 +191,6 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	@Override
 	public void shutdown() {
-	}
-
-	public class ReactiveErrorAttributes extends DefaultErrorAttributes {
-
-		@Override
-		public Map<String, Object> getErrorAttributes(ServerRequest request,
-				boolean includeStackTrace) {
-			Map<String, Object> map = super.getErrorAttributes(request,
-					includeStackTrace);
-			map.put("status", request.exchange().getResponse().getStatusCode().value());
-			return map;
-		}
-
-	}
-
-	public class ReactiveErrorWebExceptionHandler
-			extends AbstractErrorWebExceptionHandler {
-
-		public ReactiveErrorWebExceptionHandler(ErrorAttributes errorAttributes,
-				ResourceProperties resourceProperties,
-				ApplicationContext applicationContext) {
-			super(errorAttributes, resourceProperties, applicationContext);
-		}
-
-		@Override
-		protected RouterFunction<ServerResponse> getRoutingFunction(
-				ErrorAttributes errorAttributes) {
-
-			return RouterFunctions.route(RequestPredicates.all(),
-					this::renderErrorResponse);
-		}
-
-		private Mono<ServerResponse> renderErrorResponse(ServerRequest request) {
-
-			Map<String, Object> errors = getErrorAttributes(request, false);
-			Integer httpStatusCode = (Integer) errors.get("status");
-
-			if (String.valueOf(httpStatusCode).startsWith("4"))
-				return Mono.empty();
-
-			return ServerResponse.status(HttpStatus.BAD_REQUEST)
-					.contentType(MediaType.APPLICATION_JSON_UTF8)
-					.body(BodyInserters.fromObject(errors));
-		}
-
 	}
 
 }

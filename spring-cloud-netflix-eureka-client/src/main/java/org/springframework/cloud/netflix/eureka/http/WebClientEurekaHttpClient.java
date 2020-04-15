@@ -47,22 +47,15 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private WebClient.Builder webClientBuilder;
+	private WebClient webClient;
 
-	public WebClientEurekaHttpClient(WebClient.Builder builder) {
-		this.webClientBuilder = builder;
+	public WebClientEurekaHttpClient(WebClient webClient) {
+		this.webClient = webClient;
 	}
-
-	/**
-	 * public WebClientEurekaHttpClient(WebClient.Builder builder, String serviceUrl) {
-	 * this.webClientBuilder = builder; String url = serviceUrl; if (serviceUrl != null &&
-	 * !serviceUrl.endsWith("/")) { url = serviceUrl + "/"; } builder.baseUrl(url); }
-	 */
 
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
-		return webClientBuilder.build().post()
-				.uri("apps/" + info.getAppName(), Void.class)
+		return webClient.post().uri("apps/" + info.getAppName(), Void.class)
 				.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.exchange().map(response -> eurekaHttpResponse(response)).block();
@@ -70,8 +63,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
-		return webClientBuilder.build().delete()
-				.uri("apps/" + appName + '/' + id, Void.class).exchange()
+		return webClient.delete().uri("apps/" + appName + '/' + id, Void.class).exchange()
 				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
@@ -83,8 +75,8 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 				+ info.getLastDirtyTimestamp().toString() + (overriddenStatus != null
 						? "&overriddenstatus=" + overriddenStatus.name() : "");
 
-		ClientResponse response = webClientBuilder.build().put()
-				.uri(urlPath, InstanceInfo.class).exchange().block();
+		ClientResponse response = webClient.put().uri(urlPath, InstanceInfo.class)
+				.exchange().block();
 
 		EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(
 				statusCodeValueOf(response), InstanceInfo.class)
@@ -107,7 +99,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 				+ newStatus.name() + "&lastDirtyTimestamp="
 				+ info.getLastDirtyTimestamp().toString();
 
-		return webClientBuilder.build().put().uri(urlPath, Void.class).exchange()
+		return webClient.put().uri(urlPath, Void.class).exchange()
 				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
@@ -117,7 +109,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		String urlPath = "apps/" + appName + '/' + id + "/status?lastDirtyTimestamp="
 				+ info.getLastDirtyTimestamp().toString();
 
-		return webClientBuilder.build().delete().uri(urlPath, Void.class).exchange()
+		return webClient.delete().uri(urlPath, Void.class).exchange()
 				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
@@ -135,8 +127,8 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 					+ StringUtil.join(regions);
 		}
 
-		ClientResponse response = webClientBuilder.build().get()
-				.uri(url, Applications.class).exchange().block();
+		ClientResponse response = webClient.get().uri(url, Applications.class).exchange()
+				.block();
 
 		int statusCode = statusCodeValueOf(response);
 
@@ -166,7 +158,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Application> getApplication(String appName) {
 
-		ClientResponse response = webClientBuilder.build().get()
+		ClientResponse response = webClient.get()
 				.uri("apps/" + appName, Application.class).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
@@ -190,8 +182,8 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
-		ClientResponse response = webClientBuilder.build().get()
-				.uri(urlPath, InstanceInfo.class).exchange().block();
+		ClientResponse response = webClient.get().uri(urlPath, InstanceInfo.class)
+				.exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 		InstanceInfo body = response.toEntity(InstanceInfo.class).block().getBody();
