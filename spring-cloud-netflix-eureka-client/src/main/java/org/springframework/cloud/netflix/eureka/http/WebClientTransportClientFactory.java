@@ -77,7 +77,6 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	}
 
 	private WebClient.Builder webClient(String serviceUrl) {
-
 		ObjectMapper objectMapper = mappingJacksonHttpMessageConverter()
 				.getObjectMapper();
 

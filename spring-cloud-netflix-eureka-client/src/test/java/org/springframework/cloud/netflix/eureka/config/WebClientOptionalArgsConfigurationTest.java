@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*" })
 @SpringBootTest(classes = EurekaSampleApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RestTemplateOptionalArgsConfigurationTest {
+public class WebClientOptionalArgsConfigurationTest {
 
 	@Test
 	public void contextLoads() {

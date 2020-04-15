@@ -114,7 +114,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		String urlPath = serviceUrl + "apps/" + appName + '/' + id
 				+ "/status?lastDirtyTimestamp=" + info.getLastDirtyTimestamp().toString();
 
-		return webClientBuilder.build().delete().uri(serviceUrl, Void.class).exchange()
+		return webClientBuilder.build().delete().uri(urlPath, Void.class).exchange()
 				.map(response -> eurekaHttpResponse(response)).block();
 	}
 

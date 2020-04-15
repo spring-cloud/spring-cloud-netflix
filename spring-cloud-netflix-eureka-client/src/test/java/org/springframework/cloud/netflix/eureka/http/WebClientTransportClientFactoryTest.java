@@ -25,7 +25,7 @@ import org.junit.Test;
  * @author Daniel Lavoie
  * @author Haytham Mohamed
  */
-public class RestTemplateTransportClientFactoryTest {
+public class WebClientTransportClientFactoryTest {
 
 	private WebClientTransportClientFactory transportClientFatory;
 

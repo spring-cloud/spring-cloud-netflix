@@ -22,7 +22,7 @@ import org.junit.Test;
  * @author Daniel Lavoie
  * @author Haytham Mohamed
  */
-public class RestTemplateTransportClientFactoriesTest {
+public class WebClientTransportClientFactoriesTest {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testJerseyIsUnsuported() {
