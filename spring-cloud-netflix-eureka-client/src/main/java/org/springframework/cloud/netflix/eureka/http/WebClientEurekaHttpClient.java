@@ -53,14 +53,11 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		this.webClientBuilder = builder;
 	}
 
-	public WebClientEurekaHttpClient(WebClient.Builder builder, String serviceUrl) {
-		this.webClientBuilder = builder;
-		String url = serviceUrl;
-		if (serviceUrl != null && !serviceUrl.endsWith("/")) {
-			url = serviceUrl + "/";
-		}
-		builder.baseUrl(url);
-	}
+	/**
+	 * public WebClientEurekaHttpClient(WebClient.Builder builder, String serviceUrl) {
+	 * this.webClientBuilder = builder; String url = serviceUrl; if (serviceUrl != null &&
+	 * !serviceUrl.endsWith("/")) { url = serviceUrl + "/"; } builder.baseUrl(url); }
+	 */
 
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {

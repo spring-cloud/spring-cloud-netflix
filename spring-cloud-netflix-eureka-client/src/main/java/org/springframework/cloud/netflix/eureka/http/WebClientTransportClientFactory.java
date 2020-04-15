@@ -95,7 +95,7 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 		WebClient.Builder builder = WebClient.builder().exchangeStrategies(strategies);
 
-		// TODO: skip over 4xx error type
+		// to skip over http 400 errors
 		builder.filter(Http4xxErrorExchangeFilterFunction());
 
 		try {
@@ -120,7 +120,9 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	// Skip over 4xx http errors
 	private ExchangeFilterFunction Http4xxErrorExchangeFilterFunction() {
 		return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-			if (clientResponse.statusCode().value() == 400) { // literally 400 passes tests, not 4xxClientError
+			if (clientResponse.statusCode().value() == 400) { // literally 400 passes
+																// tests, not
+																// 4xxClientError
 				ClientResponse newResponse = ClientResponse.from(clientResponse)
 						.statusCode(HttpStatus.OK).build();
 				newResponse.body((clientHttpResponse, context) -> {
