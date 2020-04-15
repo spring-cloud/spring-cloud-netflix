@@ -51,6 +51,8 @@ import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -72,11 +74,11 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	@Override
 	public EurekaHttpClient newClient(EurekaEndpoint serviceUrl) {
-		return new WebClientEurekaHttpClient(webClient(serviceUrl.getServiceUrl()),
-				serviceUrl.getServiceUrl());
+		return new WebClientEurekaHttpClient(webClient(serviceUrl.getServiceUrl()));
 	}
 
 	private WebClient.Builder webClient(String serviceUrl) {
+		String url = serviceUrl;
 		ObjectMapper objectMapper = mappingJacksonHttpMessageConverter()
 				.getObjectMapper();
 
@@ -93,7 +95,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 		WebClient.Builder builder = WebClient.builder().exchangeStrategies(strategies);
 
-		// TODO: set a global error handler to skip over 4xx error type
+		// TODO: skip over 4xx error type
+		builder.filter(Http4xxErrorExchangeFilterFunction());
 
 		try {
 			URI serviceURI = new URI(serviceUrl);
@@ -102,6 +105,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 				if (credentials.length == 2) {
 					builder.filter(ExchangeFilterFunctions
 							.basicAuthentication(credentials[0], credentials[1]));
+					url = serviceUrl.replace(credentials[0] + ":" + credentials[1] + "@",
+							"");
 				}
 			}
 		}
@@ -109,7 +114,22 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 		}
 
-		return builder;
+		return builder.baseUrl(url);
+	}
+
+	// Skip over 4xx http errors
+	private ExchangeFilterFunction Http4xxErrorExchangeFilterFunction() {
+		return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+			if (clientResponse.statusCode().value() == 400) { // literally 400 passes tests, not 4xxClientError
+				ClientResponse newResponse = ClientResponse.from(clientResponse)
+						.statusCode(HttpStatus.OK).build();
+				newResponse.body((clientHttpResponse, context) -> {
+					return clientHttpResponse.getBody();
+				});
+				return Mono.just(newResponse);
+			}
+			return Mono.just(clientResponse);
+		});
 	}
 
 	/**

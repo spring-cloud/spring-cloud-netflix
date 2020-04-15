@@ -49,20 +49,23 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	private WebClient.Builder webClientBuilder;
 
-	private String serviceUrl;
+	public WebClientEurekaHttpClient(WebClient.Builder builder) {
+		this.webClientBuilder = builder;
+	}
 
 	public WebClientEurekaHttpClient(WebClient.Builder builder, String serviceUrl) {
 		this.webClientBuilder = builder;
-		this.serviceUrl = serviceUrl;
-		if (!serviceUrl.endsWith("/")) {
-			this.serviceUrl = this.serviceUrl + "/";
+		String url = serviceUrl;
+		if (serviceUrl != null && !serviceUrl.endsWith("/")) {
+			url = serviceUrl + "/";
 		}
+		builder.baseUrl(url);
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
 		return webClientBuilder.build().post()
-				.uri(serviceUrl + "apps/" + info.getAppName(), Void.class)
+				.uri("apps/" + info.getAppName(), Void.class)
 				.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.exchange().map(response -> eurekaHttpResponse(response)).block();
@@ -71,36 +74,39 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
 		return webClientBuilder.build().delete()
-				.uri(serviceUrl + "apps/" + appName + '/' + id, Void.class).exchange()
+				.uri("apps/" + appName + '/' + id, Void.class).exchange()
 				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
 	public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id,
 			InstanceInfo info, InstanceStatus overriddenStatus) {
-		String urlPath = serviceUrl + "apps/" + appName + '/' + id + "?status="
+		String urlPath = "apps/" + appName + '/' + id + "?status="
 				+ info.getStatus().toString() + "&lastDirtyTimestamp="
 				+ info.getLastDirtyTimestamp().toString() + (overriddenStatus != null
 						? "&overriddenstatus=" + overriddenStatus.name() : "");
-		return webClientBuilder.build().put().uri(urlPath, InstanceInfo.class).exchange()
-				.map(response -> {
-					EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(
-							statusCodeValueOf(response), InstanceInfo.class)
-									.headers(headersOf(response));
-					InstanceInfo entity = response.toEntity(InstanceInfo.class).block()
-							.getBody();
 
-					if (entity != null) {
-						builder.entity(entity);
-					}
-					return builder;
-				}).block().build();
+		ClientResponse response = webClientBuilder.build().put()
+				.uri(urlPath, InstanceInfo.class).exchange().block();
+
+		EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(
+				statusCodeValueOf(response), InstanceInfo.class)
+						.headers(headersOf(response));
+
+		InstanceInfo entity = response.toEntity(InstanceInfo.class).block().getBody();
+
+		if (entity != null) {
+			builder.entity(entity);
+		}
+
+		return builder.build();
+
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> statusUpdate(String appName, String id,
 			InstanceStatus newStatus, InstanceInfo info) {
-		String urlPath = serviceUrl + "apps/" + appName + '/' + id + "/status?value="
+		String urlPath = "apps/" + appName + '/' + id + "/status?value="
 				+ newStatus.name() + "&lastDirtyTimestamp="
 				+ info.getLastDirtyTimestamp().toString();
 
@@ -111,8 +117,8 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Void> deleteStatusOverride(String appName, String id,
 			InstanceInfo info) {
-		String urlPath = serviceUrl + "apps/" + appName + '/' + id
-				+ "/status?lastDirtyTimestamp=" + info.getLastDirtyTimestamp().toString();
+		String urlPath = "apps/" + appName + '/' + id + "/status?lastDirtyTimestamp="
+				+ info.getLastDirtyTimestamp().toString();
 
 		return webClientBuilder.build().delete().uri(urlPath, Void.class).exchange()
 				.map(response -> eurekaHttpResponse(response)).block();
@@ -125,7 +131,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath,
 			String[] regions) {
-		String url = serviceUrl + urlPath;
+		String url = urlPath;
 
 		if (regions != null && regions.length > 0) {
 			url = url + (urlPath.contains("?") ? "&" : "?") + "regions="
@@ -133,16 +139,15 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		}
 
 		ClientResponse response = webClientBuilder.build().get()
-				.uri(url, EurekaApplications.class).exchange().block();
+				.uri(url, Applications.class).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 
-		EurekaApplications body = response.toEntity(EurekaApplications.class).block()
-				.getBody();
+		Applications body = response.toEntity(Applications.class).block().getBody();
 
 		return anEurekaHttpResponse(statusCode,
-				statusCode == HttpStatus.OK.value() && body != null ? (Applications) body
-						: null).headers(headersOf(response)).build();
+				statusCode == HttpStatus.OK.value() && body != null ? body : null)
+						.headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -165,8 +170,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	public EurekaHttpResponse<Application> getApplication(String appName) {
 
 		ClientResponse response = webClientBuilder.build().get()
-				.uri(serviceUrl + "apps/" + appName, Application.class).exchange()
-				.block();
+				.uri("apps/" + appName, Application.class).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 		Application body = response.toEntity(Application.class).block().getBody();
@@ -190,7 +194,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
 		ClientResponse response = webClientBuilder.build().get()
-				.uri(serviceUrl + urlPath, InstanceInfo.class).exchange().block();
+				.uri(urlPath, InstanceInfo.class).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 		InstanceInfo body = response.toEntity(InstanceInfo.class).block().getBody();
