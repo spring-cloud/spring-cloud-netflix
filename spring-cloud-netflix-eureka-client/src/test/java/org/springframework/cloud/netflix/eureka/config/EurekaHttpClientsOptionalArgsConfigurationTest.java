@@ -39,7 +39,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*" })
 @SpringBootTest(classes = EurekaSampleApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RestTemplateOptionalArgsConfigurationTest {
+public class EurekaHttpClientsOptionalArgsConfigurationTest {
 
 	@Test
 	public void contextLoadsWithRestTemplate() {
@@ -47,11 +47,14 @@ public class RestTemplateOptionalArgsConfigurationTest {
 				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
 				.properties(new String[] { "eureka.client.webclientSupport=false" })
 				.run()) {
-			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class)).isNotNull();
+			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class))
+					.isNotNull();
 			try {
 				Object bean = context.getBean(WebClientDiscoveryClientOptionalArgs.class);
 				assertThat(bean).isNull();
-			} catch(Exception ex) {}
+			}
+			catch (Exception ex) {
+			}
 		}
 	}
 
@@ -61,11 +64,15 @@ public class RestTemplateOptionalArgsConfigurationTest {
 				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
 				.properties(new String[] { "eureka.client.webclientSupport=true" })
 				.run()) {
-			assertThat(context.getBean(WebClientDiscoveryClientOptionalArgs.class)).isNotNull();
+			assertThat(context.getBean(WebClientDiscoveryClientOptionalArgs.class))
+					.isNotNull();
 			try {
-				Object bean = context.getBean(RestTemplateDiscoveryClientOptionalArgs.class);
+				Object bean = context
+						.getBean(RestTemplateDiscoveryClientOptionalArgs.class);
 				assertThat(bean).isNull();
-			} catch(Exception ex) {}
+			}
+			catch (Exception ex) {
+			}
 		}
 	}
 
@@ -74,11 +81,14 @@ public class RestTemplateOptionalArgsConfigurationTest {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
 				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
 				.run()) {
-			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class)).isNotNull();
+			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class))
+					.isNotNull();
 			try {
 				Object bean = context.getBean(WebClientDiscoveryClientOptionalArgs.class);
 				assertThat(bean).isNull();
-			} catch(Exception ex) {}
+			}
+			catch (Exception ex) {
+			}
 		}
 	}
 
