@@ -413,6 +413,13 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	 */
 	private int order = 0;
 
+	/**
+	 * A temporary property to switch between using either RestTemplate or WebClient
+	 * support.
+	 * @return
+	 */
+	private boolean webclientSupport = false;
+
 	@Override
 	public boolean shouldGZipContent() {
 		return this.gZipContent;
@@ -943,6 +950,14 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 		this.order = order;
 	}
 
+	public boolean isWebclientSupport() {
+		return webclientSupport;
+	}
+
+	public void setWebclientSupport(boolean webclientSupport) {
+		this.webclientSupport = webclientSupport;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -977,6 +992,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				&& allowRedirects == that.allowRedirects
 				&& onDemandUpdateStatusChange == that.onDemandUpdateStatusChange
 				&& shouldUnregisterOnShutdown == that.shouldUnregisterOnShutdown
+				&& webclientSupport == that.webclientSupport
 				&& shouldEnforceRegistrationAtInit == that.shouldEnforceRegistrationAtInit
 				&& Objects.equals(proxyPort, that.proxyPort)
 				&& Objects.equals(proxyHost, that.proxyHost)
@@ -1020,7 +1036,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				filterOnlyUpInstances, fetchRegistry, dollarReplacement,
 				escapeCharReplacement, allowRedirects, onDemandUpdateStatusChange,
 				encoderName, decoderName, clientDataAccept, shouldUnregisterOnShutdown,
-				shouldEnforceRegistrationAtInit, order);
+				webclientSupport, shouldEnforceRegistrationAtInit, order);
 	}
 
 	@Override
@@ -1086,7 +1102,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				.append(decoderName).append("', ").append("clientDataAccept='")
 				.append(clientDataAccept).append("', ")
 				.append("shouldUnregisterOnShutdown='").append(shouldUnregisterOnShutdown)
-				.append("', ").append("shouldEnforceRegistrationAtInit='")
+				.append("webclientSupport='").append(webclientSupport).append("', ")
+				.append("shouldEnforceRegistrationAtInit='")
 				.append(shouldEnforceRegistrationAtInit).append("', ").append("order='")
 				.append(order).append("'}").toString();
 	}

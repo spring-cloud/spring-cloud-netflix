@@ -24,12 +24,13 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 /**
  * @author Daniel Lavoie
@@ -41,12 +42,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RestTemplateOptionalArgsConfigurationTest {
 
 	@Test
-	public void contextLoads() {
+	public void contextLoadsWithRestTemplate() {
+		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
+				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
+				.properties(new String[] { "eureka.client.webclientSupport=false" })
+				.run()) {
+			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class)).isNotNull();
+			try {
+				Object bean = context.getBean(WebClientDiscoveryClientOptionalArgs.class);
+				assertThat(bean).isNull();
+			} catch(Exception ex) {}
+		}
+	}
+
+	@Test
+	public void contextLoadsWithWebClient() {
+		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
+				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
+				.properties(new String[] { "eureka.client.webclientSupport=true" })
+				.run()) {
+			assertThat(context.getBean(WebClientDiscoveryClientOptionalArgs.class)).isNotNull();
+			try {
+				Object bean = context.getBean(RestTemplateDiscoveryClientOptionalArgs.class);
+				assertThat(bean).isNull();
+			} catch(Exception ex) {}
+		}
+	}
+
+	@Test
+	public void contextLoadsWithRestTemplateAsDefault() {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
 				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
 				.run()) {
-			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class))
-					.isNotNull();
+			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class)).isNotNull();
+			try {
+				Object bean = context.getBean(WebClientDiscoveryClientOptionalArgs.class);
+				assertThat(bean).isNull();
+			} catch(Exception ex) {}
 		}
 	}
 

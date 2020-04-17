@@ -21,9 +21,11 @@ import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.netflix.eureka.MutableDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,10 +37,24 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
-	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
+	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
 			search = SearchStrategy.CURRENT)
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclientSupport",
+			matchIfMissing = true, havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
 		return new RestTemplateDiscoveryClientOptionalArgs();
+	}
+
+	@Bean
+	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnMissingBean(
+			value = { AbstractDiscoveryClientOptionalArgs.class,
+					RestTemplateDiscoveryClientOptionalArgs.class },
+			search = SearchStrategy.CURRENT)
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclientSupport",
+			havingValue = "true")
+	public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs() {
+		return new WebClientDiscoveryClientOptionalArgs();
 	}
 
 	@Bean
