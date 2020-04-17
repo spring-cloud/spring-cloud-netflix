@@ -45,7 +45,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTest {
 	public void contextLoadsWithRestTemplate() {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
 				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
-				.properties(new String[] { "eureka.client.webclientSupport=false" })
+				.properties(new String[] { "eureka.client.webclient-support=false" })
 				.run()) {
 			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class))
 					.isNotNull();
@@ -62,7 +62,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTest {
 	public void contextLoadsWithWebClient() {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
 				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
-				.properties(new String[] { "eureka.client.webclientSupport=true" })
+				.properties(new String[] { "eureka.client.webclient-support=true" })
 				.run()) {
 			assertThat(context.getBean(WebClientDiscoveryClientOptionalArgs.class))
 					.isNotNull();
