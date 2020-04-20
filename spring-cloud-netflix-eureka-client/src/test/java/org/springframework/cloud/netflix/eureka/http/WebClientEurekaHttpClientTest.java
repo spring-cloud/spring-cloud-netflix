@@ -36,7 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true",
-				"eureka.client.webclientSupport=true" },
+				"eureka.client.webclient.enabled=true" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {

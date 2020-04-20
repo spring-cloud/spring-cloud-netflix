@@ -43,7 +43,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
 			search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient-support" },
+	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient.enabled" },
 			matchIfMissing = true, havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
 		logger.info("Eureka HTTP Client uses RestTemplate.");
@@ -56,7 +56,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 			value = { AbstractDiscoveryClientOptionalArgs.class,
 					RestTemplateDiscoveryClientOptionalArgs.class },
 			search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient-support" },
+	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient.enabled" },
 			havingValue = "true")
 	public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs() {
 		logger.info("Eureka HTTP Client uses WebClient.");
