@@ -35,10 +35,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaServerMockApplication.class,
-		properties = { "debug=true", "security.basic.enabled=true" },
+		properties = { "debug=true", "security.basic.enabled=true",
+				"eureka.client.webclient.enabled=true" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class RestTemplateEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
+public class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
 
 	@Autowired
 	private InetUtils inetUtils;
@@ -48,7 +49,7 @@ public class RestTemplateEurekaHttpClientTest extends AbstractEurekaHttpClientTe
 
 	@Before
 	public void setup() {
-		eurekaHttpClient = new RestTemplateTransportClientFactory()
+		eurekaHttpClient = new WebClientTransportClientFactory()
 				.newClient(new DefaultEndpoint(serviceUrl));
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
