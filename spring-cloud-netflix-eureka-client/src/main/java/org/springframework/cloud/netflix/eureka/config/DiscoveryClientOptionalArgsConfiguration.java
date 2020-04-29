@@ -17,6 +17,8 @@
 package org.springframework.cloud.netflix.eureka.config;
 
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -33,11 +35,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class DiscoveryClientOptionalArgsConfiguration {
 
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	@Bean
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
 	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
 			search = SearchStrategy.CURRENT)
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
+		logger.info("Eureka Client uses RestTemplate");
 		return new RestTemplateDiscoveryClientOptionalArgs();
 	}
 
@@ -46,6 +51,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
 			search = SearchStrategy.CURRENT)
 	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
+		logger.info("Eureka Client uses Jersey");
 		return new MutableDiscoveryClientOptionalArgs();
 	}
 
