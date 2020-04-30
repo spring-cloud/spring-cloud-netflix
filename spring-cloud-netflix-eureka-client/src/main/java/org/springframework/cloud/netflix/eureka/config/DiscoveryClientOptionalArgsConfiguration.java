@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,17 @@
 package org.springframework.cloud.netflix.eureka.config;
 
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.netflix.eureka.MutableDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,12 +37,30 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class DiscoveryClientOptionalArgsConfiguration {
 
+	protected final Log logger = LogFactory.getLog(getClass());
+
 	@Bean
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
-	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
+	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
 			search = SearchStrategy.CURRENT)
+	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient.enabled" },
+			matchIfMissing = true, havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
+		logger.info("Eureka HTTP Client uses RestTemplate.");
 		return new RestTemplateDiscoveryClientOptionalArgs();
+	}
+
+	@Bean
+	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnMissingBean(
+			value = { AbstractDiscoveryClientOptionalArgs.class,
+					RestTemplateDiscoveryClientOptionalArgs.class },
+			search = SearchStrategy.CURRENT)
+	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient.enabled" },
+			havingValue = "true")
+	public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs() {
+		logger.info("Eureka HTTP Client uses WebClient.");
+		return new WebClientDiscoveryClientOptionalArgs();
 	}
 
 	@Bean

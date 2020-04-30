@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ public final class FilterConstants {
 	public static final String FORWARD_LOCATION_PREFIX = "forward:";
 
 	/**
-	 * Dfault http port.
+	 * Default http port.
 	 */
 	public static final int HTTP_PORT = 80;
 

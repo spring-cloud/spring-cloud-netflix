@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,9 +75,6 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Autowired
 	private DiscoveryClient discovery;
 
-	@Autowired
-	private ServiceRouteMapper serviceRouteMapper;
-
 	@Override
 	public HasFeatures zuulFeature() {
 		return HasFeatures.namedFeature("Zuul (Discovery)",
@@ -86,9 +83,10 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
-	public DiscoveryClientRouteLocator discoveryRouteLocator() {
+	public DiscoveryClientRouteLocator discoveryRouteLocator(
+			ServiceRouteMapper serviceRouteMapper) {
 		return new DiscoveryClientRouteLocator(this.server.getServlet().getContextPath(),
-				this.discovery, this.zuulProperties, this.serviceRouteMapper,
+				this.discovery, this.zuulProperties, serviceRouteMapper,
 				this.registration);
 	}
 

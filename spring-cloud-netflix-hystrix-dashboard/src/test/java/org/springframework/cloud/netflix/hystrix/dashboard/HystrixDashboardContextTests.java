@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 				"server.servlet.context-path=/context" })
 public class HystrixDashboardContextTests {
 
-	public static final String JQUERY_PATH = "/context/webjars/jquery/2.1.1/jquery.min.js";
+	public static final String JQUERY_PATH = "/context/webjars/jquery/3.4.1/jquery.min.js";
 
 	@LocalServerPort
 	private int port = 0;
