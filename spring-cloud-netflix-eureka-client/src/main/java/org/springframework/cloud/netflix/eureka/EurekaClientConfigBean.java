@@ -1086,7 +1086,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				.append(decoderName).append("', ").append("clientDataAccept='")
 				.append(clientDataAccept).append("', ")
 				.append("shouldUnregisterOnShutdown='").append(shouldUnregisterOnShutdown)
-				.append("', ").append("shouldEnforceRegistrationAtInit='")
+				.append("shouldEnforceRegistrationAtInit='")
 				.append(shouldEnforceRegistrationAtInit).append("', ").append("order='")
 				.append(order).append("'}").toString();
 	}
