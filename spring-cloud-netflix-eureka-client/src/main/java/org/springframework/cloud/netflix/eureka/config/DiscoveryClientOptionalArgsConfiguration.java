@@ -68,6 +68,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
 			search = SearchStrategy.CURRENT)
 	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
+		logger.info("Eureka Client uses Jersey");
 		return new MutableDiscoveryClientOptionalArgs();
 	}
 
