@@ -25,6 +25,8 @@ import com.netflix.discovery.endpoint.EndpointUtils;
 import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -35,7 +37,6 @@ import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFactory;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +44,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
 /**
- * Eureka-specific helper for config client that wants to lookup the config server via
+ * Bootstrap configuration for config client that wants to lookup the config server via
  * discovery.
  *
  * @author Dave Syer
@@ -53,6 +54,9 @@ import org.springframework.http.HttpStatus;
 		matchIfMissing = false)
 @Configuration(proxyBeanMethods = false)
 public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
+
+	private static final Log log = LogFactory
+			.getLog(EurekaDiscoveryClientConfigServiceBootstrapConfiguration.class);
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class,
@@ -65,8 +69,8 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
 	@ConditionalOnMissingBean
 	public WebClientEurekaHttpClient configDiscoveryEurekaHttpClient(
 			EurekaClientConfigBean config) {
-		List<String> urls = EndpointUtils.getServiceUrlsFromConfig(config, "unknown",
-				true);
+		List<String> urls = EndpointUtils.getServiceUrlsFromConfig(config,
+				EurekaClientConfigBean.DEFAULT_ZONE, true);
 		String url = urls.get(0);
 		return (WebClientEurekaHttpClient) new WebClientTransportClientFactory()
 				.newClient(new DefaultEndpoint(url));
@@ -79,9 +83,13 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
 
 	@Bean
 	public ConfigServerInstanceProvider.Function eurekaConfigServerInstanceProvider(
-			RestTemplateEurekaHttpClient client, EurekaClientConfig config) {
+			WebClientEurekaHttpClient client, EurekaClientConfig config) {
 
 		return serviceId -> {
+			if (log.isDebugEnabled()) {
+				log.debug("eurekaConfigServerInstanceProvider finding instances for "
+						+ serviceId);
+			}
 			EurekaHttpResponse<Applications> response = client
 					.getApplications(config.getRegion());
 			List<ServiceInstance> instances = new ArrayList<>();
@@ -95,6 +103,10 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
 					.getInstancesByVirtualHostName(serviceId);
 			for (InstanceInfo info : infos) {
 				instances.add(new EurekaServiceInstance(info));
+			}
+			if (log.isDebugEnabled()) {
+				log.debug("eurekaConfigServerInstanceProvider found " + infos.size()
+						+ " instance(s) for " + serviceId + ", " + instances);
 			}
 			return instances;
 		};

@@ -48,12 +48,10 @@ public class ConfigRefreshTests {
 
 	@Test
 	// This test is used to verify that getApplications is called the correct number of
-	// times
-	// when a refresh event is fired. The getApplications call in
+	// times when a refresh event is fired. The getApplications call in
 	// EurekaClientConfigurationRefresher.onApplicationEvent
 	// ensures that the EurekaClient bean is recreated after a refresh event and that we
-	// reregister the client with
-	// the server
+	// reregister the client with the server
 	public void verifyGetApplications() {
 		if (publisher != null) {
 			publisher.publishEvent(new RefreshScopeRefreshedEvent());
