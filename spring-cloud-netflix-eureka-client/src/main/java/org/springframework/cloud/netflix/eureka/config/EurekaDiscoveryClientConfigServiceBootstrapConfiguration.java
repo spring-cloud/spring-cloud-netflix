@@ -16,19 +16,12 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.AzToRegionMapper;
-import com.netflix.discovery.DNSBasedAzToRegionMapper;
 import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.InstanceRegionChecker;
-import com.netflix.discovery.PropertyBasedAzToRegionMapper;
 import com.netflix.discovery.endpoint.EndpointUtils;
-import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
@@ -38,16 +31,16 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
+import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Eureka-specific helper for config client that wants to lookup the config server via
@@ -69,89 +62,41 @@ public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
 	}
 
 	@Bean
-	public RestTemplateEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(
+	@ConditionalOnMissingBean
+	public WebClientEurekaHttpClient configDiscoveryEurekaHttpClient(
 			EurekaClientConfigBean config) {
 		List<String> urls = EndpointUtils.getServiceUrlsFromConfig(config, "unknown",
 				true);
 		String url = urls.get(0);
-		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory()
+		return (WebClientEurekaHttpClient) new WebClientTransportClientFactory()
 				.newClient(new DefaultEndpoint(url));
 	}
 
 	private boolean isSuccessful(EurekaHttpResponse<Applications> response) {
-		return HttpStatus.resolve(response.getStatusCode()).is2xxSuccessful();
+		HttpStatus httpStatus = HttpStatus.resolve(response.getStatusCode());
+		return httpStatus != null && httpStatus.is2xxSuccessful();
 	}
 
 	@Bean
-	// TODO: only need blocking since ConfigServerInstanceProvider expects only it.
-	public DiscoveryClient configDiscoveryDiscoveryClient(
-			RestTemplateEurekaHttpClient client, EurekaClientConfig clientConfig) {
-		return new DiscoveryClient() {
+	public ConfigServerInstanceProvider.Function eurekaConfigServerInstanceProvider(
+			RestTemplateEurekaHttpClient client, EurekaClientConfig config) {
 
-			@Override
-			public String description() {
-				return "configDiscoveryDiscoveryClient";
-			}
-
-			@Override
-			public List<ServiceInstance> getInstances(String serviceId) {
-				AzToRegionMapper azToRegionMapper;
-				if (clientConfig.shouldUseDnsForFetchingServiceUrls()) {
-					azToRegionMapper = new DNSBasedAzToRegionMapper(clientConfig);
-				}
-				else {
-					azToRegionMapper = new PropertyBasedAzToRegionMapper(clientConfig);
-				}
-				String localRegion = null;
-				try {
-					Constructor<InstanceRegionChecker> constructor = ReflectionUtils
-							.accessibleConstructor(InstanceRegionChecker.class,
-									AzToRegionMapper.class, String.class);
-
-					InstanceRegionChecker instanceRegionChecker = constructor
-							.newInstance(azToRegionMapper, clientConfig.getRegion());
-					localRegion = instanceRegionChecker.getLocalRegion();
-				}
-				catch (Exception e) {
-					ReflectionUtils.rethrowRuntimeException(e);
-				}
-
-				EurekaHttpResponse<Applications> response = client
-						.getApplications(localRegion);
-				List<ServiceInstance> instances = new ArrayList<>();
-				if (!isSuccessful(response) || response.getEntity() == null) {
-					return instances;
-				}
-
-				Applications applications = response.getEntity();
-				applications.shuffleInstances(clientConfig.shouldFilterOnlyUpInstances());
-				List<InstanceInfo> infos = applications
-						.getInstancesByVirtualHostName(serviceId);
-				for (InstanceInfo info : infos) {
-					instances.add(new EurekaServiceInstance(info));
-				}
+		return serviceId -> {
+			EurekaHttpResponse<Applications> response = client
+					.getApplications(config.getRegion());
+			List<ServiceInstance> instances = new ArrayList<>();
+			if (!isSuccessful(response) || response.getEntity() == null) {
 				return instances;
 			}
 
-			@Override
-			public List<String> getServices() {
-				EurekaHttpResponse<Applications> response = client.getApplications();
-				if (!isSuccessful(response) || response.getEntity() == null) {
-					return Collections.emptyList();
-				}
-				List<Application> registered = response.getEntity()
-						.getRegisteredApplications();
-				List<String> names = new ArrayList<>();
-				for (Application app : registered) {
-					if (app.getInstances().isEmpty()) {
-						continue;
-					}
-					names.add(app.getName().toLowerCase());
-
-				}
-				return names;
+			Applications applications = response.getEntity();
+			applications.shuffleInstances(config.shouldFilterOnlyUpInstances());
+			List<InstanceInfo> infos = applications
+					.getInstancesByVirtualHostName(serviceId);
+			for (InstanceInfo info : infos) {
+				instances.add(new EurekaServiceInstance(info));
 			}
-
+			return instances;
 		};
 	}
 
