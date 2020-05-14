@@ -18,11 +18,13 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Objects;
 
 import com.netflix.appinfo.InstanceInfo;
 
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.util.Assert;
 
 import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
@@ -90,6 +92,29 @@ public class EurekaServiceInstance implements ServiceInstance {
 	@Override
 	public String getScheme() {
 		return getUri().getScheme();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		EurekaServiceInstance that = (EurekaServiceInstance) o;
+		return Objects.equals(this.instance, that.instance);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.instance);
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringCreator(this).append("instance", instance).toString();
+
 	}
 
 }
