@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Spencer Gibb
  */
-public class EurekaDiscoveryClientConfigServerBootstrapConfigurationTests {
+public class EurekaConfigServerBootstrapConfigurationTests {
 
 	@Rule
 	public OutputCaptureRule output = new OutputCaptureRule();
@@ -54,8 +54,8 @@ public class EurekaDiscoveryClientConfigServerBootstrapConfigurationTests {
 	@Test
 	public void offByDefault() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(
-						EurekaDiscoveryClientConfigServiceBootstrapConfiguration.class))
+				.withConfiguration(AutoConfigurations
+						.of(EurekaConfigServerBootstrapConfiguration.class))
 				.run(context -> {
 					assertThat(context).doesNotHaveBean(EurekaClientConfigBean.class);
 					assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
@@ -67,8 +67,8 @@ public class EurekaDiscoveryClientConfigServerBootstrapConfigurationTests {
 	@Test
 	public void properBeansCreatedWhenEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(
-						EurekaDiscoveryClientConfigServiceBootstrapConfiguration.class))
+				.withConfiguration(AutoConfigurations
+						.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
 				.run(context -> {
 					assertThat(context).hasSingleBean(EurekaClientConfigBean.class);

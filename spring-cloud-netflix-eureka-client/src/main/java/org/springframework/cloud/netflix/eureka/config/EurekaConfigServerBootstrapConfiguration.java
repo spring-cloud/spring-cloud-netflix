@@ -53,10 +53,10 @@ import org.springframework.http.HttpStatus;
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled",
 		matchIfMissing = false)
 @Configuration(proxyBeanMethods = false)
-public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
+public class EurekaConfigServerBootstrapConfiguration {
 
 	private static final Log log = LogFactory
-			.getLog(EurekaDiscoveryClientConfigServiceBootstrapConfiguration.class);
+			.getLog(EurekaConfigServerBootstrapConfiguration.class);
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class,

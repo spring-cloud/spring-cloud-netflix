@@ -7,4 +7,4 @@ org.springframework.cloud.netflix.eureka.reactive.EurekaReactiveDiscoveryClientC
 org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancerEurekaAutoConfiguration
 
 org.springframework.cloud.bootstrap.BootstrapConfiguration=\
-org.springframework.cloud.netflix.eureka.config.EurekaDiscoveryClientConfigServiceBootstrapConfiguration
+org.springframework.cloud.netflix.eureka.config.EurekaConfigServerBootstrapConfiguration
