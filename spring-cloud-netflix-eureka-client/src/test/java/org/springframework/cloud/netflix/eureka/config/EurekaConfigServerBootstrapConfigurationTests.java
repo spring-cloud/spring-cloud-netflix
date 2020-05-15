@@ -22,9 +22,12 @@ import java.util.List;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Applications;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
+import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -35,7 +38,9 @@ import org.springframework.boot.test.system.OutputCaptureRule;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
-import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
+import org.springframework.cloud.test.ClassPathExclusions;
+import org.springframework.cloud.test.ModifiedClassPathRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,6 +51,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author Spencer Gibb
  */
+@RunWith(ModifiedClassPathRunner.class)
+@ClassPathExclusions("spring-webflux-*")
 public class EurekaConfigServerBootstrapConfigurationTests {
 
 	@Rule
@@ -58,7 +65,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 						.of(EurekaConfigServerBootstrapConfiguration.class))
 				.run(context -> {
 					assertThat(context).doesNotHaveBean(EurekaClientConfigBean.class);
-					assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
+					assertThat(context).doesNotHaveBean(EurekaHttpClient.class);
 					assertThat(context)
 							.doesNotHaveBean(ConfigServerInstanceProvider.Function.class);
 				});
@@ -72,7 +79,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
 				.run(context -> {
 					assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
-					assertThat(context).hasSingleBean(WebClientEurekaHttpClient.class);
+					assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 					assertThat(context)
 							.hasSingleBean(ConfigServerInstanceProvider.Function.class);
 				});
@@ -80,6 +87,8 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 
 	@Test
 	public void eurekaConfigServerInstanceProviderCalled() {
+		// FIXME: why do I need to do this? (fails in maven build without it.
+		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class).properties(
 				"spring.cloud.config.discovery.enabled=true",
 				"spring.main.sources="
@@ -108,7 +117,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 
 		@SuppressWarnings("unchecked")
 		@Bean
-		public WebClientEurekaHttpClient mockWebClientEurekaHttpClient() {
+		public EurekaHttpClient mockEurekaHttpClient() {
 			InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
 					.setAppName("configserver").build();
 			List<InstanceInfo> instanceInfos = Collections.singletonList(instanceInfo);
@@ -121,7 +130,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 			when(response.getStatusCode()).thenReturn(200);
 			when(response.getEntity()).thenReturn(applications);
 
-			WebClientEurekaHttpClient client = mock(WebClientEurekaHttpClient.class);
+			EurekaHttpClient client = mock(EurekaHttpClient.class);
 			when(client.getApplications("us-east-1")).thenReturn(response);
 			return client;
 		}
