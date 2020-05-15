@@ -48,6 +48,7 @@ import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationP
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.cloud.context.scope.GenericScope;
+import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -82,6 +83,7 @@ public class EurekaClientAutoConfigurationTests {
 	private void setupContext(Class<?>... config) {
 		ConfigurationPropertySources.attach(this.context.getEnvironment());
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
+				DiscoveryClientOptionalArgsConfiguration.class,
 				EurekaDiscoveryClientConfiguration.class);
 		for (Class<?> value : config) {
 			this.context.register(value);
@@ -591,6 +593,7 @@ public class EurekaClientAutoConfigurationTests {
 	public void shouldNotHaveDiscoveryClientWhenBlockingDiscoveryDisabled() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
+						DiscoveryClientOptionalArgsConfiguration.class,
 						EurekaClientAutoConfiguration.class,
 						EurekaDiscoveryClientConfiguration.class))
 				.withPropertyValues("spring.cloud.discovery.blocking.enabled=false")
@@ -676,13 +679,6 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Configuration(proxyBeanMethods = false)
 	protected static class MockClientConfiguration {
-
-		@Bean
-		public MutableDiscoveryClientOptionalArgs mutableDiscoveryClientOptionalArgs() {
-			MutableDiscoveryClientOptionalArgs args = new MutableDiscoveryClientOptionalArgs();
-			args.setEurekaJerseyClient(jerseyClient());
-			return args;
-		}
 
 		@Bean
 		public EurekaJerseyClient jerseyClient() {

@@ -55,7 +55,6 @@ import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationP
 import org.springframework.cloud.client.serviceregistry.ServiceRegistryAutoConfiguration;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
-import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 import org.springframework.cloud.netflix.eureka.metadata.DefaultManagementMetadataProvider;
 import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadata;
 import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadataProvider;
@@ -67,7 +66,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.StringUtils;
@@ -87,12 +85,12 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
-@Import(DiscoveryClientOptionalArgsConfiguration.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @ConditionalOnDiscoveryEnabled
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
 		CommonsClientAutoConfiguration.class, ServiceRegistryAutoConfiguration.class })
 @AutoConfigureAfter(name = {
+		"org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration",
 		"org.springframework.cloud.autoconfigure.RefreshAutoConfiguration",
 		"org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration",
 		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration" })
