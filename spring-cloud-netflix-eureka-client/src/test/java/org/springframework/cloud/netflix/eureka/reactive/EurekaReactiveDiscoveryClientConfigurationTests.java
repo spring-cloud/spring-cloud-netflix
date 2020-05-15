@@ -26,6 +26,7 @@ import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
 import org.springframework.cloud.client.discovery.health.reactive.ReactiveDiscoveryClientHealthIndicator;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,6 +39,7 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 			.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
 					ReactiveCommonsClientAutoConfiguration.class,
 					EurekaClientAutoConfiguration.class,
+					DiscoveryClientOptionalArgsConfiguration.class,
 					EurekaReactiveDiscoveryClientConfiguration.class));
 
 	@Test

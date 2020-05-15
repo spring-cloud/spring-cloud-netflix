@@ -19,16 +19,14 @@ package org.springframework.cloud.netflix.eureka.config;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -43,53 +41,39 @@ public class EurekaHttpClientsOptionalArgsConfigurationTest {
 
 	@Test
 	public void contextLoadsWithRestTemplate() {
-		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
-				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
-				.properties(new String[] { "eureka.client.webclient.enabled=false" })
-				.run()) {
-			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class))
-					.isNotNull();
-			try {
-				Object bean = context.getBean(WebClientDiscoveryClientOptionalArgs.class);
-				assertThat(bean).isNull();
-			}
-			catch (Exception ex) {
-			}
-		}
+		new WebApplicationContextRunner()
+				.withUserConfiguration(EurekaSampleApplication.class)
+				.withPropertyValues("eureka.client.webclient.enabled=false")
+				.run(context -> {
+					assertThat(context)
+							.hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
+					assertThat(context)
+							.doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
+				});
 	}
 
 	@Test
 	public void contextLoadsWithWebClient() {
-		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
-				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
-				.properties(new String[] { "eureka.client.webclient.enabled=true" })
-				.run()) {
-			assertThat(context.getBean(WebClientDiscoveryClientOptionalArgs.class))
-					.isNotNull();
-			try {
-				Object bean = context
-						.getBean(RestTemplateDiscoveryClientOptionalArgs.class);
-				assertThat(bean).isNull();
-			}
-			catch (Exception ex) {
-			}
-		}
+		new WebApplicationContextRunner()
+				.withUserConfiguration(EurekaSampleApplication.class)
+				.withPropertyValues("eureka.client.webclient.enabled=true")
+				.run(context -> {
+					assertThat(context).doesNotHaveBean(
+							RestTemplateDiscoveryClientOptionalArgs.class);
+					assertThat(context)
+							.hasSingleBean(WebClientDiscoveryClientOptionalArgs.class);
+				});
 	}
 
 	@Test
 	public void contextLoadsWithRestTemplateAsDefault() {
-		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
-				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
-				.run()) {
-			assertThat(context.getBean(RestTemplateDiscoveryClientOptionalArgs.class))
-					.isNotNull();
-			try {
-				Object bean = context.getBean(WebClientDiscoveryClientOptionalArgs.class);
-				assertThat(bean).isNull();
-			}
-			catch (Exception ex) {
-			}
-		}
+		new WebApplicationContextRunner()
+				.withUserConfiguration(EurekaSampleApplication.class).run(context -> {
+					assertThat(context)
+							.hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
+					assertThat(context)
+							.doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
+				});
 	}
 
 }

@@ -43,7 +43,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
 			search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient.enabled" },
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
 			matchIfMissing = true, havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
 		logger.info("Eureka HTTP Client uses RestTemplate.");
@@ -52,11 +52,13 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnClass(
+			name = "org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnMissingBean(
 			value = { AbstractDiscoveryClientOptionalArgs.class,
 					RestTemplateDiscoveryClientOptionalArgs.class },
 			search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = { "webclient.enabled" },
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
 			havingValue = "true")
 	public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs() {
 		logger.info("Eureka HTTP Client uses WebClient.");
@@ -69,6 +71,21 @@ public class DiscoveryClientOptionalArgsConfiguration {
 			search = SearchStrategy.CURRENT)
 	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
 		return new MutableDiscoveryClientOptionalArgs();
+	}
+
+	@Configuration
+	@ConditionalOnMissingClass({ "com.sun.jersey.api.client.filter.ClientFilter",
+			"org.springframework.web.reactive.function.client.WebClient" })
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
+			havingValue = "true")
+	protected static class WebClientNotFoundConfiguration {
+
+		public WebClientNotFoundConfiguration() {
+			throw new IllegalStateException("eureka.client.webclient.enabled is true, "
+					+ "but WebClient is not on the classpath. Please add "
+					+ "spring-boot-starter-webflux as a dependency.");
+		}
+
 	}
 
 }
