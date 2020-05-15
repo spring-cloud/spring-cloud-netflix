@@ -24,12 +24,14 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.endpoint.EndpointUtils;
 import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.client.ServiceInstance;
@@ -37,6 +39,8 @@ import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFactory;
 import org.springframework.context.annotation.Bean;
@@ -66,14 +70,28 @@ public class EurekaConfigServerBootstrapConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
-	public WebClientEurekaHttpClient configDiscoveryEurekaHttpClient(
+	@ConditionalOnMissingBean(EurekaHttpClient.class)
+	@ConditionalOnClass(
+			name = "org.springframework.web.reactive.function.client.WebClient")
+	public WebClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(
 			EurekaClientConfigBean config) {
+		return (WebClientEurekaHttpClient) new WebClientTransportClientFactory()
+				.newClient(new DefaultEndpoint(getEurekaUrl(config)));
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(EurekaHttpClient.class)
+	@ConditionalOnMissingClass("org.springframework.web.reactive.function.client.WebClient")
+	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(
+			EurekaClientConfigBean config) {
+		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory()
+				.newClient(new DefaultEndpoint(getEurekaUrl(config)));
+	}
+
+	private String getEurekaUrl(EurekaClientConfigBean config) {
 		List<String> urls = EndpointUtils.getServiceUrlsFromConfig(config,
 				EurekaClientConfigBean.DEFAULT_ZONE, true);
-		String url = urls.get(0);
-		return (WebClientEurekaHttpClient) new WebClientTransportClientFactory()
-				.newClient(new DefaultEndpoint(url));
+		return urls.get(0);
 	}
 
 	private boolean isSuccessful(EurekaHttpResponse<Applications> response) {
@@ -83,7 +101,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
 	public ConfigServerInstanceProvider.Function eurekaConfigServerInstanceProvider(
-			WebClientEurekaHttpClient client, EurekaClientConfig config) {
+			EurekaHttpClient client, EurekaClientConfig config) {
 
 		return serviceId -> {
 			if (log.isDebugEnabled()) {
