@@ -103,8 +103,9 @@ $(addBlockSwitches);
 <li><a href="#documentation">3.2. Documentation</a></li>
 <li><a href="#working-with-the-code">3.3. Working with the code</a>
 <ul class="sectlevel3">
-<li><a href="#importing-into-eclipse-with-m2eclipse">3.3.1. Importing into eclipse with m2eclipse</a></li>
-<li><a href="#importing-into-eclipse-without-m2eclipse">3.3.2. Importing into eclipse without m2eclipse</a></li>
+<li><a href="#activate-the-spring-maven-profile">3.3.1. Activate the Spring Maven profile</a></li>
+<li><a href="#importing-into-eclipse-with-m2eclipse">3.3.2. Importing into eclipse with m2eclipse</a></li>
+<li><a href="#importing-into-eclipse-without-m2eclipse">3.3.3. Importing into eclipse without m2eclipse</a></li>
 </ul>
 </li>
 </ul>
@@ -353,7 +354,15 @@ a modified file in the correct place. Just commit it and push the change.</p>
 should also work without issue as long as they use Maven 3.3.3 or better.</p>
 </div>
 <div class="sect3">
-<h4 id="importing-into-eclipse-with-m2eclipse"><a class="anchor" href="#importing-into-eclipse-with-m2eclipse"></a><a class="link" href="#importing-into-eclipse-with-m2eclipse">3.3.1. Importing into eclipse with m2eclipse</a></h4>
+<h4 id="activate-the-spring-maven-profile"><a class="anchor" href="#activate-the-spring-maven-profile"></a><a class="link" href="#activate-the-spring-maven-profile">3.3.1. Activate the Spring Maven profile</a></h4>
+<div class="paragraph">
+<p>Spring Cloud projects require the 'spring' Maven profile to be activated to resolve
+the spring milestone and snapshot repositories. Use your preferred IDE to set this
+profile to be active, or you may experience build errors.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="importing-into-eclipse-with-m2eclipse"><a class="anchor" href="#importing-into-eclipse-with-m2eclipse"></a><a class="link" href="#importing-into-eclipse-with-m2eclipse">3.3.2. Importing into eclipse with m2eclipse</a></h4>
 <div class="paragraph">
 <p>We recommend the <a href="https://eclipse.org/m2e/">m2eclipse</a> eclipse plugin when working with
 eclipse. If you don&#8217;t already have m2eclipse installed it is available from the "eclipse
@@ -380,7 +389,7 @@ pom into your <code>settings.xml</code>.
 </div>
 </div>
 <div class="sect3">
-<h4 id="importing-into-eclipse-without-m2eclipse"><a class="anchor" href="#importing-into-eclipse-without-m2eclipse"></a><a class="link" href="#importing-into-eclipse-without-m2eclipse">3.3.2. Importing into eclipse without m2eclipse</a></h4>
+<h4 id="importing-into-eclipse-without-m2eclipse"><a class="anchor" href="#importing-into-eclipse-without-m2eclipse"></a><a class="link" href="#importing-into-eclipse-without-m2eclipse">3.3.3. Importing into eclipse without m2eclipse</a></h4>
 <div class="paragraph">
 <p>If you prefer not to use m2eclipse you can generate eclipse project metadata using the
 following command:</p>
