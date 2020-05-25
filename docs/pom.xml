@@ -41,6 +41,9 @@
 	<profiles>
 		<profile>
 			<id>docs</id>
+			<properties>
+				<upload-docs-zip.phase>deploy</upload-docs-zip.phase>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -68,8 +71,7 @@
 						<artifactId>maven-antrun-plugin</artifactId>
 					</plugin>
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>build-helper-maven-plugin</artifactId>
+						<artifactId>maven-deploy-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>
