@@ -40,6 +40,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	@Bean
+	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
 			search = SearchStrategy.CURRENT)
