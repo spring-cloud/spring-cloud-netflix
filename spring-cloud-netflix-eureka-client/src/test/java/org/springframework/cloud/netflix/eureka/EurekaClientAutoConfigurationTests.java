@@ -326,6 +326,20 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	public void healthCheckUrlPathWithServerPortAndContextPathKebobCase() {
+		TestPropertyValues.of("server.port=8989",
+				"server.servlet.context-path=/servletContextPath",
+				"eureka.instance.health-check-url-path=${server.servlet.context-path:}/myHealthCheck")
+				.applyTo(this.context);
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertThat(instance.getHealthCheckUrl())
+				.as("Wrong health check: " + instance.getHealthCheckUrl())
+				.endsWith(":8989/servletContextPath/myHealthCheck");
+	}
+
+	@Test
 	public void statusPageUrlPathAndManagementPortKabobCase() {
 		TestPropertyValues
 				.of("server.port=8989", "management.server.port=9999",
