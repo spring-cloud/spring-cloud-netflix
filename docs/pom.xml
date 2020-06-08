@@ -13,7 +13,6 @@
 	<description>Spring Cloud Docs</description>
 	<properties>
 		<docs.main>spring-cloud-netflix</docs.main>
-		<docs.whitelisted.branches>2.1.x,2.2.x</docs.whitelisted.branches>
 		<configprops.inclusionPattern>
 			.*.eureka.*
 		</configprops.inclusionPattern>
@@ -30,14 +29,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-		</plugins>
+		<sourceDirectory>src/main/asciidoc</sourceDirectory>
 	</build>
 	<profiles>
 		<profile>
