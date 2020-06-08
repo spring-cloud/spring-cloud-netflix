@@ -8,7 +8,7 @@
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>spring-cloud-netflix-docs</artifactId>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 	<name>Spring Cloud Netflix Docs</name>
 	<description>Spring Cloud Docs</description>
 	<properties>
