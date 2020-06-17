@@ -89,8 +89,7 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	}
 
 	private void setExchangeStrategies(WebClient.Builder builder) {
-		ObjectMapper objectMapper = mappingJacksonHttpMessageConverter()
-				.getObjectMapper();
+		ObjectMapper objectMapper = objectMapper();
 		ExchangeStrategies strategies = ExchangeStrategies.builder()
 				.codecs(clientDefaultCodecsConfigurer -> {
 					clientDefaultCodecsConfigurer.defaultCodecs()
@@ -105,11 +104,11 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	}
 
 	private void skipHttp400Error(WebClient.Builder builder) {
-		builder.filter(Http4xxErrorExchangeFilterFunction());
+		builder.filter(http4XxErrorExchangeFilterFunction());
 	}
 
 	// Skip over 4xx http errors
-	private ExchangeFilterFunction Http4xxErrorExchangeFilterFunction() {
+	private ExchangeFilterFunction http4XxErrorExchangeFilterFunction() {
 		return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
 			// literally 400 pass the tests, not 4xxClientError
 			if (clientResponse.statusCode().value() == 400) {
@@ -132,54 +131,48 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	 * {@link DeserializationFeature#UNWRAP_ROOT_VALUE}.
 	 * {@link PropertyNamingStrategy.SnakeCaseStrategy} is applied to the underlying
 	 * {@link ObjectMapper}.
+	 * @deprecated to be removed.
 	 * @return a {@link MappingJackson2HttpMessageConverter} object
 	 */
+	@Deprecated
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-		converter.setObjectMapper(new ObjectMapper()
-				.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
-
-		SimpleModule jsonModule = new SimpleModule();
-		jsonModule.setSerializerModifier(createJsonSerializerModifier()); // keyFormatter,
-		// compact));
-		converter.getObjectMapper().registerModule(jsonModule);
-
-		converter.getObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-		converter.getObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE,
-				true);
-		converter.getObjectMapper().addMixIn(Applications.class,
-				ApplicationsJsonMixIn.class);
-		converter.getObjectMapper().addMixIn(InstanceInfo.class,
-				InstanceInfoJsonMixIn.class);
-
-		// converter.getObjectMapper().addMixIn(DataCenterInfo.class,
-		// DataCenterInfoXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(InstanceInfo.PortWrapper.class,
-		// PortWrapperXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(Application.class,
-		// ApplicationXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(Applications.class,
-		// ApplicationsXmlMixIn.class);
-
+		converter.setObjectMapper(objectMapper());
 		return converter;
 	}
 
-	public static BeanSerializerModifier createJsonSerializerModifier() { // final
-		// KeyFormatter
-		// keyFormatter,
-		// final
-		// boolean
-		// compactMode)
-		// {
+	/**
+	 * Provides the serialization configurations required by the Eureka Server. JSON
+	 * content exchanged with eureka requires a root node matching the entity being
+	 * serialized or deserialized. Achieved with
+	 * {@link SerializationFeature#WRAP_ROOT_VALUE} and
+	 * {@link DeserializationFeature#UNWRAP_ROOT_VALUE}.
+	 * {@link PropertyNamingStrategy.SnakeCaseStrategy} is applied to the underlying
+	 * {@link ObjectMapper}.
+	 * @return a {@link ObjectMapper} object
+	 */
+	private ObjectMapper objectMapper() {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+
+		SimpleModule jsonModule = new SimpleModule();
+		jsonModule.setSerializerModifier(createJsonSerializerModifier());
+		objectMapper.registerModule(jsonModule);
+
+		objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
+		objectMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+		objectMapper.addMixIn(Applications.class, ApplicationsJsonMixIn.class);
+		objectMapper.addMixIn(InstanceInfo.class, InstanceInfoJsonMixIn.class);
+
+		return objectMapper;
+	}
+
+	@Deprecated // reduce visibility in future release
+	public static BeanSerializerModifier createJsonSerializerModifier() {
 		return new BeanSerializerModifier() {
 			@Override
 			public JsonSerializer<?> modifySerializer(SerializationConfig config,
 					BeanDescription beanDesc, JsonSerializer<?> serializer) {
-				/*
-				 * if (beanDesc.getBeanClass().isAssignableFrom(Applications.class)) {
-				 * return new ApplicationsJsonBeanSerializer((BeanSerializerBase)
-				 * serializer, keyFormatter); }
-				 */
 				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
 					return new InstanceInfoJsonBeanSerializer(
 							(BeanSerializerBase) serializer, false);
