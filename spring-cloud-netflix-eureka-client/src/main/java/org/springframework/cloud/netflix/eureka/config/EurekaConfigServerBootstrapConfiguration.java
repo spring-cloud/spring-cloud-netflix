@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.client.ServiceInstance;
@@ -73,6 +72,8 @@ public class EurekaConfigServerBootstrapConfiguration {
 	@ConditionalOnMissingBean(EurekaHttpClient.class)
 	@ConditionalOnClass(
 			name = "org.springframework.web.reactive.function.client.WebClient")
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
+			havingValue = "true")
 	public WebClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(
 			EurekaClientConfigBean config) {
 		return (WebClientEurekaHttpClient) new WebClientTransportClientFactory()
@@ -81,7 +82,8 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(EurekaHttpClient.class)
-	@ConditionalOnMissingClass("org.springframework.web.reactive.function.client.WebClient")
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
+			matchIfMissing = true, havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(
 			EurekaClientConfigBean config) {
 		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory()

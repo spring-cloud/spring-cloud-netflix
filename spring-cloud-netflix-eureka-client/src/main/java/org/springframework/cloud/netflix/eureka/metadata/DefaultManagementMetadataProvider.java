@@ -123,7 +123,7 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 			String refinedContextPath = '/'
 					+ StringUtils.trimLeadingCharacter(contextPath, '/');
 			URL base = new URL(scheme, hostname, port, refinedContextPath);
-			String refinedStatusPath = StringUtils.trimLeadingCharacter(statusPath, '/');
+			String refinedStatusPath = refinedStatusPath(statusPath, contextPath);
 			return new URL(base, refinedStatusPath).toString();
 		}
 		catch (MalformedURLException e) {
@@ -131,6 +131,13 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 					statusPath);
 			throw new IllegalStateException(message, e);
 		}
+	}
+
+	private String refinedStatusPath(String statusPath, String contextPath) {
+		if (statusPath.startsWith(contextPath) && !"/".equals(contextPath)) {
+			statusPath = StringUtils.replace(statusPath, contextPath, "");
+		}
+		return StringUtils.trimLeadingCharacter(statusPath, '/');
 	}
 
 	private String getErrorMessage(String scheme, String hostname, int port,
