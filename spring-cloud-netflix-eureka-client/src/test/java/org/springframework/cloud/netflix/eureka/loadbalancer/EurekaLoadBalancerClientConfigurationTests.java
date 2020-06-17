@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.eureka.loadbalancer;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
 import org.springframework.cloud.loadbalancer.config.LoadBalancerZoneConfig;
@@ -70,6 +72,18 @@ class EurekaLoadBalancerClientConfigurationTests {
 		postprocessor.postprocess();
 
 		assertThat(zoneConfig.getZone()).isEqualTo("is.a.test.com");
+	}
+
+	@Test
+	public void disabledViaProperty() {
+		new ApplicationContextRunner()
+				.withConfiguration(
+						AutoConfigurations.of(LoadBalancerEurekaAutoConfiguration.class))
+				.withPropertyValues("eureka.client.enabled=false").run(context -> {
+					assertThat(context)
+							.doesNotHaveBean(EurekaLoadBalancerProperties.class);
+					assertThat(context).doesNotHaveBean(LoadBalancerZoneConfig.class);
+				});
 	}
 
 }

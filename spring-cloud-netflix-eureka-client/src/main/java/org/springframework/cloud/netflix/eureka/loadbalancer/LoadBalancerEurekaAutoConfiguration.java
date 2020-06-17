@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.loadbalancer;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClientConfigurationRegistrar;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClients;
@@ -34,9 +35,10 @@ import org.springframework.core.env.Environment;
  * @see EurekaLoadBalancerClientConfiguration
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(EurekaLoadBalancerProperties.class)
+@EnableConfigurationProperties
 @ConditionalOnClass(LoadBalancerClientConfigurationRegistrar.class)
 @LoadBalancerClients(defaultConfiguration = EurekaLoadBalancerClientConfiguration.class)
+@ConditionalOnProperty(name = "eureka.client.enabled", matchIfMissing = true)
 public class LoadBalancerEurekaAutoConfiguration {
 
 	/**
