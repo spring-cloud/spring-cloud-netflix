@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.loadbalancer.config.LoadBalancerZoneConfig;
 import org.springframework.cloud.netflix.eureka.support.ZoneUtils;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +44,7 @@ import static org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancer
  */
 @Configuration
 @ConditionalOnBean({ LoadBalancerZoneConfig.class, EurekaLoadBalancerProperties.class })
+@ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 public class EurekaLoadBalancerClientConfiguration {
 
 	private static final Log LOG = LogFactory
