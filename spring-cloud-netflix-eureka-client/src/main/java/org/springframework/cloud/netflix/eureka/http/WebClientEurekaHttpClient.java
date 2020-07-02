@@ -209,6 +209,10 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		// Nothing to do
 	}
 
+	public WebClient getWebClient() {
+		return this.webClient;
+	}
+
 	private static Map<String, String> headersOf(ClientResponse response) {
 		ClientResponse.Headers httpHeaders = response.headers();
 		if (httpHeaders == null) {

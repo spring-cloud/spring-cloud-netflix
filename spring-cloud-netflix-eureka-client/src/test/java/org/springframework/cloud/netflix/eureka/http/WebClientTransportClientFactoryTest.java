@@ -21,6 +21,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.web.reactive.function.client.WebClient;
+
 /**
  * @author Daniel Lavoie
  */
@@ -30,7 +32,7 @@ public class WebClientTransportClientFactoryTest {
 
 	@Before
 	public void setup() {
-		transportClientFatory = new WebClientTransportClientFactory();
+		transportClientFatory = new WebClientTransportClientFactory(WebClient::builder);
 	}
 
 	@Test

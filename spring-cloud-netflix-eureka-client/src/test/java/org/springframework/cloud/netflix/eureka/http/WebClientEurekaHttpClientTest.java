@@ -29,6 +29,7 @@ import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Daniel Lavoie
@@ -49,7 +50,7 @@ public class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest 
 
 	@Before
 	public void setup() {
-		eurekaHttpClient = new WebClientTransportClientFactory()
+		eurekaHttpClient = new WebClientTransportClientFactory(WebClient::builder)
 				.newClient(new DefaultEndpoint(serviceUrl));
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
