@@ -19,7 +19,10 @@ package org.springframework.cloud.netflix.hystrix.dashboard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -47,6 +50,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.ui.freemarker.SpringTemplateLoader;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 /**
@@ -88,8 +93,9 @@ public class HystrixDashboardConfiguration {
 	}
 
 	@Bean
-	public ServletRegistrationBean proxyStreamServlet() {
-		final ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet();
+	public ServletRegistrationBean proxyStreamServlet(
+			HystrixDashboardProperties properties) {
+		final ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet(properties);
 		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(
 				this.dashboardProperties.isEnableIgnoreConnectionCloseHeader());
 		final ServletRegistrationBean registration = new ServletRegistrationBean(
@@ -118,6 +124,8 @@ public class HystrixDashboardConfiguration {
 
 		private boolean enableIgnoreConnectionCloseHeader = false;
 
+		private HystrixDashboardProperties properties;
+
 		public void setEnableIgnoreConnectionCloseHeader(
 				boolean enableIgnoreConnectionCloseHeader) {
 			this.enableIgnoreConnectionCloseHeader = enableIgnoreConnectionCloseHeader;
@@ -125,6 +133,11 @@ public class HystrixDashboardConfiguration {
 
 		public ProxyStreamServlet() {
 			super();
+			this.properties = new HystrixDashboardProperties();
+		}
+
+		public ProxyStreamServlet(HystrixDashboardProperties properties) {
+			this.properties = properties;
 		}
 
 		/**
@@ -169,10 +182,18 @@ public class HystrixDashboardConfiguration {
 					url.append(key).append("=").append(value);
 				}
 			}
-			String proxyUrl = url.toString();
-			log.info("\n\nProxy opening connection to: " + proxyUrl + "\n\n");
+			String proxyUrlString = url.toString();
+
+			if (!isAllowedToProxy(proxyUrlString)) {
+				log.warn("Origin parameter: " + origin
+						+ " is not in the allowed list of proxy host names.  If it "
+						+ "should be allowed add it to hystrix.dashboard.proxyStreamAllowList.");
+				return;
+			}
+
+			log.info("\n\nProxy opening connection to: " + proxyUrlString + "\n\n");
 			try {
-				httpget = new HttpGet(proxyUrl);
+				httpget = new HttpGet(proxyUrlString);
 				HttpClient client = ProxyConnectionManager.httpClient;
 				HttpResponse httpResponse = client.execute(httpget);
 				int statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -218,7 +239,7 @@ public class HystrixDashboardConfiguration {
 					}
 				}
 				else {
-					log.warn("Failed opening connection to " + proxyUrl + " : "
+					log.warn("Failed opening connection to " + proxyUrlString + " : "
 							+ statusCode + " : " + httpResponse.getStatusLine());
 				}
 			}
@@ -248,6 +269,22 @@ public class HystrixDashboardConfiguration {
 				}
 			}
 
+		}
+
+		private boolean isAllowedToProxy(String proxyUrlString)
+				throws MalformedURLException {
+
+			URL proxyUrl = new URL(proxyUrlString);
+			String host = proxyUrl.getHost();
+			PathMatcher pathMatcher = new AntPathMatcher(".");
+			Optional<String> optionalPattern = properties.getProxyStreamAllowList()
+					.stream().filter(pattern -> pathMatcher.match(pattern, host))
+					.findFirst();
+
+			if (optionalPattern.isPresent()) {
+				return true;
+			}
+			return false;
 		}
 
 		private void copyHeadersToServletResponse(Header[] headers,
