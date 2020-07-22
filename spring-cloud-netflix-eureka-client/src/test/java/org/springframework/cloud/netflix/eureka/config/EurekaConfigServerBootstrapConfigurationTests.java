@@ -86,6 +86,23 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
+	public void eurekaDnsConfigurationWorks() {
+		new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations
+						.of(EurekaConfigServerBootstrapConfiguration.class))
+				.withPropertyValues("spring.cloud.config.discovery.enabled=true",
+						"eureka.instance.hostname=eurekaclient1",
+						"eureka.client.use-dns-for-fetching-service-urls=true",
+						"eureka.client.eureka-server-d-n-s-name=myeurekahost",
+						"eureka.client.eureka-server-u-r-l-context=eureka",
+						"eureka.client.eureka-server-port=30000")
+				.run(context -> {
+					assertThat(output).contains(
+							"Cannot get cnames bound to the region:txt.us-east-1.myeurekahost");
+				});
+	}
+
+	@Test
 	public void eurekaConfigServerInstanceProviderCalled() {
 		// FIXME: why do I need to do this? (fails in maven build without it.
 		TomcatURLStreamHandlerFactory.disable();
