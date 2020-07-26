@@ -16,15 +16,20 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.MutableDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
@@ -35,7 +40,11 @@ import org.springframework.context.annotation.Configuration;
  * @author Daniel Lavoie
  */
 @Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(TlsProperties.class)
 public class DiscoveryClientOptionalArgsConfiguration {
+
+	@Autowired
+	private TlsProperties tls;
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -45,9 +54,12 @@ public class DiscoveryClientOptionalArgsConfiguration {
 			search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
 			matchIfMissing = true, havingValue = "false")
-	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
+	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs()
+			throws GeneralSecurityException, IOException {
 		logger.info("Eureka HTTP Client uses RestTemplate.");
-		return new RestTemplateDiscoveryClientOptionalArgs();
+		RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs();
+		setupTLS(result);
+		return result;
 	}
 
 	@Bean
@@ -60,17 +72,31 @@ public class DiscoveryClientOptionalArgsConfiguration {
 			search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
 			havingValue = "true")
-	public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs() {
+	public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs()
+			throws GeneralSecurityException, IOException {
 		logger.info("Eureka HTTP Client uses WebClient.");
-		return new WebClientDiscoveryClientOptionalArgs();
+		WebClientDiscoveryClientOptionalArgs result = new WebClientDiscoveryClientOptionalArgs();
+		setupTLS(result);
+		return result;
 	}
 
 	@Bean
 	@ConditionalOnClass(name = "com.sun.jersey.api.client.filter.ClientFilter")
 	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class,
 			search = SearchStrategy.CURRENT)
-	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
-		return new MutableDiscoveryClientOptionalArgs();
+	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs()
+			throws GeneralSecurityException, IOException {
+		logger.info("Eureka HTTP Client uses Jersey");
+		MutableDiscoveryClientOptionalArgs result = new MutableDiscoveryClientOptionalArgs();
+		setupTLS(result);
+		return result;
+	}
+
+	private void setupTLS(AbstractDiscoveryClientOptionalArgs<?> args)
+			throws GeneralSecurityException, IOException {
+		if (tls.isEnabled()) {
+			args.setSSLContext(tls.createSSLContext());
+		}
 	}
 
 	@Configuration
