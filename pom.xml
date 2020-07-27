@@ -22,7 +22,7 @@
 	<properties>
 		<bintray.package>netflix</bintray.package>
 		<spring-cloud-commons.version>3.0.0-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>3.0.0-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-config.version>3.0.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
