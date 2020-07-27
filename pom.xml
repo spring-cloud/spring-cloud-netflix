@@ -30,7 +30,7 @@
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
 		<eureka-jersey.version>1.19.1</eureka-jersey.version>
-		<xstream.version>1.4.11.1</xstream.version>
+		<xstream.version>1.4.12-java7</xstream.version>
 	</properties>
 	<build>
 		<plugins>
