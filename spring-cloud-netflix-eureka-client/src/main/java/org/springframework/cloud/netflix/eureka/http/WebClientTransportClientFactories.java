@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -28,11 +29,19 @@ import com.netflix.discovery.shared.transport.TransportClientFactory;
 import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
+import org.springframework.web.reactive.function.client.WebClient;
+
 /**
  * @author Daniel Lavoie
  * @author Haytham Mohamed
  */
 public class WebClientTransportClientFactories implements TransportClientFactories<Void> {
+
+	private final Supplier<WebClient.Builder> builder;
+
+	public WebClientTransportClientFactories(Supplier<WebClient.Builder> builder) {
+		this.builder = builder;
+	}
 
 	@Override
 	public TransportClientFactory newTransportClientFactory(
@@ -44,7 +53,7 @@ public class WebClientTransportClientFactories implements TransportClientFactori
 	public TransportClientFactory newTransportClientFactory(
 			EurekaClientConfig clientConfig, Collection<Void> additionalFilters,
 			InstanceInfo myInstanceInfo) {
-		return new WebClientTransportClientFactory();
+		return new WebClientTransportClientFactory(builder);
 	}
 
 	@Override
@@ -53,7 +62,7 @@ public class WebClientTransportClientFactories implements TransportClientFactori
 			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
 			final Optional<SSLContext> sslContext,
 			final Optional<HostnameVerifier> hostnameVerifier) {
-		return new WebClientTransportClientFactory();
+		return new WebClientTransportClientFactory(builder);
 	}
 
 }

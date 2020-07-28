@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -41,13 +42,13 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ClientCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -60,17 +61,29 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 public class WebClientTransportClientFactory implements TransportClientFactory {
 
+	private final Supplier<WebClient.Builder> builderSupplier;
+
+	@Deprecated
+	public WebClientTransportClientFactory() {
+		this(WebClient::builder);
+	}
+
+	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier) {
+		this.builderSupplier = builderSupplier;
+	}
+
 	@Override
-	public EurekaHttpClient newClient(EurekaEndpoint serviceUrl) {
-		WebClient.Builder builder = of(serviceUrl.getServiceUrl());
-		this.setExchangeStrategies(builder);
-		this.skipHttp400Error(builder);
+	public EurekaHttpClient newClient(EurekaEndpoint endpoint) {
+		// we want a copy to modify. Don't change the original
+		WebClient.Builder builder = this.builderSupplier.get().clone();
+		setUrl(builder, endpoint.getServiceUrl());
+		setCodecs(builder);
+		builder.filter(http4XxErrorExchangeFilterFunction());
 		return new WebClientEurekaHttpClient(builder.build());
 	}
 
-	private WebClient.Builder of(String serviceUrl) {
+	private WebClient.Builder setUrl(WebClient.Builder builder, String serviceUrl) {
 		String url = serviceUrl;
-		WebClient.Builder builder = WebClient.builder();
 		try {
 			URI serviceURI = new URI(serviceUrl);
 			if (serviceURI.getUserInfo() != null) {
@@ -88,23 +101,17 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		return builder.baseUrl(url);
 	}
 
-	private void setExchangeStrategies(WebClient.Builder builder) {
+	private void setCodecs(WebClient.Builder builder) {
 		ObjectMapper objectMapper = objectMapper();
-		ExchangeStrategies strategies = ExchangeStrategies.builder()
-				.codecs(clientDefaultCodecsConfigurer -> {
-					clientDefaultCodecsConfigurer.defaultCodecs()
-							.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper,
-									MediaType.APPLICATION_JSON));
-					clientDefaultCodecsConfigurer.defaultCodecs()
-							.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper,
-									MediaType.APPLICATION_JSON));
+		builder.codecs(configurer -> {
+			ClientCodecConfigurer.ClientDefaultCodecs defaults = configurer
+					.defaultCodecs();
+			defaults.jackson2JsonEncoder(
+					new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON));
+			defaults.jackson2JsonDecoder(
+					new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
 
-				}).build();
-		builder.exchangeStrategies(strategies);
-	}
-
-	private void skipHttp400Error(WebClient.Builder builder) {
-		builder.filter(http4XxErrorExchangeFilterFunction());
+		});
 	}
 
 	// Skip over 4xx http errors
@@ -114,9 +121,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 			if (clientResponse.statusCode().value() == 400) {
 				ClientResponse newResponse = ClientResponse.from(clientResponse)
 						.statusCode(HttpStatus.OK).build();
-				newResponse.body((clientHttpResponse, context) -> {
-					return clientHttpResponse.getBody();
-				});
+				newResponse.body(
+						(clientHttpResponse, context) -> clientHttpResponse.getBody());
 				return Mono.just(newResponse);
 			}
 			return Mono.just(clientResponse);
