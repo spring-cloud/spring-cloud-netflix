@@ -13,7 +13,7 @@
 	<url>https://projects.spring.io/spring-cloud/</url>
 	<properties>
 		<wro4j.version>1.8.0</wro4j.version>
-		<wiremock.version>2.26.0</wiremock.version>
+		<wiremock.version>2.27.1</wiremock.version>
 	</properties>
 	<dependencies>
 		<dependency>
