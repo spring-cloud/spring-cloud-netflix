@@ -107,8 +107,8 @@
 			}
 		}
 		console.log("Command Stream: " + commandStream)
-				
-		$(window).load(function() { // within load with a setTimeout to prevent the infinite spinner
+
+		$(window).on("load", function () { // within load with a setTimeout to prevent the infinite spinner
 			setTimeout(function() {
 				if(commandStream == undefined) {
 						console.log("commandStream is undefined")
@@ -146,7 +146,7 @@
 		// thread pool
 		var dependencyThreadPoolMonitor = new HystrixThreadPoolMonitor('dependencyThreadPools');
 
-		$(window).load(function() { // within load with a setTimeout to prevent the infinite spinner
+		$(window).on("load", function () { // within load with a setTimeout to prevent the infinite spinner
 			setTimeout(function() {
 				if(poolStream == undefined) {
 						console.log("poolStream is undefined")
