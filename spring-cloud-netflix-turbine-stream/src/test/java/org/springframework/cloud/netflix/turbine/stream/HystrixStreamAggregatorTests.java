@@ -74,14 +74,16 @@ public class HystrixStreamAggregatorTests {
 
 	@Test
 	public void messageDecoded() throws Exception {
-		this.publisher.subscribe(map -> assertThat(map.get("type")).isEqualTo("HystrixCommand"));
+		this.publisher.subscribe(
+				map -> assertThat(map.get("type")).isEqualTo("HystrixCommand"));
 		this.aggregator.sendToSubject(PAYLOAD.getBytes());
 		this.output.expect(not(containsString("ERROR")));
 	}
 
 	@Test
 	public void messageWrappedInArray() throws Exception {
-		this.publisher.subscribe(map -> assertThat(map.get("type")).isEqualTo("HystrixCommand"));
+		this.publisher.subscribe(
+				map -> assertThat(map.get("type")).isEqualTo("HystrixCommand"));
 		this.aggregator.sendToSubject(new StringBuilder().append("[").append(PAYLOAD)
 				.append("]").toString().getBytes());
 		this.output.expect(not(containsString("ERROR")));
@@ -89,7 +91,8 @@ public class HystrixStreamAggregatorTests {
 
 	@Test
 	public void doubleEncodedMessage() throws Exception {
-		this.publisher.subscribe(map -> assertThat(map.get("type")).isEqualTo("HystrixCommand"));
+		this.publisher.subscribe(
+				map -> assertThat(map.get("type")).isEqualTo("HystrixCommand"));
 		// If The JSON is embedded in a JSON String this is what it looks like
 		String payload = "\"" + PAYLOAD.replace("\"", "\\\"") + "\"";
 		this.aggregator.sendToSubject(payload.getBytes());
