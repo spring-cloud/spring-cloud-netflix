@@ -16,7 +16,10 @@
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -40,6 +43,20 @@ public class HystrixDashboardProperties {
 	 * container specific configurations. i.e. wl-dispatch-policy for WebLogic.
 	 */
 	private Map<String, String> initParameters = new HashMap<>();
+
+	private List<String> proxyStreamAllowList = new ArrayList<>();
+
+	public List<String> getProxyStreamAllowList() {
+		return proxyStreamAllowList;
+	}
+
+	public void setProxyStreamAllowList(List<String> proxyStreamAllowList) {
+		this.proxyStreamAllowList = proxyStreamAllowList;
+	}
+
+	public void setProxyStreamAllowList(String... regex) {
+		this.proxyStreamAllowList = Arrays.asList(regex);
+	}
 
 	public boolean isEnableIgnoreConnectionCloseHeader() {
 		return enableIgnoreConnectionCloseHeader;

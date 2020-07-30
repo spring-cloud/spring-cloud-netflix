@@ -41,7 +41,8 @@ public class HystrixDashboardConfigurationTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Header[] headers = new Header[1];
 		headers[0] = new BasicHeader("Content-Type", "text/proxy.stream");
-		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
+		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet(
+				new HystrixDashboardProperties());
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
 		assertThat(response.getHeaderNames().size()).isEqualTo(1);
@@ -54,7 +55,8 @@ public class HystrixDashboardConfigurationTests {
 		Header[] headers = new Header[2];
 		headers[0] = new BasicHeader("Content-Type", "text/proxy.stream");
 		headers[1] = new BasicHeader("Connection", "close");
-		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
+		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet(
+				new HystrixDashboardProperties());
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
 		assertThat(response.getHeaderNames().size()).isEqualTo(2);
@@ -68,7 +70,8 @@ public class HystrixDashboardConfigurationTests {
 		Header[] headers = new Header[2];
 		headers[0] = new BasicHeader("Content-Type", "text/proxy.stream");
 		headers[1] = new BasicHeader("Connection", "close");
-		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
+		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet(
+				new HystrixDashboardProperties());
 		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(true);
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
@@ -83,7 +86,8 @@ public class HystrixDashboardConfigurationTests {
 		Header[] headers = new Header[2];
 		headers[0] = new BasicHeader("Content-Type", "text/proxy.stream");
 		headers[1] = new BasicHeader("Connection", "close");
-		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
+		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet(
+				new HystrixDashboardProperties());
 		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(false);
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
@@ -109,6 +113,41 @@ public class HystrixDashboardConfigurationTests {
 					assertThat(initParameters.get("wl-dispatch-polixy"))
 							.isEqualTo("work-manager-hystrix");
 				});
+	}
+
+	@Test
+	public void allowedHostsTest() {
+		HystrixDashboardProperties properties = new HystrixDashboardProperties();
+		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet(
+				properties);
+		boolean allowed = ReflectionTestUtils.invokeMethod(proxyStreamServlet,
+				"isAllowedToProxy", "http://foo.com");
+		assertThat(allowed).isFalse();
+
+		properties.setProxyStreamAllowList("foo.com", "bar.*", "*world.com");
+		allowed = ReflectionTestUtils.invokeMethod(proxyStreamServlet, "isAllowedToProxy",
+				"http://user:password@foo.com");
+		assertThat(allowed).isTrue();
+
+		allowed = ReflectionTestUtils.invokeMethod(proxyStreamServlet, "isAllowedToProxy",
+				"http://bar.com");
+		assertThat(allowed).isTrue();
+
+		allowed = ReflectionTestUtils.invokeMethod(proxyStreamServlet, "isAllowedToProxy",
+				"http://bar.org");
+		assertThat(allowed).isTrue();
+
+		allowed = ReflectionTestUtils.invokeMethod(proxyStreamServlet, "isAllowedToProxy",
+				"http://helloworld.com");
+		assertThat(allowed).isTrue();
+
+		allowed = ReflectionTestUtils.invokeMethod(proxyStreamServlet, "isAllowedToProxy",
+				"http://world.com");
+		assertThat(allowed).isTrue();
+
+		allowed = ReflectionTestUtils.invokeMethod(proxyStreamServlet, "isAllowedToProxy",
+				"http://world.org");
+		assertThat(allowed).isFalse();
 	}
 
 }
