@@ -87,6 +87,26 @@ For more complex needs, you can create a `@Bean` of type `DiscoveryClientOptiona
 
 NOTE: Because of a limitation in Eureka, it is not possible to support per-server basic auth credentials, so only the first set that are found is used.
 
+When Eureka server requires client side certificate for authentication, the client side certificate and trust store can be configured via properties, as shown in following example:
+
+.application.yml
+[source,yaml]
+----
+eureka:
+  client:
+    tls:
+      enabled: true
+      key-store: <path-of-key-store>
+      key-store-type: PKCS12
+      key-store-password: <key-store-password>
+      key-password: <key-password>
+      trust-store: <path-of-trust-store>
+      trust-store-type: PKCS12
+      trust-store-password: <trust-store-password>
+----
+
+The `eureka.client.tls.enabled` needs to be true to enable Eureka client side TLS. When `eureka.client.tls.trust-store` is omitted, a JVM default trust store is used. The default value for `eureka.client.tls.key-store-type` and `eureka.client.tls.trust-store-type` is PKCS12. When password properties are omitted, empty password is assumed.
+
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
