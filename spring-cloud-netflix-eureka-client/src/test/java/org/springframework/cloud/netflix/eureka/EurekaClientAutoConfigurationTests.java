@@ -461,8 +461,7 @@ public class EurekaClientAutoConfigurationTests {
 		assertThat(healthCheckHandler).isInstanceOf(EurekaHealthCheckHandler.class);
 		assertThat(oldEurekaClient.getHealthCheckHandler()).isSameAs(healthCheckHandler);
 
-		ContextRefresher refresher = this.context.getBean("contextRefresher",
-				ContextRefresher.class);
+		ContextRefresher refresher = this.context.getBean(ContextRefresher.class);
 		refresher.refresh();
 
 		EurekaClient newEurekaClient = getLazyInitEurekaClient();

@@ -107,6 +107,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 		// FIXME: why do I need to do this? (fails in maven build without it.
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class).properties(
+				"spring.config.use-legacy-processing=true",
 				"spring.cloud.config.discovery.enabled=true",
 				"spring.main.sources="
 						+ TestConfigDiscoveryBootstrapConfiguration.class.getName(),
