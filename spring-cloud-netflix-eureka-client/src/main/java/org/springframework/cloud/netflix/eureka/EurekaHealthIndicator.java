@@ -83,7 +83,7 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 				builder.withDetail("renewalPeriod",
 						instanceConfig.getLeaseRenewalIntervalInSeconds());
 				builder.withDetail("failCount",
-						lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
+						lastFetch / clientConfig.getRegistryFetchIntervalSeconds() / 1000);
 			}
 		}
 
