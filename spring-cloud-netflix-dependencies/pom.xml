@@ -5,18 +5,18 @@
 	<parent>
 		<artifactId>spring-cloud-dependencies-parent</artifactId>
 		<groupId>org.springframework.cloud</groupId>
-		<version>2.3.1.BUILD-SNAPSHOT</version>
+		<version>2.3.2.BUILD-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 	<artifactId>spring-cloud-netflix-dependencies</artifactId>
-	<version>2.2.4.BUILD-SNAPSHOT</version>
+	<version>2.2.5.BUILD-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>spring-cloud-netflix-dependencies</name>
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
 		<archaius.version>0.7.6</archaius.version>
 		<concurrency-limits.version>0.1.12</concurrency-limits.version>
-		<eureka.version>1.9.21</eureka.version>
+		<eureka.version>1.9.25</eureka.version>
 		<eventbus.version>0.3.0</eventbus.version>
 		<hystrix.version>1.5.18</hystrix.version>
 		<ribbon.version>2.3.0</ribbon.version>

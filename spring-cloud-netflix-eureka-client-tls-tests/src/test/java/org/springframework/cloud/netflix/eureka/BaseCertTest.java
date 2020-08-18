@@ -23,7 +23,7 @@ import java.security.KeyStore;
 
 import org.junit.BeforeClass;
 
-public class BaseCertTest {
+public abstract class BaseCertTest {
 
 	protected static final String KEY_STORE_PASSWORD = "test-key-store-password";
 
@@ -40,6 +40,9 @@ public class BaseCertTest {
 	protected static File clientCert;
 
 	protected static File wrongClientCert;
+
+	protected BaseCertTest() {
+	}
 
 	@BeforeClass
 	public static void createCertificates() throws Exception {

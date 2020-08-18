@@ -16,7 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.function.Supplier;
+
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Daniel Lavoie
@@ -25,8 +29,13 @@ import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 public class WebClientDiscoveryClientOptionalArgs
 		extends AbstractDiscoveryClientOptionalArgs<Void> {
 
+	@Deprecated
 	public WebClientDiscoveryClientOptionalArgs() {
-		setTransportClientFactories(new WebClientTransportClientFactories());
+		this(WebClient::builder);
+	}
+
+	public WebClientDiscoveryClientOptionalArgs(Supplier<WebClient.Builder> builder) {
+		setTransportClientFactories(new WebClientTransportClientFactories(builder));
 	}
 
 }

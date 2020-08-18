@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import org.junit.Test;
 
+import org.springframework.web.reactive.function.client.WebClient;
+
 /**
  * @author Daniel Lavoie
  */
@@ -25,7 +27,8 @@ public class WebClientTransportClientFactoriesTest {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testJerseyIsUnsuported() {
-		new WebClientTransportClientFactories().newTransportClientFactory(null, null);
+		new WebClientTransportClientFactories(WebClient::builder)
+				.newTransportClientFactory(null, null);
 	}
 
 }

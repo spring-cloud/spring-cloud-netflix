@@ -29,10 +29,14 @@ import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
+import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
@@ -48,6 +52,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * Bootstrap configuration for config client that wants to lookup the config server via
@@ -74,18 +79,6 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(EurekaHttpClient.class)
-	@ConditionalOnClass(
-			name = "org.springframework.web.reactive.function.client.WebClient")
-	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
-			havingValue = "true")
-	public WebClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(
-			EurekaClientConfigBean config, Environment env) {
-		return (WebClientEurekaHttpClient) new WebClientTransportClientFactory()
-				.newClient(new DefaultEndpoint(getEurekaUrl(config, env)));
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(EurekaHttpClient.class)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
 			matchIfMissing = true, havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(
@@ -94,7 +87,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 				.newClient(new DefaultEndpoint(getEurekaUrl(config, env)));
 	}
 
-	private String getEurekaUrl(EurekaClientConfigBean config, Environment env) {
+	private static String getEurekaUrl(EurekaClientConfigBean config, Environment env) {
 		List<String> urls = EndpointUtils.getDiscoveryServiceUrls(config,
 				EurekaClientConfigBean.DEFAULT_ZONE, new HostnameBasedUrlRandomizer(
 						env.getProperty("eureka.instance.hostname")));
@@ -166,6 +159,27 @@ public class EurekaConfigServerBootstrapConfiguration {
 				String zone = urlList.remove(0);
 				urlList.add(zone);
 			}
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnClass(
+			name = "org.springframework.web.reactive.function.client.WebClient")
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled",
+			havingValue = "true")
+	@ImportAutoConfiguration({ CodecsAutoConfiguration.class,
+			WebClientAutoConfiguration.class })
+	protected static class WebClientConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean(EurekaHttpClient.class)
+		public WebClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(
+				EurekaClientConfigBean config, ObjectProvider<WebClient.Builder> builder,
+				Environment env) {
+			return (WebClientEurekaHttpClient) new WebClientTransportClientFactory(
+					builder::getIfAvailable)
+							.newClient(new DefaultEndpoint(getEurekaUrl(config, env)));
 		}
 
 	}

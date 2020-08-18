@@ -67,6 +67,7 @@ public class HystrixDashboardHomePageTests {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/hystrix/monitor", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(entity.getBody()).contains("on(\"load\"");
 	}
 
 	@Configuration(proxyBeanMethods = false)
