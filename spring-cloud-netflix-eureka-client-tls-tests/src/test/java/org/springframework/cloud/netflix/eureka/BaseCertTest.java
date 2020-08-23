@@ -61,9 +61,6 @@ public abstract class BaseCertTest {
 
 		wrongCaCert = saveCert(wrongCa);
 		wrongClientCert = saveKeyAndCert(wrongClient);
-
-		System.setProperty("javax.net.ssl.trustStore", caCert.getAbsolutePath());
-		System.setProperty("javax.net.ssl.trustStorePassword", KEY_STORE_PASSWORD);
 	}
 
 	private static File saveKeyAndCert(KeyAndCert keyCert) throws Exception {
