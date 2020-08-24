@@ -34,9 +34,6 @@
 		<sonar.language>java</sonar.language>
 		<eureka-jersey.version>1.19.1</eureka-jersey.version>
 		<xstream.version>1.4.11.1</xstream.version>
-		
-		<bouncycastle.version>1.64</bouncycastle.version>
-		<jaxb.version>2.1</jaxb.version>
 	</properties>
 	<build>
 		<plugins>
@@ -179,16 +176,6 @@
 				<version>${xstream.version}</version>
 			</dependency>
 			<!-- end eureka deps -->
-			<dependency>
-				<groupId>org.bouncycastle</groupId>
-				<artifactId>bcpkix-jdk15on</artifactId>
-				<version>${bouncycastle.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.xml</groupId>
-				<artifactId>jaxb-impl</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<reporting>

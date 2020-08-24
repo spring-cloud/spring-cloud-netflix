@@ -16,13 +16,12 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.configuration.TlsProperties;
 
 /**
  * Eureka client TLS properties.
  */
-@ConfigurationProperties(EurekaTlsProperties.PREFIX)
+
 public class EurekaTlsProperties extends TlsProperties {
 
 	/**
