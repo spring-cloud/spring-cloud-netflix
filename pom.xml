@@ -204,6 +204,7 @@
 		<module>spring-cloud-netflix-ribbon</module>
 		<module>spring-cloud-starter-netflix</module>
 		<module>spring-cloud-netflix-hystrix</module>
+		<module>spring-cloud-netflix-eureka-client-tls-tests</module>
 		<module>docs</module>
     </modules>
 	<profiles>
