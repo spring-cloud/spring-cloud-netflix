@@ -85,6 +85,26 @@ To disable the Eureka Discovery Client, you can set `eureka.client.enabled` to `
 HTTP basic authentication is automatically added to your eureka client if one of the `eureka.client.serviceUrl.defaultZone` URLs has credentials embedded in it (curl style, as follows: `https://user:password@localhost:8761/eureka`).
 For more complex needs, you can create a `@Bean` of type `DiscoveryClientOptionalArgs` and inject `ClientFilter` instances into it, all of which is applied to the calls from the client to the server.
 
+When Eureka server requires client side certificate for authentication, the client side certificate and trust store can be configured via properties, as shown in following example:
+
+.application.yml
+[source,yaml]
+----
+eureka:
+  client:
+    tls:
+      enabled: true
+      key-store: <path-of-key-store>
+      key-store-type: PKCS12
+      key-store-password: <key-store-password>
+      key-password: <key-password>
+      trust-store: <path-of-trust-store>
+      trust-store-type: PKCS12
+      trust-store-password: <trust-store-password>
+----
+
+The `eureka.client.tls.enabled` needs to be true to enable Eureka client side TLS. When `eureka.client.tls.trust-store` is omitted, a JVM default trust store is used. The default value for `eureka.client.tls.key-store-type` and `eureka.client.tls.trust-store-type` is PKCS12. When password properties are omitted, empty password is assumed.
+
 NOTE: Because of a limitation in Eureka, it is not possible to support per-server basic auth credentials, so only the first set that are found is used.
 
 === Status Page and Health Indicator
