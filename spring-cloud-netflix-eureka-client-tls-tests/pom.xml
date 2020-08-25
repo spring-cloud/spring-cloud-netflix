@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.64</version>
+			<version>1.66</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
