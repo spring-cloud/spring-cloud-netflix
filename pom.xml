@@ -25,7 +25,7 @@
 		<spring-cloud-config.version>2.2.6.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>Horsham.SR8</spring-cloud-stream.version>
 		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
-		<donotreplacespring-cloud-contract.version>2.2.1.RELEASE</donotreplacespring-cloud-contract.version>
+		<donotreplacespring-cloud-contract.version>2.2.4.RELEASE</donotreplacespring-cloud-contract.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
