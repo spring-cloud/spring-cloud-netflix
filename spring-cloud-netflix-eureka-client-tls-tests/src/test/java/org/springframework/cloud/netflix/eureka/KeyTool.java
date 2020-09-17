@@ -50,15 +50,12 @@ public class KeyTool {
 		return new KeyAndCert(keyPair, certificate);
 	}
 
-	public KeyAndCert signCertificate(String subject, KeyAndCert signer)
-			throws Exception {
+	public KeyAndCert signCertificate(String subject, KeyAndCert signer) throws Exception {
 		return signCertificate(createKeyPair(), subject, signer);
 	}
 
-	public KeyAndCert signCertificate(KeyPair keyPair, String subject, KeyAndCert signer)
-			throws Exception {
-		X509Certificate certificate = createCert(keyPair.getPublic(), signer.privateKey(),
-				signer.subject(), subject);
+	public KeyAndCert signCertificate(KeyPair keyPair, String subject, KeyAndCert signer) throws Exception {
+		X509Certificate certificate = createCert(keyPair.getPublic(), signer.privateKey(), signer.subject(), subject);
 		KeyAndCert result = new KeyAndCert(keyPair, certificate);
 
 		return result;
@@ -76,32 +73,25 @@ public class KeyTool {
 
 	public X509Certificate createCert(KeyPair keyPair, String ca) throws Exception {
 		JcaX509v3CertificateBuilder builder = certBuilder(keyPair.getPublic(), ca, ca);
-		builder.addExtension(Extension.keyUsage, true,
-				new KeyUsage(KeyUsage.keyCertSign));
-		builder.addExtension(Extension.basicConstraints, false,
-				new BasicConstraints(true));
+		builder.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.keyCertSign));
+		builder.addExtension(Extension.basicConstraints, false, new BasicConstraints(true));
 
 		return signCert(builder, keyPair.getPrivate());
 	}
 
-	public X509Certificate createCert(PublicKey publicKey, PrivateKey privateKey,
-			String issuer, String subject) throws Exception {
+	public X509Certificate createCert(PublicKey publicKey, PrivateKey privateKey, String issuer, String subject)
+			throws Exception {
 		JcaX509v3CertificateBuilder builder = certBuilder(publicKey, issuer, subject);
-		builder.addExtension(Extension.keyUsage, true,
-				new KeyUsage(KeyUsage.digitalSignature));
-		builder.addExtension(Extension.basicConstraints, false,
-				new BasicConstraints(false));
+		builder.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature));
+		builder.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
 
-		GeneralName[] names = new GeneralName[] {
-				new GeneralName(GeneralName.dNSName, "localhost") };
-		builder.addExtension(Extension.subjectAlternativeName, false,
-				GeneralNames.getInstance(new DERSequence(names)));
+		GeneralName[] names = new GeneralName[] { new GeneralName(GeneralName.dNSName, "localhost") };
+		builder.addExtension(Extension.subjectAlternativeName, false, GeneralNames.getInstance(new DERSequence(names)));
 
 		return signCert(builder, privateKey);
 	}
 
-	private JcaX509v3CertificateBuilder certBuilder(PublicKey publicKey, String issuer,
-			String subject) {
+	private JcaX509v3CertificateBuilder certBuilder(PublicKey publicKey, String issuer, String subject) {
 		X500Name issuerName = new X500Name(String.format("dc=%s", issuer));
 		X500Name subjectName = new X500Name(String.format("dc=%s", subject));
 
@@ -110,14 +100,11 @@ public class KeyTool {
 		Date notBefore = new Date(now - ONE_DAY);
 		Date notAfter = new Date(now + TEN_YEARS);
 
-		return new JcaX509v3CertificateBuilder(issuerName, serialNum, notBefore, notAfter,
-				subjectName, publicKey);
+		return new JcaX509v3CertificateBuilder(issuerName, serialNum, notBefore, notAfter, subjectName, publicKey);
 	}
 
-	private X509Certificate signCert(JcaX509v3CertificateBuilder builder,
-			PrivateKey privateKey) throws Exception {
-		ContentSigner signer = new JcaContentSignerBuilder("SHA256WithRSA")
-				.build(privateKey);
+	private X509Certificate signCert(JcaX509v3CertificateBuilder builder, PrivateKey privateKey) throws Exception {
+		ContentSigner signer = new JcaContentSignerBuilder("SHA256WithRSA").build(privateKey);
 		X509CertificateHolder holder = builder.build(signer);
 
 		return new JcaX509CertificateConverter().getCertificate(holder);

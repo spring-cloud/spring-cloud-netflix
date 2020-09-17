@@ -40,8 +40,7 @@ public class InstanceInfoFactoryTests {
 	public void instanceIdIsHostNameByDefault() throws IOException {
 		InstanceInfo instanceInfo = setupInstance();
 		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
-			assertThat(instanceInfo.getId())
-					.isEqualTo(utils.findFirstNonLoopbackHostInfo().getHostname());
+			assertThat(instanceInfo.getId()).isEqualTo(utils.findFirstNonLoopbackHostInfo().getHostname());
 		}
 	}
 
@@ -60,8 +59,7 @@ public class InstanceInfoFactoryTests {
 	private InstanceInfo setupInstance(String... pairs) {
 		TestPropertyValues.of(pairs).applyTo(this.context);
 
-		this.context.register(PropertyPlaceholderAutoConfiguration.class,
-				TestConfiguration.class);
+		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();
 
 		EurekaInstanceConfigBean instanceConfig = getInstanceConfig();

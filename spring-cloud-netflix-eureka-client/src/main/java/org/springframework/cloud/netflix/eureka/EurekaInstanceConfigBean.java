@@ -39,8 +39,7 @@ import org.springframework.util.StringUtils;
  * @author Gregor Zurowski
  */
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean
-		implements CloudEurekaInstanceConfig, EnvironmentAware {
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware {
 
 	private static final String UNKNOWN = "unknown";
 
@@ -156,8 +155,7 @@ public class EurekaInstanceConfigBean
 	 * Returns the data center this instance is deployed. This information is used to get
 	 * some AWS specific instance information if the instance is deployed in AWS.
 	 */
-	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(
-			DataCenterInfo.Name.MyOwn);
+	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(DataCenterInfo.Name.MyOwn);
 
 	/**
 	 * Get the IPAdress of the instance. This information is for academic purposes only as
@@ -331,8 +329,7 @@ public class EurekaInstanceConfigBean
 		this.environment = environment;
 		// set some defaults from the environment, but allow the defaults to use relaxed
 		// binding
-		String springAppName = this.environment.getProperty("spring.application.name",
-				"");
+		String springAppName = this.environment.getProperty("spring.application.name", "");
 		if (StringUtils.hasText(springAppName)) {
 			setAppname(springAppName);
 			setVirtualHostName(springAppName);
@@ -424,8 +421,7 @@ public class EurekaInstanceConfigBean
 		return leaseExpirationDurationInSeconds;
 	}
 
-	public void setLeaseExpirationDurationInSeconds(
-			int leaseExpirationDurationInSeconds) {
+	public void setLeaseExpirationDurationInSeconds(int leaseExpirationDurationInSeconds) {
 		this.leaseExpirationDurationInSeconds = leaseExpirationDurationInSeconds;
 	}
 
@@ -578,23 +574,17 @@ public class EurekaInstanceConfigBean
 			return false;
 		}
 		EurekaInstanceConfigBean that = (EurekaInstanceConfigBean) o;
-		return Objects.equals(hostInfo, that.hostInfo)
-				&& Objects.equals(inetUtils, that.inetUtils)
-				&& Objects.equals(appname, that.appname)
-				&& Objects.equals(appGroupName, that.appGroupName)
-				&& instanceEnabledOnit == that.instanceEnabledOnit
-				&& nonSecurePort == that.nonSecurePort && securePort == that.securePort
-				&& nonSecurePortEnabled == that.nonSecurePortEnabled
+		return Objects.equals(hostInfo, that.hostInfo) && Objects.equals(inetUtils, that.inetUtils)
+				&& Objects.equals(appname, that.appname) && Objects.equals(appGroupName, that.appGroupName)
+				&& instanceEnabledOnit == that.instanceEnabledOnit && nonSecurePort == that.nonSecurePort
+				&& securePort == that.securePort && nonSecurePortEnabled == that.nonSecurePortEnabled
 				&& securePortEnabled == that.securePortEnabled
 				&& leaseRenewalIntervalInSeconds == that.leaseRenewalIntervalInSeconds
 				&& leaseExpirationDurationInSeconds == that.leaseExpirationDurationInSeconds
-				&& Objects.equals(virtualHostName, that.virtualHostName)
-				&& Objects.equals(instanceId, that.instanceId)
+				&& Objects.equals(virtualHostName, that.virtualHostName) && Objects.equals(instanceId, that.instanceId)
 				&& Objects.equals(secureVirtualHostName, that.secureVirtualHostName)
-				&& Objects.equals(aSGName, that.aSGName)
-				&& Objects.equals(metadataMap, that.metadataMap)
-				&& Objects.equals(dataCenterInfo, that.dataCenterInfo)
-				&& Objects.equals(ipAddress, that.ipAddress)
+				&& Objects.equals(aSGName, that.aSGName) && Objects.equals(metadataMap, that.metadataMap)
+				&& Objects.equals(dataCenterInfo, that.dataCenterInfo) && Objects.equals(ipAddress, that.ipAddress)
 				&& Objects.equals(statusPageUrlPath, that.statusPageUrlPath)
 				&& Objects.equals(statusPageUrl, that.statusPageUrl)
 				&& Objects.equals(homePageUrlPath, that.homePageUrlPath)
@@ -602,65 +592,47 @@ public class EurekaInstanceConfigBean
 				&& Objects.equals(healthCheckUrlPath, that.healthCheckUrlPath)
 				&& Objects.equals(healthCheckUrl, that.healthCheckUrl)
 				&& Objects.equals(secureHealthCheckUrl, that.secureHealthCheckUrl)
-				&& Objects.equals(namespace, that.namespace)
-				&& Objects.equals(hostname, that.hostname)
-				&& preferIpAddress == that.preferIpAddress
-				&& Objects.equals(initialStatus, that.initialStatus)
-				&& Arrays.equals(defaultAddressResolutionOrder,
-						that.defaultAddressResolutionOrder)
+				&& Objects.equals(namespace, that.namespace) && Objects.equals(hostname, that.hostname)
+				&& preferIpAddress == that.preferIpAddress && Objects.equals(initialStatus, that.initialStatus)
+				&& Arrays.equals(defaultAddressResolutionOrder, that.defaultAddressResolutionOrder)
 				&& Objects.equals(environment, that.environment);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(hostInfo, inetUtils, appname, appGroupName,
-				instanceEnabledOnit, nonSecurePort, securePort, nonSecurePortEnabled,
-				securePortEnabled, leaseRenewalIntervalInSeconds,
-				leaseExpirationDurationInSeconds, virtualHostName, instanceId,
-				secureVirtualHostName, aSGName, metadataMap, dataCenterInfo, ipAddress,
-				statusPageUrlPath, statusPageUrl, homePageUrlPath, homePageUrl,
-				healthCheckUrlPath, healthCheckUrl, secureHealthCheckUrl, namespace,
-				hostname, preferIpAddress, initialStatus, defaultAddressResolutionOrder,
-				environment);
+		return Objects.hash(hostInfo, inetUtils, appname, appGroupName, instanceEnabledOnit, nonSecurePort, securePort,
+				nonSecurePortEnabled, securePortEnabled, leaseRenewalIntervalInSeconds,
+				leaseExpirationDurationInSeconds, virtualHostName, instanceId, secureVirtualHostName, aSGName,
+				metadataMap, dataCenterInfo, ipAddress, statusPageUrlPath, statusPageUrl, homePageUrlPath, homePageUrl,
+				healthCheckUrlPath, healthCheckUrl, secureHealthCheckUrl, namespace, hostname, preferIpAddress,
+				initialStatus, defaultAddressResolutionOrder, environment);
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceConfigBean{").append("hostInfo=")
-				.append(hostInfo).append(", ").append("inetUtils=").append(inetUtils)
-				.append(", ").append("appname='").append(appname).append("', ")
-				.append("appGroupName='").append(appGroupName).append("', ")
-				.append("instanceEnabledOnit=").append(instanceEnabledOnit).append(", ")
-				.append("nonSecurePort=").append(nonSecurePort).append(", ")
-				.append("securePort=").append(securePort).append(", ")
-				.append("nonSecurePortEnabled=").append(nonSecurePortEnabled).append(", ")
-				.append("securePortEnabled=").append(securePortEnabled).append(", ")
-				.append("leaseRenewalIntervalInSeconds=")
-				.append(leaseRenewalIntervalInSeconds).append(", ")
-				.append("leaseExpirationDurationInSeconds=")
-				.append(leaseExpirationDurationInSeconds).append(", ")
-				.append("virtualHostName='").append(virtualHostName).append("', ")
-				.append("instanceId='").append(instanceId).append("', ")
-				.append("secureVirtualHostName='").append(secureVirtualHostName)
-				.append("', ").append("aSGName='").append(aSGName).append("', ")
-				.append("metadataMap=").append(metadataMap).append(", ")
-				.append("dataCenterInfo=").append(dataCenterInfo).append(", ")
-				.append("ipAddress='").append(ipAddress).append("', ")
-				.append("statusPageUrlPath='").append(statusPageUrlPath).append("', ")
-				.append("statusPageUrl='").append(statusPageUrl).append("', ")
-				.append("homePageUrlPath='").append(homePageUrlPath).append("', ")
-				.append("homePageUrl='").append(homePageUrl).append("', ")
-				.append("healthCheckUrlPath='").append(healthCheckUrlPath).append("', ")
-				.append("healthCheckUrl='").append(healthCheckUrl).append("', ")
-				.append("secureHealthCheckUrl='").append(secureHealthCheckUrl)
-				.append("', ").append("namespace='").append(namespace).append("', ")
-				.append("hostname='").append(hostname).append("', ")
-				.append("preferIpAddress=").append(preferIpAddress).append(", ")
-				.append("initialStatus=").append(initialStatus).append(", ")
-				.append("defaultAddressResolutionOrder=")
-				.append(Arrays.toString(defaultAddressResolutionOrder)).append(", ")
-				.append("environment=").append(environment).append(", ").append("}")
-				.toString();
+		return new StringBuilder("EurekaInstanceConfigBean{").append("hostInfo=").append(hostInfo).append(", ")
+				.append("inetUtils=").append(inetUtils).append(", ").append("appname='").append(appname).append("', ")
+				.append("appGroupName='").append(appGroupName).append("', ").append("instanceEnabledOnit=")
+				.append(instanceEnabledOnit).append(", ").append("nonSecurePort=").append(nonSecurePort).append(", ")
+				.append("securePort=").append(securePort).append(", ").append("nonSecurePortEnabled=")
+				.append(nonSecurePortEnabled).append(", ").append("securePortEnabled=").append(securePortEnabled)
+				.append(", ").append("leaseRenewalIntervalInSeconds=").append(leaseRenewalIntervalInSeconds)
+				.append(", ").append("leaseExpirationDurationInSeconds=").append(leaseExpirationDurationInSeconds)
+				.append(", ").append("virtualHostName='").append(virtualHostName).append("', ").append("instanceId='")
+				.append(instanceId).append("', ").append("secureVirtualHostName='").append(secureVirtualHostName)
+				.append("', ").append("aSGName='").append(aSGName).append("', ").append("metadataMap=")
+				.append(metadataMap).append(", ").append("dataCenterInfo=").append(dataCenterInfo).append(", ")
+				.append("ipAddress='").append(ipAddress).append("', ").append("statusPageUrlPath='")
+				.append(statusPageUrlPath).append("', ").append("statusPageUrl='").append(statusPageUrl).append("', ")
+				.append("homePageUrlPath='").append(homePageUrlPath).append("', ").append("homePageUrl='")
+				.append(homePageUrl).append("', ").append("healthCheckUrlPath='").append(healthCheckUrlPath)
+				.append("', ").append("healthCheckUrl='").append(healthCheckUrl).append("', ")
+				.append("secureHealthCheckUrl='").append(secureHealthCheckUrl).append("', ").append("namespace='")
+				.append(namespace).append("', ").append("hostname='").append(hostname).append("', ")
+				.append("preferIpAddress=").append(preferIpAddress).append(", ").append("initialStatus=")
+				.append(initialStatus).append(", ").append("defaultAddressResolutionOrder=")
+				.append(Arrays.toString(defaultAddressResolutionOrder)).append(", ").append("environment=")
+				.append(environment).append(", ").append("}").toString();
 	}
 
 }

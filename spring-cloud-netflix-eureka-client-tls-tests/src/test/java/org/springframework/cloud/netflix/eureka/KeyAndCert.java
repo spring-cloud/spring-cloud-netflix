@@ -70,8 +70,7 @@ public class KeyAndCert {
 		KeyStore result = KeyStore.getInstance("PKCS12");
 		result.load(null);
 
-		result.setKeyEntry(subject(), keyPair.getPrivate(), keyPassword.toCharArray(),
-				certChain());
+		result.setKeyEntry(subject(), keyPair.getPrivate(), keyPassword.toCharArray(), certChain());
 		return result;
 	}
 

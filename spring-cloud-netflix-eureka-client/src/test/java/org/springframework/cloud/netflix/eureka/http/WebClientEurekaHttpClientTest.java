@@ -36,8 +36,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaServerMockApplication.class,
-		properties = { "debug=true", "security.basic.enabled=true",
-				"eureka.client.webclient.enabled=true" },
+		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.webclient.enabled=true" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {

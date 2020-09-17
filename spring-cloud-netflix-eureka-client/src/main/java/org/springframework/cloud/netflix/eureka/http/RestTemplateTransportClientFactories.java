@@ -31,28 +31,24 @@ import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 /**
  * @author Daniel Lavoie
  */
-public class RestTemplateTransportClientFactories
-		implements TransportClientFactories<Void> {
+public class RestTemplateTransportClientFactories implements TransportClientFactories<Void> {
 
 	@Override
-	public TransportClientFactory newTransportClientFactory(
-			Collection<Void> additionalFilters, EurekaJerseyClient providedJerseyClient) {
+	public TransportClientFactory newTransportClientFactory(Collection<Void> additionalFilters,
+			EurekaJerseyClient providedJerseyClient) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public TransportClientFactory newTransportClientFactory(
-			EurekaClientConfig clientConfig, Collection<Void> additionalFilters,
-			InstanceInfo myInstanceInfo) {
+	public TransportClientFactory newTransportClientFactory(EurekaClientConfig clientConfig,
+			Collection<Void> additionalFilters, InstanceInfo myInstanceInfo) {
 		return new RestTemplateTransportClientFactory();
 	}
 
 	@Override
-	public TransportClientFactory newTransportClientFactory(
-			final EurekaClientConfig clientConfig,
+	public TransportClientFactory newTransportClientFactory(final EurekaClientConfig clientConfig,
 			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
-			final Optional<SSLContext> sslContext,
-			final Optional<HostnameVerifier> hostnameVerifier) {
+			final Optional<SSLContext> sslContext, final Optional<HostnameVerifier> hostnameVerifier) {
 		return new RestTemplateTransportClientFactory();
 	}
 

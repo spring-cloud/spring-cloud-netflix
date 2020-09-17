@@ -45,9 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT,
-		properties = { "spring.jmx.enabled=true", "management.security.enabled=false",
-				"management.endpoints.web.exposure.include=*" })
+@SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = { "spring.jmx.enabled=true",
+		"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
 public class ApplicationTests {
 
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
@@ -61,8 +60,8 @@ public class ApplicationTests {
 	@Test
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/eureka/apps", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
@@ -81,20 +80,17 @@ public class ApplicationTests {
 	@Test
 	public void noDoubleSlashes() {
 		String basePath = "http://localhost:" + this.port + "/";
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath,
-				String.class);
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath, String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String body = entity.getBody();
 		assertThat(body).isNotNull();
-		assertThat(body.contains(basePath + "/")).as("basePath contains double slashes")
-				.isFalse();
+		assertThat(body.contains(basePath + "/")).as("basePath contains double slashes").isFalse();
 	}
 
 	@Test
 	public void cssParsedByLess() {
 		String basePath = "http://localhost:" + this.port + "/eureka/css/wro.css";
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath,
-				String.class);
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath, String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String body = entity.getBody();
 		assertThat(body).isNotNull();
@@ -108,8 +104,8 @@ public class ApplicationTests {
 		CodecWrapper codec = this.serverCodecs.getFullJsonCodec();
 		assertThat(codec).as("codec is wrong type").isInstanceOf(CloudJacksonJson.class);
 
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("fooapp")
-				.add("instanceId", "foo").build();
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("fooapp").add("instanceId", "foo")
+				.build();
 		String encoded = codec.encode(instanceInfo);
 		InstanceInfo decoded = codec.decode(encoded, InstanceInfo.class);
 		assertThat(decoded.getInstanceId()).as("instanceId was wrong").isEqualTo("foo");

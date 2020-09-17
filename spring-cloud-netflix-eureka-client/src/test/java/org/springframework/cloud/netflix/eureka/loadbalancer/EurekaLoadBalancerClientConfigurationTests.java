@@ -45,8 +45,7 @@ class EurekaLoadBalancerClientConfigurationTests {
 	private EurekaLoadBalancerProperties eurekaLoadBalancerProperties = new EurekaLoadBalancerProperties();
 
 	private EurekaLoadBalancerClientConfiguration postprocessor = new EurekaLoadBalancerClientConfiguration(
-			eurekaClientConfig, eurekaInstanceConfig, zoneConfig,
-			eurekaLoadBalancerProperties);
+			eurekaClientConfig, eurekaInstanceConfig, zoneConfig, eurekaLoadBalancerProperties);
 
 	@Test
 	void shouldSetZoneFromInstanceMetadata() {
@@ -77,11 +76,9 @@ class EurekaLoadBalancerClientConfigurationTests {
 	@Test
 	public void disabledViaProperty() {
 		new ApplicationContextRunner()
-				.withConfiguration(
-						AutoConfigurations.of(LoadBalancerEurekaAutoConfiguration.class))
+				.withConfiguration(AutoConfigurations.of(LoadBalancerEurekaAutoConfiguration.class))
 				.withPropertyValues("eureka.client.enabled=false").run(context -> {
-					assertThat(context)
-							.doesNotHaveBean(EurekaLoadBalancerProperties.class);
+					assertThat(context).doesNotHaveBean(EurekaLoadBalancerProperties.class);
 					assertThat(context).doesNotHaveBean(LoadBalancerZoneConfig.class);
 				});
 	}

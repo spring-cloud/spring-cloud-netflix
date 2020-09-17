@@ -31,16 +31,15 @@ import static org.hamcrest.Matchers.notNullValue;
 // TODO: maybe this should be the default (the test fails without it because the JSON is
 // invalid)
 @TestPropertySource(
-		properties = { "eureka.server.minAvailableInstancesForPeerReplication=0",
-				"spring.jmx.enabled=false" })
+		properties = { "eureka.server.minAvailableInstancesForPeerReplication=0", "spring.jmx.enabled=false" })
 public class EurekaServerTests extends AbstractDocumentationTests {
 
 	@Test
 	public void serverStatus() throws Exception {
 		register("foo", UUID.randomUUID().toString());
-		document().accept("application/json").when().get("/eureka/status").then()
-				.assertThat().body("generalStats", notNullValue(), "applicationStats",
-						notNullValue(), "instanceInfo", notNullValue())
+		document()
+				.accept("application/json").when().get("/eureka/status").then().assertThat().body("generalStats",
+						notNullValue(), "applicationStats", notNullValue(), "instanceInfo", notNullValue())
 				.statusCode(is(200));
 	}
 

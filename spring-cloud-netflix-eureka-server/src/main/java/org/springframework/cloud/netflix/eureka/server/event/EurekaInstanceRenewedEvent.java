@@ -37,8 +37,8 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	private boolean replication;
 
-	public EurekaInstanceRenewedEvent(Object source, String appName, String serverId,
-			InstanceInfo instanceInfo, boolean replication) {
+	public EurekaInstanceRenewedEvent(Object source, String appName, String serverId, InstanceInfo instanceInfo,
+			boolean replication) {
 		super(source);
 		this.appName = appName;
 		this.serverId = serverId;
@@ -87,10 +87,8 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceRenewedEvent that = (EurekaInstanceRenewedEvent) o;
-		return Objects.equals(appName, that.appName)
-				&& Objects.equals(serverId, that.serverId)
-				&& Objects.equals(instanceInfo, that.instanceInfo)
-				&& replication == that.replication;
+		return Objects.equals(appName, that.appName) && Objects.equals(serverId, that.serverId)
+				&& Objects.equals(instanceInfo, that.instanceInfo) && replication == that.replication;
 	}
 
 	@Override
@@ -100,10 +98,9 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRenewedEvent{").append("appName='")
-				.append(appName).append("', ").append("serverId='").append(serverId)
-				.append("', ").append("instanceInfo=").append(instanceInfo).append(", ")
-				.append("replication=").append(replication).append("}").toString();
+		return new StringBuilder("EurekaInstanceRenewedEvent{").append("appName='").append(appName).append("', ")
+				.append("serverId='").append(serverId).append("', ").append("instanceInfo=").append(instanceInfo)
+				.append(", ").append("replication=").append(replication).append("}").toString();
 	}
 
 }

@@ -46,23 +46,18 @@ public class InstanceInfoFactory {
 		if (!namespace.endsWith(".")) {
 			namespace = namespace + ".";
 		}
-		builder.setNamespace(namespace).setAppName(config.getAppname())
-				.setInstanceId(config.getInstanceId())
-				.setAppGroupName(config.getAppGroupName())
-				.setDataCenterInfo(config.getDataCenterInfo())
+		builder.setNamespace(namespace).setAppName(config.getAppname()).setInstanceId(config.getInstanceId())
+				.setAppGroupName(config.getAppGroupName()).setDataCenterInfo(config.getDataCenterInfo())
 				.setIPAddr(config.getIpAddress()).setHostName(config.getHostName(false))
 				.setPort(config.getNonSecurePort())
-				.enablePort(InstanceInfo.PortType.UNSECURE,
-						config.isNonSecurePortEnabled())
+				.enablePort(InstanceInfo.PortType.UNSECURE, config.isNonSecurePortEnabled())
 				.setSecurePort(config.getSecurePort())
 				.enablePort(InstanceInfo.PortType.SECURE, config.getSecurePortEnabled())
-				.setVIPAddress(config.getVirtualHostName())
-				.setSecureVIPAddress(config.getSecureVirtualHostName())
+				.setVIPAddress(config.getVirtualHostName()).setSecureVIPAddress(config.getSecureVirtualHostName())
 				.setHomePageUrl(config.getHomePageUrlPath(), config.getHomePageUrl())
-				.setStatusPageUrl(config.getStatusPageUrlPath(),
-						config.getStatusPageUrl())
-				.setHealthCheckUrls(config.getHealthCheckUrlPath(),
-						config.getHealthCheckUrl(), config.getSecureHealthCheckUrl())
+				.setStatusPageUrl(config.getStatusPageUrlPath(), config.getStatusPageUrl())
+				.setHealthCheckUrls(config.getHealthCheckUrlPath(), config.getHealthCheckUrl(),
+						config.getSecureHealthCheckUrl())
 				.setASGName(config.getASGName());
 
 		// Start off with the STARTING state to avoid traffic
@@ -75,8 +70,7 @@ public class InstanceInfoFactory {
 		}
 		else {
 			if (log.isInfoEnabled()) {
-				log.info("Setting initial instance status as: "
-						+ InstanceInfo.InstanceStatus.UP
+				log.info("Setting initial instance status as: " + InstanceInfo.InstanceStatus.UP
 						+ ". This may be too early for the instance to advertise itself as available. "
 						+ "You would instead want to control this via a healthcheck handler.");
 			}

@@ -45,8 +45,7 @@ import static org.springframework.cloud.netflix.eureka.loadbalancer.LoadBalancer
 @ConditionalOnBean({ LoadBalancerZoneConfig.class, EurekaLoadBalancerProperties.class })
 public class EurekaLoadBalancerClientConfiguration {
 
-	private static final Log LOG = LogFactory
-			.getLog(EurekaLoadBalancerClientConfiguration.class);
+	private static final Log LOG = LogFactory.getLog(EurekaLoadBalancerClientConfiguration.class);
 
 	private final EurekaClientConfig clientConfig;
 
@@ -56,10 +55,8 @@ public class EurekaLoadBalancerClientConfiguration {
 
 	private final EurekaLoadBalancerProperties eurekaLoadBalancerProperties;
 
-	public EurekaLoadBalancerClientConfiguration(
-			@Autowired(required = false) EurekaClientConfig clientConfig,
-			@Autowired(required = false) EurekaInstanceConfig eurekaInstanceConfig,
-			LoadBalancerZoneConfig zoneConfig,
+	public EurekaLoadBalancerClientConfiguration(@Autowired(required = false) EurekaClientConfig clientConfig,
+			@Autowired(required = false) EurekaInstanceConfig eurekaInstanceConfig, LoadBalancerZoneConfig zoneConfig,
 			EurekaLoadBalancerProperties eurekaLoadBalancerProperties) {
 		this.clientConfig = clientConfig;
 		this.eurekaConfig = eurekaInstanceConfig;
@@ -83,17 +80,14 @@ public class EurekaLoadBalancerClientConfiguration {
 
 	private String getZoneFromEureka() {
 		String zone;
-		boolean approximateZoneFromHostname = eurekaLoadBalancerProperties
-				.isApproximateZoneFromHostname();
+		boolean approximateZoneFromHostname = eurekaLoadBalancerProperties.isApproximateZoneFromHostname();
 		if (approximateZoneFromHostname && eurekaConfig != null) {
 			return ZoneUtils.extractApproximateZone(this.eurekaConfig.getHostName(false));
 		}
 		else {
-			zone = eurekaConfig == null ? null
-					: eurekaConfig.getMetadataMap().get("zone");
+			zone = eurekaConfig == null ? null : eurekaConfig.getMetadataMap().get("zone");
 			if (StringUtils.isEmpty(zone) && clientConfig != null) {
-				String[] zones = clientConfig
-						.getAvailabilityZones(clientConfig.getRegion());
+				String[] zones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
 				// Pick the first one from the regions we want to connect to
 				zone = zones != null && zones.length > 0 ? zones[0] : null;
 			}

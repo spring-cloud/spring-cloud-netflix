@@ -96,8 +96,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	private void initialize(Class<?>... configurations) throws Exception {
-		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
-				configurations);
+		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurations);
 		healthCheckHandler.setApplicationContext(applicationContext);
 		healthCheckHandler.afterPropertiesSet();
 	}

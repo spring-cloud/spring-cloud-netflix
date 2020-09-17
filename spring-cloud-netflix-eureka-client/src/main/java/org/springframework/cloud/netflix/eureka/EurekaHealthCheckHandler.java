@@ -50,8 +50,7 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
  * @see HealthCheckHandler
  * @see StatusAggregator
  */
-public class EurekaHealthCheckHandler
-		implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
+public class EurekaHealthCheckHandler implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
 
 	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
 		{
@@ -75,15 +74,13 @@ public class EurekaHealthCheckHandler
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final Map<String, HealthIndicator> healthIndicators = applicationContext
-				.getBeansOfType(HealthIndicator.class);
+		final Map<String, HealthIndicator> healthIndicators = applicationContext.getBeansOfType(HealthIndicator.class);
 
 		populateHealthIndicators(healthIndicators);
 	}
@@ -93,11 +90,9 @@ public class EurekaHealthCheckHandler
 			// ignore EurekaHealthIndicator and flatten the rest of the composite
 			// otherwise there is a never ending cycle of down. See gh-643
 			if (entry.getValue() instanceof DiscoveryCompositeHealthContributor) {
-				DiscoveryCompositeHealthContributor indicator = (DiscoveryCompositeHealthContributor) entry
-						.getValue();
+				DiscoveryCompositeHealthContributor indicator = (DiscoveryCompositeHealthContributor) entry.getValue();
 				indicator.forEach(contributor -> {
-					if (!(contributor
-							.getContributor() instanceof EurekaHealthIndicator)) {
+					if (!(contributor.getContributor() instanceof EurekaHealthIndicator)) {
 						this.healthIndicators.put(contributor.getName(),
 								(HealthIndicator) contributor.getContributor());
 					}
@@ -121,8 +116,7 @@ public class EurekaHealthCheckHandler
 
 	protected Status getStatus(StatusAggregator statusAggregator) {
 		Status status;
-		Set<Status> statusSet = healthIndicators.values().stream()
-				.map(HealthIndicator::health).map(Health::getStatus)
+		Set<Status> statusSet = healthIndicators.values().stream().map(HealthIndicator::health).map(Health::getStatus)
 				.collect(Collectors.toSet());
 		status = statusAggregator.getAggregateStatus(statusSet);
 		return status;

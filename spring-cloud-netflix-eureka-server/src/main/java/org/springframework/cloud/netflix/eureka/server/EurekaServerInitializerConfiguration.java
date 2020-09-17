@@ -36,11 +36,9 @@ import org.springframework.web.context.ServletContextAware;
  * @author Dave Syer
  */
 @Configuration(proxyBeanMethods = false)
-public class EurekaServerInitializerConfiguration
-		implements ServletContextAware, SmartLifecycle, Ordered {
+public class EurekaServerInitializerConfiguration implements ServletContextAware, SmartLifecycle, Ordered {
 
-	private static final Log log = LogFactory
-			.getLog(EurekaServerInitializerConfiguration.class);
+	private static final Log log = LogFactory.getLog(EurekaServerInitializerConfiguration.class);
 
 	@Autowired
 	private EurekaServerConfig eurekaServerConfig;
@@ -67,8 +65,7 @@ public class EurekaServerInitializerConfiguration
 		new Thread(() -> {
 			try {
 				// TODO: is this class even needed now?
-				eurekaServerBootstrap.contextInitialized(
-						EurekaServerInitializerConfiguration.this.servletContext);
+				eurekaServerBootstrap.contextInitialized(EurekaServerInitializerConfiguration.this.servletContext);
 				log.info("Started Eureka Server");
 
 				publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig()));

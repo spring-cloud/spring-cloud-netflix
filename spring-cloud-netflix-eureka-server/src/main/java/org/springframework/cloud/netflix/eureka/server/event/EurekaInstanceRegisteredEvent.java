@@ -35,8 +35,8 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	private boolean replication;
 
-	public EurekaInstanceRegisteredEvent(Object source, InstanceInfo instanceInfo,
-			int leaseDuration, boolean replication) {
+	public EurekaInstanceRegisteredEvent(Object source, InstanceInfo instanceInfo, int leaseDuration,
+			boolean replication) {
 		super(source);
 		this.instanceInfo = instanceInfo;
 		this.leaseDuration = leaseDuration;
@@ -76,8 +76,8 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceRegisteredEvent that = (EurekaInstanceRegisteredEvent) o;
-		return Objects.equals(instanceInfo, that.instanceInfo)
-				&& leaseDuration == leaseDuration && replication == replication;
+		return Objects.equals(instanceInfo, that.instanceInfo) && leaseDuration == leaseDuration
+				&& replication == replication;
 	}
 
 	@Override
@@ -87,9 +87,8 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRegisteredEvent{").append("instanceInfo=")
-				.append(instanceInfo).append(", ").append("leaseDuration=")
-				.append(leaseDuration).append(", ").append("replication=")
+		return new StringBuilder("EurekaInstanceRegisteredEvent{").append("instanceInfo=").append(instanceInfo)
+				.append(", ").append("leaseDuration=").append(leaseDuration).append(", ").append("replication=")
 				.append(replication).append("}").toString();
 	}
 

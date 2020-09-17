@@ -42,14 +42,12 @@ public class WebClientTransportClientFactoryTest {
 
 	@Test
 	public void testInvalidUserInfo() {
-		transportClientFatory
-				.newClient(new DefaultEndpoint("http://test@localhost:8761"));
+		transportClientFatory.newClient(new DefaultEndpoint("http://test@localhost:8761"));
 	}
 
 	@Test
 	public void testUserInfo() {
-		transportClientFatory
-				.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
+		transportClientFatory.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
 	}
 
 	@After

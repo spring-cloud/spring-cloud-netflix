@@ -38,17 +38,14 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		maybeInitializeClient(reg);
 
 		if (log.isInfoEnabled()) {
-			log.info("Registering application "
-					+ reg.getApplicationInfoManager().getInfo().getAppName()
-					+ " with eureka with status "
-					+ reg.getInstanceConfig().getInitialStatus());
+			log.info("Registering application " + reg.getApplicationInfoManager().getInfo().getAppName()
+					+ " with eureka with status " + reg.getInstanceConfig().getInitialStatus());
 		}
 
-		reg.getApplicationInfoManager()
-				.setInstanceStatus(reg.getInstanceConfig().getInitialStatus());
+		reg.getApplicationInfoManager().setInstanceStatus(reg.getInstanceConfig().getInitialStatus());
 
-		reg.getHealthCheckHandler().ifAvailable(healthCheckHandler -> reg
-				.getEurekaClient().registerHealthCheck(healthCheckHandler));
+		reg.getHealthCheckHandler()
+				.ifAvailable(healthCheckHandler -> reg.getEurekaClient().registerHealthCheck(healthCheckHandler));
 	}
 
 	private void maybeInitializeClient(EurekaRegistration reg) {
@@ -62,13 +59,11 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		if (reg.getApplicationInfoManager().getInfo() != null) {
 
 			if (log.isInfoEnabled()) {
-				log.info("Unregistering application "
-						+ reg.getApplicationInfoManager().getInfo().getAppName()
+				log.info("Unregistering application " + reg.getApplicationInfoManager().getInfo().getAppName()
 						+ " with eureka with status DOWN");
 			}
 
-			reg.getApplicationInfoManager()
-					.setInstanceStatus(InstanceInfo.InstanceStatus.DOWN);
+			reg.getApplicationInfoManager().setInstanceStatus(InstanceInfo.InstanceStatus.DOWN);
 
 			// shutdown of eureka client should happen with EurekaRegistration.close()
 			// auto registration will create a bean which will be properly disposed
@@ -87,8 +82,7 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		}
 
 		// TODO: howto deal with status types across discovery systems?
-		InstanceInfo.InstanceStatus newStatus = InstanceInfo.InstanceStatus
-				.toEnum(status);
+		InstanceInfo.InstanceStatus newStatus = InstanceInfo.InstanceStatus.toEnum(status);
 		registration.getEurekaClient().setStatus(newStatus, info);
 	}
 
@@ -96,8 +90,7 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 	public Object getStatus(EurekaRegistration registration) {
 		String appname = registration.getApplicationInfoManager().getInfo().getAppName();
 		String instanceId = registration.getApplicationInfoManager().getInfo().getId();
-		InstanceInfo info = registration.getEurekaClient().getInstanceInfo(appname,
-				instanceId);
+		InstanceInfo info = registration.getEurekaClient().getInstanceInfo(appname, instanceId);
 
 		HashMap<String, Object> status = new HashMap<>();
 		if (info != null) {

@@ -55,9 +55,9 @@ public class EurekaServerBootstrap {
 
 	protected volatile AwsBinder awsBinder;
 
-	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager,
-			EurekaClientConfig eurekaClientConfig, EurekaServerConfig eurekaServerConfig,
-			PeerAwareInstanceRegistry registry, EurekaServerContext serverContext) {
+	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager, EurekaClientConfig eurekaClientConfig,
+			EurekaServerConfig eurekaServerConfig, PeerAwareInstanceRegistry registry,
+			EurekaServerContext serverContext) {
 		this.applicationInfoManager = applicationInfoManager;
 		this.eurekaClientConfig = eurekaClientConfig;
 		this.eurekaServerConfig = eurekaServerConfig;
@@ -100,14 +100,12 @@ public class EurekaServerBootstrap {
 
 	protected void initEurekaServerContext() throws Exception {
 		// For backward compatibility
-		JsonXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(),
-				XStream.PRIORITY_VERY_HIGH);
-		XmlXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(),
-				XStream.PRIORITY_VERY_HIGH);
+		JsonXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(), XStream.PRIORITY_VERY_HIGH);
+		XmlXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(), XStream.PRIORITY_VERY_HIGH);
 
 		if (isAws(this.applicationInfoManager.getInfo())) {
-			this.awsBinder = new AwsBinderDelegate(this.eurekaServerConfig,
-					this.eurekaClientConfig, this.registry, this.applicationInfoManager);
+			this.awsBinder = new AwsBinderDelegate(this.eurekaServerConfig, this.eurekaClientConfig, this.registry,
+					this.applicationInfoManager);
 			this.awsBinder.start();
 		}
 
@@ -146,8 +144,7 @@ public class EurekaServerBootstrap {
 	}
 
 	protected boolean isAws(InstanceInfo selfInstanceInfo) {
-		boolean result = DataCenterInfo.Name.Amazon == selfInstanceInfo
-				.getDataCenterInfo().getName();
+		boolean result = DataCenterInfo.Name.Amazon == selfInstanceInfo.getDataCenterInfo().getName();
 		log.info("isAws returned " + result);
 		return result;
 	}

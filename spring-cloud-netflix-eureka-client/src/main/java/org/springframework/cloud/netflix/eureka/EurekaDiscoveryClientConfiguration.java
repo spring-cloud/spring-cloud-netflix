@@ -64,14 +64,12 @@ public class EurekaDiscoveryClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public EurekaDiscoveryClient discoveryClient(EurekaClient client,
-			EurekaClientConfig clientConfig) {
+	public EurekaDiscoveryClient discoveryClient(EurekaClient client, EurekaClientConfig clientConfig) {
 		return new EurekaDiscoveryClient(client, clientConfig);
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled",
-			matchIfMissing = false)
+	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled", matchIfMissing = false)
 	protected static class EurekaHealthCheckHandlerConfiguration {
 
 		@Autowired(required = false)

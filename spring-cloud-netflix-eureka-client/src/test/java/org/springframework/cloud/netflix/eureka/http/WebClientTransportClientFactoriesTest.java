@@ -27,8 +27,7 @@ public class WebClientTransportClientFactoriesTest {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testJerseyIsUnsuported() {
-		new WebClientTransportClientFactories(WebClient::builder)
-				.newTransportClientFactory(null, null);
+		new WebClientTransportClientFactories(WebClient::builder).newTransportClientFactory(null, null);
 	}
 
 }

@@ -34,8 +34,7 @@ public class ManagementMetadata {
 
 	private String secureHealthCheckUrl;
 
-	public ManagementMetadata(String healthCheckUrl, String statusPageUrl,
-			Integer managementPort) {
+	public ManagementMetadata(String healthCheckUrl, String statusPageUrl, Integer managementPort) {
 		this.healthCheckUrl = healthCheckUrl;
 		this.statusPageUrl = statusPageUrl;
 		this.managementPort = managementPort;
@@ -71,8 +70,7 @@ public class ManagementMetadata {
 			return false;
 		}
 		ManagementMetadata that = (ManagementMetadata) o;
-		return Objects.equals(healthCheckUrl, that.healthCheckUrl)
-				&& Objects.equals(statusPageUrl, that.statusPageUrl)
+		return Objects.equals(healthCheckUrl, that.healthCheckUrl) && Objects.equals(statusPageUrl, that.statusPageUrl)
 				&& Objects.equals(managementPort, that.managementPort);
 	}
 

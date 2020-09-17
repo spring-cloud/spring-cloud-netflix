@@ -38,10 +38,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 /**
  * @author Spencer Gibb
  */
-@SpringBootTest(properties = { "spring.cloud.config.discovery.enabled=true",
-		"spring.config.use-legacy-processing=true",
-		"eureka.client.webclient.enabled=true",
-		"spring.codec.max-in-memory-size=310000" }, webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+		properties = { "spring.cloud.config.discovery.enabled=true", "spring.config.use-legacy-processing=true",
+				"eureka.client.webclient.enabled=true", "spring.codec.max-in-memory-size=310000" },
+		webEnvironment = RANDOM_PORT)
 public class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 
 	@LocalServerPort
@@ -53,12 +53,10 @@ public class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 	@Test
 	public void webClientRespectsCodecProperties() {
 		WebClient webClient = eurekaHttpClient.getWebClient();
-		ClientResponse response = webClient.get().uri("http://localhost:" + port)
-				.exchange().block();
+		ClientResponse response = webClient.get().uri("http://localhost:" + port).exchange().block();
 		assertThat(response).isNotNull();
 		assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.bodyToMono(String.class).block()).startsWith("....")
-				.hasSize(300000);
+		assertThat(response.bodyToMono(String.class).block()).startsWith("....").hasSize(300000);
 	}
 
 	@SpringBootConfiguration

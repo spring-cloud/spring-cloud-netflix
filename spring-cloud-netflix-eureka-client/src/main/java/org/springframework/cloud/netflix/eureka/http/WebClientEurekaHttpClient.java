@@ -56,11 +56,10 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
-		return webClient.post().uri("apps/" + info.getAppName(), Void.class)
-				.body(BodyInserters.fromValue(info))
+		return webClient.post().uri("apps/" + info.getAppName(), Void.class).body(BodyInserters.fromValue(info))
 				.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.exchange().map(response -> eurekaHttpResponse(response)).block();
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchange()
+				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
@@ -70,21 +69,18 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	@Override
-	public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id,
-			InstanceInfo info, InstanceStatus overriddenStatus) {
-		String urlPath = "apps/" + appName + '/' + id + "?status="
-				+ info.getStatus().toString() + "&lastDirtyTimestamp="
-				+ info.getLastDirtyTimestamp().toString() + (overriddenStatus != null
-						? "&overriddenstatus=" + overriddenStatus.name() : "");
+	public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info,
+			InstanceStatus overriddenStatus) {
+		String urlPath = "apps/" + appName + '/' + id + "?status=" + info.getStatus().toString()
+				+ "&lastDirtyTimestamp=" + info.getLastDirtyTimestamp().toString()
+				+ (overriddenStatus != null ? "&overriddenstatus=" + overriddenStatus.name() : "");
 
 		ClientResponse response = webClient.put().uri(urlPath, InstanceInfo.class)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange()
-				.block();
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
-		EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(
-				statusCodeValueOf(response), InstanceInfo.class)
-						.headers(headersOf(response));
+		EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(statusCodeValueOf(response),
+				InstanceInfo.class).headers(headersOf(response));
 
 		InstanceInfo entity = response.toEntity(InstanceInfo.class).block().getBody();
 
@@ -97,26 +93,24 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	@Override
-	public EurekaHttpResponse<Void> statusUpdate(String appName, String id,
-			InstanceStatus newStatus, InstanceInfo info) {
-		String urlPath = "apps/" + appName + '/' + id + "/status?value="
-				+ newStatus.name() + "&lastDirtyTimestamp="
+	public EurekaHttpResponse<Void> statusUpdate(String appName, String id, InstanceStatus newStatus,
+			InstanceInfo info) {
+		String urlPath = "apps/" + appName + '/' + id + "/status?value=" + newStatus.name() + "&lastDirtyTimestamp="
 				+ info.getLastDirtyTimestamp().toString();
 
 		return webClient.put().uri(urlPath, Void.class)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.exchange().map(response -> eurekaHttpResponse(response)).block();
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchange()
+				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
-	public EurekaHttpResponse<Void> deleteStatusOverride(String appName, String id,
-			InstanceInfo info) {
+	public EurekaHttpResponse<Void> deleteStatusOverride(String appName, String id, InstanceInfo info) {
 		String urlPath = "apps/" + appName + '/' + id + "/status?lastDirtyTimestamp="
 				+ info.getLastDirtyTimestamp().toString();
 
 		return webClient.delete().uri(urlPath, Void.class)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.exchange().map(response -> eurekaHttpResponse(response)).block();
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchange()
+				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
@@ -124,27 +118,23 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		return getApplicationsInternal("apps/", regions);
 	}
 
-	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath,
-			String[] regions) {
+	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath, String[] regions) {
 		String url = urlPath;
 
 		if (regions != null && regions.length > 0) {
-			url = url + (urlPath.contains("?") ? "&" : "?") + "regions="
-					+ StringUtil.join(regions);
+			url = url + (urlPath.contains("?") ? "&" : "?") + "regions=" + StringUtil.join(regions);
 		}
 
 		ClientResponse response = webClient.get().uri(url, Applications.class)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange()
-				.block();
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 
 		Applications body = response.toEntity(Applications.class).block().getBody();
 
-		return anEurekaHttpResponse(statusCode,
-				statusCode == HttpStatus.OK.value() && body != null ? body : null)
-						.headers(headersOf(response)).build();
+		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
+				.headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -158,27 +148,22 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	@Override
-	public EurekaHttpResponse<Applications> getSecureVip(String secureVipAddress,
-			String... regions) {
+	public EurekaHttpResponse<Applications> getSecureVip(String secureVipAddress, String... regions) {
 		return getApplicationsInternal("svips/" + secureVipAddress, regions);
 	}
 
 	@Override
 	public EurekaHttpResponse<Application> getApplication(String appName) {
 
-		ClientResponse response = webClient.get()
-				.uri("apps/" + appName, Application.class)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange()
-				.block();
+		ClientResponse response = webClient.get().uri("apps/" + appName, Application.class)
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 		Application body = response.toEntity(Application.class).block().getBody();
 
-		Application application = statusCode == HttpStatus.OK.value() && body != null
-				? body : null;
+		Application application = statusCode == HttpStatus.OK.value() && body != null ? body : null;
 
-		return anEurekaHttpResponse(statusCode, application).headers(headersOf(response))
-				.build();
+		return anEurekaHttpResponse(statusCode, application).headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -193,15 +178,13 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
 		ClientResponse response = webClient.get().uri(urlPath, InstanceInfo.class)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange()
-				.block();
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 		InstanceInfo body = response.toEntity(InstanceInfo.class).block().getBody();
 
-		return anEurekaHttpResponse(statusCode,
-				statusCode == HttpStatus.OK.value() && body != null ? body : null)
-						.headers(headersOf(response)).build();
+		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
+				.headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -223,8 +206,8 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 			return Collections.emptyMap();
 		}
 		Map<String, String> headers = new HashMap<>();
-		asHeaders.entrySet().stream().forEach(entry -> entry.getValue().stream()
-				.forEach(v -> headers.put(entry.getKey(), v)));
+		asHeaders.entrySet().stream()
+				.forEach(entry -> entry.getValue().stream().forEach(v -> headers.put(entry.getKey(), v)));
 		return headers;
 	}
 
@@ -233,8 +216,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	private EurekaHttpResponse<Void> eurekaHttpResponse(ClientResponse response) {
-		return anEurekaHttpResponse(statusCodeValueOf(response))
-				.headers(headersOf(response)).build();
+		return anEurekaHttpResponse(statusCodeValueOf(response)).headers(headersOf(response)).build();
 	}
 
 }

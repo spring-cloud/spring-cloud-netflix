@@ -36,9 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class,
-		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-		value = { "spring.application.name=eureka", "server.contextPath=/context",
-				"management.security.enabled=false" })
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka",
+				"server.contextPath=/context", "management.security.enabled=false" })
 public class EurekaCustomPeerNodesTests {
 
 	@Autowired
@@ -57,23 +56,20 @@ public class EurekaCustomPeerNodesTests {
 
 		@Bean
 		public PeerEurekaNodes myPeerEurekaNodes(PeerAwareInstanceRegistry registry,
-				EurekaServerConfig eurekaServerConfig,
-				EurekaClientConfig eurekaClientConfig, ServerCodecs serverCodecs,
+				EurekaServerConfig eurekaServerConfig, EurekaClientConfig eurekaClientConfig, ServerCodecs serverCodecs,
 				ApplicationInfoManager applicationInfoManager) {
-			return new CustomEurekaPeerNodes(registry, eurekaServerConfig,
-					eurekaClientConfig, serverCodecs, applicationInfoManager);
+			return new CustomEurekaPeerNodes(registry, eurekaServerConfig, eurekaClientConfig, serverCodecs,
+					applicationInfoManager);
 		}
 
 	}
 
 	private static class CustomEurekaPeerNodes extends PeerEurekaNodes {
 
-		CustomEurekaPeerNodes(PeerAwareInstanceRegistry registry,
-				EurekaServerConfig serverConfig, EurekaClientConfig clientConfig,
-				ServerCodecs serverCodecs,
+		CustomEurekaPeerNodes(PeerAwareInstanceRegistry registry, EurekaServerConfig serverConfig,
+				EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
 				ApplicationInfoManager applicationInfoManager) {
-			super(registry, serverConfig, clientConfig, serverCodecs,
-					applicationInfoManager);
+			super(registry, serverConfig, clientConfig, serverCodecs, applicationInfoManager);
 		}
 
 	}

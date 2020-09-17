@@ -64,16 +64,14 @@ public abstract class BaseCertTest {
 	}
 
 	private static File saveKeyAndCert(KeyAndCert keyCert) throws Exception {
-		return saveKeyStore(keyCert.subject(),
-				() -> keyCert.storeKeyAndCert(KEY_PASSWORD));
+		return saveKeyStore(keyCert.subject(), () -> keyCert.storeKeyAndCert(KEY_PASSWORD));
 	}
 
 	private static File saveCert(KeyAndCert keyCert) throws Exception {
 		return saveKeyStore(keyCert.subject(), () -> keyCert.storeCert());
 	}
 
-	private static File saveKeyStore(String prefix, KeyStoreSupplier func)
-			throws Exception {
+	private static File saveKeyStore(String prefix, KeyStoreSupplier func) throws Exception {
 		File result = File.createTempFile(prefix, ".p12");
 		result.deleteOnExit();
 

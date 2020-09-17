@@ -41,10 +41,8 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 	@Test
 	public void startingApp() throws Exception {
 		register("foo");
-		document().accept("application/json").when().get("/eureka/apps").then()
-				.assertThat()
-				.body("applications.application", hasSize(1),
-						"applications.application[0].instance[0].status",
+		document().accept("application/json").when().get("/eureka/apps").then().assertThat()
+				.body("applications.application", hasSize(1), "applications.application[0].instance[0].status",
 						equalTo("STARTING"))
 				.statusCode(is(200));
 	}
@@ -52,10 +50,8 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 	@Test
 	public void addInstance() throws Exception {
 		document(instance("foo"))
-				.filter(verify("$.instance.app").json("$.instance.hostName")
-						.json("$.instance[?(@.status=='STARTING')]")
-						.json("$.instance.instanceId")
-						.json("$.instance.dataCenterInfo.name"))
+				.filter(verify("$.instance.app").json("$.instance.hostName").json("$.instance[?(@.status=='STARTING')]")
+						.json("$.instance.instanceId").json("$.instance.dataCenterInfo.name"))
 				.when().post("/eureka/apps/FOO").then().assertThat().statusCode(is(204));
 	}
 
@@ -63,63 +59,58 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 	public void setStatus() throws Exception {
 		String id = register("foo").getInstanceId();
 		document()
-				.filter(verify(put(urlPathMatching("/eureka/apps/FOO/.*/status"))
-						.withQueryParam("value", matching("UP"))))
-				.when().put("/eureka/apps/FOO/{id}/status?value={value}", id, "UP").then()
-				.assertThat().statusCode(is(200));
+				.filter(verify(
+						put(urlPathMatching("/eureka/apps/FOO/.*/status")).withQueryParam("value", matching("UP"))))
+				.when().put("/eureka/apps/FOO/{id}/status?value={value}", id, "UP").then().assertThat()
+				.statusCode(is(200));
 	}
 
 	@Test
 	public void allApps() throws Exception {
 		register("foo");
-		document().accept("application/json").when().get("/eureka/apps").then()
-				.assertThat().body("applications.application", hasSize(1))
-				.statusCode(is(200));
+		document().accept("application/json").when().get("/eureka/apps").then().assertThat()
+				.body("applications.application", hasSize(1)).statusCode(is(200));
 	}
 
 	@Test
 	public void delta() throws Exception {
 		register("foo");
-		document().accept("application/json").when().get("/eureka/apps/delta").then()
-				.assertThat().body("applications.application", hasSize(1))
-				.statusCode(is(200));
+		document().accept("application/json").when().get("/eureka/apps/delta").then().assertThat()
+				.body("applications.application", hasSize(1)).statusCode(is(200));
 	}
 
 	@Test
 	public void oneInstance() throws Exception {
 		String id = UUID.randomUUID().toString();
 		register("foo", id);
-		document().filter(verify(get(urlPathMatching("/eureka/apps/FOO/.*"))))
-				.accept("application/json").when().get("/eureka/apps/FOO/{id}", id).then()
-				.assertThat().body("instance.app", equalTo("FOO")).statusCode(is(200));
+		document().filter(verify(get(urlPathMatching("/eureka/apps/FOO/.*")))).accept("application/json").when()
+				.get("/eureka/apps/FOO/{id}", id).then().assertThat().body("instance.app", equalTo("FOO"))
+				.statusCode(is(200));
 	}
 
 	@Test
 	public void lookupInstance() throws Exception {
 		String id = register("foo").getInstanceId();
-		document().filter(verify(get(urlPathMatching("/eureka/instances/.*"))))
-				.accept("application/json").when().get("/eureka/instances/{id}", id)
-				.then().assertThat().body("instance.app", equalTo("FOO"))
+		document().filter(verify(get(urlPathMatching("/eureka/instances/.*")))).accept("application/json").when()
+				.get("/eureka/instances/{id}", id).then().assertThat().body("instance.app", equalTo("FOO"))
 				.statusCode(is(200));
 	}
 
 	@Test
 	public void renew() throws Exception {
 		String id = register("foo").getInstanceId();
-		document().filter(verify(put(urlPathMatching("/eureka/apps/FOO/.*"))))
-				.accept("application/json").when().put("/eureka/apps/FOO/{id}", id).then()
-				.assertThat().statusCode(is(200));
+		document().filter(verify(put(urlPathMatching("/eureka/apps/FOO/.*")))).accept("application/json").when()
+				.put("/eureka/apps/FOO/{id}", id).then().assertThat().statusCode(is(200));
 	}
 
 	@Test
 	public void updateMetadata() throws Exception {
 		String id = register("foo").getInstanceId();
 		document()
-				.filter(verify(put(urlPathMatching("/eureka/apps/FOO/.*/metadata"))
-						.withQueryParam("key", matching(".*"))))
-				.accept("application/json").when()
-				.put("/eureka/apps/FOO/{id}/metadata?key=value", id).then().assertThat()
-				.statusCode(is(200));
+				.filter(verify(
+						put(urlPathMatching("/eureka/apps/FOO/.*/metadata")).withQueryParam("key", matching(".*"))))
+				.accept("application/json").when().put("/eureka/apps/FOO/{id}/metadata?key=value", id).then()
+				.assertThat().statusCode(is(200));
 		assertThat(instance().getMetadata()).containsEntry("key", "value");
 	}
 
@@ -127,15 +118,13 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 	public void deleteInstance() throws Exception {
 		String id = register("foo").getInstanceId();
 		document().filter(verify(delete(urlPathMatching("/eureka/apps/FOO/.*")))).when()
-				.delete("/eureka/apps/FOO/{id}", id).then().assertThat()
-				.statusCode(is(200));
+				.delete("/eureka/apps/FOO/{id}", id).then().assertThat().statusCode(is(200));
 	}
 
 	@Test
 	public void emptyApps() {
-		document().when().accept("application/json").get("/eureka/apps").then()
-				.assertThat().body("applications.application", emptyIterable())
-				.statusCode(is(200));
+		document().when().accept("application/json").get("/eureka/apps").then().assertThat()
+				.body("applications.application", emptyIterable()).statusCode(is(200));
 	}
 
 }

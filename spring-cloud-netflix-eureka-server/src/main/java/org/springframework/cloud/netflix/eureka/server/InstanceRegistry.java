@@ -41,8 +41,7 @@ import org.springframework.context.ApplicationEvent;
 /**
  * @author Spencer Gibb
  */
-public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
-		implements ApplicationContextAware {
+public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements ApplicationContextAware {
 
 	private static final Log log = LogFactory.getLog(InstanceRegistry.class);
 
@@ -50,10 +49,8 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 
 	private int defaultOpenForTrafficCount;
 
-	public InstanceRegistry(EurekaServerConfig serverConfig,
-			EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
-			EurekaClient eurekaClient, int expectedNumberOfClientsSendingRenews,
-			int defaultOpenForTrafficCount) {
+	public InstanceRegistry(EurekaServerConfig serverConfig, EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
+			EurekaClient eurekaClient, int expectedNumberOfClientsSendingRenews, int defaultOpenForTrafficCount) {
 		super(serverConfig, clientConfig, serverCodecs, eurekaClient);
 
 		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
@@ -76,8 +73,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 	 */
 	@Override
 	public void openForTraffic(ApplicationInfoManager applicationInfoManager, int count) {
-		super.openForTraffic(applicationInfoManager,
-				count == 0 ? this.defaultOpenForTrafficCount : count);
+		super.openForTraffic(applicationInfoManager, count == 0 ? this.defaultOpenForTrafficCount : count);
 	}
 
 	@Override
@@ -99,10 +95,8 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 	}
 
 	@Override
-	public boolean renew(final String appName, final String serverId,
-			boolean isReplication) {
-		log("renew " + appName + " serverId " + serverId + ", isReplication {}"
-				+ isReplication);
+	public boolean renew(final String appName, final String serverId, boolean isReplication) {
+		log("renew " + appName + " serverId " + serverId + ", isReplication {}" + isReplication);
 		List<Application> applications = getSortedApplications();
 		for (Application input : applications) {
 			if (input.getName().equals(appName)) {
@@ -113,8 +107,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 						break;
 					}
 				}
-				publishEvent(new EurekaInstanceRenewedEvent(this, appName, serverId,
-						instance, isReplication));
+				publishEvent(new EurekaInstanceRenewedEvent(this, appName, serverId, instance, isReplication));
 				break;
 			}
 		}
@@ -128,18 +121,14 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 	}
 
 	private void handleCancelation(String appName, String id, boolean isReplication) {
-		log("cancel " + appName + ", serverId " + id + ", isReplication "
-				+ isReplication);
+		log("cancel " + appName + ", serverId " + id + ", isReplication " + isReplication);
 		publishEvent(new EurekaInstanceCanceledEvent(this, appName, id, isReplication));
 	}
 
-	private void handleRegistration(InstanceInfo info, int leaseDuration,
-			boolean isReplication) {
-		log("register " + info.getAppName() + ", vip " + info.getVIPAddress()
-				+ ", leaseDuration " + leaseDuration + ", isReplication "
-				+ isReplication);
-		publishEvent(new EurekaInstanceRegisteredEvent(this, info, leaseDuration,
-				isReplication));
+	private void handleRegistration(InstanceInfo info, int leaseDuration, boolean isReplication) {
+		log("register " + info.getAppName() + ", vip " + info.getVIPAddress() + ", leaseDuration " + leaseDuration
+				+ ", isReplication " + isReplication);
+		publishEvent(new EurekaInstanceRegisteredEvent(this, info, leaseDuration, isReplication));
 	}
 
 	private void log(String message) {

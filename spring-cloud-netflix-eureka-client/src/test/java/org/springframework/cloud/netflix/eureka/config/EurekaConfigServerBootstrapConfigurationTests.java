@@ -61,44 +61,36 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	@Test
 	public void offByDefault() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations
-						.of(EurekaConfigServerBootstrapConfiguration.class))
+				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.run(context -> {
 					assertThat(context).doesNotHaveBean(EurekaClientConfigBean.class);
 					assertThat(context).doesNotHaveBean(EurekaHttpClient.class);
-					assertThat(context)
-							.doesNotHaveBean(ConfigServerInstanceProvider.Function.class);
+					assertThat(context).doesNotHaveBean(ConfigServerInstanceProvider.Function.class);
 				});
 	}
 
 	@Test
 	public void properBeansCreatedWhenEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations
-						.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
-				.run(context -> {
+				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+				.withPropertyValues("spring.cloud.config.discovery.enabled=true").run(context -> {
 					assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
 					assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
-					assertThat(context)
-							.hasSingleBean(ConfigServerInstanceProvider.Function.class);
+					assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
 				});
 	}
 
 	@Test
 	public void eurekaDnsConfigurationWorks() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations
-						.of(EurekaConfigServerBootstrapConfiguration.class))
+				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true",
 						"eureka.instance.hostname=eurekaclient1",
 						"eureka.client.use-dns-for-fetching-service-urls=true",
 						"eureka.client.eureka-server-d-n-s-name=myeurekahost",
-						"eureka.client.eureka-server-u-r-l-context=eureka",
-						"eureka.client.eureka-server-port=30000")
+						"eureka.client.eureka-server-u-r-l-context=eureka", "eureka.client.eureka-server-port=30000")
 				.run(context -> {
-					assertThat(output).contains(
-							"Cannot get cnames bound to the region:txt.us-east-1.myeurekahost");
+					assertThat(output).contains("Cannot get cnames bound to the region:txt.us-east-1.myeurekahost");
 				});
 	}
 
@@ -106,17 +98,13 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	public void eurekaConfigServerInstanceProviderCalled() {
 		// FIXME: why do I need to do this? (fails in maven build without it.
 		TomcatURLStreamHandlerFactory.disable();
-		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class).properties(
-				"spring.config.use-legacy-processing=true",
-				"spring.cloud.config.discovery.enabled=true",
-				"spring.main.sources="
-						+ TestConfigDiscoveryBootstrapConfiguration.class.getName(),
-				"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
+		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
+				.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
+						"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
+						"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
 				.run();
-		assertThat(output).contains(
-				"eurekaConfigServerInstanceProvider finding instances for configserver")
-				.contains(
-						"eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
+		assertThat(output).contains("eurekaConfigServerInstanceProvider finding instances for configserver")
+				.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
 	}
 
 	@SpringBootConfiguration
@@ -136,13 +124,11 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 		@SuppressWarnings("unchecked")
 		@Bean
 		public EurekaHttpClient mockEurekaHttpClient() {
-			InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
-					.setAppName("configserver").build();
+			InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("configserver").build();
 			List<InstanceInfo> instanceInfos = Collections.singletonList(instanceInfo);
 
 			Applications applications = mock(Applications.class);
-			when(applications.getInstancesByVirtualHostName("configserver"))
-					.thenReturn(instanceInfos);
+			when(applications.getInstancesByVirtualHostName("configserver")).thenReturn(instanceInfos);
 
 			EurekaHttpResponse<Applications> response = mock(EurekaHttpResponse.class);
 			when(response.getStatusCode()).thenReturn(200);

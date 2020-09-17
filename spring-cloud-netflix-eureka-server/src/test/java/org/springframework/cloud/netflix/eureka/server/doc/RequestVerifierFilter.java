@@ -94,50 +94,43 @@ public class RequestVerifierFilter implements Filter {
 	}
 
 	@Override
-	public Response filter(FilterableRequestSpecification requestSpec,
-			FilterableResponseSpecification responseSpec, FilterContext context) {
+	public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec,
+			FilterContext context) {
 		Map<String, Object> configuration = getConfiguration(requestSpec, context);
 		configuration.put("contract.jsonPaths", this.jsonPaths.keySet());
 		Response response = context.next(requestSpec, responseSpec);
 		if (requestSpec.getBody() != null && !this.jsonPaths.isEmpty()) {
 			String actual = new String((byte[]) requestSpec.getBody());
 			for (JsonPath jsonPath : this.jsonPaths.values()) {
-				new JsonPathValue(jsonPath, actual).assertHasValue(Object.class,
-						"an object");
+				new JsonPathValue(jsonPath, actual).assertHasValue(Object.class, "an object");
 			}
 		}
 		if (this.builder != null) {
 			this.builder.willReturn(getResponseDefinition(response));
 			StubMapping stubMapping = this.builder.build();
-			MatchResult match = stubMapping.getRequest()
-					.match(new WireMockRestAssuredRequestAdapter(requestSpec));
-			assertThat(match.isExactMatch()).as("wiremock did not match request")
-					.isTrue();
+			MatchResult match = stubMapping.getRequest().match(new WireMockRestAssuredRequestAdapter(requestSpec));
+			assertThat(match.isExactMatch()).as("wiremock did not match request").isTrue();
 			configuration.put("contract.stubMapping", stubMapping);
 		}
 		return response;
 	}
 
 	private ResponseDefinitionBuilder getResponseDefinition(Response response) {
-		ResponseDefinitionBuilder definition = ResponseDefinitionBuilder
-				.responseDefinition().withBody(response.getBody().asString())
-				.withStatus(response.getStatusCode());
+		ResponseDefinitionBuilder definition = ResponseDefinitionBuilder.responseDefinition()
+				.withBody(response.getBody().asString()).withStatus(response.getStatusCode());
 		addResponseHeaders(definition, response);
 		return definition;
 	}
 
-	private void addResponseHeaders(ResponseDefinitionBuilder definition,
-			Response input) {
+	private void addResponseHeaders(ResponseDefinitionBuilder definition, Response input) {
 		for (Header header : input.getHeaders().asList()) {
 			String name = header.getName();
 			definition.withHeader(name, input.getHeader(name));
 		}
 	}
 
-	protected Map<String, Object> getConfiguration(
-			FilterableRequestSpecification requestSpec, FilterContext context) {
-		Map<String, Object> configuration = context
-				.<Map<String, Object>>getValue(CONTEXT_KEY_CONFIGURATION);
+	protected Map<String, Object> getConfiguration(FilterableRequestSpecification requestSpec, FilterContext context) {
+		Map<String, Object> configuration = context.<Map<String, Object>>getValue(CONTEXT_KEY_CONFIGURATION);
 		return configuration;
 	}
 
@@ -197,8 +190,7 @@ class JsonPathValue {
 	}
 
 	private String getExpectedValueMessage(String expectedDescription) {
-		return String.format("Expected %s at JSON path \"%s\" but found: %s",
-				expectedDescription, this.expression,
+		return String.format("Expected %s at JSON path \"%s\" but found: %s", expectedDescription, this.expression,
 				ObjectUtils.nullSafeToString(StringUtils.quoteIfString(getValue(false))));
 	}
 

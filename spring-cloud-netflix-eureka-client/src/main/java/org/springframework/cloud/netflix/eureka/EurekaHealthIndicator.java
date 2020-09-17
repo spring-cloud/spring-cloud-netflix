@@ -45,8 +45,8 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
 	private final EurekaClientConfig clientConfig;
 
-	public EurekaHealthIndicator(EurekaClient eurekaClient,
-			EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
+	public EurekaHealthIndicator(EurekaClient eurekaClient, EurekaInstanceConfig instanceConfig,
+			EurekaClientConfig clientConfig) {
 		super();
 		this.eurekaClient = eurekaClient;
 		this.instanceConfig = instanceConfig;
@@ -62,8 +62,7 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 	public Health health() {
 		Builder builder = Health.unknown();
 		Status status = getStatus(builder);
-		return builder.status(status).withDetail("applications", getApplications())
-				.build();
+		return builder.status(status).withDetail("applications", getApplications()).build();
 	}
 
 	private Status getStatus(Builder builder) {
@@ -80,10 +79,8 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 			else if (lastFetch > clientConfig.getRegistryFetchIntervalSeconds() * 2000) {
 				status = new Status("UP",
 						"Eureka discovery client is reporting failures to connect to a Eureka server");
-				builder.withDetail("renewalPeriod",
-						instanceConfig.getLeaseRenewalIntervalInSeconds());
-				builder.withDetail("failCount",
-						lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
+				builder.withDetail("renewalPeriod", instanceConfig.getLeaseRenewalIntervalInSeconds());
+				builder.withDetail("failCount", lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
 			}
 		}
 

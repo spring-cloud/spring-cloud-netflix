@@ -55,8 +55,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 
 	@Override
 	public EurekaHttpClient newClient(EurekaEndpoint serviceUrl) {
-		return new RestTemplateEurekaHttpClient(restTemplate(serviceUrl.getServiceUrl()),
-				serviceUrl.getServiceUrl());
+		return new RestTemplateEurekaHttpClient(restTemplate(serviceUrl.getServiceUrl()), serviceUrl.getServiceUrl());
 	}
 
 	private RestTemplate restTemplate(String serviceUrl) {
@@ -66,8 +65,8 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 			if (serviceURI.getUserInfo() != null) {
 				String[] credentials = serviceURI.getUserInfo().split(":");
 				if (credentials.length == 2) {
-					restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(
-							credentials[0], credentials[1]));
+					restTemplate.getInterceptors()
+							.add(new BasicAuthenticationInterceptor(credentials[0], credentials[1]));
 				}
 			}
 		}
@@ -93,8 +92,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	 */
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-		converter.setObjectMapper(new ObjectMapper()
-				.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
+		converter.setObjectMapper(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
 
 		SimpleModule jsonModule = new SimpleModule();
 		jsonModule.setSerializerModifier(createJsonSerializerModifier()); // keyFormatter,
@@ -102,12 +100,9 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		converter.getObjectMapper().registerModule(jsonModule);
 
 		converter.getObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-		converter.getObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE,
-				true);
-		converter.getObjectMapper().addMixIn(Applications.class,
-				ApplicationsJsonMixIn.class);
-		converter.getObjectMapper().addMixIn(InstanceInfo.class,
-				InstanceInfoJsonMixIn.class);
+		converter.getObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+		converter.getObjectMapper().addMixIn(Applications.class, ApplicationsJsonMixIn.class);
+		converter.getObjectMapper().addMixIn(InstanceInfo.class, InstanceInfoJsonMixIn.class);
 
 		// converter.getObjectMapper().addMixIn(DataCenterInfo.class,
 		// DataCenterInfoXmlMixIn.class);
@@ -130,16 +125,15 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		// {
 		return new BeanSerializerModifier() {
 			@Override
-			public JsonSerializer<?> modifySerializer(SerializationConfig config,
-					BeanDescription beanDesc, JsonSerializer<?> serializer) {
+			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
+					JsonSerializer<?> serializer) {
 				/*
 				 * if (beanDesc.getBeanClass().isAssignableFrom(Applications.class)) {
 				 * return new ApplicationsJsonBeanSerializer((BeanSerializerBase)
 				 * serializer, keyFormatter); }
 				 */
 				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
-					return new InstanceInfoJsonBeanSerializer(
-							(BeanSerializerBase) serializer, false);
+					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
 				}
 				return serializer;
 			}

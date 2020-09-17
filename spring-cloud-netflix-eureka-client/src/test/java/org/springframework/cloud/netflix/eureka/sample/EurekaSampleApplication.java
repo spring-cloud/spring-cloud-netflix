@@ -90,8 +90,7 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 		config.setNonSecurePort(4444);
 		config.setInstanceId("127.0.0.1:customapp:4444");
 
-		this.registration = EurekaRegistration.builder(config)
-				.with(this.clientConfig, this.context).build();
+		this.registration = EurekaRegistration.builder(config).with(this.clientConfig, this.context).build();
 
 		this.serviceRegistry.register(this.registration);
 		return config.getInstanceId();

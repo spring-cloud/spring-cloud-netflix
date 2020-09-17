@@ -89,10 +89,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 			if (serviceURI.getUserInfo() != null) {
 				String[] credentials = serviceURI.getUserInfo().split(":");
 				if (credentials.length == 2) {
-					builder.filter(ExchangeFilterFunctions
-							.basicAuthentication(credentials[0], credentials[1]));
-					url = serviceUrl.replace(credentials[0] + ":" + credentials[1] + "@",
-							"");
+					builder.filter(ExchangeFilterFunctions.basicAuthentication(credentials[0], credentials[1]));
+					url = serviceUrl.replace(credentials[0] + ":" + credentials[1] + "@", "");
 				}
 			}
 		}
@@ -104,12 +102,9 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	private void setCodecs(WebClient.Builder builder) {
 		ObjectMapper objectMapper = objectMapper();
 		builder.codecs(configurer -> {
-			ClientCodecConfigurer.ClientDefaultCodecs defaults = configurer
-					.defaultCodecs();
-			defaults.jackson2JsonEncoder(
-					new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON));
-			defaults.jackson2JsonDecoder(
-					new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
+			ClientCodecConfigurer.ClientDefaultCodecs defaults = configurer.defaultCodecs();
+			defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON));
+			defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
 
 		});
 	}
@@ -119,10 +114,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
 			// literally 400 pass the tests, not 4xxClientError
 			if (clientResponse.statusCode().value() == 400) {
-				ClientResponse newResponse = ClientResponse.from(clientResponse)
-						.statusCode(HttpStatus.OK).build();
-				newResponse.body(
-						(clientHttpResponse, context) -> clientHttpResponse.getBody());
+				ClientResponse newResponse = ClientResponse.from(clientResponse).statusCode(HttpStatus.OK).build();
+				newResponse.body((clientHttpResponse, context) -> clientHttpResponse.getBody());
 				return Mono.just(newResponse);
 			}
 			return Mono.just(clientResponse);
@@ -177,11 +170,10 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	public static BeanSerializerModifier createJsonSerializerModifier() {
 		return new BeanSerializerModifier() {
 			@Override
-			public JsonSerializer<?> modifySerializer(SerializationConfig config,
-					BeanDescription beanDesc, JsonSerializer<?> serializer) {
+			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
+					JsonSerializer<?> serializer) {
 				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
-					return new InstanceInfoJsonBeanSerializer(
-							(BeanSerializerBase) serializer, false);
+					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
 				}
 				return serializer;
 			}

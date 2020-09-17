@@ -34,8 +34,7 @@ public class EurekaServerRunner extends AppRunner {
 		property("server.ssl.client-auth", "need");
 	}
 
-	public void setKeyStore(File keyStore, String keyStorePassword, String key,
-			String keyPassword) {
+	public void setKeyStore(File keyStore, String keyStorePassword, String key, String keyPassword) {
 		property("server.ssl.key-store", pathOf(keyStore));
 		property("server.ssl.key-store-type", "PKCS12");
 		property("server.ssl.key-store-password", keyStorePassword);

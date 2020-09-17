@@ -53,12 +53,10 @@ public class EurekaControllerTests {
 	@Before
 	public void setup() throws Exception {
 		PeerEurekaNodes peerEurekaNodes = mock(PeerEurekaNodes.class);
-		when(peerEurekaNodes.getPeerNodesView())
-				.thenReturn(Collections.<PeerEurekaNode>emptyList());
+		when(peerEurekaNodes.getPeerNodesView()).thenReturn(Collections.<PeerEurekaNode>emptyList());
 
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("test")
-				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
-				.build();
+				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn)).build();
 
 		this.infoManager = mock(ApplicationInfoManager.class);
 		this.original = ApplicationInfoManager.getInstance();
@@ -67,8 +65,7 @@ public class EurekaControllerTests {
 
 		Application myapp = new Application("myapp");
 		myapp.addInstance(InstanceInfo.Builder.newBuilder().setAppName("myapp")
-				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
-				.setInstanceId("myapp:1").build());
+				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn)).setInstanceId("myapp:1").build());
 
 		ArrayList<Application> applications = new ArrayList<>();
 		applications.add(myapp);
@@ -89,10 +86,8 @@ public class EurekaControllerTests {
 		setInstance(this.original);
 	}
 
-	static void setInstance(ApplicationInfoManager infoManager)
-			throws IllegalAccessException {
-		Field instance = ReflectionUtils.findField(ApplicationInfoManager.class,
-				"instance");
+	static void setInstance(ApplicationInfoManager infoManager) throws IllegalAccessException {
+		Field instance = ReflectionUtils.findField(ApplicationInfoManager.class, "instance");
 		ReflectionUtils.makeAccessible(instance);
 		instance.set(null, infoManager);
 	}

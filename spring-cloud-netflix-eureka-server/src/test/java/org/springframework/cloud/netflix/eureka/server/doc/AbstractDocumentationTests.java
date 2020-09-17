@@ -79,8 +79,7 @@ public abstract class AbstractDocumentationTests {
 	private ApplicationInfoManager applicationInfoManager;
 
 	@Rule
-	public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation(
-			"target/generated-snippets");
+	public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("target/generated-snippets");
 
 	@After
 	public void init() {
@@ -116,8 +115,7 @@ public abstract class AbstractDocumentationTests {
 
 	private RestDocumentationFilter filter(String name) {
 		return RestAssuredRestDocumentation.document(name,
-				preprocessRequest(modifyUris().host("eureka.example.com").removePort(),
-						prettyPrint()),
+				preprocessRequest(modifyUris().host("eureka.example.com").removePort(), prettyPrint()),
 				preprocessResponse(prettyPrint()));
 	}
 
@@ -164,20 +162,17 @@ public abstract class AbstractDocumentationTests {
 	@EnableEurekaServer
 	protected static class Application {
 
-		private static final Logger logger = LoggerFactory
-				.getLogger(DefaultEurekaServerContext.class);
+		private static final Logger logger = LoggerFactory.getLogger(DefaultEurekaServerContext.class);
 
 		@Bean
 		public EurekaServerContext testEurekaServerContext(ServerCodecs serverCodecs,
 				PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes,
-				ApplicationInfoManager applicationInfoManager,
-				EurekaServerConfig eurekaServerConfig) {
-			return new DefaultEurekaServerContext(eurekaServerConfig, serverCodecs,
-					registry, peerEurekaNodes, applicationInfoManager) {
+				ApplicationInfoManager applicationInfoManager, EurekaServerConfig eurekaServerConfig) {
+			return new DefaultEurekaServerContext(eurekaServerConfig, serverCodecs, registry, peerEurekaNodes,
+					applicationInfoManager) {
 				@Override
 				public void shutdown() {
-					logger.info(
-							"Shutting down (except ServoControl and EurekaMonitors)..");
+					logger.info("Shutting down (except ServoControl and EurekaMonitors)..");
 					registry.shutdown();
 					peerEurekaNodes.shutdown();
 					// ServoControl.shutdown();

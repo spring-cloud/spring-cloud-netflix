@@ -30,9 +30,7 @@ public class ZoneUtilsTests {
 	public void extractApproximateZoneTest() {
 		assertThat("foo".equals(ZoneUtils.extractApproximateZone("foo"))).isTrue();
 		assertThat("bar".equals(ZoneUtils.extractApproximateZone("foo.bar"))).isTrue();
-		assertThat("world.foo.bar"
-				.equals(ZoneUtils.extractApproximateZone("hello.world.foo.bar")))
-						.isTrue();
+		assertThat("world.foo.bar".equals(ZoneUtils.extractApproximateZone("hello.world.foo.bar"))).isTrue();
 	}
 
 }

@@ -56,19 +56,17 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	private AtomicReference<EurekaHttpClient> eurekaHttpClient = new AtomicReference<>();
 
-	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
-			EurekaClientConfig config, ApplicationEventPublisher publisher) {
+	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config,
+			ApplicationEventPublisher publisher) {
 		this(applicationInfoManager, config, null, publisher);
 	}
 
-	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
-			EurekaClientConfig config, AbstractDiscoveryClientOptionalArgs<?> args,
-			ApplicationEventPublisher publisher) {
+	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config,
+			AbstractDiscoveryClientOptionalArgs<?> args, ApplicationEventPublisher publisher) {
 		super(applicationInfoManager, config, args);
 		this.applicationInfoManager = applicationInfoManager;
 		this.publisher = publisher;
-		this.eurekaTransportField = ReflectionUtils.findField(DiscoveryClient.class,
-				"eurekaTransport");
+		this.eurekaTransportField = ReflectionUtils.findField(DiscoveryClient.class, "eurekaTransport");
 		ReflectionUtils.makeAccessible(this.eurekaTransportField);
 	}
 
@@ -81,8 +79,7 @@ public class CloudEurekaClient extends DiscoveryClient {
 	}
 
 	public InstanceInfo getInstanceInfo(String appname, String instanceId) {
-		EurekaHttpResponse<InstanceInfo> response = getEurekaHttpClient()
-				.getInstance(appname, instanceId);
+		EurekaHttpResponse<InstanceInfo> response = getEurekaHttpClient().getInstance(appname, instanceId);
 		HttpStatus httpStatus = HttpStatus.valueOf(response.getStatusCode());
 		if (httpStatus.is2xxSuccessful() && response.getEntity() != null) {
 			return response.getEntity();
@@ -94,8 +91,8 @@ public class CloudEurekaClient extends DiscoveryClient {
 		if (this.eurekaHttpClient.get() == null) {
 			try {
 				Object eurekaTransport = this.eurekaTransportField.get(this);
-				Field registrationClientField = ReflectionUtils
-						.findField(eurekaTransport.getClass(), "registrationClient");
+				Field registrationClientField = ReflectionUtils.findField(eurekaTransport.getClass(),
+						"registrationClient");
 				ReflectionUtils.makeAccessible(registrationClientField);
 				this.eurekaHttpClient.compareAndSet(null,
 						(EurekaHttpClient) registrationClientField.get(eurekaTransport));
@@ -108,8 +105,7 @@ public class CloudEurekaClient extends DiscoveryClient {
 	}
 
 	public void setStatus(InstanceStatus newStatus, InstanceInfo info) {
-		getEurekaHttpClient().statusUpdate(info.getAppName(), info.getId(), newStatus,
-				info);
+		getEurekaHttpClient().statusUpdate(info.getAppName(), info.getId(), newStatus, info);
 	}
 
 	@Override

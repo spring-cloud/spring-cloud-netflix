@@ -48,26 +48,23 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnReactiveDiscoveryEnabled
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @EnableConfigurationProperties
-@AutoConfigureAfter({ EurekaClientAutoConfiguration.class,
-		ReactiveCompositeDiscoveryClientAutoConfiguration.class })
+@AutoConfigureAfter({ EurekaClientAutoConfiguration.class, ReactiveCompositeDiscoveryClientAutoConfiguration.class })
 @AutoConfigureBefore(ReactiveCommonsClientAutoConfiguration.class)
 @ImportAutoConfiguration(EurekaClientAutoConfiguration.class)
 public class EurekaReactiveDiscoveryClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public EurekaReactiveDiscoveryClient eurekaReactiveDiscoveryClient(
-			EurekaClient client, EurekaClientConfig clientConfig) {
+	public EurekaReactiveDiscoveryClient eurekaReactiveDiscoveryClient(EurekaClient client,
+			EurekaClientConfig clientConfig) {
 		return new EurekaReactiveDiscoveryClient(client, clientConfig);
 	}
 
 	@Bean
-	@ConditionalOnClass(
-			name = "org.springframework.boot.actuate.health.ReactiveHealthIndicator")
+	@ConditionalOnClass(name = "org.springframework.boot.actuate.health.ReactiveHealthIndicator")
 	@ConditionalOnDiscoveryHealthIndicatorEnabled
 	public ReactiveDiscoveryClientHealthIndicator eurekaReactiveDiscoveryClientHealthIndicator(
-			EurekaReactiveDiscoveryClient client,
-			DiscoveryClientHealthIndicatorProperties properties) {
+			EurekaReactiveDiscoveryClient client, DiscoveryClientHealthIndicatorProperties properties) {
 		return new ReactiveDiscoveryClientHealthIndicator(client, properties);
 	}
 

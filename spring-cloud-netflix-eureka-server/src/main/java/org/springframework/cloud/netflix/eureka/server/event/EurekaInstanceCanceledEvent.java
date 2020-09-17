@@ -33,8 +33,7 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	private boolean replication;
 
-	public EurekaInstanceCanceledEvent(Object source, String appName, String serverId,
-			boolean replication) {
+	public EurekaInstanceCanceledEvent(Object source, String appName, String serverId, boolean replication) {
 		super(source);
 		this.appName = appName;
 		this.serverId = serverId;
@@ -74,8 +73,8 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceCanceledEvent that = (EurekaInstanceCanceledEvent) o;
-		return Objects.equals(appName, that.appName)
-				&& Objects.equals(serverId, that.serverId) && replication == replication;
+		return Objects.equals(appName, that.appName) && Objects.equals(serverId, that.serverId)
+				&& replication == replication;
 	}
 
 	@Override
@@ -85,10 +84,9 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceCanceledEvent{").append("appName='")
-				.append(appName).append("', ").append("serverId='").append(serverId)
-				.append("', ").append("replication=").append(replication).append("}")
-				.toString();
+		return new StringBuilder("EurekaInstanceCanceledEvent{").append("appName='").append(appName).append("', ")
+				.append("serverId='").append(serverId).append("', ").append("replication=").append(replication)
+				.append("}").toString();
 	}
 
 }

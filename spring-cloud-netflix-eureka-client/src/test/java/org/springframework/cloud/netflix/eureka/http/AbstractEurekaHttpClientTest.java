@@ -38,39 +38,36 @@ public abstract class AbstractEurekaHttpClientTest {
 
 	@Test
 	public void testRegister() {
-		assertThat(eurekaHttpClient.register(info).getStatusCode())
-				.isEqualTo(HttpStatus.OK.value());
+		assertThat(eurekaHttpClient.register(info).getStatusCode()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testCancel() {
-		assertThat(eurekaHttpClient.cancel("test", "test").getStatusCode())
-				.isEqualTo(HttpStatus.OK.value());
+		assertThat(eurekaHttpClient.cancel("test", "test").getStatusCode()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testSendHeartBeat() {
-		assertThat(eurekaHttpClient.sendHeartBeat("test", "test", info, null)
-				.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(eurekaHttpClient.sendHeartBeat("test", "test", info, null).getStatusCode())
+				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testSendHeartBeatFourOFour() {
-		assertThat(eurekaHttpClient.sendHeartBeat("fourOFour", "test", info, null)
-				.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
+		assertThat(eurekaHttpClient.sendHeartBeat("fourOFour", "test", info, null).getStatusCode())
+				.isEqualTo(HttpStatus.NOT_FOUND.value());
 	}
 
 	@Test
 	public void testStatusUpdate() {
-		assertThat(eurekaHttpClient
-				.statusUpdate("test", "test", InstanceInfo.InstanceStatus.UP, info)
-				.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(eurekaHttpClient.statusUpdate("test", "test", InstanceInfo.InstanceStatus.UP, info).getStatusCode())
+				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	public void testDeleteStatusOverride() {
-		assertThat(eurekaHttpClient.deleteStatusOverride("test", "test", info)
-				.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(eurekaHttpClient.deleteStatusOverride("test", "test", info).getStatusCode())
+				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test

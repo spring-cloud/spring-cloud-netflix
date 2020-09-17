@@ -41,8 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaHealthCheckTests.EurekaHealthCheckApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT,
-		value = { "eureka.client.healthcheck.enabled=true", "debug=true" })
+		webEnvironment = WebEnvironment.RANDOM_PORT, value = { "eureka.client.healthcheck.enabled=true", "debug=true" })
 @DirtiesContext
 public class EurekaHealthCheckTests {
 

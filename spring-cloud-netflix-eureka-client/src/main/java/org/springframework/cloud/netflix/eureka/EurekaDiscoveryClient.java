@@ -53,8 +53,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		this(eurekaClient, eurekaClient.getEurekaClientConfig());
 	}
 
-	public EurekaDiscoveryClient(EurekaClient eurekaClient,
-			EurekaClientConfig clientConfig) {
+	public EurekaDiscoveryClient(EurekaClient eurekaClient, EurekaClientConfig clientConfig) {
 		this.clientConfig = clientConfig;
 		this.eurekaClient = eurekaClient;
 	}
@@ -66,8 +65,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<ServiceInstance> getInstances(String serviceId) {
-		List<InstanceInfo> infos = this.eurekaClient.getInstancesByVipAddress(serviceId,
-				false);
+		List<InstanceInfo> infos = this.eurekaClient.getInstancesByVipAddress(serviceId, false);
 		List<ServiceInstance> instances = new ArrayList<>();
 		for (InstanceInfo info : infos) {
 			instances.add(new EurekaServiceInstance(info));
@@ -95,8 +93,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public int getOrder() {
-		return clientConfig instanceof Ordered ? ((Ordered) clientConfig).getOrder()
-				: DiscoveryClient.DEFAULT_ORDER;
+		return clientConfig instanceof Ordered ? ((Ordered) clientConfig).getOrder() : DiscoveryClient.DEFAULT_ORDER;
 	}
 
 }

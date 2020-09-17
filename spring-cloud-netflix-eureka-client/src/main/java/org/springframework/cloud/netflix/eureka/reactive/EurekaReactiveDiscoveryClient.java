@@ -39,8 +39,7 @@ public class EurekaReactiveDiscoveryClient implements ReactiveDiscoveryClient {
 
 	private final EurekaClientConfig clientConfig;
 
-	public EurekaReactiveDiscoveryClient(EurekaClient eurekaClient,
-			EurekaClientConfig clientConfig) {
+	public EurekaReactiveDiscoveryClient(EurekaClient eurekaClient, EurekaClientConfig clientConfig) {
 		this.eurekaClient = eurekaClient;
 		this.clientConfig = clientConfig;
 	}
@@ -52,9 +51,7 @@ public class EurekaReactiveDiscoveryClient implements ReactiveDiscoveryClient {
 
 	@Override
 	public Flux<ServiceInstance> getInstances(String serviceId) {
-		return Flux
-				.defer(() -> Flux.fromIterable(
-						eurekaClient.getInstancesByVipAddress(serviceId, false)))
+		return Flux.defer(() -> Flux.fromIterable(eurekaClient.getInstancesByVipAddress(serviceId, false)))
 				.map(EurekaServiceInstance::new);
 	}
 
@@ -62,8 +59,8 @@ public class EurekaReactiveDiscoveryClient implements ReactiveDiscoveryClient {
 	public Flux<String> getServices() {
 		return Flux.defer(() -> Mono.justOrEmpty(eurekaClient.getApplications()))
 				.flatMapIterable(Applications::getRegisteredApplications)
-				.filter(application -> !application.getInstances().isEmpty())
-				.map(Application::getName).map(String::toLowerCase);
+				.filter(application -> !application.getInstances().isEmpty()).map(Application::getName)
+				.map(String::toLowerCase);
 	}
 
 	@Override

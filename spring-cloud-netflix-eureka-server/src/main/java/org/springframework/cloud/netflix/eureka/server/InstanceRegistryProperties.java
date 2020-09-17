@@ -55,13 +55,11 @@ public class InstanceRegistryProperties {
 		return expectedNumberOfClientsSendingRenews;
 	}
 
-	public void setExpectedNumberOfClientsSendingRenews(
-			int expectedNumberOfClientsSendingRenews) {
+	public void setExpectedNumberOfClientsSendingRenews(int expectedNumberOfClientsSendingRenews) {
 		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
 	}
 
-	@DeprecatedConfigurationProperty(
-			replacement = PREFIX + ".expected-number-of-clients-sending-renews")
+	@DeprecatedConfigurationProperty(replacement = PREFIX + ".expected-number-of-clients-sending-renews")
 	@Deprecated
 	public int getExpectedNumberOfRenewsPerMin() {
 		return getExpectedNumberOfClientsSendingRenews();

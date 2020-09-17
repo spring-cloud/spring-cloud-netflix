@@ -33,8 +33,7 @@ final class EurekaObjectMapper implements io.restassured.mapper.ObjectMapper {
 	public Object serialize(ObjectMapperSerializationContext context) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			converter.write(context.getObjectToSerialize(), out,
-					MediaType.APPLICATION_JSON_TYPE);
+			converter.write(context.getObjectToSerialize(), out, MediaType.APPLICATION_JSON_TYPE);
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot serialize", e);
@@ -45,8 +44,8 @@ final class EurekaObjectMapper implements io.restassured.mapper.ObjectMapper {
 	@Override
 	public Object deserialize(ObjectMapperDeserializationContext context) {
 		try {
-			return converter.read(context.getDataToDeserialize().asInputStream(),
-					(Class) context.getType(), MediaType.APPLICATION_JSON_TYPE);
+			return converter.read(context.getDataToDeserialize().asInputStream(), (Class) context.getType(),
+					MediaType.APPLICATION_JSON_TYPE);
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot deserialize", e);

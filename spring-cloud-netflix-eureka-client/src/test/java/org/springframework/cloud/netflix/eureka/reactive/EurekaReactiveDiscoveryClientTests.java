@@ -55,8 +55,7 @@ class EurekaReactiveDiscoveryClientTests {
 
 	@Test
 	public void verifyDefaults() {
-		assertThat(client.description())
-				.isEqualTo("Spring Cloud Eureka Reactive Discovery Client");
+		assertThat(client.description()).isEqualTo("Spring Cloud Eureka Reactive Discovery Client");
 		assertThat(client.getOrder()).isEqualTo(ReactiveDiscoveryClient.DEFAULT_ORDER);
 	}
 
@@ -64,10 +63,8 @@ class EurekaReactiveDiscoveryClientTests {
 	public void verifyDefaultsWhenUsingEurekaClientConfigBean() {
 		EurekaClientConfigBean configBean = new EurekaClientConfigBean();
 		configBean.setOrder(1);
-		EurekaReactiveDiscoveryClient client = new EurekaReactiveDiscoveryClient(
-				eurekaClient, configBean);
-		assertThat(client.description())
-				.isEqualTo("Spring Cloud Eureka Reactive Discovery Client");
+		EurekaReactiveDiscoveryClient client = new EurekaReactiveDiscoveryClient(eurekaClient, configBean);
+		assertThat(client.description()).isEqualTo("Spring Cloud Eureka Reactive Discovery Client");
 		assertThat(client.getOrder()).isEqualTo(1);
 	}
 
@@ -91,9 +88,8 @@ class EurekaReactiveDiscoveryClientTests {
 	public void shouldReturnFluxOfServices() {
 		Applications applications = new Applications();
 		Application app = new Application("my-service");
-		app.addInstance(new InstanceInfo("instance", "my-service", "", "127.0.0.1", "",
-				null, null, "", "", "", "", "", "", 0, null, "", null, null, null, null,
-				null, null, null, null, null, null));
+		app.addInstance(new InstanceInfo("instance", "my-service", "", "127.0.0.1", "", null, null, "", "", "", "", "",
+				"", 0, null, "", null, null, null, null, null, null, null, null, null, null));
 		applications.addApplication(app);
 		when(eurekaClient.getApplications()).thenReturn(applications);
 		Flux<String> services = this.client.getServices();
@@ -102,19 +98,17 @@ class EurekaReactiveDiscoveryClientTests {
 
 	@Test
 	public void shouldReturnEmptyFluxForNonExistingService() {
-		when(eurekaClient.getInstancesByVipAddress("nonexistent-service", false))
-				.thenReturn(emptyList());
+		when(eurekaClient.getInstancesByVipAddress("nonexistent-service", false)).thenReturn(emptyList());
 		Flux<ServiceInstance> instances = this.client.getInstances("nonexistent-service");
 		StepVerifier.create(instances).expectNextCount(0).expectComplete().verify();
 	}
 
 	@Test
 	public void shouldReturnFluxOfServiceInstances() {
-		InstanceInfo instanceInfo = new InstanceInfo(new InstanceInfo("instance",
-				"my-service", "", "127.0.0.1", "", null, null, "", "", "", "", "", "", 0,
-				null, "", null, null, null, null, null, null, null, null, null, null));
-		when(eurekaClient.getInstancesByVipAddress("my-service", false))
-				.thenReturn(singletonList(instanceInfo));
+		InstanceInfo instanceInfo = new InstanceInfo(
+				new InstanceInfo("instance", "my-service", "", "127.0.0.1", "", null, null, "", "", "", "", "", "", 0,
+						null, "", null, null, null, null, null, null, null, null, null, null));
+		when(eurekaClient.getInstancesByVipAddress("my-service", false)).thenReturn(singletonList(instanceInfo));
 		Flux<ServiceInstance> instances = this.client.getInstances("my-service");
 		StepVerifier.create(instances).expectNextCount(1).expectComplete().verify();
 	}

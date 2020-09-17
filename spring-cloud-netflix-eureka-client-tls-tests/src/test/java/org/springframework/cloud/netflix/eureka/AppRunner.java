@@ -113,8 +113,7 @@ public class AppRunner implements AutoCloseable {
 	}
 
 	private boolean tlsEnabled() {
-		return app.getEnvironment().getProperty("server.ssl.enabled", Boolean.class,
-				false);
+		return app.getEnvironment().getProperty("server.ssl.enabled", Boolean.class, false);
 	}
 
 	@Override

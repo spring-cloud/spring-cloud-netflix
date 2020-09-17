@@ -36,8 +36,7 @@ import org.springframework.util.StringUtils;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({ EurekaInstanceConfigBean.class, EurekaClient.class,
-		ConfigServerProperties.class })
+@ConditionalOnClass({ EurekaInstanceConfigBean.class, EurekaClient.class, ConfigServerProperties.class })
 public class EurekaClientConfigServerAutoConfiguration {
 
 	@Autowired(required = false)
@@ -52,8 +51,7 @@ public class EurekaClientConfigServerAutoConfiguration {
 			return;
 		}
 		String prefix = this.server.getPrefix();
-		if (StringUtils.hasText(prefix) && !StringUtils
-				.hasText(this.instance.getMetadataMap().get("configPath"))) {
+		if (StringUtils.hasText(prefix) && !StringUtils.hasText(this.instance.getMetadataMap().get("configPath"))) {
 			this.instance.getMetadataMap().put("configPath", prefix);
 		}
 	}

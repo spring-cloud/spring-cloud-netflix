@@ -89,8 +89,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			String instanceId = info.getMetadata().get("instanceId");
 			if (StringUtils.hasText(instanceId)) {
 				// backwards compatibility for Angel
-				if (StringUtils.hasText(info.getHostName())
-						&& !instanceId.startsWith(info.getHostName())) {
+				if (StringUtils.hasText(info.getHostName()) && !instanceId.startsWith(info.getHostName())) {
 					instanceId = info.getHostName() + ":" + instanceId;
 				}
 				return new InstanceInfo.Builder(info).setInstanceId(instanceId).build();
@@ -114,38 +113,33 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			module.addSerializer(DataCenterInfo.class, new DataCenterInfoSerializer());
 			module.addSerializer(InstanceInfo.class, new CloudInstanceInfoSerializer());
 			module.addSerializer(Application.class, new ApplicationSerializer());
-			module.addSerializer(Applications.class, new ApplicationsSerializer(
-					this.getVersionDeltaKey(), this.getAppHashCodeKey()));
+			module.addSerializer(Applications.class,
+					new ApplicationsSerializer(this.getVersionDeltaKey(), this.getAppHashCodeKey()));
 
 			// TODO: Watch if this causes problems
 			// module.addDeserializer(DataCenterInfo.class,
 			// new DataCenterInfoDeserializer());
 			module.addDeserializer(LeaseInfo.class, new LeaseInfoDeserializer());
-			module.addDeserializer(InstanceInfo.class,
-					new CloudInstanceInfoDeserializer(mapper));
-			module.addDeserializer(Application.class,
-					new ApplicationDeserializer(mapper));
-			module.addDeserializer(Applications.class, new ApplicationsDeserializer(
-					mapper, this.getVersionDeltaKey(), this.getAppHashCodeKey()));
+			module.addDeserializer(InstanceInfo.class, new CloudInstanceInfoDeserializer(mapper));
+			module.addDeserializer(Application.class, new ApplicationDeserializer(mapper));
+			module.addDeserializer(Applications.class,
+					new ApplicationsDeserializer(mapper, this.getVersionDeltaKey(), this.getAppHashCodeKey()));
 
 			mapper.registerModule(module);
 
 			HashMap<Class<?>, Supplier<ObjectReader>> readers = new HashMap<>();
-			readers.put(InstanceInfo.class, () -> mapper.reader()
-					.withType(InstanceInfo.class).withRootName("instance"));
-			readers.put(Application.class, () -> mapper.reader()
-					.withType(Application.class).withRootName("application"));
-			readers.put(Applications.class, () -> mapper.reader()
-					.withType(Applications.class).withRootName("applications"));
+			readers.put(InstanceInfo.class,
+					() -> mapper.reader().withType(InstanceInfo.class).withRootName("instance"));
+			readers.put(Application.class,
+					() -> mapper.reader().withType(Application.class).withRootName("application"));
+			readers.put(Applications.class,
+					() -> mapper.reader().withType(Applications.class).withRootName("applications"));
 			setField("objectReaderByClass", readers);
 
 			HashMap<Class<?>, ObjectWriter> writers = new HashMap<>();
-			writers.put(InstanceInfo.class, mapper.writer().withType(InstanceInfo.class)
-					.withRootName("instance"));
-			writers.put(Application.class, mapper.writer().withType(Application.class)
-					.withRootName("application"));
-			writers.put(Applications.class, mapper.writer().withType(Applications.class)
-					.withRootName("applications"));
+			writers.put(InstanceInfo.class, mapper.writer().withType(InstanceInfo.class).withRootName("instance"));
+			writers.put(Application.class, mapper.writer().withType(Application.class).withRootName("application"));
+			writers.put(Applications.class, mapper.writer().withType(Applications.class).withRootName("applications"));
 			setField("objectWriterByClass", writers);
 
 			setField("mapper", mapper);
@@ -162,8 +156,8 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 	static class CloudInstanceInfoSerializer extends InstanceInfoSerializer {
 
 		@Override
-		public void serialize(final InstanceInfo info, JsonGenerator jgen,
-				SerializerProvider provider) throws IOException {
+		public void serialize(final InstanceInfo info, JsonGenerator jgen, SerializerProvider provider)
+				throws IOException {
 
 			InstanceInfo updated = updateIfNeeded(info);
 			super.serialize(updated, jgen, provider);
@@ -178,8 +172,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 		}
 
 		@Override
-		public InstanceInfo deserialize(JsonParser jp, DeserializationContext context)
-				throws IOException {
+		public InstanceInfo deserialize(JsonParser jp, DeserializationContext context) throws IOException {
 			InstanceInfo info = super.deserialize(jp, context);
 			InstanceInfo updated = updateIfNeeded(info);
 			return updated;
