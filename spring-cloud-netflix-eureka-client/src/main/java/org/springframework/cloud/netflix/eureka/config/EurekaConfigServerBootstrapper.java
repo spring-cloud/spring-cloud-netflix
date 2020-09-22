@@ -25,6 +25,7 @@ import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
+import org.springframework.util.ClassUtils;
 
 public class EurekaConfigServerBootstrapper implements Bootstrapper {
 
@@ -39,16 +40,19 @@ public class EurekaConfigServerBootstrapper implements Bootstrapper {
 			return binder.bind(EurekaClientConfigBean.PREFIX, EurekaClientConfigBean.class)
 					.orElseGet(EurekaClientConfigBean::new);
 		});
-		registry.registerIfAbsent(ConfigServerInstanceProvider.Function.class, context -> {
-			Binder binder = context.get(Binder.class);
-			if (!getDiscoveryEnabled(binder)) {
-				return null;
-			}
-			EurekaClientConfigBean config = context.get(EurekaClientConfigBean.class);
-			EurekaHttpClient httpClient = new RestTemplateTransportClientFactory()
-					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, binder));
-			return new EurekaConfigServerInstanceProvider(httpClient, config)::getInstances;
-		});
+
+		if (ClassUtils.isPresent("org.springframework.cloud.config.client.ConfigServerInstanceProvider", null)) {
+			registry.registerIfAbsent(ConfigServerInstanceProvider.Function.class, context -> {
+				Binder binder = context.get(Binder.class);
+				if (!getDiscoveryEnabled(binder)) {
+					return null;
+				}
+				EurekaClientConfigBean config = context.get(EurekaClientConfigBean.class);
+				EurekaHttpClient httpClient = new RestTemplateTransportClientFactory()
+						.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, binder));
+				return new EurekaConfigServerInstanceProvider(httpClient, config)::getInstances;
+			});
+		}
 	}
 
 	private Boolean getDiscoveryEnabled(Binder binder) {
