@@ -69,19 +69,19 @@
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
-			<version>1.19.1</version>
+			<version>${eureka-jersey.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
-			<version>1.19.1</version>
+			<version>${eureka-jersey.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-apache-client4</artifactId>
-			<version>1.19.1</version>
+			<version>${eureka-jersey.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -98,11 +98,6 @@
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-apache-client4</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<!--<dependency>
