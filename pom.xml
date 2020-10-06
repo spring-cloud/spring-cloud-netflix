@@ -32,7 +32,7 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
-		<eureka-jersey.version>1.19.1</eureka-jersey.version>
+		<eureka-jersey.version>1.19.4</eureka-jersey.version>
 		<xstream.version>1.4.11.1</xstream.version>
 	</properties>
 	<build>
