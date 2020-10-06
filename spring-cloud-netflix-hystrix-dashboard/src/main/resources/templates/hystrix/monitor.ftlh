@@ -17,7 +17,7 @@
     <script type="text/javascript" src="<@spring.url '/webjars/d3js/3.4.11/d3.min.js'/>" ></script>
 	
 	<!-- Javascript to monitor and display -->
-    <script type="text/javascript" src="<@spring.url '/webjars/jquery/3.4.1/jquery.min.js'/>" ></script>
+    <script type="text/javascript" src="<@spring.url '/webjars/jquery/3.5.1/jquery.min.js'/>" ></script>
 	<script type="text/javascript" src="js/jquery.tinysort.min.js"></script>
 	<script type="text/javascript" src="js/tmpl.js"></script>
 	

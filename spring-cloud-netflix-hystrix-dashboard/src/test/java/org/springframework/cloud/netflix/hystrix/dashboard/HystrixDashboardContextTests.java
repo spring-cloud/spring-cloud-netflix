@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 				"server.servlet.context-path=/context" })
 public class HystrixDashboardContextTests {
 
-	public static final String JQUERY_PATH = "/context/webjars/jquery/3.4.1/jquery.min.js";
+	public static final String JQUERY_PATH = "/context/webjars/jquery/3.5.1/jquery.min.js";
 
 	@LocalServerPort
 	private int port = 0;

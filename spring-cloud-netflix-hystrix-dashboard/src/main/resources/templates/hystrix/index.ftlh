@@ -7,7 +7,7 @@
 <title>Hystrix Dashboard</title>
 
 	<!-- Javascript to monitor and display -->
-	<script src="<@spring.url '/webjars/jquery/3.4.1/jquery.min.js'/>" type="text/javascript"></script>
+	<script src="<@spring.url '/webjars/jquery/3.5.1/jquery.min.js'/>" type="text/javascript"></script>
 	
 	<script>
 		function sendToMonitor() {
