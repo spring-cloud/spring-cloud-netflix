@@ -21,11 +21,15 @@ import java.util.List;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import org.junit.Before;
 import org.junit.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
+import org.springframework.boot.actuate.health.AbstractReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.OrderedHealthAggregator;
+import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
+import org.springframework.boot.actuate.health.SimpleStatusAggregator;
 import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthIndicator;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
@@ -39,27 +43,29 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests the {@link EurekaHealthCheckHandler} with different health indicator registered.
  *
  * @author Jakub Narloch
+ * @author Nowrin Anwar Joyita
  */
 public class EurekaHealthCheckHandlerTests {
 
 	private EurekaHealthCheckHandler healthCheckHandler;
+	private EurekaHealthCheckHandler healthCheckHandlerWithStatusAggregator;
 
 	@Before
 	public void setUp() throws Exception {
-
-		healthCheckHandler = new EurekaHealthCheckHandler(new OrderedHealthAggregator());
+		healthCheckHandler = new EurekaHealthCheckHandler(
+				new OrderedHealthAggregator());
+		healthCheckHandlerWithStatusAggregator = new EurekaHealthCheckHandler(
+				new SimpleStatusAggregator());
 	}
 
 	@Test
 	public void testNoHealthCheckRegistered() throws Exception {
-
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
 		assertThat(status).isEqualTo(InstanceStatus.UNKNOWN);
 	}
 
 	@Test
 	public void testAllUp() throws Exception {
-
 		initialize(UpHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -67,8 +73,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testDown() throws Exception {
-
+	public void testDownWithBlockingIndicators() throws Exception {
 		initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -76,8 +81,35 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testUnknown() throws Exception {
+	public void testDownWithReactiveIndicators() throws Exception {
+		initialize(ReactiveUpHealthConfiguration.class,
+				ReactiveDownHealthConfiguration.class);
 
+		InstanceStatus status = healthCheckHandlerWithStatusAggregator
+				.getStatus(InstanceStatus.UNKNOWN);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	@Test
+	public void testDownWhenBlockingIndicatorUpAndReactiveDown() throws Exception {
+		initialize(UpHealthConfiguration.class, ReactiveDownHealthConfiguration.class);
+
+		InstanceStatus status = healthCheckHandlerWithStatusAggregator
+				.getStatus(InstanceStatus.UNKNOWN);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	@Test
+	public void testDownWhenBlockingIndicatorDownAndReactiveUp() throws Exception {
+		initialize(DownHealthConfiguration.class, ReactiveUpHealthConfiguration.class);
+
+		InstanceStatus status = healthCheckHandlerWithStatusAggregator
+				.getStatus(InstanceStatus.UNKNOWN);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	@Test
+	public void testUnknown() throws Exception {
 		initialize(FatalHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -86,7 +118,6 @@ public class EurekaHealthCheckHandlerTests {
 
 	@Test
 	public void testEurekaIgnored() throws Exception {
-
 		initialize(EurekaDownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
@@ -98,10 +129,12 @@ public class EurekaHealthCheckHandlerTests {
 				configurations);
 		healthCheckHandler.setApplicationContext(applicationContext);
 		healthCheckHandler.afterPropertiesSet();
+		healthCheckHandlerWithStatusAggregator
+				.setApplicationContext(applicationContext);
+		healthCheckHandlerWithStatusAggregator.afterPropertiesSet();
 	}
 
 	public static class UpHealthConfiguration {
-
 		@Bean
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
@@ -115,7 +148,6 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	public static class DownHealthConfiguration {
-
 		@Bean
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
@@ -129,7 +161,6 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	public static class FatalHealthConfiguration {
-
 		@Bean
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
@@ -142,8 +173,33 @@ public class EurekaHealthCheckHandlerTests {
 
 	}
 
-	public static class EurekaDownHealthConfiguration {
+	public static class ReactiveUpHealthConfiguration {
+		@Bean
+		public ReactiveHealthIndicator reactiveHealthIndicator() {
+			return new AbstractReactiveHealthIndicator() {
+				@Override
+				protected Mono<Health> doHealthCheck(Health.Builder builder) {
+					return Mono.just(builder.up().build());
+				}
+			};
+		}
 
+	}
+
+	public static class ReactiveDownHealthConfiguration {
+		@Bean
+		public ReactiveHealthIndicator reactiveHealthIndicator() {
+			return new AbstractReactiveHealthIndicator() {
+				@Override
+				protected Mono<Health> doHealthCheck(Health.Builder builder) {
+					return Mono.just(builder.down().build());
+				}
+			};
+		}
+
+	}
+
+	public static class EurekaDownHealthConfiguration {
 		@Bean
 		public DiscoveryHealthIndicator discoveryHealthIndicator() {
 			return new DiscoveryClientHealthIndicator(null, null) {
