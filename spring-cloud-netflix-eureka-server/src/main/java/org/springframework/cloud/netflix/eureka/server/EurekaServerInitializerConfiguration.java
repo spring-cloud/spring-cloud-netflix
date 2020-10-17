@@ -109,11 +109,6 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 	}
 
 	@Override
-	public void stop(Runnable callback) {
-		callback.run();
-	}
-
-	@Override
 	public int getOrder() {
 		return this.order;
 	}
