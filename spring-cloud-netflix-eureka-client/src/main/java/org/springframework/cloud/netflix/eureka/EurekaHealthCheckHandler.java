@@ -17,25 +17,26 @@
 package org.springframework.cloud.netflix.eureka;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.health.StatusAggregator;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
-
-import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 /**
  * A Eureka health checker, maps the application status into {@link InstanceStatus} that
@@ -47,6 +48,7 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
  *
  * @author Jakub Narloch
  * @author Spencer Gibb
+ * @author Nowrin Anwar Joyita
  * @see HealthCheckHandler
  * @see StatusAggregator
  */
@@ -67,6 +69,8 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	private Map<String, HealthIndicator> healthIndicators = new HashMap<>();
 
+	private Map<String, ReactiveHealthIndicator> reactiveHealthIndicators = new HashMap<>();
+
 	public EurekaHealthCheckHandler(StatusAggregator statusAggregator) {
 		this.statusAggregator = statusAggregator;
 		Assert.notNull(statusAggregator, "StatusAggregator must not be null");
@@ -79,10 +83,13 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		final Map<String, HealthIndicator> healthIndicators = applicationContext.getBeansOfType(HealthIndicator.class);
+		final Map<String, ReactiveHealthIndicator> reactiveHealthIndicators = applicationContext
+				.getBeansOfType(ReactiveHealthIndicator.class);
 
 		populateHealthIndicators(healthIndicators);
+		populateReactiveHealthIndicators(reactiveHealthIndicators);
 	}
 
 	void populateHealthIndicators(Map<String, HealthIndicator> healthIndicators) {
@@ -104,6 +111,12 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 		}
 	}
 
+	void populateReactiveHealthIndicators(Map<String, ReactiveHealthIndicator> reactiveHealthIndicators) {
+		for (Map.Entry<String, ReactiveHealthIndicator> entry : reactiveHealthIndicators.entrySet()) {
+			this.reactiveHealthIndicators.put(entry.getKey(), entry.getValue());
+		}
+	}
+
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
 		return getHealthStatus();
@@ -116,8 +129,18 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	protected Status getStatus(StatusAggregator statusAggregator) {
 		Status status;
-		Set<Status> statusSet = healthIndicators.values().stream().map(HealthIndicator::health).map(Health::getStatus)
-				.collect(Collectors.toSet());
+
+		Set<Status> statusSet = new HashSet<>();
+		if (healthIndicators != null) {
+			statusSet.addAll(healthIndicators.values().stream().map(HealthIndicator::health).map(Health::getStatus)
+					.collect(Collectors.toSet()));
+		}
+
+		if (reactiveHealthIndicators != null) {
+			statusSet.addAll(reactiveHealthIndicators.values().stream().map(ReactiveHealthIndicator::health)
+					.map(health -> health.block().getStatus()).collect(Collectors.toSet()));
+		}
+
 		status = statusAggregator.getAggregateStatus(statusSet);
 		return status;
 	}

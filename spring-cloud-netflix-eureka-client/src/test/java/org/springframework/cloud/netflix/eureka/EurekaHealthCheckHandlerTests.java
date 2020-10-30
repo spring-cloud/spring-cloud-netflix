@@ -22,10 +22,13 @@ import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
+import org.springframework.boot.actuate.health.AbstractReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.SimpleStatusAggregator;
 import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
@@ -40,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests the {@link EurekaHealthCheckHandler} with different health indicator registered.
  *
  * @author Jakub Narloch
+ * @author Nowrin Anwar Joyita
  */
 public class EurekaHealthCheckHandlerTests {
 
@@ -60,16 +64,14 @@ public class EurekaHealthCheckHandlerTests {
 
 	@Test
 	public void testAllUp() throws Exception {
-
-		initialize(UpHealthConfiguration.class);
+		initialize(UpHealthConfiguration.class, ReactiveUpHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
 		assertThat(status).isEqualTo(InstanceStatus.UP);
 	}
 
 	@Test
-	public void testDown() throws Exception {
-
+	public void testDownWithBlockingIndicators() throws Exception {
 		initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -77,8 +79,31 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testUnknown() throws Exception {
+	public void testDownWithReactiveIndicators() throws Exception {
+		initialize(UpHealthConfiguration.class, ReactiveDownHealthConfiguration.class);
 
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	@Test
+	public void testDownWhenBlockingIndicatorUpAndReactiveDown() throws Exception {
+		initialize(ReactiveUpHealthConfiguration.class, DownHealthConfiguration.class);
+
+		InstanceStatus status = this.healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	@Test
+	public void testDownWhenBlockingIndicatorDownAndReactiveUp() throws Exception {
+		initialize(ReactiveUpHealthConfiguration.class, ReactiveDownHealthConfiguration.class);
+
+		InstanceStatus status = this.healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	@Test
+	public void testUnknown() throws Exception {
 		initialize(FatalHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -88,7 +113,6 @@ public class EurekaHealthCheckHandlerTests {
 	@Test
 	@Ignore // FIXME: 3.0.0
 	public void testEurekaIgnored() throws Exception {
-
 		initialize(EurekaDownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
@@ -137,6 +161,34 @@ public class EurekaHealthCheckHandlerTests {
 				@Override
 				protected void doHealthCheck(Health.Builder builder) throws Exception {
 					builder.status("fatal");
+				}
+			};
+		}
+
+	}
+
+	public static class ReactiveUpHealthConfiguration {
+
+		@Bean
+		public ReactiveHealthIndicator reactiveHealthIndicator() {
+			return new AbstractReactiveHealthIndicator() {
+				@Override
+				protected Mono<Health> doHealthCheck(Health.Builder builder) {
+					return Mono.just(builder.up().build());
+				}
+			};
+		}
+
+	}
+
+	public static class ReactiveDownHealthConfiguration {
+
+		@Bean
+		public ReactiveHealthIndicator reactiveHealthIndicator() {
+			return new AbstractReactiveHealthIndicator() {
+				@Override
+				protected Mono<Health> doHealthCheck(Health.Builder builder) {
+					return Mono.just(builder.down().build());
 				}
 			};
 		}
