@@ -48,18 +48,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EurekaHealthCheckHandlerTests {
 
 	private EurekaHealthCheckHandler healthCheckHandler;
+
 	private EurekaHealthCheckHandler healthCheckHandlerWithStatusAggregator;
 
 	@Before
-	public void setUp() throws Exception {
-		healthCheckHandler = new EurekaHealthCheckHandler(
-				new OrderedHealthAggregator());
+	public void setUp() {
+		healthCheckHandler = new EurekaHealthCheckHandler(new OrderedHealthAggregator());
 		healthCheckHandlerWithStatusAggregator = new EurekaHealthCheckHandler(
 				new SimpleStatusAggregator());
 	}
 
 	@Test
-	public void testNoHealthCheckRegistered() throws Exception {
+	public void testNoHealthCheckRegistered() {
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
 		assertThat(status).isEqualTo(InstanceStatus.UNKNOWN);
 	}
@@ -129,12 +129,12 @@ public class EurekaHealthCheckHandlerTests {
 				configurations);
 		healthCheckHandler.setApplicationContext(applicationContext);
 		healthCheckHandler.afterPropertiesSet();
-		healthCheckHandlerWithStatusAggregator
-				.setApplicationContext(applicationContext);
+		healthCheckHandlerWithStatusAggregator.setApplicationContext(applicationContext);
 		healthCheckHandlerWithStatusAggregator.afterPropertiesSet();
 	}
 
 	public static class UpHealthConfiguration {
+
 		@Bean
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
@@ -148,6 +148,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	public static class DownHealthConfiguration {
+
 		@Bean
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
@@ -161,6 +162,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	public static class FatalHealthConfiguration {
+
 		@Bean
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
@@ -174,6 +176,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	public static class ReactiveUpHealthConfiguration {
+
 		@Bean
 		public ReactiveHealthIndicator reactiveHealthIndicator() {
 			return new AbstractReactiveHealthIndicator() {
@@ -187,6 +190,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	public static class ReactiveDownHealthConfiguration {
+
 		@Bean
 		public ReactiveHealthIndicator reactiveHealthIndicator() {
 			return new AbstractReactiveHealthIndicator() {
@@ -200,6 +204,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	public static class EurekaDownHealthConfiguration {
+
 		@Bean
 		public DiscoveryHealthIndicator discoveryHealthIndicator() {
 			return new DiscoveryClientHealthIndicator(null, null) {

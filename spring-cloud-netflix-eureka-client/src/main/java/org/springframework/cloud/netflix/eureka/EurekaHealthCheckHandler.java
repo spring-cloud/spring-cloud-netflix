@@ -19,12 +19,14 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import reactor.core.publisher.Mono;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -216,9 +218,9 @@ public class EurekaHealthCheckHandler
 
 		if (reactiveHealthIndicators != null) {
 			statusSet.addAll(reactiveHealthIndicators.values().stream()
-					.map(ReactiveHealthIndicator::health).map(health -> {
-						return health.block().getStatus();
-					}).collect(Collectors.toSet()));
+					.map(ReactiveHealthIndicator::health).map(Mono::block)
+					.filter(Objects::nonNull).map(Health::getStatus)
+					.collect(Collectors.toSet()));
 		}
 
 		status = statusAggregator.getAggregateStatus(statusSet);
