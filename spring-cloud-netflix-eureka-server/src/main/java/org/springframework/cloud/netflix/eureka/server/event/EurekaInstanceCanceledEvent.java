@@ -73,8 +73,9 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceCanceledEvent that = (EurekaInstanceCanceledEvent) o;
-		return Objects.equals(appName, that.appName) && Objects.equals(serverId, that.serverId)
-				&& replication == replication;
+		return this.replication == that.replication
+				&& Objects.equals(this.appName, that.appName)
+				&& Objects.equals(this.serverId, that.serverId);
 	}
 
 	@Override
