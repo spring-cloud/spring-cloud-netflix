@@ -76,8 +76,7 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceRegisteredEvent that = (EurekaInstanceRegisteredEvent) o;
-		return this.leaseDuration == that.leaseDuration
-				&& this.replication == that.replication
+		return this.leaseDuration == that.leaseDuration && this.replication == that.replication
 				&& Objects.equals(this.instanceInfo, that.instanceInfo);
 	}
 
