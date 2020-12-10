@@ -526,7 +526,6 @@ public class EurekaClientAutoConfigurationTests {
 		assertBeanNotPresent(DiscoveryClient.class);
 		assertBeanNotPresent(EurekaServiceRegistry.class);
 		assertBeanNotPresent(EurekaClient.class);
-		assertBeanNotPresent(EurekaDiscoveryClientConfiguration.Marker.class);
 	}
 
 	@Test

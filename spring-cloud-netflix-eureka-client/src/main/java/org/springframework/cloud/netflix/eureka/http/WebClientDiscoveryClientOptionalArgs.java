@@ -28,11 +28,6 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 public class WebClientDiscoveryClientOptionalArgs extends AbstractDiscoveryClientOptionalArgs<Void> {
 
-	@Deprecated
-	public WebClientDiscoveryClientOptionalArgs() {
-		this(WebClient::builder);
-	}
-
 	public WebClientDiscoveryClientOptionalArgs(Supplier<WebClient.Builder> builder) {
 		setTransportClientFactories(new WebClientTransportClientFactories(builder));
 	}

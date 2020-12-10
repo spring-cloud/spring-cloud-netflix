@@ -45,7 +45,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.ClientCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
@@ -62,11 +61,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	private final Supplier<WebClient.Builder> builderSupplier;
-
-	@Deprecated
-	public WebClientTransportClientFactory() {
-		this(WebClient::builder);
-	}
 
 	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier) {
 		this.builderSupplier = builderSupplier;
@@ -99,6 +93,19 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		return builder.baseUrl(url);
 	}
 
+	private static BeanSerializerModifier createJsonSerializerModifier() {
+		return new BeanSerializerModifier() {
+			@Override
+			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
+					JsonSerializer<?> serializer) {
+				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
+					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
+				}
+				return serializer;
+			}
+		};
+	}
+
 	private void setCodecs(WebClient.Builder builder) {
 		ObjectMapper objectMapper = objectMapper();
 		builder.codecs(configurer -> {
@@ -107,37 +114,6 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 			defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
 
 		});
-	}
-
-	// Skip over 4xx http errors
-	private ExchangeFilterFunction http4XxErrorExchangeFilterFunction() {
-		return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-			// literally 400 pass the tests, not 4xxClientError
-			if (clientResponse.statusCode().value() == 400) {
-				ClientResponse newResponse = ClientResponse.from(clientResponse).statusCode(HttpStatus.OK).build();
-				newResponse.body((clientHttpResponse, context) -> clientHttpResponse.getBody());
-				return Mono.just(newResponse);
-			}
-			return Mono.just(clientResponse);
-		});
-	}
-
-	/**
-	 * Provides the serialization configurations required by the Eureka Server. JSON
-	 * content exchanged with eureka requires a root node matching the entity being
-	 * serialized or deserialized. Achieved with
-	 * {@link SerializationFeature#WRAP_ROOT_VALUE} and
-	 * {@link DeserializationFeature#UNWRAP_ROOT_VALUE}.
-	 * {@link PropertyNamingStrategy.SnakeCaseStrategy} is applied to the underlying
-	 * {@link ObjectMapper}.
-	 * @deprecated to be removed.
-	 * @return a {@link MappingJackson2HttpMessageConverter} object
-	 */
-	@Deprecated
-	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-		converter.setObjectMapper(objectMapper());
-		return converter;
 	}
 
 	/**
@@ -166,18 +142,17 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		return objectMapper;
 	}
 
-	@Deprecated // reduce visibility in future release
-	public static BeanSerializerModifier createJsonSerializerModifier() {
-		return new BeanSerializerModifier() {
-			@Override
-			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-					JsonSerializer<?> serializer) {
-				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
-					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
-				}
-				return serializer;
+	// Skip over 4xx http errors
+	private ExchangeFilterFunction http4XxErrorExchangeFilterFunction() {
+		return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+			// literally 400 pass the tests, not 4xxClientError
+			if (clientResponse.statusCode().value() == 400) {
+				ClientResponse newResponse = ClientResponse.from(clientResponse).statusCode(HttpStatus.OK).build();
+				newResponse.body((clientHttpResponse, context) -> clientHttpResponse.getBody());
+				return Mono.just(newResponse);
 			}
-		};
+			return Mono.just(clientResponse);
+		});
 	}
 
 	@Override

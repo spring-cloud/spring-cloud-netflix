@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
@@ -47,11 +46,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	private final EurekaClient eurekaClient;
 
 	private final EurekaClientConfig clientConfig;
-
-	@Deprecated
-	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient) {
-		this(eurekaClient, eurekaClient.getEurekaClientConfig());
-	}
 
 	public EurekaDiscoveryClient(EurekaClient eurekaClient, EurekaClientConfig clientConfig) {
 		this.clientConfig = clientConfig;

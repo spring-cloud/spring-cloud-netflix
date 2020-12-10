@@ -127,7 +127,7 @@ that management context path.  This requirement was removed beginning in Edgware
 
 === Registering a Secure Application
 
-If your app wants to be contacted over HTTPS, you can set two flags in the `EurekaInstanceConfig`:
+If your app wants to be contacted over HTTPS, you can set two flags in the `EurekaInstanceConfigBean`:
 
 * `eureka.instance.[nonSecurePortEnabled]=[false]`
 * `eureka.instance.[securePortEnabled]=[true]`
@@ -214,10 +214,10 @@ If the application is planned to be deployed to an AWS cloud, the Eureka instanc
 @Bean
 @Profile("!default")
 public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
-  EurekaInstanceConfigBean b = new EurekaInstanceConfigBean(inetUtils);
+  EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean(inetUtils);
   AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild("eureka");
-  b.setDataCenterInfo(info);
-  return b;
+  bean.setDataCenterInfo(info);
+  return bean;
 }
 ----
 
