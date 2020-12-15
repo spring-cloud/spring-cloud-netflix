@@ -30,6 +30,7 @@ import org.springframework.boot.autoconfigure.web.reactive.function.client.WebCl
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
+import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
@@ -38,6 +39,7 @@ import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFac
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -63,8 +65,8 @@ public class EurekaConfigServerBootstrapConfiguration {
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
-			Environment env) {
-		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory()
+			Environment env, @Nullable TlsProperties properties) {
+		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory(properties)
 				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 	}
 

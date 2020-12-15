@@ -24,7 +24,7 @@ import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 public class RestTemplateDiscoveryClientOptionalArgs extends AbstractDiscoveryClientOptionalArgs<Void> {
 
 	public RestTemplateDiscoveryClientOptionalArgs() {
-		setTransportClientFactories(new RestTemplateTransportClientFactories());
+		setTransportClientFactories(new RestTemplateTransportClientFactories(this));
 	}
 
 }
