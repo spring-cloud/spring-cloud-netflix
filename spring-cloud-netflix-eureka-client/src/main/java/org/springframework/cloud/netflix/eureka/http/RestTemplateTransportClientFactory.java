@@ -64,6 +64,7 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateTransportClientFactory implements TransportClientFactory {
 
 	private final Optional<SSLContext> sslContext;
+
 	private final Optional<HostnameVerifier> hostnameVerifier;
 
 	public RestTemplateTransportClientFactory(TlsProperties tlsProperties) {
@@ -83,7 +84,8 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		}
 	}
 
-	public RestTemplateTransportClientFactory(Optional<SSLContext> sslContext, Optional<HostnameVerifier> hostnameVerifier) {
+	public RestTemplateTransportClientFactory(Optional<SSLContext> sslContext,
+			Optional<HostnameVerifier> hostnameVerifier) {
 		this.sslContext = sslContext;
 		this.hostnameVerifier = hostnameVerifier;
 	}

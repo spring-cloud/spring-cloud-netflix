@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.eureka;
 import java.io.File;
 import java.util.function.BooleanSupplier;
 
+import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 public class EurekaClientRunner extends AppRunner {
@@ -94,6 +96,10 @@ public class EurekaClientRunner extends AppRunner {
 	public boolean foundServiceViaEureka() {
 		DiscoveryClient discovery = getBean(DiscoveryClient.class);
 		return !discovery.getServices().isEmpty();
+	}
+
+	public AbstractDiscoveryClientOptionalArgs<Void> discoveryClientOptionalArgs() {
+		return this.getBean(AbstractDiscoveryClientOptionalArgs.class);
 	}
 
 }

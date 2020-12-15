@@ -35,8 +35,7 @@ public class RestTemplateTransportClientFactories implements TransportClientFact
 
 	private final RestTemplateDiscoveryClientOptionalArgs args;
 
-	public RestTemplateTransportClientFactories(
-			RestTemplateDiscoveryClientOptionalArgs args) {
+	public RestTemplateTransportClientFactories(RestTemplateDiscoveryClientOptionalArgs args) {
 		this.args = args;
 	}
 

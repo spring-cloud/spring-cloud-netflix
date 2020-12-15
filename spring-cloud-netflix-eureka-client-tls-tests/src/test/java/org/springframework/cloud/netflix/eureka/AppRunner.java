@@ -46,6 +46,7 @@ public class AppRunner implements AutoCloseable {
 	public void start() {
 		if (app == null) {
 			SpringApplicationBuilder builder = new SpringApplicationBuilder(appClass);
+			builder.properties("spring.application.name=" + appClass.getName());
 			builder.properties("spring.jmx.enabled=false");
 			builder.properties(String.format("server.port=%d", availabeTcpPort()));
 			builder.properties(props());
@@ -72,6 +73,16 @@ public class AppRunner implements AutoCloseable {
 	public void stop() {
 		if (app != null) {
 			app.stop();
+			int attempts = 5;
+			while (app.isRunning() && attempts > 0) {
+				attempts = attempts - 1;
+				try {
+					Thread.sleep(1000);
+				}
+				catch (InterruptedException e) {
+					throw new IllegalStateException(e);
+				}
+			}
 			app = null;
 		}
 	}
