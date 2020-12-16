@@ -30,7 +30,10 @@ import org.springframework.boot.autoconfigure.web.reactive.function.client.WebCl
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
+import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
+import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
@@ -38,6 +41,7 @@ import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFac
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -63,9 +67,17 @@ public class EurekaConfigServerBootstrapConfiguration {
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
-			Environment env) {
-		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory()
-				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+			Environment env, @Nullable TlsProperties properties,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
+		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory(properties,
+				eurekaClientHttpRequestFactorySupplier)
+						.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier() {
+		return new DefaultEurekaClientHttpRequestFactorySupplier();
 	}
 
 	@Bean

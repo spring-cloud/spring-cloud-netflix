@@ -33,6 +33,12 @@ import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
  */
 public class RestTemplateTransportClientFactories implements TransportClientFactories<Void> {
 
+	private final RestTemplateDiscoveryClientOptionalArgs args;
+
+	public RestTemplateTransportClientFactories(RestTemplateDiscoveryClientOptionalArgs args) {
+		this.args = args;
+	}
+
 	@Override
 	public TransportClientFactory newTransportClientFactory(Collection<Void> additionalFilters,
 			EurekaJerseyClient providedJerseyClient) {
@@ -42,14 +48,16 @@ public class RestTemplateTransportClientFactories implements TransportClientFact
 	@Override
 	public TransportClientFactory newTransportClientFactory(EurekaClientConfig clientConfig,
 			Collection<Void> additionalFilters, InstanceInfo myInstanceInfo) {
-		return new RestTemplateTransportClientFactory();
+		return new RestTemplateTransportClientFactory(this.args.getSSLContext(), this.args.getHostnameVerifier(),
+				this.args.eurekaClientHttpRequestFactorySupplier);
 	}
 
 	@Override
 	public TransportClientFactory newTransportClientFactory(final EurekaClientConfig clientConfig,
 			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
 			final Optional<SSLContext> sslContext, final Optional<HostnameVerifier> hostnameVerifier) {
-		return new RestTemplateTransportClientFactory();
+		return new RestTemplateTransportClientFactory(this.args.getSSLContext(), this.args.getHostnameVerifier(),
+				this.args.eurekaClientHttpRequestFactorySupplier);
 	}
 
 }

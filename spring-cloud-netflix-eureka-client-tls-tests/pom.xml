@@ -100,4 +100,21 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*Suite.java</include>
+					</includes>
+					<excludes>
+						<exclude>**/*Test.java</exclude>
+						<exclude>**/*Tests.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

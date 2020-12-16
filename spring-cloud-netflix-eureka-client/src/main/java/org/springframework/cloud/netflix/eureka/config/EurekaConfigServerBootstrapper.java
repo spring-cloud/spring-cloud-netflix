@@ -23,7 +23,10 @@ import org.springframework.boot.Bootstrapper;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
+import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
+import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
 import org.springframework.util.ClassUtils;
 
@@ -50,8 +53,11 @@ public class EurekaConfigServerBootstrapper implements Bootstrapper {
 				return null;
 			}
 			EurekaClientConfigBean config = context.get(EurekaClientConfigBean.class);
-			EurekaHttpClient httpClient = new RestTemplateTransportClientFactory()
-					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, binder));
+			EurekaHttpClient httpClient = new RestTemplateTransportClientFactory(
+					context.getOrElse(TlsProperties.class, null),
+					context.getOrElse(EurekaClientHttpRequestFactorySupplier.class,
+							new DefaultEurekaClientHttpRequestFactorySupplier()))
+									.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, binder));
 			return new EurekaConfigServerInstanceProvider(httpClient, config)::getInstances;
 		});
 	}

@@ -34,6 +34,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.MutableDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
+import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.context.annotation.Bean;
@@ -60,12 +62,20 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
-	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties)
+	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier)
 			throws GeneralSecurityException, IOException {
 		logger.info("Eureka HTTP Client uses RestTemplate.");
-		RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs();
+		RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
+				eurekaClientHttpRequestFactorySupplier);
 		setupTLS(result, tlsProperties);
 		return result;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier() {
+		return new DefaultEurekaClientHttpRequestFactorySupplier();
 	}
 
 	@Bean
