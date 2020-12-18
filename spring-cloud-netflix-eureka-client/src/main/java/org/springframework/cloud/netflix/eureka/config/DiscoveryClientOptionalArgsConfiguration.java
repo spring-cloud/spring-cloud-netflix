@@ -74,6 +74,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier() {
 		return new DefaultEurekaClientHttpRequestFactorySupplier();
 	}
