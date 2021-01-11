@@ -264,7 +264,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 
 	/**
 	 * Flag to say that, when guessing a hostname, the IP address of the server should be
-	 * used in prference to the hostname reported by the OS.
+	 * used in preference to the hostname reported by the OS.
 	 */
 	private boolean preferIpAddress = false;
 
