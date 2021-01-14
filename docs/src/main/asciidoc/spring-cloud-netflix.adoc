@@ -268,29 +268,22 @@ It is initialized in a `SmartLifecycle` (with `phase=0`), so the earliest you ca
 
 ==== EurekaClient without Jersey
 
-By default, EurekaClient uses Jersey for HTTP communication.
-If you wish to avoid dependencies from Jersey, you can exclude it from your dependencies.
-Spring Cloud auto-configures a transport client based on Spring `RestTemplate`.
-The following example shows Jersey being excluded:
+By default, EurekaClient uses Spring's `RestTemplate` for HTTP communication.
+If you wish to use Jersey instead, you need to add the Jersey dependencies to your classpath.
+The following example shows the dependencies you need to add:
 
 ----
 <dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-    <exclusions>
-        <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-        </exclusion>
-        <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-        </exclusion>
-        <exclusion>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-apache-client4</artifactId>
-        </exclusion>
-    </exclusions>
+    <groupId>com.sun.jersey</groupId>
+    <artifactId>jersey-client</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.sun.jersey</groupId>
+    <artifactId>jersey-core</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.sun.jersey.contribs</groupId>
+    <artifactId>jersey-apache-client4</artifactId>
 </dependency>
 ----
 
