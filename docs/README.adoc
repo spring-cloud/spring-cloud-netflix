@@ -381,3 +381,7 @@ Go to `File` -> `Settings` -> `Other settings` -> `Checkstyle`. There click on t
 - `checkstyle.additional.suppressions.file` - this variable corresponds to suppressions in your local project. E.g. you're working on `spring-cloud-contract`. Then point to the `project-root/src/checkstyle/checkstyle-suppressions.xml` folder. Example for `spring-cloud-contract` would be: `/home/username/spring-cloud-contract/src/checkstyle/checkstyle-suppressions.xml`.
 
 IMPORTANT: Remember to set the `Scan Scope` to `All sources` since we apply checkstyle rules for production and test sources.
+
+== License
+
+The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-openfeign/master/LICENSE.txt[here].
