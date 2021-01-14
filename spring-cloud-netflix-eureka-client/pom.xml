@@ -96,16 +96,6 @@
 		</dependency>
 		<!-- Eureka core deps that are now optional -->
 		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<!--<dependency>
-			<groupId>com.netflix.netflix-commons</groupId>
-			<artifactId>netflix-eventbus</artifactId>
-			<optional>true</optional>
-		</dependency>-->
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure-processor</artifactId>
 			<optional>true</optional>
