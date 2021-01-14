@@ -30,7 +30,6 @@
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
 		<eureka-jersey.version>1.19.4</eureka-jersey.version>
-		<xstream.version>1.4.14</xstream.version>
 	</properties>
 	<build>
 		<plugins>
@@ -133,11 +132,6 @@
 				<groupId>com.sun.jersey.contribs</groupId>
 				<artifactId>jersey-apache-client4</artifactId>
 				<version>${eureka-jersey.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.thoughtworks.xstream</groupId>
-				<artifactId>xstream</artifactId>
-				<version>${xstream.version}</version>
 			</dependency>
 			<!-- end eureka deps -->
 		</dependencies>
