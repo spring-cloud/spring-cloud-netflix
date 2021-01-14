@@ -29,3 +29,7 @@ NOTE:  To build the module `spring-cloud-netflix-hystrix-contract` along with th
 == Contributing
 
 include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/contributing.adoc[]
+
+== License
+
+The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-openfeign/master/LICENSE.txt[here].
