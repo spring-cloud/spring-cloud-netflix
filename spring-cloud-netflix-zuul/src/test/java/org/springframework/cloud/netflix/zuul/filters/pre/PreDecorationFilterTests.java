@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PROXY_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
 
@@ -689,6 +690,49 @@ public class PreDecorationFilterTests {
 
 		String forwardUri = this.filter.getForwardUri("/mypath");
 		assertThat(forwardUri).isEqualTo("/mypath");
+	}
+
+
+	@Test
+	public void correctRouteFromInsecureUriWithoutEscape() {
+		this.properties.setStripPrefix(false);
+		this.request.setRequestURI("/api/..;/admin/index");
+		this.routeLocator.addRoute(new ZuulRoute("admin", "/admin/**", "test",
+				"http://127.0.0.1:8080/admin", false, null,
+				new HashSet<>(Collections.singletonList("username"))));
+		this.routeLocator.addRoute(new ZuulRoute("api", "/api/**", "test",
+				"http://127.0.0.1:8080/api", false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertThat(ctx.get(PROXY_KEY)).isEqualTo("api");
+	}
+
+	@Test
+	public void correctRouteFromInsecureUriWithEscape() {
+		this.properties.setStripPrefix(false);
+		this.request.setRequestURI("/api/..\\;/admin/index");
+		this.routeLocator.addRoute(new ZuulRoute("admin", "/admin/**", "test",
+				"http://127.0.0.1:8080/admin", false, null,
+				new HashSet<>(Collections.singletonList("username"))));
+		this.routeLocator.addRoute(new ZuulRoute("api", "/api/**", "test",
+				"http://127.0.0.1:8080/api", false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertThat(ctx.get(PROXY_KEY)).isEqualTo("api");
+	}
+
+	@Test
+	public void correctRouteFromInsecureUriWithQuotes() {
+		this.properties.setStripPrefix(false);
+		this.request.setRequestURI("'/api/..;/admin/index'");
+		this.routeLocator.addRoute(new ZuulRoute("admin", "/admin/**", "test",
+				"http://127.0.0.1:8080/admin", false, null,
+				new HashSet<>(Collections.singletonList("username"))));
+		this.routeLocator.addRoute(new ZuulRoute("api", "/api/**", "test",
+				"http://127.0.0.1:8080/api", false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertThat(ctx.get(PROXY_KEY)).isEqualTo("api");
 	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
