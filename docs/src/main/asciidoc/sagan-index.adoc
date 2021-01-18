@@ -39,3 +39,17 @@ public class Application {
 ```
 
 To run your own server use the `spring-cloud-starter-netflix-eureka-server` dependency and `@EnableEurekaServer`.
+
+## Contributing
+
+We welcome contributions. You can read more on how to contribute to the project https://github.com/spring-cloud/spring-cloud-netflix#contributing[here].
+
+## Community Support
+
+* You can report issues through https://github.com/spring-cloud/spring-cloud-netflix/issues[Github].
+* We monitor https://stackoverflow.com/[StackOverflow] for questions with the `spring-cloud-netflix` tag.
+* You can contact our team at https://gitter.im/spring-cloud/spring-cloud[Gitter].
+
+## Commercial Support
+
+Commercial Support is provided as part of the https://spring.io/support[VMware Spring Runtime] offering.
