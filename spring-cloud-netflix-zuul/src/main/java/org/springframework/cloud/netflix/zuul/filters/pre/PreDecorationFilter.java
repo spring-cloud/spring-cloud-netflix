@@ -128,6 +128,9 @@ public class PreDecorationFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		final String requestURI = this.urlPathHelper
 				.getPathWithinApplication(ctx.getRequest());
+		if (insecurePath(requestURI)) {
+			throw new InsecureRequestPathException(requestURI);
+		}
 		Route route = this.routeLocator.getMatchingRoute(requestURI);
 		if (route != null) {
 			String location = route.getLocation();
@@ -219,6 +222,10 @@ public class PreDecorationFilter extends ZuulFilter {
 				: fallbackPrefix + fallBackUri;
 		forwardURI = DOUBLE_SLASH.matcher(forwardURI).replaceAll("/");
 		return forwardURI;
+	}
+
+	private boolean insecurePath(String uri) {
+		return uri.contains("../");
 	}
 
 	private void addProxyHeaders(RequestContext ctx, Route route) {

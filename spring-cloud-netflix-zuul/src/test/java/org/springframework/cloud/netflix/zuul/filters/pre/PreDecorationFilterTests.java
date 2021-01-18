@@ -692,11 +692,10 @@ public class PreDecorationFilterTests {
 		assertThat(forwardUri).isEqualTo("/mypath");
 	}
 
-
 	@Test
-	public void correctRouteFromInsecureUriWithoutEscape() {
+	public void correctRouteFromUriWithQuotes() {
 		this.properties.setStripPrefix(false);
-		this.request.setRequestURI("/api/..;/admin/index");
+		this.request.setRequestURI("'/api/admin/index'");
 		this.routeLocator.addRoute(new ZuulRoute("admin", "/admin/**", "test",
 				"http://127.0.0.1:8080/admin", false, null,
 				new HashSet<>(Collections.singletonList("username"))));
@@ -707,32 +706,17 @@ public class PreDecorationFilterTests {
 		assertThat(ctx.get(PROXY_KEY)).isEqualTo("api");
 	}
 
+	@SuppressWarnings("CatchMayIgnoreException")
 	@Test
-	public void correctRouteFromInsecureUriWithEscape() {
-		this.properties.setStripPrefix(false);
-		this.request.setRequestURI("/api/..\\;/admin/index");
-		this.routeLocator.addRoute(new ZuulRoute("admin", "/admin/**", "test",
-				"http://127.0.0.1:8080/admin", false, null,
-				new HashSet<>(Collections.singletonList("username"))));
-		this.routeLocator.addRoute(new ZuulRoute("api", "/api/**", "test",
-				"http://127.0.0.1:8080/api", false, null, null));
-		this.filter.run();
-		RequestContext ctx = RequestContext.getCurrentContext();
-		assertThat(ctx.get(PROXY_KEY)).isEqualTo("api");
-	}
-
-	@Test
-	public void correctRouteFromInsecureUriWithQuotes() {
-		this.properties.setStripPrefix(false);
-		this.request.setRequestURI("'/api/..;/admin/index'");
-		this.routeLocator.addRoute(new ZuulRoute("admin", "/admin/**", "test",
-				"http://127.0.0.1:8080/admin", false, null,
-				new HashSet<>(Collections.singletonList("username"))));
-		this.routeLocator.addRoute(new ZuulRoute("api", "/api/**", "test",
-				"http://127.0.0.1:8080/api", false, null, null));
-		this.filter.run();
-		RequestContext ctx = RequestContext.getCurrentContext();
-		assertThat(ctx.get(PROXY_KEY)).isEqualTo("api");
+	public void exceptionThrownForInsecurePath() {
+		properties.setStripPrefix(false);
+		request.setRequestURI("'/api/..;/admin/index'");
+		try {
+			filter.run();
+		}
+		catch (Exception exception) {
+			assertThat(exception).isInstanceOf(InsecureRequestPathException.class);
+		}
 	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
