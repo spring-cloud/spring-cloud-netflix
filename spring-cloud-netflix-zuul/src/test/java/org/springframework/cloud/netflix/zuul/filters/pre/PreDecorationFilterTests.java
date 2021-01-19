@@ -719,6 +719,19 @@ public class PreDecorationFilterTests {
 		}
 	}
 
+	@SuppressWarnings("CatchMayIgnoreException")
+	@Test
+	public void exceptionThrownForInsecurePathWithHash() {
+		properties.setStripPrefix(false);
+		request.setRequestURI("'/api/#/admin/index'");
+		try {
+			filter.run();
+		}
+		catch (Exception exception) {
+			assertThat(exception).isInstanceOf(InsecureRequestPathException.class);
+		}
+	}
+
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
 		String value = null;
 		for (Pair<String, String> pair : headers) {
