@@ -34,6 +34,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
@@ -224,8 +225,27 @@ public class PreDecorationFilter extends ZuulFilter {
 		return forwardURI;
 	}
 
-	private boolean insecurePath(String uri) {
-		return uri.contains("../");
+	private boolean insecurePath(String path) {
+		if (StringUtils.isEmpty(path)) {
+			return false;
+		}
+		if (path.contains(":/")) {
+			String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
+			if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
+				if (log.isWarnEnabled()) {
+					log.warn(
+							"Path represents URL or has \"url:\" prefix: [" + path + "]");
+				}
+				return true;
+			}
+		}
+		if (path.contains("../")) {
+			if (log.isWarnEnabled()) {
+				log.warn("Path contains \"../\"");
+			}
+			return true;
+		}
+		return false;
 	}
 
 	private void addProxyHeaders(RequestContext ctx, Route route) {

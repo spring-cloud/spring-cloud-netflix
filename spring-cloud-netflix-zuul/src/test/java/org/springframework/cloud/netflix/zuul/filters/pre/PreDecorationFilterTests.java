@@ -41,6 +41,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
@@ -706,17 +707,18 @@ public class PreDecorationFilterTests {
 		assertThat(ctx.get(PROXY_KEY)).isEqualTo("api");
 	}
 
-	@SuppressWarnings("CatchMayIgnoreException")
 	@Test
 	public void exceptionThrownForInsecurePath() {
-		properties.setStripPrefix(false);
 		request.setRequestURI("'/api/..;/admin/index'");
-		try {
-			filter.run();
-		}
-		catch (Exception exception) {
-			assertThat(exception).isInstanceOf(InsecureRequestPathException.class);
-		}
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
+	public void exceptionThrownForInsecurePathWithUrl() {
+		request.setRequestURI("http:////admin.index'");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
 	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
