@@ -224,9 +224,23 @@ public class PreDecorationFilter extends ZuulFilter {
 		return forwardURI;
 	}
 
-	private boolean insecurePath(String uri) {
-		return uri.contains("../");
+	private boolean insecurePath(String path) {
+		if (StringUtils.isEmpty(path)) {
+			return false;
+		}
+		boolean isInvalid = path.contains("..");
+		if (isInvalid && log.isWarnEnabled()) {
+			log.warn("Path contains \"..\"");
+		}
+		if (!isInvalid) {
+			isInvalid = path.contains("#");
+			if (isInvalid && log.isWarnEnabled()) {
+				log.warn("Path contains \"#\"");
+			}
+		}
+		return isInvalid;
 	}
+
 
 	private void addProxyHeaders(RequestContext ctx, Route route) {
 		HttpServletRequest request = ctx.getRequest();
