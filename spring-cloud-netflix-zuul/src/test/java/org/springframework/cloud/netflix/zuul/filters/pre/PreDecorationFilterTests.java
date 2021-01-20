@@ -715,6 +715,20 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
+	public void exceptionThrownForEncodedInsecurePath() {
+		request.setRequestURI("%27%2Fapi%2F..%3B%2Fadmin%2Findex%27");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
+	public void exceptionThrownForDoubleEncodedInsecurePath() {
+		request.setRequestURI("%2527%252Fapi%252F..%253B%252Fadmin%252Findex%2527");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
 	public void exceptionThrownForInsecurePathWithUrl() {
 		request.setRequestURI("http:////admin.index'");
 		assertThatThrownBy(() -> filter.run())

@@ -16,8 +16,10 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -229,6 +231,21 @@ public class PreDecorationFilter extends ZuulFilter {
 		if (StringUtils.isEmpty(path)) {
 			return false;
 		}
+		if (path.contains("%")) {
+			try {
+				path = URLDecoder.decode(path, "UTF-8");
+			}
+			catch (UnsupportedEncodingException ignored) {
+				// Should never happen...
+			}
+		}
+		if (isInsecurePath(path)) {
+			return true;
+		}
+		return isInsecurePath(urlPathHelper.removeSemicolonContent(path));
+	}
+
+	private boolean isInsecurePath(String path) {
 		if (path.contains(":/")) {
 			String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
 			if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
