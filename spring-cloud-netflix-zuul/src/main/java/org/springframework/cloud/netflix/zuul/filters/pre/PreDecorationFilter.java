@@ -262,6 +262,12 @@ public class PreDecorationFilter extends ZuulFilter {
 			}
 			return true;
 		}
+		if (path.contains("..\\")) {
+			if (log.isWarnEnabled()) {
+				log.warn("Path contains \"..\\\"");
+			}
+			return true;
+		}
 		return false;
 	}
 

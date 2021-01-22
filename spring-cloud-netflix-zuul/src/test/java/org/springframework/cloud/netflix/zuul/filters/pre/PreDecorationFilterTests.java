@@ -715,8 +715,50 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
+	public void exceptionThrownForInsecurePathWithBackslash() {
+		request.setRequestURI("'/api/..\\admin/index'");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
+	public void exceptionThrownForInsecurePathWithDoubleSlash() {
+		request.setRequestURI("'/api/..//admin/index'");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
+	public void exceptionThrownForEncodedInsecurePathWithBackslash() {
+		request.setRequestURI("%27%2Fapi%2F..%5Cadmin%2Findex%27");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
+	public void exceptionThrownForEncodedInsecurePathWithDoubleSlash() {
+		request.setRequestURI("%27%2Fapi%2F..%2F%2Fadmin%2Findex%27");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
+	public void exceptionThrownForDoubleEncodedInsecurePathWithBackslash() {
+		request.setRequestURI("%2527%252Fapi%252F..%255Cadmin%252Findex%2527");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
+	public void exceptionThrownForDoubleEncodedInsecurePathWithDoubleSlash() {
+		request.setRequestURI("%27%2Fapi%2F..%2F%2Fadmin%2Findex%27");
+		assertThatThrownBy(() -> filter.run())
+				.isInstanceOf(InsecureRequestPathException.class);
+	}
+
+	@Test
 	public void exceptionThrownForEncodedInsecurePath() {
-		request.setRequestURI("%27%2Fapi%2F..%3B%2Fadmin%2Findex%27");
+		request.setRequestURI("%2527%252Fapi%252F..%252F%252Fadmin%252Findex%2527");
 		assertThatThrownBy(() -> filter.run())
 				.isInstanceOf(InsecureRequestPathException.class);
 	}
