@@ -133,7 +133,12 @@ public class EurekaClientAutoConfiguration {
 		int serverPort = Integer.parseInt(env.getProperty("server.port", env.getProperty("port", "8080")));
 
 		Integer managementPort = env.getProperty("management.server.port", Integer.class);
+
 		String managementContextPath = env.getProperty("management.server.servlet.context-path");
+		if (!StringUtils.hasText(managementContextPath)) {
+			managementContextPath = env.getProperty("management.server.base-path");
+		}
+
 		Integer jmxPort = env.getProperty("com.sun.management.jmxremote.port", Integer.class);
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 
