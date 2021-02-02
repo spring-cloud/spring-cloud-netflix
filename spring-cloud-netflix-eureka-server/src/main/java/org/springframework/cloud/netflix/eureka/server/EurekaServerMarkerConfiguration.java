@@ -33,7 +33,7 @@ public class EurekaServerMarkerConfiguration {
 		return new Marker();
 	}
 
-	class Marker {
+	static class Marker {
 
 	}
 

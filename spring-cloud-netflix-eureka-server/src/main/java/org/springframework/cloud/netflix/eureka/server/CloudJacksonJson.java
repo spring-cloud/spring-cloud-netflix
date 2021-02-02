@@ -16,12 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.function.Supplier;
+import static com.netflix.discovery.converters.wrappers.CodecWrappers.getCodecName;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -42,11 +37,14 @@ import com.netflix.discovery.converters.EurekaJacksonCodec.InstanceInfoSerialize
 import com.netflix.discovery.converters.wrappers.CodecWrappers.LegacyJacksonJson;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.function.Supplier;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-
-import static com.netflix.discovery.converters.wrappers.CodecWrappers.getCodecName;
 
 /**
  * @author Spencer Gibb
@@ -66,7 +64,12 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 	@Override
 	public <T> String encode(T object) throws IOException {
-		return this.codec.writeToString(object);
+		try {
+			return this.codec.writeToString(object);
+		} catch (Throwable t) {
+			throw new IOException(t.getMessage(), t.getCause());
+		}
+
 	}
 
 	@Override
@@ -147,6 +150,9 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 		void setField(String name, Object value) {
 			Field field = ReflectionUtils.findField(EurekaJacksonCodec.class, name);
+			if (field == null) {
+				return;
+			}
 			ReflectionUtils.makeAccessible(field);
 			ReflectionUtils.setField(field, this, value);
 		}
@@ -174,8 +180,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 		@Override
 		public InstanceInfo deserialize(JsonParser jp, DeserializationContext context) throws IOException {
 			InstanceInfo info = super.deserialize(jp, context);
-			InstanceInfo updated = updateIfNeeded(info);
-			return updated;
+			return updateIfNeeded(info);
 		}
 
 	}
