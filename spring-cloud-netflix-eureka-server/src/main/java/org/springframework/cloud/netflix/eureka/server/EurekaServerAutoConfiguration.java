@@ -271,7 +271,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	static class RefreshablePeerEurekaNodes extends PeerEurekaNodes
 			implements ApplicationListener<EnvironmentChangeEvent> {
 
-		private ReplicationClientAdditionalFilters replicationClientAdditionalFilters;
+		private final ReplicationClientAdditionalFilters replicationClientAdditionalFilters;
 
 		RefreshablePeerEurekaNodes(final PeerAwareInstanceRegistry registry, final EurekaServerConfig serverConfig,
 				final EurekaClientConfig clientConfig, final ServerCodecs serverCodecs,
@@ -330,7 +330,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	}
 
-	class CloudServerCodecs extends DefaultServerCodecs {
+	static class CloudServerCodecs extends DefaultServerCodecs {
 
 		CloudServerCodecs(EurekaServerConfig serverConfig) {
 			super(getFullJson(serverConfig), CodecWrappers.getCodec(CodecWrappers.JacksonJsonMini.class),
