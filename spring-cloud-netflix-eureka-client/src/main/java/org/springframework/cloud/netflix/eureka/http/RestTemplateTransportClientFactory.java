@@ -128,13 +128,9 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	}
 
 	private RestTemplate restTemplate() {
-		if (this.sslContext.isPresent()) {
-			SSLContext sslContext = this.sslContext.get();
-			ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier.get(sslContext,
-					this.hostnameVerifier.orElse(null));
-			return new RestTemplate(requestFactory);
-		}
-		return new RestTemplate();
+		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
+				.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
+		return new RestTemplate(requestFactory);
 	}
 
 	/**
