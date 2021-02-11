@@ -213,6 +213,10 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	private String adjustPath(final String path) {
 		String adjustedPath = path;
 
+		if (path.startsWith("'")) {
+			adjustedPath = path.substring(1);
+		}
+
 		if (RequestUtils.isDispatcherServletRequest()
 				&& StringUtils.hasText(this.dispatcherServletPath)) {
 			if (!this.dispatcherServletPath.equals("/")

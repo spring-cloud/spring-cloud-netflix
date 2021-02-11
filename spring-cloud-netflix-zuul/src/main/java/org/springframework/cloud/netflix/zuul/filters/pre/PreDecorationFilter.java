@@ -16,8 +16,10 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +36,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
@@ -128,6 +131,9 @@ public class PreDecorationFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		final String requestURI = this.urlPathHelper
 				.getPathWithinApplication(ctx.getRequest());
+		if (insecurePath(requestURI)) {
+			throw new InsecureRequestPathException(requestURI);
+		}
 		Route route = this.routeLocator.getMatchingRoute(requestURI);
 		if (route != null) {
 			String location = route.getLocation();
@@ -219,6 +225,50 @@ public class PreDecorationFilter extends ZuulFilter {
 				: fallbackPrefix + fallBackUri;
 		forwardURI = DOUBLE_SLASH.matcher(forwardURI).replaceAll("/");
 		return forwardURI;
+	}
+
+	private boolean insecurePath(String path) {
+		if (StringUtils.isEmpty(path)) {
+			return false;
+		}
+		if (path.contains("%")) {
+			try {
+				path = URLDecoder.decode(path, "UTF-8");
+			}
+			catch (UnsupportedEncodingException ignored) {
+				// Should never happen...
+			}
+		}
+		if (isInsecurePath(path)) {
+			return true;
+		}
+		return isInsecurePath(urlPathHelper.removeSemicolonContent(path));
+	}
+
+	private boolean isInsecurePath(String path) {
+		if (path.contains(":/")) {
+			String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
+			if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
+				if (log.isWarnEnabled()) {
+					log.warn(
+							"Path represents URL or has \"url:\" prefix: [" + path + "]");
+				}
+				return true;
+			}
+		}
+		if (path.contains("../")) {
+			if (log.isWarnEnabled()) {
+				log.warn("Path contains \"../\"");
+			}
+			return true;
+		}
+		if (path.contains("..\\")) {
+			if (log.isWarnEnabled()) {
+				log.warn("Path contains \"..\\\"");
+			}
+			return true;
+		}
+		return false;
 	}
 
 	private void addProxyHeaders(RequestContext ctx, Route route) {
