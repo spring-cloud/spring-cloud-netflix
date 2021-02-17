@@ -25,6 +25,7 @@ import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
+import com.netflix.client.config.IClientConfigKey;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.DummyPing;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -52,6 +53,7 @@ import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonConfiguration
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 
 import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
@@ -95,15 +97,30 @@ public class RibbonClientConfiguration {
 	@Autowired
 	private PropertiesFactory propertiesFactory;
 
+	@Autowired
+	private Environment environment;
+
 	@Bean
 	@ConditionalOnMissingBean
 	public IClientConfig ribbonClientConfig() {
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+
 		config.loadProperties(this.name);
-		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT);
-		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT);
+
+		config.set(CommonClientConfigKey.ConnectTimeout, getProperty(
+				CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT));
+
+		config.set(CommonClientConfigKey.ReadTimeout,
+				getProperty(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT));
+
 		config.set(CommonClientConfigKey.GZipPayload, DEFAULT_GZIP_PAYLOAD);
 		return config;
+	}
+
+	private Integer getProperty(IClientConfigKey<Integer> connectTimeout,
+			int defaultConnectTimeout) {
+		return environment.getProperty("ribbon." + connectTimeout, Integer.class,
+				defaultConnectTimeout);
 	}
 
 	@Bean

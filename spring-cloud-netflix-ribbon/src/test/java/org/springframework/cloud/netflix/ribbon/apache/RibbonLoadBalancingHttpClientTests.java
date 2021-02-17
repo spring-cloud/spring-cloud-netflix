@@ -53,6 +53,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -154,6 +155,21 @@ public class RibbonLoadBalancingHttpClientTests {
 	public void testCompressionDefault() throws Exception {
 		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
 		assertThat(result.isContentCompressionEnabled()).isTrue();
+	}
+
+	@Test
+	public void testTimeoutsFromProperties() throws Exception {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				HttpClientConfiguration.class, RibbonAutoConfiguration.class,
+				UseDefaults.class);
+		TestPropertyValues.of("ribbon.ConnectTimeout=1265", "ribbon.ReadTimeout=587")
+				.applyTo(context);
+
+		RequestConfig result = getBuiltRequestConfig(null, new SpringClientFactory(),
+				context);
+
+		assertThat(result.getConnectTimeout()).isEqualTo(1265);
+		assertThat(result.getSocketTimeout()).isEqualTo(587);
 	}
 
 	@Test
@@ -947,10 +963,18 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	private RequestConfig getBuiltRequestConfig(Class<?> defaultConfigurationClass,
 			IClientConfig configOverride, SpringClientFactory factory) throws Exception {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				HttpClientConfiguration.class, RibbonAutoConfiguration.class,
+				defaultConfigurationClass);
+		return getBuiltRequestConfig(configOverride, factory, context);
+	}
 
-		factory.setApplicationContext(
-				new AnnotationConfigApplicationContext(HttpClientConfiguration.class,
-						RibbonAutoConfiguration.class, defaultConfigurationClass));
+	private RequestConfig getBuiltRequestConfig(IClientConfig configOverride,
+			SpringClientFactory factory, AnnotationConfigApplicationContext context)
+			throws Exception {
+
+		factory.setApplicationContext(context);
+
 		String serviceName = "foo";
 		String host = serviceName;
 		int port = 80;
