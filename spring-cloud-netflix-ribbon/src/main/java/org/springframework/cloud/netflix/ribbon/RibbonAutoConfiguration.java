@@ -65,11 +65,12 @@ import org.springframework.web.client.RestTemplate;
 		AsyncLoadBalancerAutoConfiguration.class })
 @EnableConfigurationProperties({ RibbonEagerLoadProperties.class,
 		ServerIntrospectorProperties.class })
+@ConditionalOnProperty(value = "spring.cloud.loadbalancer.ribbon.enabled",
+		havingValue = "true", matchIfMissing = true)
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
-
 	@Autowired
 	private RibbonEagerLoadProperties ribbonEagerLoadProperties;
 
