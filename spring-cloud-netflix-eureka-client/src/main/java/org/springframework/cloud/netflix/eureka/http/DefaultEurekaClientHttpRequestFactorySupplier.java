@@ -39,7 +39,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
-		if ( sslContext != null) {
+		if (sslContext != null) {
 			httpClientBuilder = httpClientBuilder.setSSLContext(sslContext);
 		}
 		if (hostnameVerifier != null) {
