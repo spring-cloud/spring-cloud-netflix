@@ -149,12 +149,26 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 
 		@Override
 		public URI getUri() {
-			StringBuffer urlBuffer = request.getRequestURL();
-			if (StringUtils.hasText(request.getQueryString())) {
-				urlBuffer.append("?");
-				urlBuffer.append(request.getQueryString());
+			String queryString = this.request.getQueryString();
+			if (!StringUtils.hasText(queryString)) {
+				return URI.create(this.request.getRequestURL().toString());
 			}
-			return URI.create(urlBuffer.toString());
+			try {
+				StringBuffer urlBuffer = appendQueryString(queryString);
+				return new URI(urlBuffer.toString());
+			}
+			catch (URISyntaxException ex) {
+				String encoded = UriUtils.encode(queryString, StandardCharsets.UTF_8);
+				StringBuffer urlBuffer = appendQueryString(encoded);
+				return URI.create(urlBuffer.toString());
+			}
+		}
+
+		private StringBuffer appendQueryString(String queryString) {
+			StringBuffer urlBuffer = this.request.getRequestURL();
+			urlBuffer.append("?");
+			urlBuffer.append(queryString);
+			return urlBuffer;
 		}
 
 		@Override
