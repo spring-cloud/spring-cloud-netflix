@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import com.netflix.appinfo.InstanceInfo;
 
-import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.util.Assert;
@@ -81,7 +80,9 @@ public class EurekaServiceInstance implements ServiceInstance {
 
 	@Override
 	public URI getUri() {
-		return DefaultServiceInstance.getUri(this);
+		String scheme = (isSecure()) ? "https" : "http";
+		String uri = String.format("%s://%s:%s", scheme, getHost(), getPort());
+		return URI.create(uri);
 	}
 
 	@Override
