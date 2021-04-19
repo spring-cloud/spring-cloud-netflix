@@ -1,11 +1,11 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,40 +58,31 @@ import static org.springframework.util.Assert.isTrue;
  *
  * @author Daniel Lavoie
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RestController
 @SpringBootApplication
 public class EurekaServerMockApplication {
 
-	private static final InstanceInfo INFO = InstanceInfo.Builder.newBuilder()
-			.setInstanceId("app1instance1").setAppName("app1")
-			.setAppNameForDeser("app1fordeser").setAppGroupName("app1group")
+	private static final InstanceInfo INFO = InstanceInfo.Builder.newBuilder().setInstanceId("app1instance1")
+			.setAppName("app1").setAppNameForDeser("app1fordeser").setAppGroupName("app1group")
 			.setAppGroupNameForDeser("app1group1fordeser").setHostName("app1host1")
-			.setStatus(InstanceInfo.InstanceStatus.UP)
-			.setOverriddenStatus(InstanceInfo.InstanceStatus.DOWN).setIPAddr("127.0.0.1")
-			.setSID("app1sid").setPort(8080).setSecurePort(4443)
-			.enablePort(InstanceInfo.PortType.UNSECURE, true)
-			.setHomePageUrl("/", "http://localhost/")
-			.setHomePageUrlForDeser("http://localhost/")
-			.setStatusPageUrl("/status", "http://localhost/info")
+			.setStatus(InstanceInfo.InstanceStatus.UP).setOverriddenStatus(InstanceInfo.InstanceStatus.DOWN)
+			.setIPAddr("127.0.0.1").setSID("app1sid").setPort(8080).setSecurePort(4443)
+			.enablePort(InstanceInfo.PortType.UNSECURE, true).setHomePageUrl("/", "http://localhost/")
+			.setHomePageUrlForDeser("http://localhost/").setStatusPageUrl("/status", "http://localhost/info")
 			.setStatusPageUrlForDeser("http://localhost/status")
 			.setHealthCheckUrls("/ping", "http://localhost/ping", null)
-			.setHealthCheckUrlsForDeser("http://localhost/ping", null)
-			.setVIPAddress("localhost:8080").setVIPAddressDeser("localhost:8080")
-			.setSecureVIPAddress("localhost:4443")
+			.setHealthCheckUrlsForDeser("http://localhost/ping", null).setVIPAddress("localhost:8080")
+			.setVIPAddressDeser("localhost:8080").setSecureVIPAddress("localhost:4443")
 			.setSecureVIPAddressDeser("localhost:4443")
 			.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
-			.setLeaseInfo(LeaseInfo.Builder.newBuilder().setDurationInSecs(30)
-					.setRenewalIntervalInSecs(30)
+			.setLeaseInfo(LeaseInfo.Builder.newBuilder().setDurationInSecs(30).setRenewalIntervalInSecs(30)
 					.setEvictionTimestamp(System.currentTimeMillis() + 30000)
 					.setRenewalTimestamp(System.currentTimeMillis() - 1000)
 					.setRegistrationTimestamp(System.currentTimeMillis() - 2000).build())
-			.add("metadatakey1", "metadatavalue1").setASGName("asg1")
-			.setIsCoordinatingDiscoveryServer(false)
-			.setLastUpdatedTimestamp(System.currentTimeMillis())
-			.setLastDirtyTimestamp(System.currentTimeMillis())
-			.setActionType(InstanceInfo.ActionType.ADDED).setNamespace("namespace1")
-			.build();
+			.add("metadatakey1", "metadatavalue1").setASGName("asg1").setIsCoordinatingDiscoveryServer(false)
+			.setLastUpdatedTimestamp(System.currentTimeMillis()).setLastDirtyTimestamp(System.currentTimeMillis())
+			.setActionType(InstanceInfo.ActionType.ADDED).setNamespace("namespace1").build();
 
 	/**
 	 * Simulates Eureka Server own's serialization.
@@ -99,18 +90,14 @@ public class EurekaServerMockApplication {
 	 */
 	@Bean
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		return new RestTemplateTransportClientFactory()
-				.mappingJacksonHttpMessageConverter();
+		return new RestTemplateTransportClientFactory().mappingJacksonHttpMessageConverter();
 	}
 
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/apps/{appName}")
-	public void register(@PathVariable String appName,
-			@RequestBody InstanceInfo instanceInfo) {
-		isTrue(instanceInfo.getPort() != DEFAULT_PORT && instanceInfo.getPort() != 0,
-				"Port not received from client");
-		isTrue(instanceInfo.getSecurePort() != DEFAULT_SECURE_PORT
-				&& instanceInfo.getSecurePort() != 0,
+	public void register(@PathVariable String appName, @RequestBody InstanceInfo instanceInfo) {
+		isTrue(instanceInfo.getPort() != DEFAULT_PORT && instanceInfo.getPort() != 0, "Port not received from client");
+		isTrue(instanceInfo.getSecurePort() != DEFAULT_SECURE_PORT && instanceInfo.getSecurePort() != 0,
 				"Secure Port not received from client");
 		// Nothing to do
 	}
@@ -122,33 +109,29 @@ public class EurekaServerMockApplication {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@PutMapping(value = "/apps/{appName}/{id}", params = { "status",
-			"lastDirtyTimestamp" })
-	public ResponseEntity sendHeartBeat(@PathVariable String appName,
-			@PathVariable String id, @RequestParam String status,
-			@RequestParam String lastDirtyTimestamp,
+	@PutMapping(value = "/apps/{appName}/{id}", params = { "status", "lastDirtyTimestamp" })
+	public ResponseEntity sendHeartBeat(@PathVariable String appName, @PathVariable String id,
+			@RequestParam String status, @RequestParam String lastDirtyTimestamp,
 			@RequestParam(required = false) String overriddenstatus) {
 		if ("fourOFour".equals(appName)) {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<InstanceInfo>(new InstanceInfo(null, null, null, null,
-				null, null, null, null, null, null, null, null, null, 0, null, null, null,
-				null, null, null, null, new HashMap<>(), 0L, 0L, null, null),
+		return new ResponseEntity<>(new InstanceInfo(null, null, null, null, null, null, null, null, null, null, null,
+				null, null, 0, null, null, null, null, null, null, null, new HashMap<>(), 0L, 0L, null, null),
 				HttpStatus.OK);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@PutMapping(value = "/apps/{appName}/{id}/status", params = { "value",
-			"lastDirtyTimestamp" })
-	public void statusUpdate(@PathVariable String appName, @PathVariable String id,
-			@RequestParam String value, @RequestParam String lastDirtyTimestamp) {
+	@PutMapping(value = "/apps/{appName}/{id}/status", params = { "value", "lastDirtyTimestamp" })
+	public void statusUpdate(@PathVariable String appName, @PathVariable String id, @RequestParam String value,
+			@RequestParam String lastDirtyTimestamp) {
 
 	}
 
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping(value = "/apps/{appName}/{id}/status", params = "lastDirtyTimestamp")
-	public void deleteStatusOverride(@PathVariable String appName,
-			@PathVariable String id, @RequestParam String lastDirtyTimestamp) {
+	public void deleteStatusOverride(@PathVariable String appName, @PathVariable String id,
+			@RequestParam String lastDirtyTimestamp) {
 
 	}
 
@@ -156,8 +139,7 @@ public class EurekaServerMockApplication {
 	public Applications getApplications(@PathVariable(required = false) String address,
 			@RequestParam(required = false) String regions) {
 		Applications applications = new Applications();
-		applications
-				.addApplication(new Application("app1", Collections.singletonList(INFO)));
+		applications.addApplication(new Application("app1", Collections.singletonList(INFO)));
 		return applications;
 	}
 
@@ -167,15 +149,13 @@ public class EurekaServerMockApplication {
 	}
 
 	@GetMapping({ "/apps/{appName}/{id}", "/instances/{id}" })
-	public InstanceInfo getInstance(@PathVariable(required = false) String appName,
-			@PathVariable String id) {
+	public InstanceInfo getInstance(@PathVariable(required = false) String appName, @PathVariable String id) {
 		return INFO;
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	protected static class TestSecurityConfiguration
-			extends WebSecurityConfigurerAdapter {
+	protected static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		TestSecurityConfiguration() {
 			super(true);
@@ -184,8 +164,7 @@ public class EurekaServerMockApplication {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-			manager.createUser(User.withUsername("test").password("{noop}test")
-					.roles("USER").build());
+			manager.createUser(User.withUsername("test").password("{noop}test").roles("USER").build());
 			return manager;
 		}
 

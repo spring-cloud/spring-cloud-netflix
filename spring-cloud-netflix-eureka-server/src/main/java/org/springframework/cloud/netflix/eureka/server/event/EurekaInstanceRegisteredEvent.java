@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,8 +35,8 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	private boolean replication;
 
-	public EurekaInstanceRegisteredEvent(Object source, InstanceInfo instanceInfo,
-			int leaseDuration, boolean replication) {
+	public EurekaInstanceRegisteredEvent(Object source, InstanceInfo instanceInfo, int leaseDuration,
+			boolean replication) {
 		super(source);
 		this.instanceInfo = instanceInfo;
 		this.leaseDuration = leaseDuration;
@@ -76,8 +76,8 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceRegisteredEvent that = (EurekaInstanceRegisteredEvent) o;
-		return Objects.equals(instanceInfo, that.instanceInfo)
-				&& leaseDuration == leaseDuration && replication == replication;
+		return this.leaseDuration == that.leaseDuration && this.replication == that.replication
+				&& Objects.equals(this.instanceInfo, that.instanceInfo);
 	}
 
 	@Override
@@ -87,9 +87,8 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRegisteredEvent{").append("instanceInfo=")
-				.append(instanceInfo).append(", ").append("leaseDuration=")
-				.append(leaseDuration).append(", ").append("replication=")
+		return new StringBuilder("EurekaInstanceRegisteredEvent{").append("instanceInfo=").append(instanceInfo)
+				.append(", ").append("leaseDuration=").append(leaseDuration).append(", ").append("replication=")
 				.append(replication).append("}").toString();
 	}
 

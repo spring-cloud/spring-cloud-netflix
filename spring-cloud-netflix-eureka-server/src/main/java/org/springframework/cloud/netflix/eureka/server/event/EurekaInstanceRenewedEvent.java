@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,8 +37,8 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	private boolean replication;
 
-	public EurekaInstanceRenewedEvent(Object source, String appName, String serverId,
-			InstanceInfo instanceInfo, boolean replication) {
+	public EurekaInstanceRenewedEvent(Object source, String appName, String serverId, InstanceInfo instanceInfo,
+			boolean replication) {
 		super(source);
 		this.appName = appName;
 		this.serverId = serverId;
@@ -87,10 +87,8 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceRenewedEvent that = (EurekaInstanceRenewedEvent) o;
-		return Objects.equals(appName, that.appName)
-				&& Objects.equals(serverId, that.serverId)
-				&& Objects.equals(instanceInfo, that.instanceInfo)
-				&& replication == that.replication;
+		return Objects.equals(appName, that.appName) && Objects.equals(serverId, that.serverId)
+				&& Objects.equals(instanceInfo, that.instanceInfo) && replication == that.replication;
 	}
 
 	@Override
@@ -100,10 +98,9 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRenewedEvent{").append("appName='")
-				.append(appName).append("', ").append("serverId='").append(serverId)
-				.append("', ").append("instanceInfo=").append(instanceInfo).append(", ")
-				.append("replication=").append(replication).append("}").toString();
+		return new StringBuilder("EurekaInstanceRenewedEvent{").append("appName='").append(appName).append("', ")
+				.append("serverId='").append(serverId).append("', ").append("instanceInfo=").append(instanceInfo)
+				.append(", ").append("replication=").append(replication).append("}").toString();
 	}
 
 }

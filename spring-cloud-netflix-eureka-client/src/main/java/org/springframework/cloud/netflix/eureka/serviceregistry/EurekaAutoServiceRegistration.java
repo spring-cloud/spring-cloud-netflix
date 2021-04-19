@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,8 +39,8 @@ import org.springframework.core.Ordered;
  * @author Jakub Narloch
  * @author Raiyan Raiyan
  */
-public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
-		SmartLifecycle, Ordered, SmartApplicationListener {
+public class EurekaAutoServiceRegistration
+		implements AutoServiceRegistration, SmartLifecycle, Ordered, SmartApplicationListener {
 
 	private static final Log log = LogFactory.getLog(EurekaAutoServiceRegistration.class);
 
@@ -56,8 +56,8 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 
 	private EurekaRegistration registration;
 
-	public EurekaAutoServiceRegistration(ApplicationContext context,
-			EurekaServiceRegistry serviceRegistry, EurekaRegistration registration) {
+	public EurekaAutoServiceRegistration(ApplicationContext context, EurekaServiceRegistry serviceRegistry,
+			EurekaRegistration registration) {
 		this.context = context;
 		this.serviceRegistry = serviceRegistry;
 		this.registration = registration;
@@ -82,8 +82,7 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 
 			this.serviceRegistry.register(this.registration);
 
-			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
-					this.registration.getInstanceConfig()));
+			this.context.publishEvent(new InstanceRegisteredEvent<>(this, this.registration.getInstanceConfig()));
 			this.running.set(true);
 		}
 	}
@@ -138,11 +137,14 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration,
 
 	public void onApplicationEvent(WebServerInitializedEvent event) {
 		// TODO: take SSL into account
-		int localPort = event.getWebServer().getPort();
-		if (this.port.get() == 0) {
-			log.info("Updating port to " + localPort);
-			this.port.compareAndSet(0, localPort);
-			start();
+		String contextName = event.getApplicationContext().getServerNamespace();
+		if (contextName == null || !contextName.equals("management")) {
+			int localPort = event.getWebServer().getPort();
+			if (this.port.get() == 0) {
+				log.info("Updating port to " + localPort);
+				this.port.compareAndSet(0, localPort);
+				start();
+			}
 		}
 	}
 

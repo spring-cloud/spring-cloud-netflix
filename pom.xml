@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-netflix</artifactId>
-	<version>2.1.1.BUILD-SNAPSHOT</version>
+	<version>3.0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>2.1.3.BUILD-SNAPSHOT</version>
+		<version>3.0.3-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 	<scm>
@@ -21,25 +21,22 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<spring-cloud-commons.version>2.1.1.BUILD-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>2.1.1.BUILD-SNAPSHOT</spring-cloud-config.version>
-		<spring-cloud-stream.version>Fishtown.BUILD-SNAPSHOT</spring-cloud-stream.version>
-		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
-		<donotreplacespring-cloud-contract.version>2.0.2.RELEASE</donotreplacespring-cloud-contract.version>
+		<spring-cloud-commons.version>3.0.3-SNAPSHOT</spring-cloud-commons.version>
+		<spring-cloud-config.version>3.0.4-SNAPSHOT</spring-cloud-config.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
-		<maven-checkstyle-plugin.includeTestSourceDirectory>true
-		</maven-checkstyle-plugin.includeTestSourceDirectory>
-		<maven-checkstyle-plugin.failsOnError>true</maven-checkstyle-plugin.failsOnError>
-		<maven-checkstyle-plugin.failOnViolation>true
-		</maven-checkstyle-plugin.failOnViolation>
+		<eureka-jersey.version>1.19.4</eureka-jersey.version>
 	</properties>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
@@ -80,12 +77,6 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-netflix-hystrix-contract</artifactId>
-				<version>${project.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-dependencies</artifactId>
 				<version>${project.version}</version>
 				<type>pom</type>
@@ -112,37 +103,37 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-stream-dependencies</artifactId>
-				<version>${spring-cloud-stream.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-contract-dependencies</artifactId>
-				<version>${donotreplacespring-cloud-contract.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
 				<groupId>javax.inject</groupId>
 				<artifactId>javax.inject</artifactId>
 				<version>1</version>
 			</dependency>
-			<!-- archaius dependencies that are now runtime -->
+			<!-- Eureka core dep that is now optional -->
 			<dependency>
-				<groupId>commons-configuration</groupId>
-				<artifactId>commons-configuration</artifactId>
-				<version>1.8</version>
-				<exclusions>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-				</exclusions>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-servlet</artifactId>
+				<version>${eureka-jersey.version}</version>
 			</dependency>
-			<!-- end archaius deps -->
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-core</artifactId>
+				<version>${eureka-jersey.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-client</artifactId>
+				<version>${eureka-jersey.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.jersey</groupId>
+				<artifactId>jersey-server</artifactId>
+				<version>${eureka-jersey.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.jersey.contribs</groupId>
+				<artifactId>jersey-apache-client4</artifactId>
+				<version>${eureka-jersey.version}</version>
+			</dependency>
+			<!-- end eureka deps -->
 		</dependencies>
 	</dependencyManagement>
 	<reporting>
@@ -155,22 +146,11 @@
 	</reporting>
 	<modules>
 		<module>spring-cloud-netflix-dependencies</module>
-		<module>spring-cloud-netflix-archaius</module>
-		<!-- Not part of the reactor build: build and deploy separately -->
-		<!--module>spring-cloud-netflix-hystrix-contract</module-->
-		<module>spring-cloud-netflix-core</module>
-		<module>spring-cloud-netflix-concurrency-limits</module>
-		<module>spring-cloud-netflix-hystrix-dashboard</module>
-		<module>spring-cloud-netflix-hystrix-stream</module>
 		<module>spring-cloud-netflix-eureka-client</module>
 		<module>spring-cloud-netflix-eureka-server</module>
-		<module>spring-cloud-netflix-turbine</module>
-		<module>spring-cloud-netflix-turbine-stream</module>
-		<module>spring-cloud-netflix-sidecar</module>
-		<module>spring-cloud-netflix-zuul</module>
-		<module>spring-cloud-netflix-ribbon</module>
-		<module>spring-cloud-starter-netflix</module>
-		<module>spring-cloud-netflix-hystrix</module>
+		<module>spring-cloud-starter-netflix-eureka-client</module>
+		<module>spring-cloud-starter-netflix-eureka-server</module>
+		<module>spring-cloud-netflix-eureka-client-tls-tests</module>
 		<module>docs</module>
     </modules>
 	<profiles>

@@ -1,6 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration,\
-org.springframework.cloud.netflix.hystrix.security.HystrixSecurityAutoConfiguration
-
-org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
-org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration

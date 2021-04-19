@@ -1,11 +1,11 @@
 /*
- * Copyright 2017-2019 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,8 +28,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultManagementMetadataProviderTest {
 
-	private static final EurekaInstanceConfigBean INSTANCE = mock(
-			EurekaInstanceConfigBean.class);
+	private static final EurekaInstanceConfigBean INSTANCE = mock(EurekaInstanceConfigBean.class);
 
 	private final ManagementMetadataProvider provider = new DefaultManagementMetadataProvider();
 
@@ -47,8 +46,8 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/";
 		String managementContextPath = null;
 		Integer managementPort = null;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
 		assertThat(actual).isNull();
 	}
@@ -59,8 +58,8 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/";
 		String managementContextPath = null;
 		Integer managementPort = 0;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
 		assertThat(actual).isNull();
 	}
@@ -71,8 +70,8 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/";
 		String managementContextPath = null;
 		Integer managementPort = null;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
 		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:7777/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
@@ -86,8 +85,8 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/";
 		String managementContextPath = null;
 		Integer managementPort = 8888;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
 		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:8888/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
@@ -101,8 +100,8 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/Server";
 		String managementContextPath = null;
 		Integer managementPort = 8888;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
 		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:8888/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
@@ -111,20 +110,17 @@ public class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	public void serverPortManagementPortServerContextPathManagementContextPath()
-			throws Exception {
+	public void serverPortManagementPortServerContextPathManagementContextPath() throws Exception {
 		int serverPort = 7777;
 		String serverContextPath = "/Server";
 		String managementContextPath = "/Management";
 		Integer managementPort = 8888;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
-		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:8888/Management/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:8888/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:8888/Management/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:8888/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 	}
 
@@ -134,14 +130,12 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/Server";
 		String managementContextPath = "/Management";
 		Integer managementPort = null;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
-		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:7777/Server/Management/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:7777/Server/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:7777/Server/Management/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:7777/Server/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(7777);
 	}
 
@@ -151,14 +145,12 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/";
 		String managementContextPath = "/Management";
 		Integer managementPort = null;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
-		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:7777/Management/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:7777/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:7777/Management/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:7777/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(7777);
 	}
 
@@ -168,11 +160,10 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/Server";
 		String managementContextPath = null;
 		Integer managementPort = null;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
-		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:7777/Server/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:7777/Server/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
 		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:7777/Server/info");
 		assertThat(actual.getManagementPort()).isEqualTo(7777);
@@ -184,14 +175,12 @@ public class DefaultManagementMetadataProviderTest {
 		String serverContextPath = "/";
 		String managementContextPath = "/Management";
 		Integer managementPort = 8888;
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
-		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:8888/Management/health");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:8888/Management/health");
 		assertThat(actual.getSecureHealthCheckUrl()).isNullOrEmpty();
-		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:8888/Management/info");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:8888/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 
 	}
@@ -203,15 +192,12 @@ public class DefaultManagementMetadataProviderTest {
 		String managementContextPath = "/Management";
 		Integer managementPort = 8888;
 		doReturn(true).when(INSTANCE).isSecurePortEnabled();
-		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath,
-				managementContextPath, managementPort);
+		ManagementMetadata actual = provider.get(INSTANCE, serverPort, serverContextPath, managementContextPath,
+				managementPort);
 
-		assertThat(actual.getHealthCheckUrl())
-				.isEqualTo("http://host:8888/Management/health");
-		assertThat(actual.getSecureHealthCheckUrl())
-				.isEqualTo("https://host:8888/Management/health");
-		assertThat(actual.getStatusPageUrl())
-				.isEqualTo("http://host:8888/Management/info");
+		assertThat(actual.getHealthCheckUrl()).isEqualTo("http://host:8888/Management/health");
+		assertThat(actual.getSecureHealthCheckUrl()).isEqualTo("https://host:8888/Management/health");
+		assertThat(actual.getStatusPageUrl()).isEqualTo("http://host:8888/Management/info");
 		assertThat(actual.getManagementPort()).isEqualTo(8888);
 	}
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,8 +45,8 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
 	private final EurekaClientConfig clientConfig;
 
-	public EurekaHealthIndicator(EurekaClient eurekaClient,
-			EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
+	public EurekaHealthIndicator(EurekaClient eurekaClient, EurekaInstanceConfig instanceConfig,
+			EurekaClientConfig clientConfig) {
 		super();
 		this.eurekaClient = eurekaClient;
 		this.instanceConfig = instanceConfig;
@@ -62,8 +62,7 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 	public Health health() {
 		Builder builder = Health.unknown();
 		Status status = getStatus(builder);
-		return builder.status(status).withDetail("applications", getApplications())
-				.build();
+		return builder.status(status).withDetail("applications", getApplications()).build();
 	}
 
 	private Status getStatus(Builder builder) {
@@ -80,10 +79,8 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 			else if (lastFetch > clientConfig.getRegistryFetchIntervalSeconds() * 2000) {
 				status = new Status("UP",
 						"Eureka discovery client is reporting failures to connect to a Eureka server");
-				builder.withDetail("renewalPeriod",
-						instanceConfig.getLeaseRenewalIntervalInSeconds());
-				builder.withDetail("failCount",
-						lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
+				builder.withDetail("renewalPeriod", instanceConfig.getLeaseRenewalIntervalInSeconds());
+				builder.withDetail("failCount", lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
 			}
 		}
 

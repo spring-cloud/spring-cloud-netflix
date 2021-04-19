@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import javax.servlet.ServletContext;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
@@ -44,18 +43,6 @@ public class EurekaServerBootstrap {
 
 	private static final Log log = LogFactory.getLog(EurekaServerBootstrap.class);
 
-	private static final String TEST = "test";
-
-	private static final String ARCHAIUS_DEPLOYMENT_ENVIRONMENT = "archaius.deployment.environment";
-
-	private static final String EUREKA_ENVIRONMENT = "eureka.environment";
-
-	private static final String DEFAULT = "default";
-
-	private static final String ARCHAIUS_DEPLOYMENT_DATACENTER = "archaius.deployment.datacenter";
-
-	private static final String EUREKA_DATACENTER = "eureka.datacenter";
-
 	protected EurekaServerConfig eurekaServerConfig;
 
 	protected ApplicationInfoManager applicationInfoManager;
@@ -68,9 +55,9 @@ public class EurekaServerBootstrap {
 
 	protected volatile AwsBinder awsBinder;
 
-	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager,
-			EurekaClientConfig eurekaClientConfig, EurekaServerConfig eurekaServerConfig,
-			PeerAwareInstanceRegistry registry, EurekaServerContext serverContext) {
+	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager, EurekaClientConfig eurekaClientConfig,
+			EurekaServerConfig eurekaServerConfig, PeerAwareInstanceRegistry registry,
+			EurekaServerContext serverContext) {
 		this.applicationInfoManager = applicationInfoManager;
 		this.eurekaClientConfig = eurekaClientConfig;
 		this.eurekaServerConfig = eurekaServerConfig;
@@ -109,42 +96,16 @@ public class EurekaServerBootstrap {
 	protected void initEurekaEnvironment() throws Exception {
 		log.info("Setting the eureka configuration..");
 
-		String dataCenter = ConfigurationManager.getConfigInstance()
-				.getString(EUREKA_DATACENTER);
-		if (dataCenter == null) {
-			log.info(
-					"Eureka data center value eureka.datacenter is not set, defaulting to default");
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, DEFAULT);
-		}
-		else {
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, dataCenter);
-		}
-		String environment = ConfigurationManager.getConfigInstance()
-				.getString(EUREKA_ENVIRONMENT);
-		if (environment == null) {
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_ENVIRONMENT, TEST);
-			log.info(
-					"Eureka environment value eureka.environment is not set, defaulting to test");
-		}
-		else {
-			ConfigurationManager.getConfigInstance()
-					.setProperty(ARCHAIUS_DEPLOYMENT_ENVIRONMENT, environment);
-		}
 	}
 
 	protected void initEurekaServerContext() throws Exception {
 		// For backward compatibility
-		JsonXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(),
-				XStream.PRIORITY_VERY_HIGH);
-		XmlXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(),
-				XStream.PRIORITY_VERY_HIGH);
+		JsonXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(), XStream.PRIORITY_VERY_HIGH);
+		XmlXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(), XStream.PRIORITY_VERY_HIGH);
 
 		if (isAws(this.applicationInfoManager.getInfo())) {
-			this.awsBinder = new AwsBinderDelegate(this.eurekaServerConfig,
-					this.eurekaClientConfig, this.registry, this.applicationInfoManager);
+			this.awsBinder = new AwsBinderDelegate(this.eurekaServerConfig, this.eurekaClientConfig, this.registry,
+					this.applicationInfoManager);
 			this.awsBinder.start();
 		}
 
@@ -183,8 +144,7 @@ public class EurekaServerBootstrap {
 	}
 
 	protected boolean isAws(InstanceInfo selfInstanceInfo) {
-		boolean result = DataCenterInfo.Name.Amazon == selfInstanceInfo
-				.getDataCenterInfo().getName();
+		boolean result = DataCenterInfo.Name.Amazon == selfInstanceInfo.getDataCenterInfo().getName();
 		log.info("isAws returned " + result);
 		return result;
 	}

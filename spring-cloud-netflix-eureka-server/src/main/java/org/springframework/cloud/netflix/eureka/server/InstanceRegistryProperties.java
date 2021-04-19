@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 
 import static org.springframework.cloud.netflix.eureka.server.InstanceRegistryProperties.PREFIX;
 
@@ -55,21 +54,8 @@ public class InstanceRegistryProperties {
 		return expectedNumberOfClientsSendingRenews;
 	}
 
-	public void setExpectedNumberOfClientsSendingRenews(
-			int expectedNumberOfClientsSendingRenews) {
+	public void setExpectedNumberOfClientsSendingRenews(int expectedNumberOfClientsSendingRenews) {
 		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
-	}
-
-	@DeprecatedConfigurationProperty(replacement = PREFIX
-			+ ".expected-number-of-clients-sending-renews")
-	@Deprecated
-	public int getExpectedNumberOfRenewsPerMin() {
-		return getExpectedNumberOfClientsSendingRenews();
-	}
-
-	@Deprecated
-	public void setExpectedNumberOfRenewsPerMin(int expectedNumberOfRenewsPerMin) {
-		setExpectedNumberOfClientsSendingRenews(expectedNumberOfRenewsPerMin);
 	}
 
 	public int getDefaultOpenForTrafficCount() {

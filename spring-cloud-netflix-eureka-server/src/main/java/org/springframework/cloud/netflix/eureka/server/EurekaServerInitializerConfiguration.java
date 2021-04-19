@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,12 +35,10 @@ import org.springframework.web.context.ServletContextAware;
 /**
  * @author Dave Syer
  */
-@Configuration
-public class EurekaServerInitializerConfiguration
-		implements ServletContextAware, SmartLifecycle, Ordered {
+@Configuration(proxyBeanMethods = false)
+public class EurekaServerInitializerConfiguration implements ServletContextAware, SmartLifecycle, Ordered {
 
-	private static final Log log = LogFactory
-			.getLog(EurekaServerInitializerConfiguration.class);
+	private static final Log log = LogFactory.getLog(EurekaServerInitializerConfiguration.class);
 
 	@Autowired
 	private EurekaServerConfig eurekaServerConfig;
@@ -64,23 +62,19 @@ public class EurekaServerInitializerConfiguration
 
 	@Override
 	public void start() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// TODO: is this class even needed now?
-					eurekaServerBootstrap.contextInitialized(
-							EurekaServerInitializerConfiguration.this.servletContext);
-					log.info("Started Eureka Server");
+		new Thread(() -> {
+			try {
+				// TODO: is this class even needed now?
+				eurekaServerBootstrap.contextInitialized(EurekaServerInitializerConfiguration.this.servletContext);
+				log.info("Started Eureka Server");
 
-					publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig()));
-					EurekaServerInitializerConfiguration.this.running = true;
-					publish(new EurekaServerStartedEvent(getEurekaServerConfig()));
-				}
-				catch (Exception ex) {
-					// Help!
-					log.error("Could not initialize Eureka servlet context", ex);
-				}
+				publish(new EurekaRegistryAvailableEvent(getEurekaServerConfig()));
+				EurekaServerInitializerConfiguration.this.running = true;
+				publish(new EurekaServerStartedEvent(getEurekaServerConfig()));
+			}
+			catch (Exception ex) {
+				// Help!
+				log.error("Could not initialize Eureka servlet context", ex);
 			}
 		}).start();
 	}
@@ -112,11 +106,6 @@ public class EurekaServerInitializerConfiguration
 	@Override
 	public boolean isAutoStartup() {
 		return true;
-	}
-
-	@Override
-	public void stop(Runnable callback) {
-		callback.run();
 	}
 
 	@Override

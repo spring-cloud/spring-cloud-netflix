@@ -8,8 +8,20 @@
     },
     {
       "defaultValue": true,
+      "name": "eureka.client.refresh.enable",
+      "description": "Determines whether the EurekaClient instance can be refreshed or not(If disabled none of the Eureka client properties will be refreshable).",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": true,
       "name": "ribbon.eureka.enabled",
       "description": "Enables the use of Eureka with Ribbon.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": false,
+      "name": "eureka.client.webclient.enabled",
+      "description": "Enables the use of WebClient for Eureka HTTP Client.",
       "type": "java.lang.Boolean"
     }
   ]

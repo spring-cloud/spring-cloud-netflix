@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,10 +41,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"spring.application.name=eureka", "server.servlet.context-path=/context",
-		"management.security.enabled=false",
-		"management.endpoints.web.exposure.include=*" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "spring.application.name=eureka", "server.servlet.context-path=/context",
+				"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
 public class ApplicationContextTests {
 
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
@@ -55,39 +54,35 @@ public class ApplicationContextTests {
 	@Test
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/context/eureka/apps", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port + "/context/eureka/apps", Map.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
 	public void dashboardLoads() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/context/", String.class);
+		ResponseEntity<String> entity = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port + "/context/", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String body = entity.getBody();
 		// System.err.println(body);
 		assertThat(body.contains("eureka/js")).isTrue();
 		assertThat(body.contains("eureka/css")).isTrue();
 		// The "DS Replicas"
-		assertThat(
-				body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"))
-						.isTrue();
+		assertThat(body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>")).isTrue();
 	}
 
 	@Test
 	public void cssAvailable() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/context/eureka/css/wro.css",
-				String.class);
+		ResponseEntity<String> entity = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port + "/context/eureka/css/wro.css", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
 	public void jsAvailable() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/context/eureka/js/wro.js",
-				String.class);
+		ResponseEntity<String> entity = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port + "/context/eureka/js/wro.js", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
@@ -98,12 +93,12 @@ public class ApplicationContextTests {
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/context" + BASE_PATH + "/env",
-				HttpMethod.GET, new HttpEntity<>("parameters", headers), Map.class);
+				"http://localhost:" + this.port + "/context" + BASE_PATH + "/env", HttpMethod.GET,
+				new HttpEntity<>("parameters", headers), Map.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {

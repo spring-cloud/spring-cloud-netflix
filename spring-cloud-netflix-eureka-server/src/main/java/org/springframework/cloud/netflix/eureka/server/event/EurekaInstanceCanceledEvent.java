@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +33,7 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	private boolean replication;
 
-	public EurekaInstanceCanceledEvent(Object source, String appName, String serverId,
-			boolean replication) {
+	public EurekaInstanceCanceledEvent(Object source, String appName, String serverId, boolean replication) {
 		super(source);
 		this.appName = appName;
 		this.serverId = serverId;
@@ -74,8 +73,8 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 			return false;
 		}
 		EurekaInstanceCanceledEvent that = (EurekaInstanceCanceledEvent) o;
-		return Objects.equals(appName, that.appName)
-				&& Objects.equals(serverId, that.serverId) && replication == replication;
+		return this.replication == that.replication && Objects.equals(this.appName, that.appName)
+				&& Objects.equals(this.serverId, that.serverId);
 	}
 
 	@Override
@@ -85,10 +84,9 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceCanceledEvent{").append("appName='")
-				.append(appName).append("', ").append("serverId='").append(serverId)
-				.append("', ").append("replication=").append(replication).append("}")
-				.toString();
+		return new StringBuilder("EurekaInstanceCanceledEvent{").append("appName='").append(appName).append("', ")
+				.append("serverId='").append(serverId).append("', ").append("replication=").append(replication)
+				.append("}").toString();
 	}
 
 }
