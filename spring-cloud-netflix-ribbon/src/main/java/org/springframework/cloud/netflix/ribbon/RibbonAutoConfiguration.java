@@ -71,6 +71,7 @@ public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
+
 	@Autowired
 	private RibbonEagerLoadProperties ribbonEagerLoadProperties;
 
