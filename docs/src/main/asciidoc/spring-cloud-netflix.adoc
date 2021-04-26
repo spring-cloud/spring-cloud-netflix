@@ -292,7 +292,6 @@ The following example shows the dependencies you need to add:
 You need not use the raw Netflix `EurekaClient`.
 Also, it is usually more convenient to use it behind a wrapper of some sort.
 Spring Cloud has support for <<spring-cloud-feign, Feign>> (a REST client builder) and <<spring-cloud-ribbon, Spring `RestTemplate`>> through the logical Eureka service identifiers (VIPs) instead of physical URLs.
-To configure Ribbon with a fixed list of physical servers, you can set `<client>.ribbon.listOfServers` to a comma-separated list of physical addresses (or hostnames), where `<client>` is the ID of the client.
 
 You can also use the `org.springframework.cloud.client.discovery.DiscoveryClient`, which provides a simple API (not specific to Netflix) for discovery clients, as shown in the following example:
 
@@ -439,8 +438,6 @@ Clients also have an in-memory cache of Eureka registrations (so they do not hav
 
 By default, every Eureka server is also a Eureka client and requires (at least one) service URL to locate a peer.
 If you do not provide it, the service runs and works, but it fills your logs with a lot of noise about not being able to register with the peer.
-
-See also <<spring-cloud-ribbon,below for details of Ribbon support>> on the client side for Zones and Regions.
 
 [[spring-cloud-eureka-server-standalone-mode]]
 === Standalone Mode
