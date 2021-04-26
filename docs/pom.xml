@@ -13,6 +13,7 @@
 	<description>Spring Cloud Docs</description>
 	<properties>
 		<docs.main>spring-cloud-netflix</docs.main>
+		<main.basedir>${basedir}/..</main.basedir>
 		<configprops.inclusionPattern>
 			.*.eureka.*
 		</configprops.inclusionPattern>
