@@ -1,7 +1,7 @@
 include::_attributes.adoc[]
 
-image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/master.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/master"]
-image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/master/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/master"]
+image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main"]
+image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main"]
 image::https://api.codacy.com/project/badge/Grade/a6885a06921e4f72a0df0b7aabd6d118["Codacy code quality", link="https://www.codacy.com/app/Spring-Cloud/spring-cloud-netflix?utm_source=github.com&utm_medium=referral&utm_content=spring-cloud/spring-cloud-netflix&utm_campaign=Badge_Grade"]
 
 
@@ -21,15 +21,15 @@ include::maintenance-mode.adoc[]
 
 == Building
 
-include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/building-jdk8.adoc[]
+include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/src/main/asciidoc/building-jdk8.adoc[]
 
 NOTE:  To build the module `spring-cloud-netflix-hystrix-contract` along with the entire Netflix project run the
 `build.sh` script in the `scripts` directory.
 
 == Contributing
 
-include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/contributing.adoc[]
+include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/src/main/asciidoc/contributing.adoc[]
 
 == License
 
-The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-openfeign/master/LICENSE.txt[here].
+The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/main/LICENSE.txt[here].

@@ -4,7 +4,7 @@ set -o errexit
 
 mkdir -p target
 
-SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/brewery/master/runAcceptanceTests.sh"
+SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/brewery/main/runAcceptanceTests.sh"
 AT_WHAT_TO_TEST="EUREKA"
 
 cd target
@@ -18,7 +18,7 @@ echo "Killing all running apps"
 
 ./runAcceptanceTests.sh -t "${AT_WHAT_TO_TEST}" --killattheend
 
-SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/tests/master/scripts/runTests.sh"
+SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/tests/main/scripts/runTests.sh"
 
 curl "${SCRIPT_URL}" --output runIntegrationTests.sh
 
