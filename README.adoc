@@ -4,6 +4,7 @@ Manual changes to this file will be lost when it is generated again.
 Edit the files in the src/main/asciidoc/ directory instead.
 ////
 
+
 :doctype: book
 :idprefix:
 :idseparator: -
@@ -20,7 +21,7 @@ Edit the files in the src/main/asciidoc/ directory instead.
 :sc-ext: java
 :project-full-name: Spring Cloud Netflix
 
-image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/master.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/master"]
+image::https://github.com/spring-cloud/spring-cloud-netflix/workflows/Build/badge.svg?branch=2.2.x&style=svg["Build",link="https://github.com/spring-cloud/spring-cloud-netflix/actions"]
 image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/master/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/master"]
 image::https://api.codacy.com/project/badge/Grade/a6885a06921e4f72a0df0b7aabd6d118["Codacy code quality", link="https://www.codacy.com/app/Spring-Cloud/spring-cloud-netflix?utm_source=github.com&utm_medium=referral&utm_content=spring-cloud/spring-cloud-netflix&utm_campaign=Badge_Grade"]
 
@@ -162,6 +163,11 @@ https://www.springsource.com/developer/sts[Spring Tools Suite] or
 https://eclipse.org[Eclipse] when working with the code. We use the
 https://eclipse.org/m2e/[m2eclipse] eclipse plugin for maven support. Other IDEs and tools
 should also work without issue as long as they use Maven 3.3.3 or better.
+
+==== Activate the Spring Maven profile
+Spring Cloud projects require the 'spring' Maven profile to be activated to resolve
+the spring milestone and snapshot repositories. Use your preferred IDE to set this
+profile to be active, or you may experience build errors.
 
 ==== Importing into eclipse with m2eclipse
 We recommend the https://eclipse.org/m2e/[m2eclipse] eclipse plugin when working with
@@ -375,3 +381,7 @@ Go to `File` -> `Settings` -> `Other settings` -> `Checkstyle`. There click on t
 - `checkstyle.additional.suppressions.file` - this variable corresponds to suppressions in your local project. E.g. you're working on `spring-cloud-contract`. Then point to the `project-root/src/checkstyle/checkstyle-suppressions.xml` folder. Example for `spring-cloud-contract` would be: `/home/username/spring-cloud-contract/src/checkstyle/checkstyle-suppressions.xml`.
 
 IMPORTANT: Remember to set the `Scan Scope` to `All sources` since we apply checkstyle rules for production and test sources.
+
+== License
+
+The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-openfeign/master/LICENSE.txt[here].
