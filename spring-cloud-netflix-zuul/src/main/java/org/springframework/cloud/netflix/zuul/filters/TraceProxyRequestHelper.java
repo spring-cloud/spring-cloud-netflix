@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +42,7 @@ import org.springframework.boot.actuate.trace.http.Include;
 import org.springframework.boot.actuate.trace.http.TraceableRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriUtils;
 
 /**
  * @author Spencer Gibb
@@ -149,12 +152,26 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 
 		@Override
 		public URI getUri() {
-			StringBuffer urlBuffer = request.getRequestURL();
-			if (StringUtils.hasText(request.getQueryString())) {
-				urlBuffer.append("?");
-				urlBuffer.append(request.getQueryString());
+			String queryString = this.request.getQueryString();
+			if (!StringUtils.hasText(queryString)) {
+				return URI.create(this.request.getRequestURL().toString());
 			}
-			return URI.create(urlBuffer.toString());
+			try {
+				StringBuffer urlBuffer = appendQueryString(queryString);
+				return new URI(urlBuffer.toString());
+			}
+			catch (URISyntaxException ex) {
+				String encoded = UriUtils.encode(queryString, StandardCharsets.UTF_8);
+				StringBuffer urlBuffer = appendQueryString(encoded);
+				return URI.create(urlBuffer.toString());
+			}
+		}
+
+		private StringBuffer appendQueryString(String queryString) {
+			StringBuffer urlBuffer = this.request.getRequestURL();
+			urlBuffer.append("?");
+			urlBuffer.append(queryString);
+			return urlBuffer;
 		}
 
 		@Override
