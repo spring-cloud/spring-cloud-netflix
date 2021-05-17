@@ -59,7 +59,7 @@ public class TraceProxyRequestHelperTests {
 	}
 
 	private void validate(String expectedUri) {
-		TraceProxyRequestHelper trace = new TraceableHttpServletRequest(this.request);
+		TraceProxyRequestHelper trace = new TraceProxyRequestHelper(this.request);
 		assertThat(trace.getUri().toString()).isEqualTo(expectedUri);
 	}
 
