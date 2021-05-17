@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.boot.actuate.trace.http.TraceableRequest;]
+import org.springframework.boot.actuate.trace.http.TraceableRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriUtils;
 
