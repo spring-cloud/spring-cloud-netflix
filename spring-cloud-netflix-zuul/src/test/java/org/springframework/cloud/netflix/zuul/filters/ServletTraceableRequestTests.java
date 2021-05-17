@@ -24,9 +24,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link TraceProxyRequestHelper}.
+ * Tests for {@link ServletTraceableRequest}.
  */
-public class TraceProxyRequestHelperTests {
+public class ServletTraceableRequestTests {
 
 	private MockHttpServletRequest request;
 
