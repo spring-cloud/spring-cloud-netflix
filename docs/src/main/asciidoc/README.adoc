@@ -26,4 +26,4 @@ include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/
 
 == License
 
-The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-openfeign/main/LICENSE.txt[here].
+The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/main/LICENSE.txt[here].

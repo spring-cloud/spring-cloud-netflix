@@ -339,4 +339,4 @@ IMPORTANT: Remember to set the `Scan Scope` to `All sources` since we apply chec
 
 == License
 
-The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-openfeign/main/LICENSE.txt[here].
+The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/main/LICENSE.txt[here].
