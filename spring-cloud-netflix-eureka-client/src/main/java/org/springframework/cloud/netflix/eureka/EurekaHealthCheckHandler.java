@@ -55,19 +55,20 @@ import org.springframework.util.Assert;
  * {@link HealthCheckHandler}. By default this implementation will perform aggregation of
  * all registered {@link HealthIndicator} through registered {@link HealthAggregator}.
  *
- * A {@code null} status is returned when the application context is closed (or in the process of being closed). This
- * prevents Eureka from updating the health status and only consider the status present in the current InstanceInfo.
+ * A {@code null} status is returned when the application context is closed (or in the
+ * process of being closed). This prevents Eureka from updating the health status and only
+ * consider the status present in the current InstanceInfo.
  *
  * @author Jakub Narloch
  * @author Spencer Gibb
  * @author Nowrin Anwar Joyita
  * @author Bertrand Renuart
- *
  * @see HealthCheckHandler
  * @see StatusAggregator
  * @see HealthAggregator
  */
-public class EurekaHealthCheckHandler implements HealthCheckHandler, ApplicationContextAware, InitializingBean, Ordered, Lifecycle {
+public class EurekaHealthCheckHandler implements HealthCheckHandler,
+		ApplicationContextAware, InitializingBean, Ordered, Lifecycle {
 
 	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
 		{
@@ -83,7 +84,7 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	private ApplicationContext applicationContext;
 
 	/**
-	 * {@code true} until the context is stopped
+	 * {@code true} until the context is stopped.
 	 */
 	private boolean running = true;
 
@@ -196,11 +197,12 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
-		if(running) {
+		if (running) {
 			return getHealthStatus();
 		}
 		else {
-			// Return nothing if the context is stopped so the status held by the InstanceInfo remains unchanged.
+			// Return nothing if the context is not running, so the status held by the
+			// InstanceInfo remains unchanged.
 			// See gh-1571
 			return null;
 		}
@@ -257,11 +259,12 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 		return healthIndicator;
 	}
 
-
 	@Override
 	public int getOrder() {
-		// registered with a high order priority so the close() method is invoked early and *BEFORE* EurekaAutoServiceRegistration
-		// (must be in effect when the registration is closed and the eureka replication triggered -> health check handler is
+		// registered with a high order priority so the close() method is invoked early
+		// and *BEFORE* EurekaAutoServiceRegistration
+		// (must be in effect when the registration is closed and the eureka replication
+		// triggered -> health check handler is
 		// consulted at that moment)
 		return Ordered.HIGHEST_PRECEDENCE;
 	}
@@ -280,4 +283,5 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	public boolean isRunning() {
 		return true;
 	}
+
 }

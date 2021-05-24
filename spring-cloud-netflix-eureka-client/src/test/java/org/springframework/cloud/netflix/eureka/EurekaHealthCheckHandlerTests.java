@@ -73,6 +73,19 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
+	public void testHealthCheckNotReturnedWhenStopped() throws Exception {
+		initialize(UpHealthConfiguration.class);
+
+		healthCheckHandler.stop();
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+
+		assertThat(status).isNull();
+		healthCheckHandler.start();
+		InstanceStatus newStatus = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertThat(newStatus).isEqualTo(InstanceStatus.UP);
+	}
+
+	@Test
 	public void testDownWithBlockingIndicators() throws Exception {
 		initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
 
