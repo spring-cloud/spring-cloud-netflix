@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ import org.springframework.boot.actuate.health.StatusAggregator;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.Lifecycle;
+import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 /**
@@ -48,13 +50,19 @@ import org.springframework.util.Assert;
  * {@link HealthCheckHandler}. By default this implementation will perform aggregation of
  * all registered {@link HealthIndicator} through registered {@link StatusAggregator}.
  *
+ * A {@code null} status is returned when the application context is closed (or in the
+ * process of being closed). This prevents Eureka from updating the health status and only
+ * consider the status present in the current InstanceInfo.
+ *
  * @author Jakub Narloch
  * @author Spencer Gibb
  * @author Nowrin Anwar Joyita
+ * @author Bertrand Renuart
  * @see HealthCheckHandler
  * @see StatusAggregator
  */
-public class EurekaHealthCheckHandler implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
+public class EurekaHealthCheckHandler
+		implements HealthCheckHandler, ApplicationContextAware, InitializingBean, Ordered, Lifecycle {
 
 	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
 		{
@@ -70,6 +78,11 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	private ApplicationContext applicationContext;
 
 	private Map<String, HealthIndicator> healthIndicators = new HashMap<>();
+
+	/**
+	 * {@code true} until the context is stopped.
+	 */
+	private boolean running = true;
 
 	private Map<String, ReactiveHealthIndicator> reactiveHealthIndicators = new HashMap<>();
 
@@ -121,7 +134,15 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
-		return getHealthStatus();
+		if (running) {
+			return getHealthStatus();
+		}
+		else {
+			// Return nothing if the context is not running, so the status held by the
+			// InstanceInfo remains unchanged.
+			// See gh-1571
+			return null;
+		}
 	}
 
 	protected InstanceStatus getHealthStatus() {
@@ -152,6 +173,31 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 			return InstanceStatus.UNKNOWN;
 		}
 		return STATUS_MAPPING.get(status);
+	}
+
+	@Override
+	public int getOrder() {
+		// registered with a high order priority so the close() method is invoked early
+		// and *BEFORE* EurekaAutoServiceRegistration
+		// (must be in effect when the registration is closed and the eureka replication
+		// triggered -> health check handler is
+		// consulted at that moment)
+		return Ordered.HIGHEST_PRECEDENCE;
+	}
+
+	@Override
+	public void start() {
+		running = true;
+	}
+
+	@Override
+	public void stop() {
+		running = false;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return true;
 	}
 
 }
