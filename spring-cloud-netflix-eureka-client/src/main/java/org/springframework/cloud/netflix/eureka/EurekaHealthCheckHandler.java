@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	/**
 	 * {@code true} until the context is stopped
 	 */
-	private boolean contextStarted = true;
+	private boolean running = true;
 
 	private Map<String, HealthIndicator> healthIndicators;
 
@@ -104,8 +104,8 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
 		Assert.notNull(healthAggregator, "HealthAggregator must not be null");
 		this.healthAggregator = healthAggregator;
-		this.healthIndicatorRegistryFactory = new HealthIndicatorRegistryFactory();
-		this.healthIndicator = new CompositeHealthIndicator(this.healthAggregator,
+		healthIndicatorRegistryFactory = new HealthIndicatorRegistryFactory();
+		healthIndicator = new CompositeHealthIndicator(this.healthAggregator,
 				new DefaultHealthIndicatorRegistry());
 	}
 
@@ -160,7 +160,7 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 				this.healthIndicators.put(entry.getKey(), entry.getValue());
 			}
 		}
-		this.healthIndicator = new CompositeHealthIndicator(healthAggregator,
+		healthIndicator = new CompositeHealthIndicator(healthAggregator,
 				healthIndicatorRegistryFactory
 						.createHealthIndicatorRegistry(this.healthIndicators));
 	}
@@ -196,7 +196,7 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
-		if( this.contextStarted ) {
+		if(running) {
 			return getHealthStatus();
 		}
 		else {
@@ -268,12 +268,12 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	@Override
 	public void start() {
-		this.contextStarted = true;
+		running = true;
 	}
 
 	@Override
 	public void stop() {
-		this.contextStarted = false;
+		running = false;
 	}
 
 	@Override
