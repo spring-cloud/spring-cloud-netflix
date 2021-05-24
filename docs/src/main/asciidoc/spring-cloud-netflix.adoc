@@ -226,7 +226,7 @@ public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
 A vanilla Netflix Eureka instance is registered with an ID that is equal to its host name (that is, there is only one service per host).
 Spring Cloud Eureka provides a sensible default, which is defined as follows:
 
-`${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}}`
+`${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}`
 
 An example is `myhost:myappname:8080`.
 
