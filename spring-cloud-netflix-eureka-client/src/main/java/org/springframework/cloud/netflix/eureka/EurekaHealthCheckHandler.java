@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealt
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthIndicator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.Lifecycle;
+import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 /**
@@ -53,15 +55,20 @@ import org.springframework.util.Assert;
  * {@link HealthCheckHandler}. By default this implementation will perform aggregation of
  * all registered {@link HealthIndicator} through registered {@link HealthAggregator}.
  *
+ * A {@code null} status is returned when the application context is closed (or in the
+ * process of being closed). This prevents Eureka from updating the health status and only
+ * consider the status present in the current InstanceInfo.
+ *
  * @author Jakub Narloch
  * @author Spencer Gibb
  * @author Nowrin Anwar Joyita
+ * @author Bertrand Renuart
  * @see HealthCheckHandler
  * @see StatusAggregator
  * @see HealthAggregator
  */
-public class EurekaHealthCheckHandler
-		implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
+public class EurekaHealthCheckHandler implements HealthCheckHandler,
+		ApplicationContextAware, InitializingBean, Ordered, Lifecycle {
 
 	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
 		{
@@ -75,6 +82,11 @@ public class EurekaHealthCheckHandler
 	private StatusAggregator statusAggregator;
 
 	private ApplicationContext applicationContext;
+
+	/**
+	 * {@code true} until the context is stopped.
+	 */
+	private boolean running = true;
 
 	private Map<String, HealthIndicator> healthIndicators;
 
@@ -93,8 +105,8 @@ public class EurekaHealthCheckHandler
 	public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
 		Assert.notNull(healthAggregator, "HealthAggregator must not be null");
 		this.healthAggregator = healthAggregator;
-		this.healthIndicatorRegistryFactory = new HealthIndicatorRegistryFactory();
-		this.healthIndicator = new CompositeHealthIndicator(this.healthAggregator,
+		healthIndicatorRegistryFactory = new HealthIndicatorRegistryFactory();
+		healthIndicator = new CompositeHealthIndicator(this.healthAggregator,
 				new DefaultHealthIndicatorRegistry());
 	}
 
@@ -149,7 +161,7 @@ public class EurekaHealthCheckHandler
 				this.healthIndicators.put(entry.getKey(), entry.getValue());
 			}
 		}
-		this.healthIndicator = new CompositeHealthIndicator(healthAggregator,
+		healthIndicator = new CompositeHealthIndicator(healthAggregator,
 				healthIndicatorRegistryFactory
 						.createHealthIndicatorRegistry(this.healthIndicators));
 	}
@@ -185,7 +197,15 @@ public class EurekaHealthCheckHandler
 
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
-		return getHealthStatus();
+		if (running) {
+			return getHealthStatus();
+		}
+		else {
+			// Return nothing if the context is not running, so the status held by the
+			// InstanceInfo remains unchanged.
+			// See gh-1571
+			return null;
+		}
 	}
 
 	protected InstanceStatus getHealthStatus() {
@@ -237,6 +257,31 @@ public class EurekaHealthCheckHandler
 	@Deprecated
 	protected CompositeHealthIndicator getHealthIndicator() {
 		return healthIndicator;
+	}
+
+	@Override
+	public int getOrder() {
+		// registered with a high order priority so the close() method is invoked early
+		// and *BEFORE* EurekaAutoServiceRegistration
+		// (must be in effect when the registration is closed and the eureka replication
+		// triggered -> health check handler is
+		// consulted at that moment)
+		return Ordered.HIGHEST_PRECEDENCE;
+	}
+
+	@Override
+	public void start() {
+		running = true;
+	}
+
+	@Override
+	public void stop() {
+		running = false;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return true;
 	}
 
 }
