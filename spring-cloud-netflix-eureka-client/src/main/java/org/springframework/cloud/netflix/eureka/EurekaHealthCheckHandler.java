@@ -61,6 +61,8 @@ import org.springframework.util.Assert;
  * @author Jakub Narloch
  * @author Spencer Gibb
  * @author Nowrin Anwar Joyita
+ * @author Bertrand Renuart
+ *
  * @see HealthCheckHandler
  * @see StatusAggregator
  * @see HealthAggregator
