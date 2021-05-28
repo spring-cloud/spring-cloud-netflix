@@ -32,7 +32,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriUtils;
 
 /**
- * @author Spencer Gibb
+ * @author Alexander Kogut
  */	
 public class ServletTraceableRequest implements TraceableRequest {
 
@@ -49,9 +49,9 @@ public class ServletTraceableRequest implements TraceableRequest {
 
 		@Override
 		public URI getUri() {
-			String queryString = this.request.getQueryString();
+			String queryString = request.getQueryString();
 			if (!StringUtils.hasText(queryString)) {
-				return URI.create(this.request.getRequestURL().toString());
+				return URI.create(request.getRequestURL().toString());
 			}
 			try {
 				StringBuffer urlBuffer = appendQueryString(queryString);
@@ -65,7 +65,7 @@ public class ServletTraceableRequest implements TraceableRequest {
 		}
 
 		private StringBuffer appendQueryString(String queryString) {
-			StringBuffer urlBuffer = this.request.getRequestURL();
+			StringBuffer urlBuffer = request.getRequestURL();
 			urlBuffer.append("?");
 			urlBuffer.append(queryString);
 			return urlBuffer;
