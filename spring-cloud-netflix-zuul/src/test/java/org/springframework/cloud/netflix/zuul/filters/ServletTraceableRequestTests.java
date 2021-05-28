@@ -17,7 +17,7 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link ServletTraceableRequest}.
  */
-public class ServletTraceableRequestTests {
+class ServletTraceableRequestTests {
 
 	private MockHttpServletRequest request;
 
