@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -30,7 +30,7 @@ class ServletTraceableRequestTests {
 
 	private MockHttpServletRequest request;
 
-	@BeforeAll
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "/script");
 	}
