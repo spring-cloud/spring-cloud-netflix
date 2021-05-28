@@ -32,7 +32,7 @@ class ServletTraceableRequestTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("GET", "/script");
+		request = new MockHttpServletRequest("GET", "/script");
 	}
 
 	@Test
@@ -42,24 +42,24 @@ class ServletTraceableRequestTests {
 
 	@Test
 	public void getUriShouldReturnUriWithQueryString() {
-		this.request.setQueryString("a=b");
+		request.setQueryString("a=b");
 		validate("http://localhost/script?a=b");
 	}
 
 	@Test
 	public void getUriWithSpecialCharactersInQueryStringShouldEncode() {
-		this.request.setQueryString("a=${b}");
+		request.setQueryString("a=${b}");
 		validate("http://localhost/script?a%3D%24%7Bb%7D");
 	}
 
 	@Test
 	public void getUriWithSpecialCharactersEncodedShouldNotDoubleEncode() {
-		this.request.setQueryString("a%3D%24%7Bb%7D");
+		request.setQueryString("a%3D%24%7Bb%7D");
 		validate("http://localhost/script?a%3D%24%7Bb%7D");
 	}
 
 	private void validate(String expectedUri) {
-		ServletTraceableRequest trace = new ServletTraceableRequest(this.request);
+		ServletTraceableRequest trace = new ServletTraceableRequest(request);
 		assertThat(trace.getUri().toString()).isEqualTo(expectedUri);
 	}
 
