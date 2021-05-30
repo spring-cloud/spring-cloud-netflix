@@ -62,7 +62,8 @@ public class RibbonApacheHttpRequest extends ContextAwareRequest implements Clon
 			// if the entity contentLength isn't set, transfer-encoding will be set
 			// to chunked in org.apache.http.protocol.RequestContent. See gh-1042
 			Long contentLength = this.context.getContentLength();
-			if ("GET".equals(this.context.getMethod())
+			if (("GET".equals(this.context.getMethod())
+					|| "DELETE".equals(this.context.getMethod()))
 					&& (contentLength == null || contentLength < 0)) {
 				entity.setContentLength(0);
 			}

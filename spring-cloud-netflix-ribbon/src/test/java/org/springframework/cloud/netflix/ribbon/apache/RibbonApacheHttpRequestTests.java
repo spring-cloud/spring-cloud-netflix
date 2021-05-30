@@ -80,6 +80,13 @@ public class RibbonApacheHttpRequestTests {
 	}
 
 	@Test
+	public void testEmptyEntityDelete() throws Exception {
+		String entityValue = "";
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false,
+				"DELETE");
+	}
+
+	@Test
 	public void testNonEmptyEntityPost() throws Exception {
 		String entityValue = "abcd";
 		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true,
