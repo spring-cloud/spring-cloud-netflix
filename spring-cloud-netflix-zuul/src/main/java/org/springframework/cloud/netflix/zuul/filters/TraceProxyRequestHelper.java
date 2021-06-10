@@ -19,11 +19,8 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +34,7 @@ import org.springframework.boot.actuate.trace.http.HttpExchangeTracer;
 import org.springframework.boot.actuate.trace.http.HttpTrace;
 import org.springframework.boot.actuate.trace.http.HttpTraceRepository;
 import org.springframework.boot.actuate.trace.http.Include;
-import org.springframework.boot.actuate.trace.http.TraceableRequest;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Spencer Gibb
@@ -133,58 +128,4 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 			info.put("body", entity.length() < 4096 ? entity : entity + "<truncated>");
 		}
 	}
-
-	private class ServletTraceableRequest implements TraceableRequest {
-
-		private HttpServletRequest request;
-
-		ServletTraceableRequest(HttpServletRequest request) {
-			this.request = request;
-		}
-
-		@Override
-		public String getMethod() {
-			return request.getMethod();
-		}
-
-		@Override
-		public URI getUri() {
-			StringBuffer urlBuffer = request.getRequestURL();
-			if (StringUtils.hasText(request.getQueryString())) {
-				urlBuffer.append("?");
-				urlBuffer.append(request.getQueryString());
-			}
-			return URI.create(urlBuffer.toString());
-		}
-
-		@Override
-		public Map<String, List<String>> getHeaders() {
-			return extractHeaders();
-		}
-
-		@Override
-		public String getRemoteAddress() {
-			return request.getRemoteAddr();
-		}
-
-		private Map<String, List<String>> extractHeaders() {
-			Map<String, List<String>> headers = new LinkedHashMap<>();
-			Enumeration<String> names = request.getHeaderNames();
-			while (names.hasMoreElements()) {
-				String name = names.nextElement();
-				headers.put(name, toList(request.getHeaders(name)));
-			}
-			return headers;
-		}
-
-		private List<String> toList(Enumeration<String> enumeration) {
-			List<String> list = new ArrayList<>();
-			while (enumeration.hasMoreElements()) {
-				list.add(enumeration.nextElement());
-			}
-			return list;
-		}
-
-	}
-
 }
