@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
+ * @author Chintan Radia
  */
 public class RibbonApacheHttpRequestTests {
 

@@ -31,6 +31,7 @@ import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCust
 
 /**
  * @author Christian Lohmann
+ * @author Chintan Radia
  */
 public class RibbonApacheHttpRequest extends ContextAwareRequest implements Cloneable {
 
