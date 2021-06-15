@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
+ * @author Chintan Radia
  */
 public class RibbonApacheHttpRequestTests {
 
@@ -77,6 +78,13 @@ public class RibbonApacheHttpRequestTests {
 		String entityValue = "";
 		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false,
 				"GET");
+	}
+
+	@Test
+	public void testEmptyEntityDelete() throws Exception {
+		String entityValue = "";
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false,
+				"DELETE");
 	}
 
 	@Test
