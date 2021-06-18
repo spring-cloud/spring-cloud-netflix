@@ -45,9 +45,9 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 
 	private static final Log log = LogFactory.getLog(InstanceRegistry.class);
 
-	private ApplicationContext ctxt;
+	private ApplicationContext context;
 
-	private int defaultOpenForTrafficCount;
+	private final int defaultOpenForTrafficCount;
 
 	public InstanceRegistry(EurekaServerConfig serverConfig, EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
 			EurekaClient eurekaClient, int expectedNumberOfClientsSendingRenews, int defaultOpenForTrafficCount) {
@@ -59,7 +59,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.ctxt = context;
+		this.context = context;
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	}
 
 	private void publishEvent(ApplicationEvent applicationEvent) {
-		this.ctxt.publishEvent(applicationEvent);
+		this.context.publishEvent(applicationEvent);
 	}
 
 	private int resolveInstanceLeaseDuration(final InstanceInfo info) {
