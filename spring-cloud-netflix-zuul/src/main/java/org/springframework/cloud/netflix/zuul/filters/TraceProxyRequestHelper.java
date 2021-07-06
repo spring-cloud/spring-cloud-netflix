@@ -128,5 +128,4 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 			info.put("body", entity.length() < 4096 ? entity : entity + "<truncated>");
 		}
 	}
-
 }
