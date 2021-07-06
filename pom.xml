@@ -3,14 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-netflix</artifactId>
-	<version>2.2.9.BUILD-SNAPSHOT</version>
+	<version>2.2.9.RELEASE</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>2.3.4.RELEASE</version>
+		<version>2.3.5.RELEASE</version>
 		<relativePath />
 	</parent>
 	<scm>
@@ -21,9 +21,9 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<spring-cloud-commons.version>2.2.9.BUILD-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>2.2.9.BUILD-SNAPSHOT</spring-cloud-config.version>
-		<spring-cloud-stream.version>Horsham.SR12</spring-cloud-stream.version>
+		<spring-cloud-commons.version>2.2.9.RELEASE</spring-cloud-commons.version>
+		<spring-cloud-config.version>2.2.8.RELEASE</spring-cloud-config.version>
+		<spring-cloud-stream.version>Horsham.SR13</spring-cloud-stream.version>
 		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
 		<donotreplacespring-cloud-contract.version>2.2.4.RELEASE</donotreplacespring-cloud-contract.version>
 
