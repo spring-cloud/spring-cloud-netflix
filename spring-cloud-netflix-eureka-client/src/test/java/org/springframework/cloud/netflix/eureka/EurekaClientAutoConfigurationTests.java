@@ -33,10 +33,12 @@ import org.mockito.Mockito;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.context.event.ApplicationPreparedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -51,6 +53,7 @@ import org.springframework.cloud.context.scope.GenericScope;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -448,9 +451,13 @@ public class EurekaClientAutoConfigurationTests {
 				.startsWith(GenericScope.class.getName() + "$LockedScopedProxyFactoryBean");
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void shouldReregisterHealthCheckHandlerAfterRefresh() throws Exception {
-		TestPropertyValues.of("eureka.client.healthcheck.enabled=true").applyTo(this.context);
+		TestPropertyValues
+				.of("eureka.client.healthcheck.enabled=true", "spring.cloud.config.import-check.enabled=false",
+						"spring.cloud.refresh.additionalPropertySourcesToRetain=test")
+				.applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
 
 		EurekaClient oldEurekaClient = getLazyInitEurekaClient();
@@ -462,6 +469,11 @@ public class EurekaClientAutoConfigurationTests {
 		assertThat(oldEurekaClient.getHealthCheckHandler()).isSameAs(healthCheckHandler);
 
 		ContextRefresher refresher = this.context.getBean(ContextRefresher.class);
+		if (refresher instanceof ApplicationListener) {
+			ApplicationListener<ApplicationPreparedEvent> listener = (ApplicationListener) refresher;
+			listener.onApplicationEvent(
+					new ApplicationPreparedEvent(Mockito.mock(SpringApplication.class), new String[0], this.context));
+		}
 		refresher.refresh();
 
 		EurekaClient newEurekaClient = getLazyInitEurekaClient();
