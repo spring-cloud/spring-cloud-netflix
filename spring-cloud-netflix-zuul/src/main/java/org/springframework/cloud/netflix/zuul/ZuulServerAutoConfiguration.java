@@ -133,7 +133,7 @@ public class ZuulServerAutoConfiguration {
 	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes,
 			ZuulController zuulController) {
 		ZuulHandlerMapping mapping = new ZuulHandlerMapping(routes, zuulController);
-		mapping.setErrorController(this.errorController);
+		mapping.setErrorController(this.errorController, this.server.getError().getPath());
 		mapping.setCorsConfigurations(getCorsConfigurations());
 		return mapping;
 	}

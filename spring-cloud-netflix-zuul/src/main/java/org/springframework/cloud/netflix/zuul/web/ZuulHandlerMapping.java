@@ -48,7 +48,9 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 
 	private ErrorController errorController;
 
-	private PathMatcher pathMatcher = new AntPathMatcher();
+	private String errorPath;
+
+	private final PathMatcher pathMatcher = new AntPathMatcher();
 
 	private volatile boolean dirty = true;
 
@@ -69,8 +71,9 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		return super.getCorsHandlerExecutionChain(request, chain, config);
 	}
 
-	public void setErrorController(ErrorController errorController) {
+	public void setErrorController(ErrorController errorController, String errorPath) {
 		this.errorController = errorController;
+		this.errorPath = errorPath;
 	}
 
 	public void setDirty(boolean dirty) {
@@ -83,8 +86,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	@Override
 	protected Object lookupHandler(String urlPath, HttpServletRequest request)
 			throws Exception {
-		if (this.errorController != null
-				&& urlPath.equals(this.errorController.getErrorPath())) {
+		if (this.errorController != null && urlPath.equals(errorPath)) {
 			return null;
 		}
 		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths())) {

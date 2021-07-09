@@ -50,8 +50,7 @@ public class ZuulHandlerMappingTests {
 	public void init() {
 		RequestContext.getCurrentContext().clear();
 		this.mapping = new ZuulHandlerMapping(this.locator, new ZuulController());
-		this.mapping.setErrorController(this.errors);
-		Mockito.when(this.errors.getErrorPath()).thenReturn("/error");
+		this.mapping.setErrorController(this.errors, "/error");
 	}
 
 	@Test
