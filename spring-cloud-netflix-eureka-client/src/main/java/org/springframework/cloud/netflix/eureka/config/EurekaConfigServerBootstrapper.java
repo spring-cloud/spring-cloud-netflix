@@ -19,7 +19,7 @@ package org.springframework.cloud.netflix.eureka.config;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 
 import org.springframework.boot.BootstrapRegistry;
-import org.springframework.boot.Bootstrapper;
+import org.springframework.boot.BootstrapRegistryInitializer;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
@@ -30,10 +30,10 @@ import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFact
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
 import org.springframework.util.ClassUtils;
 
-public class EurekaConfigServerBootstrapper implements Bootstrapper {
+public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitializer {
 
 	@Override
-	public void intitialize(BootstrapRegistry registry) {
+	public void initialize(BootstrapRegistry registry) {
 		if (!ClassUtils.isPresent("org.springframework.cloud.config.client.ConfigServerInstanceProvider", null)) {
 			return;
 		}

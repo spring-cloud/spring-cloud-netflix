@@ -86,7 +86,7 @@ public class EurekaServerMockApplication {
 
 	/**
 	 * Simulates Eureka Server own's serialization.
-	 * @return
+	 * @return converter
 	 */
 	@Bean
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {

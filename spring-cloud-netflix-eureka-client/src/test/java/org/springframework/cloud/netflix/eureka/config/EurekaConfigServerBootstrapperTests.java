@@ -31,7 +31,7 @@ public class EurekaConfigServerBootstrapperTests {
 	public void notEnabledDoesNotAddInstanceProviderFn() {
 		new SpringApplicationBuilder(TestConfig.class)
 				.properties("spring.cloud.service-registry.auto-registration.enabled=false")
-				.addBootstrapper(registry -> registry.addCloseListener(event -> {
+				.addBootstrapRegistryInitializer(registry -> registry.addCloseListener(event -> {
 					ConfigServerInstanceProvider.Function providerFn = event.getBootstrapContext()
 							.get(ConfigServerInstanceProvider.Function.class);
 					assertThat(providerFn).as("ConfigServerInstanceProvider.Function was created when it shouldn't")
@@ -44,7 +44,7 @@ public class EurekaConfigServerBootstrapperTests {
 		new SpringApplicationBuilder(TestConfig.class)
 				.properties("spring.cloud.config.discovery.enabled=true",
 						"spring.cloud.service-registry.auto-registration.enabled=false")
-				.addBootstrapper(registry -> registry.addCloseListener(event -> {
+				.addBootstrapRegistryInitializer(registry -> registry.addCloseListener(event -> {
 					ConfigServerInstanceProvider.Function providerFn = event.getBootstrapContext()
 							.get(ConfigServerInstanceProvider.Function.class);
 					assertThat(providerFn).as("ConfigServerInstanceProvider.Function was not created when it should.")
