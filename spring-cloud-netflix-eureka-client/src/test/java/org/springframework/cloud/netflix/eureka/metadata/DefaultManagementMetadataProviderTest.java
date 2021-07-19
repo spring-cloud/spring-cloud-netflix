@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.metadata;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 
@@ -32,7 +32,7 @@ public class DefaultManagementMetadataProviderTest {
 
 	private final ManagementMetadataProvider provider = new DefaultManagementMetadataProvider();
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		when(INSTANCE.getHostname()).thenReturn("host");
 		when(INSTANCE.getHealthCheckUrlPath()).thenReturn("health");

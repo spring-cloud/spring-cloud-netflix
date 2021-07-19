@@ -25,9 +25,8 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -41,7 +40,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.SmartApplicationListener;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -49,7 +47,6 @@ import static org.mockito.Mockito.doReturn;
 /**
  * @author Bartlomiej Slota
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		value = { "spring.application.name=eureka",
 				"logging.level.org.springframework." + "cloud.netflix.eureka.server.InstanceRegistry=DEBUG" })
@@ -66,7 +63,7 @@ public class InstanceRegistryTests {
 	@SpyBean(PeerAwareInstanceRegistry.class)
 	private InstanceRegistry instanceRegistry;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.testEvents.applicationEvents.clear();
 	}

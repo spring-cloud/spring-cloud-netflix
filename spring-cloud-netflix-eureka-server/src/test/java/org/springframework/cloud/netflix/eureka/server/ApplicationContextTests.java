@@ -19,8 +19,7 @@ package org.springframework.cloud.netflix.eureka.server;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -36,11 +35,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
 		properties = { "spring.application.name=eureka", "server.servlet.context-path=/context",
 				"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })

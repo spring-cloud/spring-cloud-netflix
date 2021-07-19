@@ -22,19 +22,16 @@ import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.ServerCodecs;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka",
 				"server.contextPath=/context", "management.security.enabled=false" })

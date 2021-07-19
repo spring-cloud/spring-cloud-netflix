@@ -24,8 +24,7 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.filter.ClientFilter;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -33,7 +32,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration.RefreshablePeerEurekaNodes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Yuxin Bai
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = RefreshablePeerEurekaNodesWithCustomFiltersTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka",
 				"server.contextPath=/context", "management.security.enabled=false" })

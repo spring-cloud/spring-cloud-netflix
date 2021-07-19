@@ -22,9 +22,9 @@ import java.util.Map;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.eureka.util.StatusInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -58,14 +58,14 @@ public class EurekaControllerReplicasTests {
 
 	private InstanceInfo instanceInfo;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.original = ApplicationInfoManager.getInstance();
 		setInstance(mock(ApplicationInfoManager.class));
 		instanceInfo = mock(InstanceInfo.class);
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		setInstance(this.original);
 		instanceInfo = null;

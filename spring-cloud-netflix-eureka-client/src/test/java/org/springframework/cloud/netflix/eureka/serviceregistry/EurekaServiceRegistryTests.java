@@ -20,7 +20,7 @@ import java.util.Map;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;

@@ -18,8 +18,7 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,11 +27,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.eureka.server.ApplicationContextTests.Application;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
 		value = { "spring.application.name=eureka", "eureka.dashboard.path=/dashboard" })
 public class ApplicationDashboardPathTests {

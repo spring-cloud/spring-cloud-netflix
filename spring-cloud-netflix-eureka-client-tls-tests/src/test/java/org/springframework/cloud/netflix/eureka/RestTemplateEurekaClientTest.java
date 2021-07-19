@@ -21,8 +21,8 @@ import java.security.GeneralSecurityException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -43,7 +43,7 @@ public class RestTemplateEurekaClientTest extends BaseCertTest {
 
 	private static EurekaClientRunner service;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupAll() {
 		server = startEurekaServer(RestTemplateEurekaClientTest.RestTemplateTestEurekaServer.class);
 		service = startService(server, RestTemplateEurekaClientTest.RestTemplateTestApp.class);
@@ -53,7 +53,7 @@ public class RestTemplateEurekaClientTest extends BaseCertTest {
 		waitForRegistration(() -> new RestTemplateEurekaClientTest().createEurekaClient());
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownAll() {
 		stopService(service);
 		stopEurekaServer(server);
