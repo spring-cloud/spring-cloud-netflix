@@ -19,7 +19,7 @@ package org.springframework.cloud.netflix.eureka;
 import com.netflix.discovery.DiscoveryClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -35,7 +35,7 @@ public class EurekaClientTest extends BaseCertTest {
 
 	static EurekaClientRunner service;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupAll() {
 		server = startEurekaServer(EurekaClientTest.TestEurekaServer.class);
 		service = startService(server, EurekaClientTest.TestApp.class);

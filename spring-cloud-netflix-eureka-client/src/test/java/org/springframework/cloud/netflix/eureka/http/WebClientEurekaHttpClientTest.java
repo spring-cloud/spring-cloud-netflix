@@ -18,8 +18,7 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +27,11 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Daniel Lavoie
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.webclient.enabled=true" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -47,7 +44,7 @@ public class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest 
 	@Value("http://${security.user.name}:${security.user.password}@localhost:${local.server.port}")
 	private String serviceUrl;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		eurekaHttpClient = new WebClientTransportClientFactory(WebClient::builder)
 				.newClient(new DefaultEndpoint(serviceUrl));

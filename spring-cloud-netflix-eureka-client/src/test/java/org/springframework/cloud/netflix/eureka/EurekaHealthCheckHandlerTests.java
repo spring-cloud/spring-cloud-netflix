@@ -19,9 +19,9 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.List;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
@@ -49,7 +49,7 @@ public class EurekaHealthCheckHandlerTests {
 
 	private EurekaHealthCheckHandler healthCheckHandler;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 
 		healthCheckHandler = new EurekaHealthCheckHandler(new SimpleStatusAggregator());
@@ -124,7 +124,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	@Ignore // FIXME: 3.0.0
+	@Disabled // FIXME: 3.0.0
 	public void testEurekaIgnored() throws Exception {
 		initialize(EurekaDownHealthConfiguration.class);
 

@@ -17,15 +17,13 @@
 package org.springframework.cloud.netflix.eureka.config;
 
 import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Daniel Lavoie
  */
 @DirtiesContext
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class JerseyOptionalArgsConfigurationTest {
 

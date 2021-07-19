@@ -16,17 +16,20 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Daniel Lavoie
  */
 public class RestTemplateTransportClientFactoriesTest {
 
-	@Test(expected = UnsupportedOperationException.class)
-	public void testJerseyIsUnsuported() {
-		new RestTemplateTransportClientFactories(new RestTemplateDiscoveryClientOptionalArgs(null))
-				.newTransportClientFactory(null, null);
+	@Test
+	public void testJerseyIsUnsupported() {
+		Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+			new RestTemplateTransportClientFactories(new RestTemplateDiscoveryClientOptionalArgs(null))
+					.newTransportClientFactory(null, null);
+		});
 	}
 
 }
