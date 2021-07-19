@@ -27,8 +27,8 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import org.springframework.aop.framework.Advised;
@@ -76,7 +76,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-	@After
+	@AfterEach
 	public void after() {
 		if (this.context != null && this.context.isActive()) {
 			this.context.close();

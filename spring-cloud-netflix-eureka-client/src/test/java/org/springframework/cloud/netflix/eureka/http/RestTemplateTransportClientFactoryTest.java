@@ -17,9 +17,9 @@
 package org.springframework.cloud.netflix.eureka.http;
 
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Daniel Lavoie
@@ -28,7 +28,7 @@ public class RestTemplateTransportClientFactoryTest {
 
 	private RestTemplateTransportClientFactory transportClientFatory;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		transportClientFatory = new RestTemplateTransportClientFactory();
 	}
@@ -48,7 +48,7 @@ public class RestTemplateTransportClientFactoryTest {
 		transportClientFatory.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
 	}
 
-	@After
+	@AfterEach
 	public void shutdown() {
 		transportClientFatory.shutdown();
 	}

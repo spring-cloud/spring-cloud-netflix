@@ -33,9 +33,9 @@ import com.netflix.eureka.EurekaServerContextHolder;
 import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.ReflectionUtils;
@@ -50,7 +50,7 @@ public class EurekaControllerTests {
 
 	private ApplicationInfoManager original;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		PeerEurekaNodes peerEurekaNodes = mock(PeerEurekaNodes.class);
 		when(peerEurekaNodes.getPeerNodesView()).thenReturn(Collections.<PeerEurekaNode>emptyList());
@@ -81,7 +81,7 @@ public class EurekaControllerTests {
 
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		setInstance(this.original);
 	}

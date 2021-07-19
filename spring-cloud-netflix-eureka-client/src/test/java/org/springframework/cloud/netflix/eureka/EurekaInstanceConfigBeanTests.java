@@ -17,9 +17,10 @@
 package org.springframework.cloud.netflix.eureka;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class EurekaInstanceConfigBeanTests {
 
 	private String ipAddress;
 
-	@Before
+	@BeforeEach
 	public void init() throws Exception {
 		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
 			InetUtils.HostInfo hostInfo = utils.findFirstNonLoopbackHostInfo();
@@ -60,7 +61,7 @@ public class EurekaInstanceConfigBeanTests {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void clear() {
 		if (this.context != null) {
 			this.context.close();
@@ -157,10 +158,11 @@ public class EurekaInstanceConfigBeanTests {
 		assertThat(getInstanceConfig().getInitialStatus()).as("initialStatus wrong").isEqualTo(InstanceStatus.UP);
 	}
 
-	@Test(expected = BeanCreationException.class)
 	public void testBadInitialStatus() {
 		TestPropertyValues.of("eureka.instance.initial-status:FOO").applyTo(this.context);
-		setupContext();
+		Assertions.assertThrows(BeanCreationException.class, () -> {
+			setupContext();
+		});
 	}
 
 	@Test

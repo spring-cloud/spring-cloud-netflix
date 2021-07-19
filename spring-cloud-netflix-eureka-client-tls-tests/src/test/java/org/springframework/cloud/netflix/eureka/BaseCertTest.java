@@ -24,9 +24,10 @@ import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 
@@ -94,7 +95,7 @@ public abstract class BaseCertTest {
 		}
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void createCertificates() throws Exception {
 		KeyTool tool = new KeyTool();
 
@@ -113,7 +114,7 @@ public abstract class BaseCertTest {
 		wrongClientCert = saveKeyAndCert(wrongClient);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void afterClass() {
 		log.info("Tests finished!");
 	}
@@ -147,20 +148,24 @@ public abstract class BaseCertTest {
 		}
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void wrongPasswordCauseFailure() {
 		EurekaClientRunner client = createEurekaClient();
 		enableTlsClient(client);
 		client.setKeyStore(clientCert, WRONG_PASSWORD, WRONG_PASSWORD);
-		client.start();
+		Assertions.assertThrows(BeanCreationException.class, () -> {
+			client.start();
+		});
 	}
 
-	@Test(expected = BeanCreationException.class)
+	@Test
 	public void nonExistKeyStoreCauseFailure() {
 		EurekaClientRunner client = createEurekaClient();
 		enableTlsClient(client);
 		client.setKeyStore(new File("nonExistFile"));
-		client.start();
+		Assertions.assertThrows(BeanCreationException.class, () -> {
+			client.start();
+		});
 	}
 
 	@Test

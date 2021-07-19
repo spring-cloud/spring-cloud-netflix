@@ -18,8 +18,7 @@ package org.springframework.cloud.netflix.eureka.healthcheck;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
@@ -30,7 +29,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Jakub Narloch
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaHealthCheckTests.EurekaHealthCheckApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT, value = { "eureka.client.healthcheck.enabled=true", "debug=true" })
 @DirtiesContext
