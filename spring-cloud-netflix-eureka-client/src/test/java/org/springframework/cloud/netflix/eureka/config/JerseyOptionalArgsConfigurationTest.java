@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @DirtiesContext
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class JerseyOptionalArgsConfigurationTest {
+class JerseyOptionalArgsConfigurationTest {
 
 	@Autowired
 	private DiscoveryClientOptionalArgs optionalArgs;
 
 	@Test
-	public void contextLoads() {
+	void contextLoads() {
 		assertThat(optionalArgs).isNotNull();
 	}
 

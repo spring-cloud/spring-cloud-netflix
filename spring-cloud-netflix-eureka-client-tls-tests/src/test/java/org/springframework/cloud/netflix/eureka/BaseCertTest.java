@@ -33,7 +33,7 @@ import org.springframework.beans.factory.BeanCreationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class BaseCertTest {
+abstract class BaseCertTest {
 
 	private static final Log log = LogFactory.getLog(BaseCertTest.class);
 
@@ -96,7 +96,7 @@ public abstract class BaseCertTest {
 	}
 
 	@BeforeAll
-	public static void createCertificates() throws Exception {
+	static void createCertificates() throws Exception {
 		KeyTool tool = new KeyTool();
 
 		KeyAndCert ca = tool.createCA("MyCA");
@@ -115,7 +115,7 @@ public abstract class BaseCertTest {
 	}
 
 	@AfterAll
-	public static void afterClass() {
+	static void afterClass() {
 		log.info("Tests finished!");
 	}
 
@@ -126,11 +126,11 @@ public abstract class BaseCertTest {
 	 * purpose explicitly.
 	 */
 	@Test
-	public void clientCertCanWork() {
+	void clientCertCanWork() {
 	}
 
 	@Test
-	public void noCertCannotWork() {
+	void noCertCannotWork() {
 		try (EurekaClientRunner client = createEurekaClient()) {
 			client.disableTls();
 			client.start();
@@ -139,7 +139,7 @@ public abstract class BaseCertTest {
 	}
 
 	@Test
-	public void wrongCertCannotWork() {
+	void wrongCertCannotWork() {
 		try (EurekaClientRunner client = createEurekaClient()) {
 			enableTlsClient(client);
 			client.setKeyStore(wrongClientCert);
@@ -149,7 +149,7 @@ public abstract class BaseCertTest {
 	}
 
 	@Test
-	public void wrongPasswordCauseFailure() {
+	void wrongPasswordCauseFailure() {
 		EurekaClientRunner client = createEurekaClient();
 		enableTlsClient(client);
 		client.setKeyStore(clientCert, WRONG_PASSWORD, WRONG_PASSWORD);
@@ -159,7 +159,7 @@ public abstract class BaseCertTest {
 	}
 
 	@Test
-	public void nonExistKeyStoreCauseFailure() {
+	void nonExistKeyStoreCauseFailure() {
 		EurekaClientRunner client = createEurekaClient();
 		enableTlsClient(client);
 		client.setKeyStore(new File("nonExistFile"));
@@ -169,7 +169,7 @@ public abstract class BaseCertTest {
 	}
 
 	@Test
-	public void wrongTrustStoreCannotWork() {
+	void wrongTrustStoreCannotWork() {
 		try (EurekaClientRunner client = createEurekaClient()) {
 			enableTlsClient(client);
 			client.setTrustStore(wrongCaCert);

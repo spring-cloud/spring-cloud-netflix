@@ -41,10 +41,10 @@ import static org.mockito.Mockito.when;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
-public class EurekaServiceRegistryTests {
+class EurekaServiceRegistryTests {
 
 	@Test
-	public void eurekaClientNotShutdownInDeregister() {
+	void eurekaClientNotShutdownInDeregister() {
 		EurekaServiceRegistry registry = new EurekaServiceRegistry();
 
 		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
@@ -63,7 +63,7 @@ public class EurekaServiceRegistryTests {
 	}
 
 	@Test
-	public void eurekaClientGetStatus() {
+	void eurekaClientGetStatus() {
 		EurekaServiceRegistry registry = new EurekaServiceRegistry();
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
@@ -99,7 +99,7 @@ public class EurekaServiceRegistryTests {
 	}
 
 	@Test
-	public void eurekaClientGetStatusNoInstance() {
+	void eurekaClientGetStatusNoInstance() {
 		EurekaServiceRegistry registry = new EurekaServiceRegistry();
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));

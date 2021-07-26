@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
 		properties = { "spring.application.name=eureka", "server.servlet.context-path=/context",
 				"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
-public class ApplicationContextTests {
+class ApplicationContextTests {
 
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
@@ -49,7 +49,7 @@ public class ApplicationContextTests {
 	private int port = 0;
 
 	@Test
-	public void catalogLoads() {
+	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/context/eureka/apps", Map.class);
@@ -57,7 +57,7 @@ public class ApplicationContextTests {
 	}
 
 	@Test
-	public void dashboardLoads() {
+	void dashboardLoads() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/context/", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -70,21 +70,21 @@ public class ApplicationContextTests {
 	}
 
 	@Test
-	public void cssAvailable() {
+	void cssAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/context/eureka/css/wro.css", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
-	public void jsAvailable() {
+	void jsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/context/eureka/js/wro.js", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
-	public void adminLoads() {
+	void adminLoads() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 

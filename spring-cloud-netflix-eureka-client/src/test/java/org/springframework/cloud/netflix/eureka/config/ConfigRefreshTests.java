@@ -33,7 +33,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Ryan Baxter
  */
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = RefreshEurekaSampleApplication.class)
-public class ConfigRefreshTests {
+class ConfigRefreshTests {
 
 	@Autowired
 	private ApplicationEventPublisher publisher;
@@ -48,7 +48,7 @@ public class ConfigRefreshTests {
 	// EurekaClientConfigurationRefresher.onApplicationEvent
 	// ensures that the EurekaClient bean is recreated after a refresh event and that we
 	// reregister the client with the server
-	public void verifyGetApplications() {
+	void verifyGetApplications() {
 		if (publisher != null) {
 			publisher.publishEvent(new RefreshScopeRefreshedEvent());
 		}

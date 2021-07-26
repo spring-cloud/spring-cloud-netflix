@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
 		value = { "spring.application.name=eureka", "eureka.dashboard.path=/dashboard" })
-public class ApplicationDashboardPathTests {
+class ApplicationDashboardPathTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;
 
 	@Test
-	public void catalogLoads() {
+	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
@@ -46,7 +46,7 @@ public class ApplicationDashboardPathTests {
 	}
 
 	@Test
-	public void dashboardLoads() {
+	void dashboardLoads() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/dashboard", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -63,14 +63,14 @@ public class ApplicationDashboardPathTests {
 	}
 
 	@Test
-	public void cssAvailable() {
+	void cssAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/eureka/css/wro.css", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
-	public void jsAvailable() {
+	void jsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/eureka/js/wro.js", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);

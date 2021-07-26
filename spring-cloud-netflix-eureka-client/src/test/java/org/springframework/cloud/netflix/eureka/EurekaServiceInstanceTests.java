@@ -20,10 +20,10 @@ import com.netflix.appinfo.InstanceInfo;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class EurekaServiceInstanceTests {
+class EurekaServiceInstanceTests {
 
 	@Test
-	public void getSchemeReturnsNonNull() {
+	void getSchemeReturnsNonNull() {
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("test").setHostName("myhost")
 				.setPort(8080).build();
 		EurekaServiceInstance instance = new EurekaServiceInstance(instanceInfo);

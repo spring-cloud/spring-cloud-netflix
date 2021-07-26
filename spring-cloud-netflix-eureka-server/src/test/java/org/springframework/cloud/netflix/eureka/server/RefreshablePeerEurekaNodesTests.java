@@ -58,7 +58,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(classes = RefreshablePeerEurekaNodesTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka-server",
 				"eureka.client.service-url.defaultZone=http://localhost:8678/eureka/" })
-public class RefreshablePeerEurekaNodesTests {
+class RefreshablePeerEurekaNodesTests {
 
 	@Autowired
 	private ConfigurableApplicationContext context;
@@ -76,7 +76,7 @@ public class RefreshablePeerEurekaNodesTests {
 	private static final String USE_DNS = "eureka.client.use-dns-for-fetching-service-urls";
 
 	@Test
-	public void notUpdatedWhenDnsIsTrue() {
+	void notUpdatedWhenDnsIsTrue() {
 		changeProperty("eureka.client.use-dns-for-fetching-service-urls=true",
 				"eureka.client.region=unavailable-region", // to force defaultZone
 				"eureka.client.service-url.defaultZone=https://default-host1:8678/eureka/");
@@ -88,7 +88,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void updatedWhenDnsIsFalse() {
+	void updatedWhenDnsIsFalse() {
 		changeProperty("eureka.client.use-dns-for-fetching-service-urls=false",
 				"eureka.client.region=unavailable-region", // to force defaultZone
 				"eureka.client.service-url.defaultZone=https://default-host2:8678/eureka/");
@@ -100,7 +100,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void updatedWhenRegionChanged() {
+	void updatedWhenRegionChanged() {
 		changeProperty("eureka.client.use-dns-for-fetching-service-urls=false", "eureka.client.region=region1",
 				"eureka.client.availability-zones.region1=region1-zone",
 				"eureka.client.availability-zones.region2=region2-zone",
@@ -117,7 +117,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void updatedWhenAvailabilityZoneChanged() {
+	void updatedWhenAvailabilityZoneChanged() {
 		changeProperty("eureka.client.use-dns-for-fetching-service-urls=false", "eureka.client.region=region4",
 				"eureka.client.availability-zones.region3=region3-zone",
 				"eureka.client.service-url.region4-zone=https://region4-zone-host:8678/eureka/",
@@ -135,7 +135,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void notUpdatedWhenIrrelevantPropertiesChanged() {
+	void notUpdatedWhenIrrelevantPropertiesChanged() {
 		// Only way to test this is verifying whether updatePeerEurekaNodes() is invoked.
 
 		// PeerEurekaNodes.updatePeerEurekaNodes() is not public, hence cannot verify with
@@ -165,14 +165,14 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void peerEurekaNodesIsRefreshablePeerEurekaNodes() {
+	void peerEurekaNodesIsRefreshablePeerEurekaNodes() {
 		assertThat(this.peerEurekaNodes).isNotNull();
 		assertThat(this.peerEurekaNodes instanceof RefreshablePeerEurekaNodes)
 				.as("PeerEurekaNodes should be an instance of RefreshablePeerEurekaNodes").isTrue();
 	}
 
 	@Test
-	public void serviceUrlsCountAsSoonAsRefreshed() {
+	void serviceUrlsCountAsSoonAsRefreshed() {
 		changeProperty(
 				"eureka.client.service-url.defaultZone=https://defaul-host3:8678/eureka/,http://defaul-host4:8678/eureka/");
 		forceUpdate();
@@ -181,7 +181,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void serviceUrlsValueAsSoonAsRefreshed() {
+	void serviceUrlsValueAsSoonAsRefreshed() {
 		changeProperty("eureka.client.service-url.defaultZone=https://defaul-host4:8678/eureka/");
 		forceUpdate();
 		assertThat(serviceUrlMatches("https://defaul-host4:8678/eureka/"))
@@ -189,7 +189,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void dashboardUpdatedAsSoonAsRefreshed() {
+	void dashboardUpdatedAsSoonAsRefreshed() {
 		changeProperty("eureka.client.service-url.defaultZone=https://defaul-host5:8678/eureka/");
 		forceUpdate();
 		final ResponseEntity<String> entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/",
@@ -202,7 +202,7 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 
 	@Test
-	public void notUpdatedForRelaxedKeys() {
+	void notUpdatedForRelaxedKeys() {
 		changeProperty("eureka.client.use-dns-for-fetching-service-urls=false",
 				"eureka.client.region=unavailable-region", // to force defaultZone
 				"eureka.client.service-url.defaultZone=https://defaul-host6:8678/eureka/");

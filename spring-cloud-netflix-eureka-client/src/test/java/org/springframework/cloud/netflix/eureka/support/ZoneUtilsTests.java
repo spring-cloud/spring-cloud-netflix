@@ -24,10 +24,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Ryan Baxter
  *
  */
-public class ZoneUtilsTests {
+class ZoneUtilsTests {
 
 	@Test
-	public void extractApproximateZoneTest() {
+	void extractApproximateZoneTest() {
 		assertThat("foo".equals(ZoneUtils.extractApproximateZone("foo"))).isTrue();
 		assertThat("bar".equals(ZoneUtils.extractApproximateZone("foo.bar"))).isTrue();
 		assertThat("world.foo.bar".equals(ZoneUtils.extractApproximateZone("hello.world.foo.bar"))).isTrue();

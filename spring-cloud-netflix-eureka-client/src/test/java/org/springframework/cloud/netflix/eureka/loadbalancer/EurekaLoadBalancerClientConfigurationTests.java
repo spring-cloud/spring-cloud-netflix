@@ -57,14 +57,14 @@ class EurekaLoadBalancerClientConfigurationTests {
 	}
 
 	@Test
-	public void shouldSetZoneToDefaultWhenNotSetInMetadata() {
+	void shouldSetZoneToDefaultWhenNotSetInMetadata() {
 		postprocessor.postprocess();
 
 		assertThat(zoneConfig.getZone()).isEqualTo("defaultZone");
 	}
 
 	@Test
-	public void shouldResolveApproximateZoneFromHost() {
+	void shouldResolveApproximateZoneFromHost() {
 		eurekaInstanceConfig.setHostname("this.is.a.test.com");
 		eurekaLoadBalancerProperties.setApproximateZoneFromHostname(true);
 
@@ -74,7 +74,7 @@ class EurekaLoadBalancerClientConfigurationTests {
 	}
 
 	@Test
-	public void disabledViaProperty() {
+	void disabledViaProperty() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(LoadBalancerEurekaAutoConfiguration.class))
 				.withPropertyValues("eureka.client.enabled=false").run(context -> {

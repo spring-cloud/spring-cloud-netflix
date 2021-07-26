@@ -34,7 +34,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true" }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class RestTemplateEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
+class RestTemplateEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
 
 	@Autowired
 	private InetUtils inetUtils;
@@ -43,7 +43,7 @@ public class RestTemplateEurekaHttpClientTest extends AbstractEurekaHttpClientTe
 	private String serviceUrl;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		eurekaHttpClient = new RestTemplateTransportClientFactory().newClient(new DefaultEndpoint(serviceUrl));
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);

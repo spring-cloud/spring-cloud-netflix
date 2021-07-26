@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
 		value = { "spring.application.name=eureka", "eureka.dashboard.enabled=false" })
-public class ApplicationDashboardDisabledTests {
+class ApplicationDashboardDisabledTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;
 
 	@Test
-	public void catalogLoads() {
+	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
@@ -46,7 +46,7 @@ public class ApplicationDashboardDisabledTests {
 	}
 
 	@Test
-	public void dashboardLoads() {
+	void dashboardLoads() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity("http://localhost:" + this.port + "/",
 				String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);

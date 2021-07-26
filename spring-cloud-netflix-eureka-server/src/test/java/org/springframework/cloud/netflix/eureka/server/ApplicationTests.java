@@ -44,7 +44,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = { "spring.jmx.enabled=true",
 		"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
-public class ApplicationTests {
+class ApplicationTests {
 
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
@@ -55,7 +55,7 @@ public class ApplicationTests {
 	private ServerCodecs serverCodecs;
 
 	@Test
-	public void catalogLoads() {
+	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
@@ -63,7 +63,7 @@ public class ApplicationTests {
 	}
 
 	@Test
-	public void adminLoads() {
+	void adminLoads() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
@@ -75,7 +75,7 @@ public class ApplicationTests {
 	}
 
 	@Test
-	public void noDoubleSlashes() {
+	void noDoubleSlashes() {
 		String basePath = "http://localhost:" + this.port + "/";
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath, String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -85,7 +85,7 @@ public class ApplicationTests {
 	}
 
 	@Test
-	public void cssParsedByLess() {
+	void cssParsedByLess() {
 		String basePath = "http://localhost:" + this.port + "/eureka/css/wro.css";
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath, String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -95,7 +95,7 @@ public class ApplicationTests {
 	}
 
 	@Test
-	public void customCodecWorks() throws Exception {
+	void customCodecWorks() throws Exception {
 		assertThat(this.serverCodecs).as("serverCodecs is wrong type")
 				.isInstanceOf(EurekaServerAutoConfiguration.CloudServerCodecs.class);
 		CodecWrapper codec = this.serverCodecs.getFullJsonCodec();

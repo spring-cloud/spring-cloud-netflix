@@ -44,14 +44,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class EurekaControllerTests {
+class EurekaControllerTests {
 
 	private ApplicationInfoManager infoManager;
 
 	private ApplicationInfoManager original;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	void setup() throws Exception {
 		PeerEurekaNodes peerEurekaNodes = mock(PeerEurekaNodes.class);
 		when(peerEurekaNodes.getPeerNodesView()).thenReturn(Collections.<PeerEurekaNode>emptyList());
 
@@ -82,7 +82,7 @@ public class EurekaControllerTests {
 	}
 
 	@AfterEach
-	public void teardown() throws Exception {
+	void teardown() throws Exception {
 		setInstance(this.original);
 	}
 
@@ -93,7 +93,7 @@ public class EurekaControllerTests {
 	}
 
 	@Test
-	public void testStatus() throws Exception {
+	void testStatus() throws Exception {
 		Map<String, Object> model = new HashMap<>();
 
 		EurekaController controller = new EurekaController(infoManager);

@@ -40,13 +40,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(classes = EurekaHealthCheckTests.EurekaHealthCheckApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT, value = { "eureka.client.healthcheck.enabled=true", "debug=true" })
 @DirtiesContext
-public class EurekaHealthCheckTests {
+class EurekaHealthCheckTests {
 
 	@Autowired
 	private EurekaClient discoveryClient;
 
 	@Test
-	public void shouldRegisterService() {
+	void shouldRegisterService() {
 
 		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
 				.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
