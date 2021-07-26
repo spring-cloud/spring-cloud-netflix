@@ -53,13 +53,13 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions("spring-webflux-*")
-public class EurekaConfigServerBootstrapConfigurationTests {
+class EurekaConfigServerBootstrapConfigurationTests {
 
 	@Rule
 	public OutputCaptureRule output = new OutputCaptureRule();
 
 	@Test
-	public void offByDefault() {
+	void offByDefault() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.run(context -> {
@@ -70,7 +70,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void properBeansCreatedWhenEnabled() {
+	void properBeansCreatedWhenEnabled() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true").run(context -> {
@@ -81,7 +81,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void eurekaDnsConfigurationWorks() {
+	void eurekaDnsConfigurationWorks() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true",
@@ -95,7 +95,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void eurekaConfigServerInstanceProviderCalled() {
+	void eurekaConfigServerInstanceProviderCalled() {
 		// FIXME: why do I need to do this? (fails in maven build without it.
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)

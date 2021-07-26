@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Daniel Lavoie
  */
-public class RestTemplateTransportClientFactoriesTest {
+class RestTemplateTransportClientFactoriesTest {
 
 	@Test
-	public void testJerseyIsUnsupported() {
+	void testJerseyIsUnsupported() {
 		Assertions.assertThrows(UnsupportedOperationException.class, () -> {
 			new RestTemplateTransportClientFactories(new RestTemplateDiscoveryClientOptionalArgs(null))
 					.newTransportClientFactory(null, null);

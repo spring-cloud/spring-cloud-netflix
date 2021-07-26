@@ -28,80 +28,80 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Haytham Mohamed
  **/
-public abstract class AbstractEurekaHttpClientTest {
+abstract class AbstractEurekaHttpClientTest {
 
 	protected EurekaHttpClient eurekaHttpClient;
 
 	protected InstanceInfo info;
 
-	abstract public void setup();
+	abstract void setup();
 
 	@Test
-	public void testRegister() {
+	void testRegister() {
 		assertThat(eurekaHttpClient.register(info).getStatusCode()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
-	public void testCancel() {
+	void testCancel() {
 		assertThat(eurekaHttpClient.cancel("test", "test").getStatusCode()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
-	public void testSendHeartBeat() {
+	void testSendHeartBeat() {
 		assertThat(eurekaHttpClient.sendHeartBeat("test", "test", info, null).getStatusCode())
 				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
-	public void testSendHeartBeatFourOFour() {
+	void testSendHeartBeatFourOFour() {
 		assertThat(eurekaHttpClient.sendHeartBeat("fourOFour", "test", info, null).getStatusCode())
 				.isEqualTo(HttpStatus.NOT_FOUND.value());
 	}
 
 	@Test
-	public void testStatusUpdate() {
+	void testStatusUpdate() {
 		assertThat(eurekaHttpClient.statusUpdate("test", "test", InstanceInfo.InstanceStatus.UP, info).getStatusCode())
 				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
-	public void testDeleteStatusOverride() {
+	void testDeleteStatusOverride() {
 		assertThat(eurekaHttpClient.deleteStatusOverride("test", "test", info).getStatusCode())
 				.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
-	public void testGetApplications() {
+	void testGetApplications() {
 		Applications entity = eurekaHttpClient.getApplications().getEntity();
 		assertThat(entity).isNotNull();
 		assertThat(eurekaHttpClient.getApplications("us", "eu").getEntity()).isNotNull();
 	}
 
 	@Test
-	public void testGetDelta() {
+	void testGetDelta() {
 		eurekaHttpClient.getDelta().getEntity();
 		eurekaHttpClient.getDelta("us", "eu").getEntity();
 	}
 
 	@Test
-	public void testGetVips() {
+	void testGetVips() {
 		eurekaHttpClient.getVip("test");
 		eurekaHttpClient.getVip("test", "us", "eu");
 	}
 
 	@Test
-	public void testGetSecureVip() {
+	void testGetSecureVip() {
 		eurekaHttpClient.getSecureVip("test");
 		eurekaHttpClient.getSecureVip("test", "us", "eu");
 	}
 
 	@Test
-	public void testGetApplication() {
+	void testGetApplication() {
 		eurekaHttpClient.getApplication("test");
 	}
 
 	@Test
-	public void testGetInstance() {
+	void testGetInstance() {
 		eurekaHttpClient.getInstance("test");
 		eurekaHttpClient.getInstance("test", "test");
 	}

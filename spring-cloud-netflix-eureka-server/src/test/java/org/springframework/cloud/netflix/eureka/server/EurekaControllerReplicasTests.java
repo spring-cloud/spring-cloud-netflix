@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.springframework.cloud.netflix.eureka.server.EurekaControllerTests.setInstance;
 
-public class EurekaControllerReplicasTests {
+class EurekaControllerReplicasTests {
 
 	String noAuthList1 = "https://test1.com";
 
@@ -59,20 +59,20 @@ public class EurekaControllerReplicasTests {
 	private InstanceInfo instanceInfo;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	void setup() throws Exception {
 		this.original = ApplicationInfoManager.getInstance();
 		setInstance(mock(ApplicationInfoManager.class));
 		instanceInfo = mock(InstanceInfo.class);
 	}
 
 	@AfterEach
-	public void teardown() throws Exception {
+	void teardown() throws Exception {
 		setInstance(this.original);
 		instanceInfo = null;
 	}
 
 	@Test
-	public void testFilterReplicasNoAuth() throws Exception {
+	void testFilterReplicasNoAuth() throws Exception {
 		Map<String, Object> model = new HashMap<>();
 		StatusInfo statusInfo = StatusInfo.Builder.newBuilder().add("registered-replicas", empty)
 				.add("available-replicas", noAuthList1).add("unavailable-replicas", noAuthList2)
@@ -90,7 +90,7 @@ public class EurekaControllerReplicasTests {
 	}
 
 	@Test
-	public void testFilterReplicasAuth() throws Exception {
+	void testFilterReplicasAuth() throws Exception {
 		Map<String, Object> model = new HashMap<>();
 		StatusInfo statusInfo = StatusInfo.Builder.newBuilder().add("registered-replicas", authList2)
 				.add("available-replicas", authList1).add("unavailable-replicas", empty).withInstanceInfo(instanceInfo)
@@ -108,7 +108,7 @@ public class EurekaControllerReplicasTests {
 	}
 
 	@Test
-	public void testFilterReplicasAuthWithCombinationList() throws Exception {
+	void testFilterReplicasAuthWithCombinationList() throws Exception {
 		Map<String, Object> model = new HashMap<>();
 		StatusInfo statusInfo = StatusInfo.Builder.newBuilder().add("registered-replicas", totalAutoList)
 				.add("available-replicas", combinationAuthList1).add("unavailable-replicas", combinationAuthList2)

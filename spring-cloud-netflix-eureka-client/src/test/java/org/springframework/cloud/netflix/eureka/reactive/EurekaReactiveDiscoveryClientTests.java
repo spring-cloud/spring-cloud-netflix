@@ -54,13 +54,13 @@ class EurekaReactiveDiscoveryClientTests {
 	private EurekaReactiveDiscoveryClient client;
 
 	@Test
-	public void verifyDefaults() {
+	void verifyDefaults() {
 		assertThat(client.description()).isEqualTo("Spring Cloud Eureka Reactive Discovery Client");
 		assertThat(client.getOrder()).isEqualTo(ReactiveDiscoveryClient.DEFAULT_ORDER);
 	}
 
 	@Test
-	public void verifyDefaultsWhenUsingEurekaClientConfigBean() {
+	void verifyDefaultsWhenUsingEurekaClientConfigBean() {
 		EurekaClientConfigBean configBean = new EurekaClientConfigBean();
 		configBean.setOrder(1);
 		EurekaReactiveDiscoveryClient client = new EurekaReactiveDiscoveryClient(eurekaClient, configBean);
@@ -69,14 +69,14 @@ class EurekaReactiveDiscoveryClientTests {
 	}
 
 	@Test
-	public void shouldReturnEmptyFluxOfServices() {
+	void shouldReturnEmptyFluxOfServices() {
 		when(eurekaClient.getApplications()).thenReturn(new Applications());
 		Flux<String> services = this.client.getServices();
 		StepVerifier.create(services).expectNextCount(0).expectComplete().verify();
 	}
 
 	@Test
-	public void shouldReturnEmptyFluxOfServicesWhenNoInstancesFound() {
+	void shouldReturnEmptyFluxOfServicesWhenNoInstancesFound() {
 		Applications applications = new Applications();
 		applications.addApplication(new Application("my-service"));
 		when(eurekaClient.getApplications()).thenReturn(applications);
@@ -85,7 +85,7 @@ class EurekaReactiveDiscoveryClientTests {
 	}
 
 	@Test
-	public void shouldReturnFluxOfServices() {
+	void shouldReturnFluxOfServices() {
 		Applications applications = new Applications();
 		Application app = new Application("my-service");
 		app.addInstance(new InstanceInfo("instance", "my-service", "", "127.0.0.1", "", null, null, "", "", "", "", "",
@@ -97,14 +97,14 @@ class EurekaReactiveDiscoveryClientTests {
 	}
 
 	@Test
-	public void shouldReturnEmptyFluxForNonExistingService() {
+	void shouldReturnEmptyFluxForNonExistingService() {
 		when(eurekaClient.getInstancesByVipAddress("nonexistent-service", false)).thenReturn(emptyList());
 		Flux<ServiceInstance> instances = this.client.getInstances("nonexistent-service");
 		StepVerifier.create(instances).expectNextCount(0).expectComplete().verify();
 	}
 
 	@Test
-	public void shouldReturnFluxOfServiceInstances() {
+	void shouldReturnFluxOfServiceInstances() {
 		InstanceInfo instanceInfo = new InstanceInfo(
 				new InstanceInfo("instance", "my-service", "", "127.0.0.1", "", null, null, "", "", "", "", "", "", 0,
 						null, "", null, null, null, null, null, null, null, null, null, null));

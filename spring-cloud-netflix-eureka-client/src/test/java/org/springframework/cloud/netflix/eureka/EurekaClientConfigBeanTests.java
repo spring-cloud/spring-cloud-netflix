@@ -34,19 +34,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Dave Syer
  */
-public class EurekaClientConfigBeanTests {
+class EurekaClientConfigBeanTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@AfterEach
-	public void init() {
+	void init() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void basicBinding() {
+	void basicBinding() {
 		TestPropertyValues.of("eureka.client.proxyHost=example.com").applyTo(this.context);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();
@@ -54,7 +54,7 @@ public class EurekaClientConfigBeanTests {
 	}
 
 	@Test
-	public void serviceUrl() {
+	void serviceUrl() {
 		TestPropertyValues.of("eureka.client.serviceUrl.defaultZone:https://example.com").applyTo(this.context);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();
@@ -64,7 +64,7 @@ public class EurekaClientConfigBeanTests {
 	}
 
 	@Test
-	public void serviceUrlWithCompositePropertySource() {
+	void serviceUrlWithCompositePropertySource() {
 		CompositePropertySource source = new CompositePropertySource("composite");
 		this.context.getEnvironment().getPropertySources().addFirst(source);
 		source.addPropertySource(new MapPropertySource("config", Collections.<String, Object>singletonMap(
@@ -79,7 +79,7 @@ public class EurekaClientConfigBeanTests {
 	}
 
 	@Test
-	public void serviceUrlWithDefault() {
+	void serviceUrlWithDefault() {
 		TestPropertyValues.of("eureka.client.serviceUrl.defaultZone:https://example.com").applyTo(this.context);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();
@@ -87,7 +87,7 @@ public class EurekaClientConfigBeanTests {
 	}
 
 	@Test
-	public void serviceUrlWithCustomZone() {
+	void serviceUrlWithCustomZone() {
 		TestPropertyValues.of("eureka.client.serviceUrl.customZone:https://custom-example.com").applyTo(this.context);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();
@@ -95,7 +95,7 @@ public class EurekaClientConfigBeanTests {
 	}
 
 	@Test
-	public void serviceUrlWithEmptyServiceUrls() {
+	void serviceUrlWithEmptyServiceUrls() {
 		TestPropertyValues.of("eureka.client.serviceUrl.defaultZone:").applyTo(this.context);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();

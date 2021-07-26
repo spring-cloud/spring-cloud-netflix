@@ -24,32 +24,32 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Daniel Lavoie
  */
-public class RestTemplateTransportClientFactoryTest {
+class RestTemplateTransportClientFactoryTest {
 
 	private RestTemplateTransportClientFactory transportClientFatory;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		transportClientFatory = new RestTemplateTransportClientFactory();
 	}
 
 	@Test
-	public void testWithoutUserInfo() {
+	void testWithoutUserInfo() {
 		transportClientFatory.newClient(new DefaultEndpoint("http://localhost:8761"));
 	}
 
 	@Test
-	public void testInvalidUserInfo() {
+	void testInvalidUserInfo() {
 		transportClientFatory.newClient(new DefaultEndpoint("http://test@localhost:8761"));
 	}
 
 	@Test
-	public void testUserInfo() {
+	void testUserInfo() {
 		transportClientFatory.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
 	}
 
 	@AfterEach
-	public void shutdown() {
+	void shutdown() {
 		transportClientFatory.shutdown();
 	}
 

@@ -42,7 +42,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		properties = { "spring.cloud.config.discovery.enabled=true", "spring.config.use-legacy-processing=true",
 				"eureka.client.webclient.enabled=true", "spring.codec.max-in-memory-size=310000" },
 		webEnvironment = RANDOM_PORT)
-public class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
+class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 
 	@LocalServerPort
 	private int port;
@@ -51,7 +51,7 @@ public class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 	private WebClientEurekaHttpClient eurekaHttpClient;
 
 	@Test
-	public void webClientRespectsCodecProperties() {
+	void webClientRespectsCodecProperties() {
 		WebClient webClient = eurekaHttpClient.getWebClient();
 		ClientResponse response = webClient.get().uri("http://localhost:" + port).exchange().block();
 		assertThat(response).isNotNull();

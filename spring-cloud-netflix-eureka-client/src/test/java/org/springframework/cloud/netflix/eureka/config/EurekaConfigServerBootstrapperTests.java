@@ -25,10 +25,10 @@ import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EurekaConfigServerBootstrapperTests {
+class EurekaConfigServerBootstrapperTests {
 
 	@Test
-	public void notEnabledDoesNotAddInstanceProviderFn() {
+	void notEnabledDoesNotAddInstanceProviderFn() {
 		new SpringApplicationBuilder(TestConfig.class)
 				.properties("spring.cloud.service-registry.auto-registration.enabled=false")
 				.addBootstrapRegistryInitializer(registry -> registry.addCloseListener(event -> {
@@ -40,7 +40,7 @@ public class EurekaConfigServerBootstrapperTests {
 	}
 
 	@Test
-	public void enabledAddsInstanceProviderFn() {
+	void enabledAddsInstanceProviderFn() {
 		new SpringApplicationBuilder(TestConfig.class)
 				.properties("spring.cloud.config.discovery.enabled=true",
 						"spring.cloud.service-registry.auto-registration.enabled=false")

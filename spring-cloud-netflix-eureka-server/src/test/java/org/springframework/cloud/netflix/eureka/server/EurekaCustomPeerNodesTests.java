@@ -35,13 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka",
 				"server.contextPath=/context", "management.security.enabled=false" })
-public class EurekaCustomPeerNodesTests {
+class EurekaCustomPeerNodesTests {
 
 	@Autowired
 	private PeerEurekaNodes peerEurekaNodes;
 
 	@Test
-	public void testCustomPeerNodesShouldTakePrecedenceOverDefault() {
+	void testCustomPeerNodesShouldTakePrecedenceOverDefault() {
 		assertThat(peerEurekaNodes instanceof CustomEurekaPeerNodes)
 				.as("PeerEurekaNodes should be the user created one").isTrue();
 	}
