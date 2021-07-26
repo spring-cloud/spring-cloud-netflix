@@ -72,12 +72,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.fail;
  * @author Olga Maciaszek-Sharma
  * @author Tim Ysewyn
  */
-public class EurekaClientAutoConfigurationTests {
+class EurekaClientAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@AfterEach
-	public void after() {
+	void after() {
 		if (this.context != null && this.context.isActive()) {
 			this.context.close();
 		}
@@ -95,7 +95,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void shouldSetManagementPortInMetadataMapIfEqualToServerPort() throws Exception {
+	void shouldSetManagementPortInMetadataMapIfEqualToServerPort() throws Exception {
 		TestPropertyValues.of("server.port=8989").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
 
@@ -105,7 +105,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void shouldNotSetManagementAndJmxPortsInMetadataMap() throws Exception {
+	void shouldNotSetManagementAndJmxPortsInMetadataMap() throws Exception {
 		TestPropertyValues.of("server.port=8989", "management.server.port=0").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
 
@@ -116,7 +116,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void shouldSetManagementAndJmxPortsInMetadataMap() throws Exception {
+	void shouldSetManagementAndJmxPortsInMetadataMap() throws Exception {
 		TestPropertyValues.of("management.server.port=9999", "com.sun.management.jmxremote.port=6789")
 				.applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -127,7 +127,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void shouldNotResetManagementAndJmxPortsInMetadataMap() throws Exception {
+	void shouldNotResetManagementAndJmxPortsInMetadataMap() throws Exception {
 		TestPropertyValues.of("management.server.port=9999", "eureka.instance.metadata-map.jmx.port=9898",
 				"eureka.instance.metadata-map.management.port=7878").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -138,28 +138,28 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void nonSecurePortPeriods() {
+	void nonSecurePortPeriods() {
 		testNonSecurePort("server.port");
 	}
 
 	@Test
-	public void nonSecurePortUnderscores() {
+	void nonSecurePortUnderscores() {
 		testNonSecurePortSystemProp("SERVER_PORT");
 	}
 
 	@Test
-	public void nonSecurePort() {
+	void nonSecurePort() {
 		testNonSecurePortSystemProp("PORT");
 		assertThat(this.context.getBeanDefinition("eurekaClient").getFactoryMethodName()).isEqualTo("eurekaClient");
 	}
 
 	@Test
-	public void securePortPeriods() {
+	void securePortPeriods() {
 		testSecurePort("server.port");
 	}
 
 	@Test
-	public void securePortUnderscores() {
+	void securePortUnderscores() {
 		TestPropertyValues.of("eureka.instance.secure-port-enabled=true").applyTo(this.context);
 		addSystemEnvironment(this.context.getEnvironment(), "SERVER_PORT:8443");
 		setupContext();
@@ -167,13 +167,13 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void securePort() {
+	void securePort() {
 		testSecurePort("PORT");
 		assertThat(this.context.getBeanDefinition("eurekaClient").getFactoryMethodName()).isEqualTo("eurekaClient");
 	}
 
 	@Test
-	public void managementPort() {
+	void managementPort() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context.getBean(EurekaInstanceConfigBean.class);
@@ -182,7 +182,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlPathAndManagementPort() {
+	void statusPageUrlPathAndManagementPort() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999",
 				"eureka.instance.statusPageUrlPath=/myStatusPage").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -192,7 +192,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathAndManagementPort() {
+	void healthCheckUrlPathAndManagementPort() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999",
 				"eureka.instance.healthCheckUrlPath=/myHealthCheck").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -202,7 +202,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrl_and_healthCheckUrl_do_not_contain_server_context_path() throws Exception {
+	void statusPageUrl_and_healthCheckUrl_do_not_contain_server_context_path() throws Exception {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999", "server.contextPath=/service")
 				.applyTo(this.context);
 
@@ -215,7 +215,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrl_and_healthCheckUrl_contain_management_context_path() throws Exception {
+	void statusPageUrl_and_healthCheckUrl_contain_management_context_path() throws Exception {
 		TestPropertyValues.of("server.port=8989", "management.server.servlet.context-path=/management")
 				.applyTo(this.context);
 
@@ -228,7 +228,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrl_and_healthCheckUrl_contain_management_context_path_random_port() throws Exception {
+	void statusPageUrl_and_healthCheckUrl_contain_management_context_path_random_port() throws Exception {
 		TestPropertyValues.of("server.port=0", "management.server.servlet.context-path=/management")
 				.applyTo(this.context);
 
@@ -241,7 +241,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlPathAndManagementPortAndContextPath() {
+	void statusPageUrlPathAndManagementPortAndContextPath() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999",
 				"management.server.servlet.context-path=/manage", "eureka.instance.status-page-url-path=/myStatusPage")
 				.applyTo(this.context);
@@ -252,7 +252,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathAndManagementPortAndContextPath() {
+	void healthCheckUrlPathAndManagementPortAndContextPath() {
 		TestPropertyValues
 				.of("server.port=8989", "management.server.port=9999", "management.server.servlet.context-path=/manage",
 						"eureka.instance.health-check-url-path=/myHealthCheck")
@@ -264,7 +264,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlPathAndManagementPortAndContextPathKebobCase() {
+	void statusPageUrlPathAndManagementPortAndContextPathKebobCase() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999",
 				"management.server.servlet.context-path=/manage", "eureka.instance.status-page-url-path=/myStatusPage")
 				.applyTo(this.context);
@@ -275,7 +275,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathAndManagementPortAndContextPathKebobCase() {
+	void healthCheckUrlPathAndManagementPortAndContextPathKebobCase() {
 		TestPropertyValues
 				.of("server.port=8989", "management.server.port=9999", "management.server.servlet.context-path=/manage",
 						"eureka.instance.health-check-url-path=/myHealthCheck")
@@ -287,7 +287,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrl_and_healthCheckUrl_contain_management_base_path() throws Exception {
+	void statusPageUrl_and_healthCheckUrl_contain_management_base_path() throws Exception {
 		TestPropertyValues.of("server.port=8989", "management.server.base-path=/management").applyTo(this.context);
 
 		setupContext(RefreshAutoConfiguration.class);
@@ -299,7 +299,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrl_and_healthCheckUrl_contain_management_base_path_random_port() throws Exception {
+	void statusPageUrl_and_healthCheckUrl_contain_management_base_path_random_port() throws Exception {
 		TestPropertyValues.of("server.port=0", "management.server.base-path=/management").applyTo(this.context);
 
 		setupContext(RefreshAutoConfiguration.class);
@@ -311,7 +311,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlPathAndManagementPortAndBasePath() {
+	void statusPageUrlPathAndManagementPortAndBasePath() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999", "management.server.base-path=/manage",
 				"eureka.instance.status-page-url-path=/myStatusPage").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -321,7 +321,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathAndManagementPortAndBasePath() {
+	void healthCheckUrlPathAndManagementPortAndBasePath() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999", "management.server.base-path=/manage",
 				"eureka.instance.health-check-url-path=/myHealthCheck").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -331,7 +331,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlPathAndManagementPortAndBasePathKebobCase() {
+	void statusPageUrlPathAndManagementPortAndBasePathKebobCase() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999", "management.server.base-path=/manage",
 				"eureka.instance.status-page-url-path=/myStatusPage").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -341,7 +341,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathAndManagementPortAndBasePathKebobCase() {
+	void healthCheckUrlPathAndManagementPortAndBasePathKebobCase() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999", "management.server.base-path=/manage",
 				"eureka.instance.health-check-url-path=/myHealthCheck").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -351,7 +351,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathWithServerPortAndContextPathKebobCase() {
+	void healthCheckUrlPathWithServerPortAndContextPathKebobCase() {
 		TestPropertyValues
 				.of("server.port=8989", "server.servlet.context-path=/servletContextPath",
 						"eureka.instance.health-check-url-path=${server.servlet.context-path:}/myHealthCheck")
@@ -363,7 +363,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlPathAndManagementPortKabobCase() {
+	void statusPageUrlPathAndManagementPortKabobCase() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999",
 				"eureka.instance.status-page-url-path=/myStatusPage").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -373,7 +373,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlAndPreferIpAddress() {
+	void statusPageUrlAndPreferIpAddress() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999", "eureka.instance.hostname=foo",
 				"eureka.instance.prefer-ip-address:true").applyTo(this.context);
 
@@ -387,7 +387,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageAndHealthCheckUrlsShouldSetUserDefinedIpAddress() {
+	void statusPageAndHealthCheckUrlsShouldSetUserDefinedIpAddress() {
 		TestPropertyValues
 				.of("server.port=8989", "management.server.port=9999", "eureka.instance.hostname=foo",
 						"eureka.instance.ip-address:192.168.13.90", "eureka.instance.prefer-ip-address:true")
@@ -403,7 +403,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathAndManagementPortKabobCase() {
+	void healthCheckUrlPathAndManagementPortKabobCase() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999",
 				"eureka.instance.health-check-url-path=/myHealthCheck").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -413,7 +413,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void statusPageUrlPathAndManagementPortUpperCase() {
+	void statusPageUrlPathAndManagementPortUpperCase() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999").applyTo(this.context);
 		addSystemEnvironment(this.context.getEnvironment(), "EUREKA_INSTANCE_STATUS_PAGE_URL_PATH=/myStatusPage");
 		setupContext(RefreshAutoConfiguration.class);
@@ -423,7 +423,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void healthCheckUrlPathAndManagementPortUpperCase() {
+	void healthCheckUrlPathAndManagementPortUpperCase() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999").applyTo(this.context);
 		addSystemEnvironment(this.context.getEnvironment(), "EUREKA_INSTANCE_HEALTH_CHECK_URL_PATH=/myHealthCheck");
 		setupContext(RefreshAutoConfiguration.class);
@@ -433,7 +433,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void hostname() {
+	void hostname() {
 		TestPropertyValues.of("server.port=8989", "management.server.port=9999", "eureka.instance.hostname=foo")
 				.applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class);
@@ -443,7 +443,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void refreshScopedBeans() {
+	void refreshScopedBeans() {
 		setupContext(RefreshAutoConfiguration.class);
 		assertThat(this.context.getBeanDefinition("eurekaClient").getBeanClassName())
 				.startsWith(GenericScope.class.getName() + "$LockedScopedProxyFactoryBean");
@@ -453,7 +453,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	public void shouldReregisterHealthCheckHandlerAfterRefresh() throws Exception {
+	void shouldReregisterHealthCheckHandlerAfterRefresh() throws Exception {
 		TestPropertyValues
 				.of("eureka.client.healthcheck.enabled=true", "spring.cloud.config.import-check.enabled=false",
 						"spring.cloud.refresh.additionalPropertySourcesToRetain=test")
@@ -486,7 +486,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void shouldCloseDiscoveryClient() throws Exception {
+	void shouldCloseDiscoveryClient() throws Exception {
 		TestPropertyValues.of("eureka.client.healthcheck.enabled=true").applyTo(this.context);
 		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
 
@@ -501,7 +501,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void basicAuth() {
+	void basicAuth() {
 		TestPropertyValues
 				.of("server.port=8989", "eureka.client.serviceUrl.defaultZone=https://user:foo@example.com:80/eureka")
 				.applyTo(this.context);
@@ -511,7 +511,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void testDefaultAppName() throws Exception {
+	void testDefaultAppName() throws Exception {
 		setupContext();
 		assertThat(getInstanceConfig().getAppname()).isEqualTo("unknown");
 		assertThat(getInstanceConfig().getVirtualHostName()).isEqualTo("unknown");
@@ -519,7 +519,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void testAppName() throws Exception {
+	void testAppName() throws Exception {
 		TestPropertyValues.of("spring.application.name=mytest").applyTo(this.context);
 		setupContext();
 		assertThat(getInstanceConfig().getAppname()).isEqualTo("mytest");
@@ -528,7 +528,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void testAppNameUpper() throws Exception {
+	void testAppNameUpper() throws Exception {
 		addSystemEnvironment(this.context.getEnvironment(), "SPRING_APPLICATION_NAME=mytestupper");
 		setupContext();
 		assertThat(getInstanceConfig().getAppname()).isEqualTo("mytestupper");
@@ -570,7 +570,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void testInstanceNamePreferred() throws Exception {
+	void testInstanceNamePreferred() throws Exception {
 		addSystemEnvironment(this.context.getEnvironment(), "SPRING_APPLICATION_NAME=mytestspringappname");
 		TestPropertyValues.of("eureka.instance.appname=mytesteurekaappname").applyTo(this.context);
 		setupContext();
@@ -578,13 +578,13 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void eurekaHealthIndicatorCreated() {
+	void eurekaHealthIndicatorCreated() {
 		setupContext();
 		this.context.getBean(EurekaHealthIndicator.class);
 	}
 
 	@Test
-	public void eurekaClientClosed() {
+	void eurekaClientClosed() {
 		setupContext(TestEurekaClientConfiguration.class);
 		if (this.context != null) {
 			CountDownLatch latch = this.context.getBean(CountDownLatch.class);
@@ -594,7 +594,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void eurekaConfigNotLoadedWhenDiscoveryClientDisabled() {
+	void eurekaConfigNotLoadedWhenDiscoveryClientDisabled() {
 		TestPropertyValues.of("spring.cloud.discovery.enabled=false").applyTo(this.context);
 		setupContext(TestConfiguration.class);
 		assertBeanNotPresent(EurekaClientConfigBean.class);
@@ -605,7 +605,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void shouldNotHaveDiscoveryClientWhenBlockingDiscoveryDisabled() {
+	void shouldNotHaveDiscoveryClientWhenBlockingDiscoveryDisabled() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
 						DiscoveryClientOptionalArgsConfiguration.class, EurekaClientAutoConfiguration.class,

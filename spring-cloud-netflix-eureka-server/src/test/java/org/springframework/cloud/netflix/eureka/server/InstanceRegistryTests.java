@@ -50,7 +50,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest(classes = TestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		value = { "spring.application.name=eureka",
 				"logging.level.org.springframework." + "cloud.netflix.eureka.server.InstanceRegistry=DEBUG" })
-public class InstanceRegistryTests {
+class InstanceRegistryTests {
 
 	private static final String APP_NAME = "MY-APP-NAME";
 
@@ -64,7 +64,7 @@ public class InstanceRegistryTests {
 	private InstanceRegistry instanceRegistry;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.testEvents.applicationEvents.clear();
 	}
 
@@ -72,7 +72,7 @@ public class InstanceRegistryTests {
 	private TestEvents testEvents;
 
 	@Test
-	public void testRegister() throws Exception {
+	void testRegister() throws Exception {
 		// creating instance info
 		final LeaseInfo leaseInfo = getLeaseInfo();
 		final InstanceInfo instanceInfo = getInstanceInfo(APP_NAME, HOST_NAME, INSTANCE_ID, PORT, leaseInfo);
@@ -91,7 +91,7 @@ public class InstanceRegistryTests {
 	}
 
 	@Test
-	public void testDefaultLeaseDurationRegisterEvent() throws Exception {
+	void testDefaultLeaseDurationRegisterEvent() throws Exception {
 		// creating instance info
 		final InstanceInfo instanceInfo = getInstanceInfo(APP_NAME, HOST_NAME, INSTANCE_ID, PORT, null);
 		// calling tested method
@@ -103,7 +103,7 @@ public class InstanceRegistryTests {
 	}
 
 	@Test
-	public void testInternalCancel() throws Exception {
+	void testInternalCancel() throws Exception {
 		// calling tested method
 		instanceRegistry.internalCancel(APP_NAME, HOST_NAME, false);
 		// event of proper type is registered
@@ -119,7 +119,7 @@ public class InstanceRegistryTests {
 	}
 
 	@Test
-	public void testRenew() throws Exception {
+	void testRenew() throws Exception {
 		// Creating two instances of the app
 		final InstanceInfo instanceInfo1 = getInstanceInfo(APP_NAME, HOST_NAME, INSTANCE_ID, PORT, null);
 		final InstanceInfo instanceInfo2 = getInstanceInfo(APP_NAME, HOST_NAME, "my-host-name:8009", 8009, null);

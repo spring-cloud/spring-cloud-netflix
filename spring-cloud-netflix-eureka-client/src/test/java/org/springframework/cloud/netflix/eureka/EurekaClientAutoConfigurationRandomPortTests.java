@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Spencer Gibb
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class EurekaClientAutoConfigurationRandomPortTests {
+class EurekaClientAutoConfigurationRandomPortTests {
 
 	@Autowired
 	private ApplicationInfoManager infoManager;
 
 	@Test
-	public void instanceInfoPortShouldNotBeZero() {
+	void instanceInfoPortShouldNotBeZero() {
 		InstanceInfo info = infoManager.getInfo();
 		assertThat(info.getPort()).isGreaterThan(0);
 	}

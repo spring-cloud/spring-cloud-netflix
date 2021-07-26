@@ -30,10 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Biju Kunjummen
  */
-public class EurekaClientConfigServerAutoConfigurationTests {
+class EurekaClientConfigServerAutoConfigurationTests {
 
 	@Test
-	public void offByDefault() {
+	void offByDefault() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class)).run(c -> {
 					assertThat(c.getBeanNamesForType(EurekaInstanceConfigBean.class).length).isEqualTo(0);
@@ -41,7 +41,7 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 	}
 
 	@Test
-	public void onWhenRequested() {
+	void onWhenRequested() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class,
 						ConfigServerProperties.class, EurekaInstanceConfigBean.class))
@@ -53,7 +53,7 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 	}
 
 	@Test
-	public void notOverridingMetamapSettings() {
+	void notOverridingMetamapSettings() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class,
 						ConfigServerProperties.class, EurekaInstanceConfigBean.class))

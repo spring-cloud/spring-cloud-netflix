@@ -24,10 +24,10 @@ import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class ApplicationTests {
+class ApplicationTests {
 
 	@Test
-	public void contextLoads() {
+	void contextLoads() {
 	}
 
 }

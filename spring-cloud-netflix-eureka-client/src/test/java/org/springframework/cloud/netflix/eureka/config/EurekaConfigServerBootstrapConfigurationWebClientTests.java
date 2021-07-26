@@ -30,10 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Spencer Gibb
  */
-public class EurekaConfigServerBootstrapConfigurationWebClientTests {
+class EurekaConfigServerBootstrapConfigurationWebClientTests {
 
 	@Test
-	public void properBeansCreatedWhenEnabled() {
+	void properBeansCreatedWhenEnabled() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true",
@@ -46,7 +46,7 @@ public class EurekaConfigServerBootstrapConfigurationWebClientTests {
 	}
 
 	@Test
-	public void properBeansCreatedWhenEnabledWebClientDisabled() {
+	void properBeansCreatedWhenEnabledWebClientDisabled() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true").run(context -> {

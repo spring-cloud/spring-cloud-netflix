@@ -24,10 +24,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 /**
  * @author Daniel Lavoie
  */
-public class WebClientTransportClientFactoriesTest {
+class WebClientTransportClientFactoriesTest {
 
 	@Test
-	public void testJerseyIsUnsupported() {
+	void testJerseyIsUnsupported() {
 		Assertions.assertThrows(UnsupportedOperationException.class, () -> {
 			new WebClientTransportClientFactories(WebClient::builder).newTransportClientFactory(null, null);
 		});

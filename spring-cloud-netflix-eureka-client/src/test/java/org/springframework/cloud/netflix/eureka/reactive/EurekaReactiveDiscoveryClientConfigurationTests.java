@@ -41,7 +41,7 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 					DiscoveryClientOptionalArgsConfiguration.class, EurekaReactiveDiscoveryClientConfiguration.class));
 
 	@Test
-	public void shouldWorkWithDefaults() {
+	void shouldWorkWithDefaults() {
 		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(ReactiveDiscoveryClient.class);
 			assertThat(context).hasSingleBean(ReactiveDiscoveryClientHealthIndicator.class);
@@ -49,7 +49,7 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 	}
 
 	@Test
-	public void shouldNotHaveDiscoveryClientWhenDiscoveryDisabled() {
+	void shouldNotHaveDiscoveryClientWhenDiscoveryDisabled() {
 		contextRunner.withPropertyValues("spring.cloud.discovery.enabled=false").run(context -> {
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClient.class);
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClientHealthIndicator.class);
@@ -57,7 +57,7 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 	}
 
 	@Test
-	public void shouldNotHaveDiscoveryClientWhenReactiveDiscoveryDisabled() {
+	void shouldNotHaveDiscoveryClientWhenReactiveDiscoveryDisabled() {
 		contextRunner.withPropertyValues("spring.cloud.discovery.reactive.enabled=false").run(context -> {
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClient.class);
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClientHealthIndicator.class);
@@ -65,7 +65,7 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 	}
 
 	@Test
-	public void shouldNotHaveDiscoveryClientWhenEurekaClientDisabled() {
+	void shouldNotHaveDiscoveryClientWhenEurekaClientDisabled() {
 		contextRunner.withPropertyValues("eureka.client.enabled=false").run(context -> {
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClient.class);
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClientHealthIndicator.class);
@@ -73,7 +73,7 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 	}
 
 	@Test
-	public void worksWithoutWebflux() {
+	void worksWithoutWebflux() {
 		contextRunner.withClassLoader(new FilteredClassLoader("org.springframework.web.reactive")).run(context -> {
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClient.class);
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClientHealthIndicator.class);
@@ -81,7 +81,7 @@ class EurekaReactiveDiscoveryClientConfigurationTests {
 	}
 
 	@Test
-	public void worksWithoutActuator() {
+	void worksWithoutActuator() {
 		contextRunner.withClassLoader(new FilteredClassLoader("org.springframework.boot.actuate")).run(context -> {
 			assertThat(context).hasSingleBean(ReactiveDiscoveryClient.class);
 			assertThat(context).doesNotHaveBean(ReactiveDiscoveryClientHealthIndicator.class);

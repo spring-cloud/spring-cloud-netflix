@@ -36,7 +36,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.webclient.enabled=true" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
+class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
 
 	@Autowired
 	private InetUtils inetUtils;
@@ -45,7 +45,7 @@ public class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest 
 	private String serviceUrl;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		eurekaHttpClient = new WebClientTransportClientFactory(WebClient::builder)
 				.newClient(new DefaultEndpoint(serviceUrl));
 

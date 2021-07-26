@@ -41,7 +41,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT,
 		properties = { "spring.application.name=eureka", "server.servlet.context-path=/servlet",
 				"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
-public class ApplicationServletPathTests {
+class ApplicationServletPathTests {
 
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
@@ -49,7 +49,7 @@ public class ApplicationServletPathTests {
 	private int port = 0;
 
 	@Test
-	public void catalogLoads() {
+	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/servlet/eureka/apps", Map.class);
@@ -57,7 +57,7 @@ public class ApplicationServletPathTests {
 	}
 
 	@Test
-	public void dashboardLoads() {
+	void dashboardLoads() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/servlet/", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -70,21 +70,21 @@ public class ApplicationServletPathTests {
 	}
 
 	@Test
-	public void cssAvailable() {
+	void cssAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/servlet/eureka/css/wro.css", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
-	public void jsAvailable() {
+	void jsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port + "/servlet/eureka/js/wro.js", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
-	public void adminLoads() {
+	void adminLoads() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 

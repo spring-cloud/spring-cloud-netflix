@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Biju Kunjummen
  */
-public class ConditionalOnRefreshScopeTests {
+class ConditionalOnRefreshScopeTests {
 
 	@Test
-	public void refreshScopeIncluded() {
+	void refreshScopeIncluded() {
 		new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(RefreshAutoConfiguration.class))
 				.withUserConfiguration(Beans.class).run(c -> {
 					assertThat(c).hasSingleBean(org.springframework.cloud.context.scope.refresh.RefreshScope.class);
@@ -44,7 +44,7 @@ public class ConditionalOnRefreshScopeTests {
 	}
 
 	@Test
-	public void refreshScopeIncludedAndPropertyDisabled() {
+	void refreshScopeIncludedAndPropertyDisabled() {
 		new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(RefreshAutoConfiguration.class))
 				.withPropertyValues("eureka.client.refresh.enable=false").withUserConfiguration(Beans.class).run(c -> {
 					assertThat(c).hasSingleBean(org.springframework.cloud.context.scope.refresh.RefreshScope.class);
@@ -54,7 +54,7 @@ public class ConditionalOnRefreshScopeTests {
 	}
 
 	@Test
-	public void refreshScopeNotIncluded() {
+	void refreshScopeNotIncluded() {
 		new ApplicationContextRunner().withUserConfiguration(Beans.class).run(c -> {
 			assertThat(c).doesNotHaveBean("foo");
 			assertThat(c.getBean("bar")).isEqualTo("bar");

@@ -45,25 +45,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jakub Narloch
  * @author Nowrin Anwar Joyita
  */
-public class EurekaHealthCheckHandlerTests {
+class EurekaHealthCheckHandlerTests {
 
 	private EurekaHealthCheckHandler healthCheckHandler;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 
 		healthCheckHandler = new EurekaHealthCheckHandler(new SimpleStatusAggregator());
 	}
 
 	@Test
-	public void testNoHealthCheckRegistered() {
+	void testNoHealthCheckRegistered() {
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
 		assertThat(status).isEqualTo(InstanceStatus.UNKNOWN);
 	}
 
 	@Test
-	public void testAllUp() throws Exception {
+	void testAllUp() throws Exception {
 		initialize(UpHealthConfiguration.class, ReactiveUpHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -71,7 +71,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testHealthCheckNotReturnedWhenStopped() throws Exception {
+	void testHealthCheckNotReturnedWhenStopped() throws Exception {
 		initialize(UpHealthConfiguration.class);
 
 		healthCheckHandler.stop();
@@ -84,7 +84,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testDownWithBlockingIndicators() throws Exception {
+	void testDownWithBlockingIndicators() throws Exception {
 		initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -92,7 +92,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testDownWithReactiveIndicators() throws Exception {
+	void testDownWithReactiveIndicators() throws Exception {
 		initialize(UpHealthConfiguration.class, ReactiveDownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -100,7 +100,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testDownWhenBlockingIndicatorUpAndReactiveDown() throws Exception {
+	void testDownWhenBlockingIndicatorUpAndReactiveDown() throws Exception {
 		initialize(ReactiveUpHealthConfiguration.class, DownHealthConfiguration.class);
 
 		InstanceStatus status = this.healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -108,7 +108,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testDownWhenBlockingIndicatorDownAndReactiveUp() throws Exception {
+	void testDownWhenBlockingIndicatorDownAndReactiveUp() throws Exception {
 		initialize(ReactiveUpHealthConfiguration.class, ReactiveDownHealthConfiguration.class);
 
 		InstanceStatus status = this.healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -116,7 +116,7 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	public void testUnknown() throws Exception {
+	void testUnknown() throws Exception {
 		initialize(FatalHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -125,7 +125,7 @@ public class EurekaHealthCheckHandlerTests {
 
 	@Test
 	@Disabled // FIXME: 3.0.0
-	public void testEurekaIgnored() throws Exception {
+	void testEurekaIgnored() throws Exception {
 		initialize(EurekaDownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);

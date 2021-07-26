@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class EurekaServerInitializerConfigurationTest {
+class EurekaServerInitializerConfigurationTest {
 
 	@Mock
 	private EurekaServerBootstrap eurekaServerBootstrapMock;
@@ -39,12 +39,12 @@ public class EurekaServerInitializerConfigurationTest {
 	private boolean callbackCalled;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		callbackCalled = false;
 	}
 
 	@Test
-	public void testStopWithCallbackCallsStop() {
+	void testStopWithCallbackCallsStop() {
 		eurekaServerInitializerConfiguration.stop(this::setCallbackCalledTrue);
 
 		assertThat(callbackCalled).isTrue();
