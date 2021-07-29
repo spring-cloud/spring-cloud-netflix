@@ -37,11 +37,11 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*", "spring-webflux-*" })
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-class EurekaHttpClientsOptionalArgsConfigurationNoWebfluxTest {
+public class EurekaHttpClientsOptionalArgsConfigurationNoWebfluxTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void contextFailsWithoutWebClient() {
+	public void contextFailsWithoutWebClient() {
 
 		ConfigurableApplicationContext ctx = null;
 		try {

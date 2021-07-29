@@ -36,10 +36,10 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*" })
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-class EurekaHttpClientsOptionalArgsConfigurationTest {
+public class EurekaHttpClientsOptionalArgsConfigurationTest {
 
 	@Test
-	void contextLoadsWithRestTemplate() {
+	public void contextLoadsWithRestTemplate() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 				.withPropertyValues("eureka.client.webclient.enabled=false").run(context -> {
 					assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
@@ -48,7 +48,7 @@ class EurekaHttpClientsOptionalArgsConfigurationTest {
 	}
 
 	@Test
-	void contextLoadsWithWebClient() {
+	public void contextLoadsWithWebClient() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 				.withPropertyValues("eureka.client.webclient.enabled=true").run(context -> {
 					assertThat(context).doesNotHaveBean(RestTemplateDiscoveryClientOptionalArgs.class);
@@ -57,7 +57,7 @@ class EurekaHttpClientsOptionalArgsConfigurationTest {
 	}
 
 	@Test
-	void contextLoadsWithRestTemplateAsDefault() {
+	public void contextLoadsWithRestTemplateAsDefault() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class).run(context -> {
 			assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
 			assertThat(context).doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
