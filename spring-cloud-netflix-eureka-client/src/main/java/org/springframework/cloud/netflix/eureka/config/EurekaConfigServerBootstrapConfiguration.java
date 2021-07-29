@@ -21,6 +21,7 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -39,6 +40,7 @@ import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClient
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.Nullable;
@@ -51,7 +53,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Dave Syer
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
-@ConditionalOnProperty({ "spring.cloud.config.discovery.enabled", "eureka.client.enabled" })
+@Conditional(EurekaConfigServerBootstrapConfiguration.EurekaConfigServerBootstrapCondition.class)
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 public class EurekaConfigServerBootstrapConfiguration {
@@ -98,6 +100,24 @@ public class EurekaConfigServerBootstrapConfiguration {
 				ObjectProvider<WebClient.Builder> builder, Environment env) {
 			return (WebClientEurekaHttpClient) new WebClientTransportClientFactory(builder::getIfAvailable)
 					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+		}
+
+	}
+
+	static class EurekaConfigServerBootstrapCondition extends AllNestedConditions {
+
+		EurekaConfigServerBootstrapCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnProperty("spring.cloud.config.discovery.enabled")
+		static class OnCloudConfigProperty {
+
+		}
+
+		@ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+		static class OnEurekaClient {
+
 		}
 
 	}
