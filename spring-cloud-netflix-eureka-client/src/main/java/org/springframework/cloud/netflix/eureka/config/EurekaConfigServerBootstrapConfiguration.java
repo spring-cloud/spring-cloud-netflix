@@ -51,7 +51,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Dave Syer
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
-@ConditionalOnProperty("spring.cloud.config.discovery.enabled")
+@ConditionalOnProperty({ "spring.cloud.config.discovery.enabled", "eureka.client.enabled" })
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 public class EurekaConfigServerBootstrapConfiguration {

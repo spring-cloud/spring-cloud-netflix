@@ -38,10 +38,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 /**
  * @author Spencer Gibb
  */
-@SpringBootTest(
-		properties = { "spring.cloud.config.discovery.enabled=true", "spring.config.use-legacy-processing=true",
-				"eureka.client.webclient.enabled=true", "spring.codec.max-in-memory-size=310000" },
-		webEnvironment = RANDOM_PORT)
+@SpringBootTest(properties = { "spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
+		"spring.config.use-legacy-processing=true", "eureka.client.webclient.enabled=true",
+		"spring.codec.max-in-memory-size=310000" }, webEnvironment = RANDOM_PORT)
 class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 
 	@LocalServerPort
