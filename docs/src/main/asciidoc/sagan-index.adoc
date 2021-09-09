@@ -10,13 +10,12 @@ Spring Cloud Netflix features:
 ## Getting Started
 
 As long as Spring Cloud Netflix and Eureka Core are on the
-classpath any Spring Boot application with `@EnableEurekaClient` will try to contact a Eureka
+classpath any Spring Boot application with `spring-cloud-starter-netflix-eureka-client` in dependencies will try to contact a Eureka
 server on `http://localhost:8761` (the default value of
 `eureka.client.serviceUrl.defaultZone`):
 
 ```java
 @SpringBootApplication
-@EnableEurekaClient
 @RestController
 public class Application {
 
