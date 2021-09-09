@@ -73,8 +73,8 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true").run(context -> {
-			assertEurekaBeansPresent(context);
-		});
+					assertEurekaBeansPresent(context);
+				});
 	}
 
 	@Test
