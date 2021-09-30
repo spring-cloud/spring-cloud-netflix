@@ -264,7 +264,7 @@ Do not use the `EurekaClient` in a `@PostConstruct` method or in a `@Scheduled` 
 It is initialized in a `SmartLifecycle` (with `phase=0`), so the earliest you can rely on it being available is in another `SmartLifecycle` with a higher phase.
 ====
 
-==== EurekaClient without Jersey
+==== EurekaClient with Jersey
 
 By default, EurekaClient uses Jersey for HTTP communication.
 If you wish to avoid dependencies from Jersey, you can exclude it from your dependencies.
