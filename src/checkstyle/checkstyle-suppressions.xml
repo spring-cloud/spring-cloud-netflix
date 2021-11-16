@@ -43,5 +43,6 @@
 <suppress files=".*RibbonClientHttpRequestFactoryTests\.java" checks="JavadocVariable"/>
 <suppress files=".*TestAutoConfiguration\.java" checks="HideUtilityClassConstructor"/>
 <suppress files=".*TestAutoConfiguration\.java" checks="JavadocStyle"/>
-<suppress files=".*TestAutoConfiguration\.java" checks="JavadocStyle"/>
+<suppress files=".*EurekaConfigServerBootstrapConfigurationTests\.java" checks="JavadocVariable"/>
+<suppress files=".*HystrixStreamAggregatorTests\.java" checks="JavadocVariable"/>
 </suppressions>

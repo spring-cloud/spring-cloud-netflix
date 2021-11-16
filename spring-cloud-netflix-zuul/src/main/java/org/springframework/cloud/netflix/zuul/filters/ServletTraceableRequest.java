@@ -33,69 +33,70 @@ import org.springframework.web.util.UriUtils;
 
 /**
  * @author Alexander Kogut
- */	
+ */
 public class ServletTraceableRequest implements TraceableRequest {
 
-		private HttpServletRequest request;
+	private HttpServletRequest request;
 
-		ServletTraceableRequest(HttpServletRequest request) {
-			this.request = request;
+	ServletTraceableRequest(HttpServletRequest request) {
+		this.request = request;
+	}
+
+	@Override
+	public String getMethod() {
+		return request.getMethod();
+	}
+
+	@Override
+	public URI getUri() {
+		String queryString = request.getQueryString();
+		if (!StringUtils.hasText(queryString)) {
+			return URI.create(request.getRequestURL().toString());
 		}
-
-		@Override
-		public String getMethod() {
-			return request.getMethod();
+		try {
+			StringBuffer urlBuffer = appendQueryString(queryString);
+			return new URI(urlBuffer.toString());
 		}
-
-		@Override
-		public URI getUri() {
-			String queryString = request.getQueryString();
-			if (!StringUtils.hasText(queryString)) {
-				return URI.create(request.getRequestURL().toString());
-			}
-			try {
-				StringBuffer urlBuffer = appendQueryString(queryString);
-				return new URI(urlBuffer.toString());
-			}
-			catch (URISyntaxException ex) {
-				String encoded = UriUtils.encode(queryString, StandardCharsets.UTF_8);
-				StringBuffer urlBuffer = appendQueryString(encoded);
-				return URI.create(urlBuffer.toString());
-			}
-		}
-
-		private StringBuffer appendQueryString(String queryString) {
-			StringBuffer urlBuffer = request.getRequestURL();
-			urlBuffer.append("?");
-			urlBuffer.append(queryString);
-			return urlBuffer;
-		}
-
-		@Override
-		public Map<String, List<String>> getHeaders() {
-			return extractHeaders();
-		}
-
-		@Override
-		public String getRemoteAddress() {
-			return request.getRemoteAddr();
-		}
-
-		private Map<String, List<String>> extractHeaders() {
-			Map<String, List<String>> headers = new LinkedHashMap<>();
-			Enumeration<String> names = request.getHeaderNames();
-			while (names.hasMoreElements()) {
-				String name = names.nextElement();
-				headers.put(name, toList(request.getHeaders(name)));
-			}
-			return headers;
-		}
-
-		private List<String> toList(Enumeration<String> enumeration) {
-			List<String> list = new ArrayList<>();
-			while (enumeration.hasMoreElements()) {
-				list.add(enumeration.nextElement());
-			}
-			return list;
+		catch (URISyntaxException ex) {
+			String encoded = UriUtils.encode(queryString, StandardCharsets.UTF_8);
+			StringBuffer urlBuffer = appendQueryString(encoded);
+			return URI.create(urlBuffer.toString());
 		}
 	}
+
+	private StringBuffer appendQueryString(String queryString) {
+		StringBuffer urlBuffer = request.getRequestURL();
+		urlBuffer.append("?");
+		urlBuffer.append(queryString);
+		return urlBuffer;
+	}
+
+	@Override
+	public Map<String, List<String>> getHeaders() {
+		return extractHeaders();
+	}
+
+	@Override
+	public String getRemoteAddress() {
+		return request.getRemoteAddr();
+	}
+
+	private Map<String, List<String>> extractHeaders() {
+		Map<String, List<String>> headers = new LinkedHashMap<>();
+		Enumeration<String> names = request.getHeaderNames();
+		while (names.hasMoreElements()) {
+			String name = names.nextElement();
+			headers.put(name, toList(request.getHeaders(name)));
+		}
+		return headers;
+	}
+
+	private List<String> toList(Enumeration<String> enumeration) {
+		List<String> list = new ArrayList<>();
+		while (enumeration.hasMoreElements()) {
+			list.add(enumeration.nextElement());
+		}
+		return list;
+	}
+
+}
