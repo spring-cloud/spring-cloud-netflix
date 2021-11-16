@@ -39,7 +39,7 @@ public class HystrixDashboardController {
 	public String monitor(@PathVariable String path, Model model, WebRequest request) {
 		model.addAttribute("basePath", extractPath(request));
 		model.addAttribute("contextPath", request.getContextPath());
-		return "hystrix/" + path;
+		return "hystrix/monitor";
 	}
 
 	private String extractPath(WebRequest request) {
