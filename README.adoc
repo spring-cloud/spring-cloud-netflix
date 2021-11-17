@@ -128,23 +128,9 @@ the `.mvn` configuration, so if you find you have to do it to make a
 build succeed, please raise a ticket to get the settings added to
 source control.
 
-For hints on how to build the project look in `.travis.yml` if there
-is one. There should be a "script" and maybe "install" command. Also
-look at the "services" section to see if any services need to be
-running locally (e.g. mongo or rabbit).  Ignore the git-related bits
-that you might find in "before_install" since they're related to setting git
-credentials and you already have those.
+The projects that require middleware (i.e. Redis) for testing generally
+require that a local instance of [Docker](https://www.docker.com/get-started) is installed and running.
 
-The projects that require middleware generally include a
-`docker-compose.yml`, so consider using
-https://docs.docker.com/compose/[Docker Compose] to run the middeware servers
-in Docker containers. See the README in the
-https://github.com/spring-cloud-samples/scripts[scripts demo
-repository] for specific instructions about the common cases of mongo,
-rabbit and redis.
-
-NOTE: If all else fails, build with the command from `.travis.yml` (usually
-`./mvnw install`).
 
 === Documentation
 
