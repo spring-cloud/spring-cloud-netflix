@@ -80,11 +80,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-netflix-hystrix-contract</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-contract-verifier</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -96,27 +91,6 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-contract-maven-plugin</artifactId>
-				<version>${donotreplacespring-cloud-contract.version}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<baseClassMappings>
-						<baseClassMapping>
-							<contractPackageRegex>.*</contractPackageRegex>
-							<baseClassFQN>org.springframework.cloud.netflix.hystrix.stream.StreamSourceTestBase</baseClassFQN>
-						</baseClassMapping>
-					</baseClassMappings>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-netflix-hystrix-contract</artifactId>
-						<version>${project.version}</version>
-					</dependency>
-				</dependencies>
-			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
