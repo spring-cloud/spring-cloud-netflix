@@ -53,6 +53,10 @@
 					<groupId>com.sun.jersey.contribs</groupId>
 					<artifactId>jersey-apache-client4</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>aopalliance</groupId>
+					<artifactId>aopalliance</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>

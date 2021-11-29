@@ -72,6 +72,17 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.basepom.maven</groupId>
+				<artifactId>duplicate-finder-maven-plugin</artifactId>
+				<configuration>
+					<ignoredResourcePatterns>
+						<ignoredResourcePattern>about.html</ignoredResourcePattern>
+						<ignoredResourcePattern>plugin.properties</ignoredResourcePattern>
+						<ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
+					</ignoredResourcePatterns>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencyManagement>
