@@ -3,14 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-netflix</artifactId>
-	<version>3.1.0-SNAPSHOT</version>
+	<version>3.1.0</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>3.1.0-SNAPSHOT</version>
+		<version>3.1.0</version>
 		<relativePath />
 	</parent>
 	<scm>
@@ -21,8 +21,8 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<spring-cloud-commons.version>3.1.0-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>3.1.0-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-commons.version>3.1.0</spring-cloud-commons.version>
+		<spring-cloud-config.version>3.1.0</spring-cloud-config.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
