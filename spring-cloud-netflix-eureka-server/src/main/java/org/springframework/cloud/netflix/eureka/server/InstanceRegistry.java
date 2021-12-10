@@ -97,18 +97,11 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	@Override
 	public boolean renew(final String appName, final String serverId, boolean isReplication) {
 		log("renew " + appName + " serverId " + serverId + ", isReplication {}" + isReplication);
-		List<Application> applications = getSortedApplications();
-		for (Application input : applications) {
-			if (input.getName().equals(appName)) {
-				InstanceInfo instance = null;
-				for (InstanceInfo info : input.getInstances()) {
-					if (info.getId().equals(serverId)) {
-						instance = info;
-						break;
-					}
-				}
-				publishEvent(new EurekaInstanceRenewedEvent(this, appName, serverId, instance, isReplication));
-				break;
+		Application application = getApplication(appName);
+		if (application != null) {
+			InstanceInfo instanceInfo = application.getByInstanceId(serverId);
+			if (instanceInfo != null) {
+				publishEvent(new EurekaInstanceRenewedEvent(this, appName, serverId, instanceInfo, isReplication));
 			}
 		}
 		return super.renew(appName, serverId, isReplication);
