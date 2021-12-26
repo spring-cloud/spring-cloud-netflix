@@ -23,6 +23,12 @@
       "name": "eureka.client.webclient.enabled",
       "description": "Enables the use of WebClient for Eureka HTTP Client.",
       "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": null,
+      "name": "eureka.instance.custom-port",
+      "description": "Publish custom port to Eureka Service Registry",
+      "type": "java.lang.Integer"
     }
   ]
 }
