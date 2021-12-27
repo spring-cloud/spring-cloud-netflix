@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -125,10 +124,8 @@ class InstanceRegistryTests {
 		final InstanceInfo instanceInfo2 = getInstanceInfo(APP_NAME, HOST_NAME, "my-host-name:8009", 8009, null);
 		// creating application list with an app having two instances
 		final Application application = new Application(APP_NAME, Arrays.asList(instanceInfo1, instanceInfo2));
-		final List<Application> applications = new ArrayList<>();
-		applications.add(application);
-		// stubbing applications list
-		doReturn(applications).when(instanceRegistry).getSortedApplications();
+		// stubbing application
+		doReturn(application).when(instanceRegistry).getApplication(APP_NAME);
 		// calling tested method
 		instanceRegistry.renew(APP_NAME, INSTANCE_ID, false);
 		instanceRegistry.renew(APP_NAME, "my-host-name:8009", false);
