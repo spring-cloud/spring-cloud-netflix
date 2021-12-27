@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import java.util.List;
-
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
