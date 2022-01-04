@@ -20,4 +20,3 @@ _site/
 *.swo
 .vscode/
 .flattened-pom.xml
-.sdkmanrc
