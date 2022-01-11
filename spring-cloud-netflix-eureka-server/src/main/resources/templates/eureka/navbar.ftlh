@@ -52,7 +52,7 @@
   </div>
 </div>
 
-<#if isBelowRenewThresold>
+<#if isBelowRenewThreshold>
     <#if !registry.selfPreservationModeEnabled>
         <h4 id="uptime"><font size="+1" color="red"><b>RENEWALS ARE LESSER THAN THE THRESHOLD. THE SELF PRESERVATION MODE IS TURNED OFF. THIS MAY NOT PROTECT INSTANCE EXPIRY IN CASE OF NETWORK/OTHER PROBLEMS.</b></font></h4>
     <#else>

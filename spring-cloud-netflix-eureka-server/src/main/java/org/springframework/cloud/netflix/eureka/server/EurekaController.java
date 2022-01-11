@@ -120,7 +120,7 @@ public class EurekaController {
 		model.put("datacenter", "N/A"); // FIXME:
 		PeerAwareInstanceRegistry registry = getRegistry();
 		model.put("registry", registry);
-		model.put("isBelowRenewThresold", registry.isBelowRenewThresold() == 1);
+		model.put("isBelowRenewThreshold", registry.isBelowRenewThresold() == 1);
 		DataCenterInfo info = applicationInfoManager.getInfo().getDataCenterInfo();
 		if (info.getName() == DataCenterInfo.Name.Amazon) {
 			AmazonInfo amazonInfo = (AmazonInfo) info;
