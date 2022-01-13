@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Filter;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
@@ -44,6 +43,7 @@ import com.netflix.eureka.resources.ServerCodecs;
 import com.netflix.eureka.transport.JerseyReplicationClient;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
+import jakarta.servlet.Filter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -179,15 +179,15 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	 * @param eurekaJerseyApp an {@link Application} for the filter to be registered
 	 * @return a jersey {@link FilterRegistrationBean}
 	 */
-	@Bean
-	public FilterRegistrationBean<?> jerseyFilterRegistration(javax.ws.rs.core.Application eurekaJerseyApp) {
-		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
-		bean.setFilter(new ServletContainer(eurekaJerseyApp));
-		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-		bean.setUrlPatterns(Collections.singletonList(EurekaConstants.DEFAULT_PREFIX + "/*"));
-
-		return bean;
-	}
+	//@Bean
+	//public FilterRegistrationBean<?> jerseyFilterRegistration(javax.ws.rs.core.Application eurekaJerseyApp) {
+	//	FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
+	//	bean.setFilter(new ServletContainer(eurekaJerseyApp));
+	//	bean.setOrder(Ordered.LOWEST_PRECEDENCE);
+	//	bean.setUrlPatterns(Collections.singletonList(EurekaConstants.DEFAULT_PREFIX + "/*"));
+	//
+	//	return bean;
+	//}
 
 	/**
 	 * Construct a Jersey {@link javax.ws.rs.core.Application} with all the resources

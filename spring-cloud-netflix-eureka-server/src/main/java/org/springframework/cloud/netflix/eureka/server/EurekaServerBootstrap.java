@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import javax.servlet.ServletContext;
-
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
@@ -33,6 +31,7 @@ import com.netflix.eureka.aws.AwsBinderDelegate;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.util.EurekaMonitors;
 import com.thoughtworks.xstream.XStream;
+import jakarta.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

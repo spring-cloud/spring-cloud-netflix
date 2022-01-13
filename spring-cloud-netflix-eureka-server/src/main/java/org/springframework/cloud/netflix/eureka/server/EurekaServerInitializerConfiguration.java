@@ -16,9 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import javax.servlet.ServletContext;
-
 import com.netflix.eureka.EurekaServerConfig;
+import jakarta.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

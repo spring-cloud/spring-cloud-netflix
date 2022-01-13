@@ -16,10 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import javax.annotation.PostConstruct;
-
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClient;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

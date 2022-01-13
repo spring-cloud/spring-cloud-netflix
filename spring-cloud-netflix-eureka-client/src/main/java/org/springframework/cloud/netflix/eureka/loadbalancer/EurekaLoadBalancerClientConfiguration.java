@@ -16,10 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.loadbalancer;
 
-import javax.annotation.PostConstruct;
-
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClientConfig;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
