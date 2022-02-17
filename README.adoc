@@ -57,8 +57,7 @@ patterns provided include Service Discovery (Eureka).
 
 == Building
 
-
-:jdkversion: 17
+:jdkversion: 1.8
 
 === Basic Compile and Test
 
