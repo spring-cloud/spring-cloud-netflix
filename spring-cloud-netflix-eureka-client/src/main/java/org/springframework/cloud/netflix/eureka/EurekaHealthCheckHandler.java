@@ -19,19 +19,21 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import reactor.core.publisher.Mono;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.actuate.health.CompositeHealthContributor;
+import org.springframework.boot.actuate.health.CompositeReactiveHealthContributor;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.NamedContributor;
+import org.springframework.boot.actuate.health.ReactiveHealthContributor;
 import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.health.StatusAggregator;
@@ -58,6 +60,7 @@ import org.springframework.util.Assert;
  * @author Spencer Gibb
  * @author Nowrin Anwar Joyita
  * @author Bertrand Renuart
+ * @author Olga Maciaszek-Sharma
  * @see HealthCheckHandler
  * @see StatusAggregator
  */
@@ -77,14 +80,14 @@ public class EurekaHealthCheckHandler
 
 	private ApplicationContext applicationContext;
 
-	private Map<String, HealthIndicator> healthIndicators = new HashMap<>();
+	private Map<String, HealthContributor> healthContributors = new HashMap<>();
 
 	/**
 	 * {@code true} until the context is stopped.
 	 */
 	private boolean running = true;
 
-	private Map<String, ReactiveHealthIndicator> reactiveHealthIndicators = new HashMap<>();
+	private Map<String, ReactiveHealthContributor> reactiveHealthContributors = new HashMap<>();
 
 	public EurekaHealthCheckHandler(StatusAggregator statusAggregator) {
 		this.statusAggregator = statusAggregator;
@@ -99,36 +102,25 @@ public class EurekaHealthCheckHandler
 
 	@Override
 	public void afterPropertiesSet() {
-		final Map<String, HealthIndicator> healthIndicators = applicationContext.getBeansOfType(HealthIndicator.class);
-		final Map<String, ReactiveHealthIndicator> reactiveHealthIndicators = applicationContext
-				.getBeansOfType(ReactiveHealthIndicator.class);
-
-		populateHealthIndicators(healthIndicators);
-		populateReactiveHealthIndicators(reactiveHealthIndicators);
+		populateHealthContributors(applicationContext.getBeansOfType(HealthContributor.class));
+		reactiveHealthContributors.putAll(applicationContext.getBeansOfType(ReactiveHealthContributor.class));
 	}
 
-	void populateHealthIndicators(Map<String, HealthIndicator> healthIndicators) {
-		for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
+	void populateHealthContributors(Map<String, HealthContributor> healthContributors) {
+		for (Map.Entry<String, HealthContributor> entry : healthContributors.entrySet()) {
 			// ignore EurekaHealthIndicator and flatten the rest of the composite
 			// otherwise there is a never ending cycle of down. See gh-643
 			if (entry.getValue() instanceof DiscoveryCompositeHealthContributor) {
 				DiscoveryCompositeHealthContributor indicator = (DiscoveryCompositeHealthContributor) entry.getValue();
-				indicator.forEach(contributor -> {
-					if (!(contributor.getContributor() instanceof EurekaHealthIndicator)) {
-						this.healthIndicators.put(contributor.getName(),
-								(HealthIndicator) contributor.getContributor());
+				indicator.getIndicators().forEach((name, discoveryHealthIndicator) -> {
+					if (!(discoveryHealthIndicator instanceof EurekaHealthIndicator)) {
+						healthContributors.put(name, (HealthIndicator) discoveryHealthIndicator::health);
 					}
 				});
 			}
 			else {
-				this.healthIndicators.put(entry.getKey(), entry.getValue());
+				this.healthContributors.put(entry.getKey(), entry.getValue());
 			}
-		}
-	}
-
-	void populateReactiveHealthIndicators(Map<String, ReactiveHealthIndicator> reactiveHealthIndicators) {
-		for (Map.Entry<String, ReactiveHealthIndicator> entry : reactiveHealthIndicators.entrySet()) {
-			this.reactiveHealthIndicators.put(entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -151,21 +143,39 @@ public class EurekaHealthCheckHandler
 	}
 
 	protected Status getStatus(StatusAggregator statusAggregator) {
-		Status status;
-
 		Set<Status> statusSet = new HashSet<>();
-		if (healthIndicators != null) {
-			statusSet.addAll(healthIndicators.values().stream().map(HealthIndicator::health).map(Health::getStatus)
-					.collect(Collectors.toSet()));
+		for (HealthContributor contributor : healthContributors.values()) {
+			processContributor(statusSet, contributor);
 		}
-
-		if (reactiveHealthIndicators != null) {
-			statusSet.addAll(reactiveHealthIndicators.values().stream().map(ReactiveHealthIndicator::health)
-					.map(Mono::block).filter(Objects::nonNull).map(Health::getStatus).collect(Collectors.toSet()));
+		for (ReactiveHealthContributor contributor : reactiveHealthContributors.values()) {
+			processContributor(statusSet, contributor);
 		}
+		return statusAggregator.getAggregateStatus(statusSet);
+	}
 
-		status = statusAggregator.getAggregateStatus(statusSet);
-		return status;
+	private void processContributor(Set<Status> statusSet, HealthContributor contributor) {
+		if (contributor instanceof CompositeHealthContributor) {
+			for (NamedContributor<HealthContributor> contrib : (CompositeHealthContributor) contributor) {
+				processContributor(statusSet, contrib.getContributor());
+			}
+		}
+		else if (contributor instanceof HealthIndicator) {
+			statusSet.add(((HealthIndicator) contributor).health().getStatus());
+		}
+	}
+
+	private void processContributor(Set<Status> statusSet, ReactiveHealthContributor contributor) {
+		if (contributor instanceof CompositeReactiveHealthContributor) {
+			for (NamedContributor<ReactiveHealthContributor> contrib : (CompositeReactiveHealthContributor) contributor) {
+				processContributor(statusSet, contrib.getContributor());
+			}
+		}
+		else if (contributor instanceof ReactiveHealthIndicator) {
+			Health health = ((ReactiveHealthIndicator) contributor).health().block();
+			if (health != null) {
+				statusSet.add(health.getStatus());
+			}
+		}
 	}
 
 	protected InstanceStatus mapToInstanceStatus(Status status) {
