@@ -114,7 +114,7 @@ public class EurekaHealthCheckHandler
 				DiscoveryCompositeHealthContributor indicator = (DiscoveryCompositeHealthContributor) entry.getValue();
 				indicator.getIndicators().forEach((name, discoveryHealthIndicator) -> {
 					if (!(discoveryHealthIndicator instanceof EurekaHealthIndicator)) {
-						healthContributors.put(name, (HealthIndicator) discoveryHealthIndicator::health);
+						this.healthContributors.put(name, (HealthIndicator) discoveryHealthIndicator::health);
 					}
 				});
 			}
