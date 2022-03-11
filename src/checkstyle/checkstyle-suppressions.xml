@@ -12,4 +12,5 @@
 <suppress files=".*TestAutoConfiguration\.java" checks="HideUtilityClassConstructor"/>
 <suppress files=".*TestAutoConfiguration\.java" checks="JavadocStyle"/>
 <suppress files=".*TestAutoConfiguration\.java" checks="JavadocStyle"/>
+<suppress files=".*Tests\.java" checks="JavadocVariable"/>
 </suppressions>
