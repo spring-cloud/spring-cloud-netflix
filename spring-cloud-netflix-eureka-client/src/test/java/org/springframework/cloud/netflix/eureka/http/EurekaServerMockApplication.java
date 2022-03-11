@@ -54,7 +54,7 @@ import static com.netflix.appinfo.InstanceInfo.DEFAULT_SECURE_PORT;
 import static org.springframework.util.Assert.isTrue;
 
 /**
- * Mocked Eureka Server
+ * Mocked Eureka Server.
  *
  * @author Daniel Lavoie
  */
