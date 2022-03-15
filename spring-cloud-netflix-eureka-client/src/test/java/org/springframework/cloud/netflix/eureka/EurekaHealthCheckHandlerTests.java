@@ -16,18 +16,23 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.AbstractReactiveHealthIndicator;
+import org.springframework.boot.actuate.health.CompositeHealthContributor;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.NamedContributor;
 import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.SimpleStatusAggregator;
 import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
@@ -44,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Jakub Narloch
  * @author Nowrin Anwar Joyita
+ * @author Olga Maciaszek-Sharma
  */
 class EurekaHealthCheckHandlerTests {
 
@@ -63,7 +69,7 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	void testAllUp() throws Exception {
+	void testAllUp() {
 		initialize(UpHealthConfiguration.class, ReactiveUpHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -71,7 +77,7 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	void testHealthCheckNotReturnedWhenStopped() throws Exception {
+	void testHealthCheckNotReturnedWhenStopped() {
 		initialize(UpHealthConfiguration.class);
 
 		healthCheckHandler.stop();
@@ -84,7 +90,7 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	void testDownWithBlockingIndicators() throws Exception {
+	void testDownWithBlockingIndicators() {
 		initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -92,7 +98,7 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	void testDownWithReactiveIndicators() throws Exception {
+	void testDownWithReactiveIndicators() {
 		initialize(UpHealthConfiguration.class, ReactiveDownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -100,7 +106,7 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	void testDownWhenBlockingIndicatorUpAndReactiveDown() throws Exception {
+	void testDownWhenBlockingIndicatorUpAndReactiveDown() {
 		initialize(ReactiveUpHealthConfiguration.class, DownHealthConfiguration.class);
 
 		InstanceStatus status = this.healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -108,7 +114,7 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	void testDownWhenBlockingIndicatorDownAndReactiveUp() throws Exception {
+	void testDownWhenBlockingIndicatorDownAndReactiveUp() {
 		initialize(ReactiveUpHealthConfiguration.class, ReactiveDownHealthConfiguration.class);
 
 		InstanceStatus status = this.healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -116,7 +122,7 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	void testUnknown() throws Exception {
+	void testUnknown() {
 		initialize(FatalHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
@@ -124,15 +130,38 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
-	@Disabled // FIXME: 3.0.0
-	void testEurekaIgnored() throws Exception {
+	void testEurekaIgnored() {
 		initialize(EurekaDownHealthConfiguration.class);
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
 		assertThat(status).isEqualTo(InstanceStatus.UP);
 	}
 
-	private void initialize(Class<?>... configurations) throws Exception {
+	@Test
+	void testCompositeComponentsDown() {
+		initialize(CompositeComponentsDownHealthConfiguration.class);
+
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	@Test
+	void testCompositeComponentsUp() {
+		initialize(CompositeComponentsUpHealthConfiguration.class);
+
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
+		assertThat(status).isEqualTo(InstanceStatus.UP);
+	}
+
+	@Test
+	void testCompositeComponentsOneDown() {
+		initialize(CompositeComponentsOneDownHealthConfiguration.class);
+
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
+		assertThat(status).isEqualTo(InstanceStatus.DOWN);
+	}
+
+	private void initialize(Class<?>... configurations) {
 		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurations);
 		healthCheckHandler.setApplicationContext(applicationContext);
 		healthCheckHandler.afterPropertiesSet();
@@ -144,7 +173,7 @@ class EurekaHealthCheckHandlerTests {
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
 				@Override
-				protected void doHealthCheck(Health.Builder builder) throws Exception {
+				protected void doHealthCheck(Health.Builder builder) {
 					builder.up();
 				}
 			};
@@ -158,7 +187,7 @@ class EurekaHealthCheckHandlerTests {
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
 				@Override
-				protected void doHealthCheck(Health.Builder builder) throws Exception {
+				protected void doHealthCheck(Health.Builder builder) {
 					builder.down();
 				}
 			};
@@ -172,7 +201,7 @@ class EurekaHealthCheckHandlerTests {
 		public HealthIndicator healthIndicator() {
 			return new AbstractHealthIndicator() {
 				@Override
-				protected void doHealthCheck(Health.Builder builder) throws Exception {
+				protected void doHealthCheck(Health.Builder builder) {
 					builder.status("fatal");
 				}
 			};
@@ -234,6 +263,78 @@ class EurekaHealthCheckHandlerTests {
 		public DiscoveryCompositeHealthContributor discoveryCompositeHealthContributor(
 				List<DiscoveryHealthIndicator> indicators) {
 			return new DiscoveryCompositeHealthContributor(indicators);
+		}
+
+	}
+
+	protected static class CompositeComponentsDownHealthConfiguration {
+
+		@Bean
+		public CompositeHealthContributor compositeHealthContributor() {
+			return new TestCompositeHealthContributor(InstanceStatus.DOWN, InstanceStatus.DOWN);
+		}
+
+	}
+
+	protected static class CompositeComponentsUpHealthConfiguration {
+
+		@Bean
+		public CompositeHealthContributor compositeHealthContributor() {
+			return new TestCompositeHealthContributor(InstanceStatus.UP, InstanceStatus.UP);
+		}
+
+	}
+
+	protected static class CompositeComponentsOneDownHealthConfiguration {
+
+		@Bean
+		public CompositeHealthContributor compositeHealthContributor() {
+			return new TestCompositeHealthContributor(InstanceStatus.UP, InstanceStatus.DOWN);
+		}
+
+	}
+
+	static class TestCompositeHealthContributor implements CompositeHealthContributor {
+
+		private final Map<String, HealthContributor> contributorMap = new HashMap<>();
+
+		TestCompositeHealthContributor(InstanceStatus firstContributorStatus, InstanceStatus secondContributorStatus) {
+			contributorMap.put("first", new AbstractHealthIndicator() {
+				@Override
+				protected void doHealthCheck(Health.Builder builder) {
+					builder.status(firstContributorStatus.name());
+				}
+			});
+			contributorMap.put("second", new AbstractHealthIndicator() {
+				@Override
+				protected void doHealthCheck(Health.Builder builder) {
+					builder.status(secondContributorStatus.name());
+				}
+			});
+		}
+
+		@Override
+		public HealthContributor getContributor(String name) {
+			return contributorMap.get(name);
+		}
+
+		@Override
+		public Iterator<NamedContributor<HealthContributor>> iterator() {
+			Iterator<Map.Entry<String, HealthContributor>> iterator = contributorMap.entrySet().iterator();
+			return new Iterator<NamedContributor<HealthContributor>>() {
+
+				@Override
+				public boolean hasNext() {
+					return iterator.hasNext();
+				}
+
+				@Override
+				public NamedContributor<HealthContributor> next() {
+					Map.Entry<String, HealthContributor> entry = iterator.next();
+					return NamedContributor.of(entry.getKey(), entry.getValue());
+				}
+
+			};
 		}
 
 	}
