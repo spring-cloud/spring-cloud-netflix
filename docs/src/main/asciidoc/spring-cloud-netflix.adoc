@@ -430,6 +430,10 @@ dependencyManagement {
 ----
 ====
 
+=== DefaultOpenForTrafficCount and its effect on EurekaServer warmup time
+
+In order to enable the warmup time, Set `eureka.server.defaultOpenForTrafficCount=0`,It enables the warmup time, and the load testing app never gets its local cache emptied once the server comes back online.But expectedNumberOfRenewsThreshold will always be at 0 and never get updated for a standalone server.Also, Netflix Eureka's waitTimeInMsWhenSyncEmpty setting is not taken into account in Spring Cloud Eureka server at the beginning.
+
 [[spring-cloud-eureka-server-zones-and-regions]]
 === High Availability, Zones and Regions
 
