@@ -430,6 +430,10 @@ dependencyManagement {
 ----
 ====
 
+=== DefaultOpenForTrafficCount and its effect on EurekaServer warmup time
+
+Set eureka.server.defaultOpenForTrafficCount=0,It enables the warmup time, and the load testing app never gets its local cache emptied once the server comes back online.But expectedNumberOfRenewsThreshold will always be at 0 and never get updated for a standalone server. The only way for the threshold to be updated is if eureka.client.fetchRegistry=true and in the case of a standalone server, eureka.client.serviceUrl.defaultZone=http://127.0.0.1:${server.port}/eureka/, so that updateRenewalThreshold() can fetch registry (itself over loopback) and get a count > 0. 
+
 [[spring-cloud-eureka-server-zones-and-regions]]
 === High Availability, Zones and Regions
 
