@@ -80,6 +80,9 @@ See {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springfra
 
 To disable the Eureka Discovery Client, you can set `eureka.client.enabled` to `false`. Eureka Discovery Client will also be disabled when `spring.cloud.discovery.enabled` is set to `false`.
 
+
+NOTE: Specifying the version of the Spring Cloud Netflix Eureka server as a path parameter is not currently supported. This means you cannot set the version in the context path (`eurekaServerURLContext`). Instead, you can include the version in the server URL (for example, you can set `defaultZone: http://localhost:8761/eureka/v2`).
+
 === Authenticating with the Eureka Server
 
 HTTP basic authentication is automatically added to your eureka client if one of the `eureka.client.serviceUrl.defaultZone` URLs has credentials embedded in it (curl style, as follows: `https://user:password@localhost:8761/eureka`).
