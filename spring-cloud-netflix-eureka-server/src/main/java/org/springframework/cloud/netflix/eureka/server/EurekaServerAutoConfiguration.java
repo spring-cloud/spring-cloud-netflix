@@ -73,11 +73,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author Gunnar Hillert
  * @author Biju Kunjummen
  * @author Fahim Farook
+ * @author Weix Sun
  */
 @Configuration(proxyBeanMethods = false)
 @Import(EurekaServerInitializerConfiguration.class)
 @ConditionalOnBean(EurekaServerMarkerConfiguration.Marker.class)
-@EnableConfigurationProperties({ EurekaDashboardProperties.class, InstanceRegistryProperties.class })
+@EnableConfigurationProperties({ EurekaDashboardProperties.class, InstanceRegistryProperties.class,
+		EurekaProperties.class })
 @PropertySource("classpath:/eureka/server.properties")
 public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
@@ -113,8 +115,8 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	@Bean
 	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)
-	public EurekaController eurekaController() {
-		return new EurekaController(this.applicationInfoManager);
+	public EurekaController eurekaController(EurekaProperties eurekaProperties) {
+		return new EurekaController(this.applicationInfoManager, eurekaProperties);
 	}
 
 	static {

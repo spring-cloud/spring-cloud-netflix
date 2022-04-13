@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * @author Spencer Gibb
  * @author Gang Li
+ * @author Weix Sun
  */
 @Controller
 @RequestMapping("${eureka.dashboard.path:/}")
@@ -57,8 +58,20 @@ public class EurekaController {
 
 	private ApplicationInfoManager applicationInfoManager;
 
+	private final EurekaProperties eurekaProperties;
+
+	/**
+	 * @deprecated in favour of
+	 * {@link EurekaController#EurekaController(ApplicationInfoManager, EurekaProperties)}
+	 */
+	@Deprecated
 	public EurekaController(ApplicationInfoManager applicationInfoManager) {
+		this(applicationInfoManager, null);
+	}
+
+	public EurekaController(ApplicationInfoManager applicationInfoManager, EurekaProperties eurekaProperties) {
 		this.applicationInfoManager = applicationInfoManager;
+		this.eurekaProperties = eurekaProperties;
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -115,8 +128,14 @@ public class EurekaController {
 	private void populateHeader(Map<String, Object> model) {
 		model.put("currentTime", StatusResource.getCurrentTimeAsString());
 		model.put("upTime", StatusInfo.getUpTime());
-		model.put("environment", "N/A"); // FIXME:
-		model.put("datacenter", "N/A"); // FIXME:
+		if (eurekaProperties != null) {
+			model.put("environment", eurekaProperties.getEnvironment());
+			model.put("datacenter", eurekaProperties.getDatacenter());
+		}
+		else {
+			model.put("environment", "N/A");
+			model.put("datacenter", "N/A");
+		}
 		PeerAwareInstanceRegistry registry = getRegistry();
 		model.put("registry", registry);
 		model.put("isBelowRenewThreshold", registry.isBelowRenewThresold() == 1);

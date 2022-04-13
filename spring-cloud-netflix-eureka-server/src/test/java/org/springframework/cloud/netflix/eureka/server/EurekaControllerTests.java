@@ -96,9 +96,12 @@ class EurekaControllerTests {
 	void testStatus() throws Exception {
 		Map<String, Object> model = new HashMap<>();
 
-		EurekaController controller = new EurekaController(infoManager);
+		EurekaController controller = new EurekaController(infoManager, new EurekaProperties());
 
 		controller.status(new MockHttpServletRequest("GET", "/"), model);
+
+		assertThat((String) model.get("environment")).isEqualTo("test");
+		assertThat((String) model.get("datacenter")).isEqualTo("default");
 
 		Map<String, Object> app = getFirst(model, "apps");
 		Map<String, Object> instanceInfo = getFirst(app, "instanceInfos");
