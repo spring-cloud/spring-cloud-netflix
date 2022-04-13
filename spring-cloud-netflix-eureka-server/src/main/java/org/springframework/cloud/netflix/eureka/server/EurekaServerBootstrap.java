@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Spencer Gibb
+ * @author Weix Sun
  */
 public class EurekaServerBootstrap {
 
@@ -67,7 +68,6 @@ public class EurekaServerBootstrap {
 
 	public void contextInitialized(ServletContext context) {
 		try {
-			initEurekaEnvironment();
 			initEurekaServerContext();
 
 			context.setAttribute(EurekaServerContext.class.getName(), this.serverContext);
@@ -91,11 +91,6 @@ public class EurekaServerBootstrap {
 			log.error("Error shutting down eureka", e);
 		}
 		log.info("Eureka Service is now shutdown...");
-	}
-
-	protected void initEurekaEnvironment() throws Exception {
-		log.info("Setting the eureka configuration..");
-
 	}
 
 	protected void initEurekaServerContext() throws Exception {
