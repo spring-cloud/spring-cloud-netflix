@@ -60,15 +60,6 @@ public class EurekaController {
 
 	private final EurekaProperties eurekaProperties;
 
-	/**
-	 * @deprecated in favour of
-	 * {@link EurekaController#EurekaController(ApplicationInfoManager, EurekaProperties)}
-	 */
-	@Deprecated
-	public EurekaController(ApplicationInfoManager applicationInfoManager) {
-		this(applicationInfoManager, null);
-	}
-
 	public EurekaController(ApplicationInfoManager applicationInfoManager, EurekaProperties eurekaProperties) {
 		this.applicationInfoManager = applicationInfoManager;
 		this.eurekaProperties = eurekaProperties;
@@ -128,14 +119,8 @@ public class EurekaController {
 	private void populateHeader(Map<String, Object> model) {
 		model.put("currentTime", StatusResource.getCurrentTimeAsString());
 		model.put("upTime", StatusInfo.getUpTime());
-		if (eurekaProperties != null) {
-			model.put("environment", eurekaProperties.getEnvironment());
-			model.put("datacenter", eurekaProperties.getDatacenter());
-		}
-		else {
-			model.put("environment", "N/A");
-			model.put("datacenter", "N/A");
-		}
+		model.put("environment", eurekaProperties.getEnvironment());
+		model.put("datacenter", eurekaProperties.getDatacenter());
 		PeerAwareInstanceRegistry registry = getRegistry();
 		model.put("registry", registry);
 		model.put("isBelowRenewThreshold", registry.isBelowRenewThresold() == 1);
@@ -159,7 +144,8 @@ public class EurekaController {
 
 	private void populateNavbar(HttpServletRequest request, Map<String, Object> model) {
 		Map<String, String> replicas = new LinkedHashMap<>();
-		List<PeerEurekaNode> list = getServerContext().getPeerEurekaNodes().getPeerNodesView();
+		List<PeerEurekaNode> list = getServerContext().getPeerEurekaNodes()
+				.getPeerNodesView();
 		for (PeerEurekaNode node : list) {
 			try {
 				URI uri = new URI(node.getServiceUrl());
@@ -295,7 +281,8 @@ public class EurekaController {
 		StringBuilder filteredUrls = new StringBuilder();
 		for (String u : urls) {
 			if (u.contains("@")) {
-				filteredUrls.append(u, 0, u.indexOf("//") + 2).append(u.substring(u.indexOf("@") + 1)).append(",");
+				filteredUrls.append(u, 0, u.indexOf("//") + 2)
+						.append(u.substring(u.indexOf("@") + 1)).append(",");
 			}
 			else {
 				filteredUrls.append(u).append(",");
