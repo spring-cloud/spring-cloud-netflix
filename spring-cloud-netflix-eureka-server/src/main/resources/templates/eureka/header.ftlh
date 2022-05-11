@@ -8,10 +8,10 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a  class="nav-link" href="<@spring.url dashboardPath/>">Home</a>
+          <a class="nav-link" href="<@spring.url dashboardPath/>">Home</a>
         </li>
         <li class="nav-item">
-          <a  class="nav-link" href="<@spring.url dashboardPath/>/lastn">Last 1000 since startup</a>
+          <a class="nav-link" href="<@spring.url dashboardPath/>/lastn">Last 1000 since startup</a>
         </li>
       </ul>
     </div>
