@@ -28,7 +28,9 @@
 .navbar a:hover.navbar-brand span {
     opacity: 1;
     color: #eeeeee;
-    background-color: #6db33f;
+}
+.navbar-dark .navbar-nav .nav-link {
+  color: #f1f1f1;
 }
 .navbar li > a, .navbar-text {
     color: #f1f1f1;
