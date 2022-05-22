@@ -63,7 +63,7 @@
 </#if>
 
 <h1>DS Replicas</h1>
-<ul class="list-group">
+<ul class="list-group mb-3">
   <#list replicas as replica>
     <li class="list-group-item"><a href="${replica.value}">${replica.key}</a></li>
   </#list>
