@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import java.util.Collections;
+
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 
 import org.springframework.boot.BootstrapRegistry;
@@ -50,7 +52,7 @@ public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitiali
 		registry.registerIfAbsent(ConfigServerInstanceProvider.Function.class, context -> {
 			Binder binder = context.get(Binder.class);
 			if (!getDiscoveryEnabled(binder)) {
-				return null;
+				return (id) -> Collections.emptyList();
 			}
 			EurekaClientConfigBean config = context.get(EurekaClientConfigBean.class);
 			EurekaHttpClient httpClient = new RestTemplateTransportClientFactory(
@@ -63,7 +65,9 @@ public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitiali
 	}
 
 	private Boolean getDiscoveryEnabled(Binder binder) {
-		return binder.bind(ConfigClientProperties.CONFIG_DISCOVERY_ENABLED, Boolean.class).orElse(false);
+		return binder.bind(ConfigClientProperties.CONFIG_DISCOVERY_ENABLED, Boolean.class).orElse(false)
+				&& binder.bind("eureka.client.enabled", Boolean.class).orElse(true)
+				&& binder.bind("spring.cloud.discovery.enabled", Boolean.class).orElse(true);
 	}
 
 }

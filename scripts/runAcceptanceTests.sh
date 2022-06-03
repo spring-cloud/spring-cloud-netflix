@@ -4,7 +4,7 @@ set -o errexit
 
 mkdir -p target
 
-SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/brewery/main/runAcceptanceTests.sh"
+SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/brewery/3.1.x/runAcceptanceTests.sh"
 AT_WHAT_TO_TEST="EUREKA"
 
 cd target
