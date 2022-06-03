@@ -44,7 +44,7 @@ import com.netflix.discovery.shared.transport.TransportClientFactory;
 
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -200,7 +200,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	class ErrorHandler extends DefaultResponseErrorHandler {
 
 		@Override
-		protected boolean hasError(HttpStatus statusCode) {
+		protected boolean hasError(HttpStatusCode statusCode) {
 			/**
 			 * When the Eureka server restarts and a client tries to sent a heartbeat the
 			 * server will respond with a 404. By default RestTemplate will throw an
