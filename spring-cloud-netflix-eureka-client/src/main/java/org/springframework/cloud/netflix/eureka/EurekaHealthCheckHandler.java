@@ -70,7 +70,7 @@ public class EurekaHealthCheckHandler
 	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
 		{
 			put(Status.UNKNOWN, InstanceStatus.UNKNOWN);
-			put(Status.OUT_OF_SERVICE, InstanceStatus.OUT_OF_SERVICE);
+			put(Status.OUT_OF_SERVICE, InstanceStatus.DOWN);
 			put(Status.DOWN, InstanceStatus.DOWN);
 			put(Status.UP, InstanceStatus.UP);
 		}

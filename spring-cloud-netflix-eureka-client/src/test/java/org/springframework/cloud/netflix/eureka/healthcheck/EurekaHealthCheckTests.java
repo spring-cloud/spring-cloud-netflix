@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests the Eureka health check handler.
  *
  * @author Jakub Narloch
+ * @author Olga Maciaszek-Sharma
  */
 @SpringBootTest(classes = EurekaHealthCheckTests.EurekaHealthCheckApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT, value = { "eureka.client.healthcheck.enabled=true", "debug=true" })
@@ -47,12 +48,24 @@ class EurekaHealthCheckTests {
 
 	@Test
 	void shouldRegisterService() {
+		System.setProperty("status", "UP");
 
 		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
 				.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
 
 		assertThat(status).isNotNull();
-		assertThat(status).isEqualTo(InstanceInfo.InstanceStatus.OUT_OF_SERVICE);
+		assertThat(status).isEqualTo(InstanceInfo.InstanceStatus.UP);
+	}
+
+	@Test
+	void shouldMapOutOfServiceToDown() {
+		System.setProperty("status", "OUT_OF_SERVICE");
+
+		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
+				.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
+
+		assertThat(status).isNotNull();
+		assertThat(status).isEqualTo(InstanceInfo.InstanceStatus.DOWN);
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -61,7 +74,7 @@ class EurekaHealthCheckTests {
 
 		@Bean
 		public HealthIndicator healthIndicator() {
-			return () -> new Health.Builder().outOfService().build();
+			return () -> new Health.Builder().status(System.getProperty("status")).build();
 		}
 
 	}
