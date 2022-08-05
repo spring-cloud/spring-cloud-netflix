@@ -23,9 +23,9 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 /**
@@ -35,21 +35,22 @@ import org.springframework.util.StringUtils;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({ EurekaInstanceConfigBean.class, EurekaClient.class, ConfigServerProperties.class })
+@ConditionalOnClass(value = { EurekaInstanceConfigBean.class, EurekaClient.class },
+		name = "org.springframework.cloud.config.server.config.ConfigServerProperties")
 public class EurekaClientConfigServerAutoConfiguration {
 
 	@Autowired(required = false)
 	private EurekaInstanceConfig instance;
 
-	@Autowired(required = false)
-	private ConfigServerProperties server;
+	@Autowired
+	private Environment env;
 
 	@PostConstruct
 	public void init() {
-		if (this.instance == null || this.server == null) {
+		if (this.instance == null) {
 			return;
 		}
-		String prefix = this.server.getPrefix();
+		String prefix = this.env.getProperty("spring.cloud.config.server.prefix");
 		if (StringUtils.hasText(prefix) && !StringUtils.hasText(this.instance.getMetadataMap().get("configPath"))) {
 			this.instance.getMetadataMap().put("configPath", prefix);
 		}
