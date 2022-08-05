@@ -81,6 +81,7 @@
 						<ignoredResourcePattern>plugin.properties</ignoredResourcePattern>
 						<ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
 					</ignoredResourcePatterns>
+					<checkTestClasspath>false</checkTestClasspath>
 				</configuration>
 			</plugin>
 		</plugins>
