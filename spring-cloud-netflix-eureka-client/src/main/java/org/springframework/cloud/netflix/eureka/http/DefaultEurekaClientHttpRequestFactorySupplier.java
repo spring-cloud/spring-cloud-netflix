@@ -36,6 +36,10 @@ import org.springframework.lang.Nullable;
  */
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
+	private int connectRequestTimeout = 10000;
+	private int connectTimeout = 10000;
+	private int readTimeout = 10000;
+	
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
@@ -47,6 +51,9 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 		}
 		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+		requestFactory.setConnectionRequestTimeout(connectRequestTimeout);
+		requestFactory.setConnectTimeout(connectTimeout);
+		requestFactory.setReadTimeout(readTimeout);
 		requestFactory.setHttpClient(httpClient);
 		return requestFactory;
 	}
