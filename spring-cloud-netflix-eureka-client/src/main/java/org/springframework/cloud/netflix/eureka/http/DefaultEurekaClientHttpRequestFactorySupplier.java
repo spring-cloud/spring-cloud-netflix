@@ -48,6 +48,9 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
+		requestFactory.setConnectionRequestTimeout(10000);
+		requestFactory.setConnectTimeout(10000);
+		requestFactory.setReadTimeout(10000);
 		return requestFactory;
 	}
 
