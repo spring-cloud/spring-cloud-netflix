@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka.http;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -26,6 +27,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
+
 
 /**
  * Supplier for the {@link ClientHttpRequestFactory} to be used by Eureka client that uses
@@ -36,6 +38,10 @@ import org.springframework.lang.Nullable;
  */
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
+	private int connectRequestTimeout = 10000;
+	private int connectTimeout = 10000;
+	private int socketTimeout = 10000;
+	
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
@@ -45,7 +51,9 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 		if (hostnameVerifier != null) {
 			httpClientBuilder = httpClientBuilder.setSSLHostnameVerifier(hostnameVerifier);
 		}
-		CloseableHttpClient httpClient = httpClientBuilder.build();
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(connectTimeout).setConnectionRequestTimeout(connectRequestTimeout).setSocketTimeout(socketTimeout).build(); 
+		
+		CloseableHttpClient httpClient = httpClientBuilder.setDefaultRequestConfig(requestConfig).build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
 		return requestFactory;
