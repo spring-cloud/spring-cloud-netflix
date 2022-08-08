@@ -52,7 +52,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 			httpClientBuilder = httpClientBuilder.setSSLHostnameVerifier(hostnameVerifier);
 		}
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(connectTimeout).setConnectionRequestTimeout(connectRequestTimeout).setSocketTimeout(socketTimeout).build();
-		httpClientBuilder.setDefaultRequestConfig(requestConfig);
+		httpClientBuilder = httpClientBuilder.setDefaultRequestConfig(requestConfig);
 		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
