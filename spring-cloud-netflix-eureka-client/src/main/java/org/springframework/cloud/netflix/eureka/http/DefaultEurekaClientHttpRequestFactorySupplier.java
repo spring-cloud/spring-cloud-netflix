@@ -19,7 +19,7 @@ package org.springframework.cloud.netflix.eureka.http;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
-//import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -51,8 +51,8 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 		if (hostnameVerifier != null) {
 			httpClientBuilder = httpClientBuilder.setSSLHostnameVerifier(hostnameVerifier);
 		}
-//		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(connectTimeout).setConnectionRequestTimeout(connectRequestTimeout).setSocketTimeout(socketTimeout).build();
-//		httpClientBuilder = httpClientBuilder.setDefaultRequestConfig(requestConfig);
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(connectTimeout).setConnectionRequestTimeout(connectRequestTimeout).setSocketTimeout(socketTimeout).build();
+		httpClientBuilder = httpClientBuilder.setDefaultRequestConfig(requestConfig);
 		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
