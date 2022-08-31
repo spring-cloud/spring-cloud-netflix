@@ -2,10 +2,10 @@
 @import "header.css";
 @import "responsive.css";
 
-a:link{
+a:link {
     color: #5fa134;
 }
-a:hover{
+a:hover {
     color: #5fa134;
 }
 body {
@@ -19,8 +19,13 @@ body {
     background-color: #34302D;
     padding: 9px 12px;
 }
-.nav > li > a {
+.nav-tabs .nav-link {
     color: #838789;
+}
+.nav-tabs .nav-link.active, .nav-tabs .nav-link.active:hover {
+    color: #f1f1f1;
+    background-color: #34302D;
+    border-color: #34302D;
 }
 .btn-default {
     border-width: 2px;
@@ -95,4 +100,3 @@ table td.action-column {
 .help-block {
     color: #f1f1f1;
 }
-
