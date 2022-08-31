@@ -38,9 +38,9 @@ import org.springframework.lang.Nullable;
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
 	//Best Config
-	private int connectRequestTimeout = 10000;
-	private int connectTimeout = 10000;
-	private int socketTimeout = 10000;
+	private int connectRequestTimeout = 20000;
+	private int connectTimeout = 20000;
+	private int socketTimeout = 20000;
 	
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
