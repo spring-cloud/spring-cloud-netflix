@@ -57,9 +57,9 @@ class ApplicationDashboardPathTests {
 		// The "DS Replicas"
 		assertThat(body.contains("<h1>Instances currently registered with Eureka</h1>")).isTrue();
 		// The Home
-		assertThat(body.contains("<a href=\"/dashboard\">Home</a>")).isTrue();
+		assertThat(body.contains("<a class=\"nav-link px-2\" href=\"/dashboard\">Home</a>")).isTrue();
 		// The Lastn
-		assertThat(body.contains("<a href=\"/dashboard/lastn\">Last")).isTrue();
+		assertThat(body.contains("<a class=\"nav-link px-2\" href=\"/dashboard/lastn\">Last")).isTrue();
 	}
 
 	@Test

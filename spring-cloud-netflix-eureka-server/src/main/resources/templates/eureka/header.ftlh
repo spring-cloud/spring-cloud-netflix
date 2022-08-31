@@ -1,22 +1,17 @@
 <#import "/spring.ftl" as spring />
-<nav class="navbar navbar-default" role="navigation">
+<nav class="navbar navbar-expand-md navbar-dark" role="navigation">
   <div class="container">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="<@spring.url dashboardPath/>"><span></span></a>
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    </div>
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
-        <li>
-          <a href="<@spring.url dashboardPath/>">Home</a>
+    <a class="navbar-brand my-auto" href="<@spring.url dashboardPath/>"><span></span></a>
+    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link px-2" href="<@spring.url dashboardPath/>">Home</a>
         </li>
-        <li>
-          <a href="<@spring.url dashboardPath/>/lastn">Last 1000 since startup</a>
+        <li class="nav-item">
+          <a class="nav-link px-2" href="<@spring.url dashboardPath/>/lastn">Last 1000 since startup</a>
         </li>
       </ul>
     </div>
