@@ -29,7 +29,7 @@ import com.netflix.discovery.converters.wrappers.CodecWrapper;
 import com.netflix.discovery.converters.wrappers.CodecWrappers;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
-import com.netflix.discovery.shared.transport.jersey2.Jersey2TransportClientFactories;
+import com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories;
 import com.netflix.eureka.DefaultEurekaServerContext;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerContext;
@@ -38,7 +38,7 @@ import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.DefaultServerCodecs;
 import com.netflix.eureka.resources.ServerCodecs;
-import com.netflix.eureka.transport.Jersey2ReplicationClient;
+import com.netflix.eureka.transport.Jersey3ReplicationClient;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -162,8 +162,8 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
-	public Jersey2TransportClientFactories jersey2TransportClientFactories() {
-		return Jersey2TransportClientFactories.getInstance();
+	public Jersey3TransportClientFactories jersey3TransportClientFactories() {
+		return Jersey3TransportClientFactories.getInstance();
 	}
 
 	@Bean
@@ -375,7 +375,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 		@Override
 		protected PeerEurekaNode createPeerEurekaNode(String peerEurekaNodeUrl) {
-			Jersey2ReplicationClient replicationClient = Jersey2ReplicationClient.createReplicationClient(serverConfig,
+			Jersey3ReplicationClient replicationClient = Jersey3ReplicationClient.createReplicationClient(serverConfig,
 					serverCodecs, peerEurekaNodeUrl);
 
 			// FIXME: 4.0
