@@ -19,10 +19,12 @@ package org.springframework.cloud.netflix.eureka.server;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.eureka.EurekaServerConfig;
+import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.ServerCodecs;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -67,6 +69,11 @@ class EurekaCustomPeerNodesTests {
 				EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
 				ApplicationInfoManager applicationInfoManager) {
 			super(registry, serverConfig, clientConfig, serverCodecs, applicationInfoManager);
+		}
+
+		@Override
+		protected PeerEurekaNode createPeerEurekaNode(String peerEurekaNodeUrl) {
+			return Mockito.mock(PeerEurekaNode.class);
 		}
 
 	}

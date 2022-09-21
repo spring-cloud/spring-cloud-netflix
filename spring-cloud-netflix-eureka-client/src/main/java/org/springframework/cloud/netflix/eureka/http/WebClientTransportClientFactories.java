@@ -26,7 +26,6 @@ import javax.net.ssl.SSLContext;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
-import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 import org.springframework.web.reactive.function.client.WebClient;
@@ -41,12 +40,6 @@ public class WebClientTransportClientFactories implements TransportClientFactori
 
 	public WebClientTransportClientFactories(Supplier<WebClient.Builder> builder) {
 		this.builder = builder;
-	}
-
-	@Override
-	public TransportClientFactory newTransportClientFactory(Collection<Void> additionalFilters,
-			EurekaJerseyClient providedJerseyClient) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

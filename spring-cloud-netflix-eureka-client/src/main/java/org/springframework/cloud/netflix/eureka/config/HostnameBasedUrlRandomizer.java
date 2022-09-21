@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import java.util.List;
 
+import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.endpoint.EndpointUtils;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
 
@@ -26,7 +27,7 @@ import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
-final class HostnameBasedUrlRandomizer implements EndpointUtils.ServiceUrlRandomizer {
+public final class HostnameBasedUrlRandomizer implements EndpointUtils.ServiceUrlRandomizer {
 
 	private final String hostname;
 
@@ -56,18 +57,18 @@ final class HostnameBasedUrlRandomizer implements EndpointUtils.ServiceUrlRandom
 		}
 	}
 
-	static String getEurekaUrl(EurekaClientConfigBean config, String hostname) {
+	public static String getEurekaUrl(EurekaClientConfig config, String hostname) {
 		List<String> urls = EndpointUtils.getDiscoveryServiceUrls(config, EurekaClientConfigBean.DEFAULT_ZONE,
 				new HostnameBasedUrlRandomizer(hostname));
 		return urls.get(0);
 	}
 
-	static DefaultEndpoint randomEndpoint(EurekaClientConfigBean config, Environment env) {
+	public static DefaultEndpoint randomEndpoint(EurekaClientConfig config, Environment env) {
 		String hostname = env.getProperty("eureka.instance.hostname");
 		return new DefaultEndpoint(getEurekaUrl(config, hostname));
 	}
 
-	static DefaultEndpoint randomEndpoint(EurekaClientConfigBean config, Binder binder) {
+	public static DefaultEndpoint randomEndpoint(EurekaClientConfig config, Binder binder) {
 		String hostname = binder.bind("eureka.instance.hostname", String.class).orElseGet(() -> null);
 		return new DefaultEndpoint(getEurekaUrl(config, hostname));
 	}

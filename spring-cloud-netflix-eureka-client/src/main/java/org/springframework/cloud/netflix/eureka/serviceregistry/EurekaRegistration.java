@@ -59,7 +59,7 @@ public class EurekaRegistration implements Registration {
 
 	private ObjectProvider<HealthCheckHandler> healthCheckHandler;
 
-	private EurekaRegistration(CloudEurekaInstanceConfig instanceConfig, EurekaClient eurekaClient,
+	public EurekaRegistration(CloudEurekaInstanceConfig instanceConfig, EurekaClient eurekaClient,
 			ApplicationInfoManager applicationInfoManager, ObjectProvider<HealthCheckHandler> healthCheckHandler) {
 		this.eurekaClient = eurekaClient;
 		this.instanceConfig = instanceConfig;
