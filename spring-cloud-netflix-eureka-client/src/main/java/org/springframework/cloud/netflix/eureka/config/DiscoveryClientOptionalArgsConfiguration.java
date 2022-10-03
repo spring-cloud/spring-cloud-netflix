@@ -33,7 +33,6 @@ import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
-import org.springframework.cloud.netflix.eureka.MutableDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
@@ -79,16 +78,20 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		return new DefaultEurekaClientHttpRequestFactorySupplier();
 	}
 
-	@Bean
-	@ConditionalOnClass(name = "com.sun.jersey.api.client.filter.ClientFilter")
-	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
-	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs(TlsProperties tlsProperties)
-			throws GeneralSecurityException, IOException {
-		logger.info("Eureka HTTP Client uses Jersey");
-		MutableDiscoveryClientOptionalArgs result = new MutableDiscoveryClientOptionalArgs();
-		setupTLS(result, tlsProperties);
-		return result;
-	}
+	// FIXME: 4.0
+	/*
+	 * @Bean
+	 *
+	 * @ConditionalOnClass(name = "com.sun.jersey.api.client.filter.ClientFilter")
+	 *
+	 * @ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class, search
+	 * = SearchStrategy.CURRENT) public MutableDiscoveryClientOptionalArgs
+	 * discoveryClientOptionalArgs(TlsProperties tlsProperties) throws
+	 * GeneralSecurityException, IOException {
+	 * logger.info("Eureka HTTP Client uses Jersey"); MutableDiscoveryClientOptionalArgs
+	 * result = new MutableDiscoveryClientOptionalArgs(); setupTLS(result, tlsProperties);
+	 * return result; }
+	 */
 
 	private static void setupTLS(AbstractDiscoveryClientOptionalArgs<?> args, TlsProperties properties)
 			throws GeneralSecurityException, IOException {

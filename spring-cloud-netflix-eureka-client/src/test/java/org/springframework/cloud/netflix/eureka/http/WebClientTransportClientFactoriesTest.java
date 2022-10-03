@@ -29,7 +29,7 @@ class WebClientTransportClientFactoriesTest {
 	@Test
 	void testJerseyIsUnsupported() {
 		Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-			new WebClientTransportClientFactories(WebClient::builder).newTransportClientFactory(null, null);
+			new WebClientTransportClientFactories(WebClient::builder).newTransportClientFactory(null, null, null);
 		});
 
 	}

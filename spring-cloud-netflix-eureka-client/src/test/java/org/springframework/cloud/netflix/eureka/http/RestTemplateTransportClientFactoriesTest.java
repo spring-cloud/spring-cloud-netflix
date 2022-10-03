@@ -28,7 +28,7 @@ class RestTemplateTransportClientFactoriesTest {
 	void testJerseyIsUnsupported() {
 		Assertions.assertThrows(UnsupportedOperationException.class, () -> {
 			new RestTemplateTransportClientFactories(new RestTemplateDiscoveryClientOptionalArgs(null))
-					.newTransportClientFactory(null, null);
+					.newTransportClientFactory(null, null, null);
 		});
 	}
 

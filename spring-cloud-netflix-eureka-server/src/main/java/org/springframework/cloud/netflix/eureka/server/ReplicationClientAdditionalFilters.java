@@ -19,20 +19,21 @@ package org.springframework.cloud.netflix.eureka.server;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import com.sun.jersey.api.client.filter.ClientFilter;
+// FIXME: 4.0
+//import com.sun.jersey.api.client.filter.ClientFilter;
 
 /**
  * @author Yuxin Bai
  */
 public class ReplicationClientAdditionalFilters {
 
-	private Collection<ClientFilter> filters;
+	private Collection<?> filters;
 
-	public ReplicationClientAdditionalFilters(Collection<ClientFilter> filters) {
+	public ReplicationClientAdditionalFilters(Collection<?> filters) {
 		this.filters = new LinkedHashSet<>(filters);
 	}
 
-	public Collection<ClientFilter> getFilters() {
+	public Collection<?> getFilters() {
 		return this.filters;
 	}
 

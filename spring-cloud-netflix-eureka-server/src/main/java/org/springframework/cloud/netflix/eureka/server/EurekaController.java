@@ -144,8 +144,7 @@ public class EurekaController {
 
 	private void populateNavbar(HttpServletRequest request, Map<String, Object> model) {
 		Map<String, String> replicas = new LinkedHashMap<>();
-		List<PeerEurekaNode> list = getServerContext().getPeerEurekaNodes()
-				.getPeerNodesView();
+		List<PeerEurekaNode> list = getServerContext().getPeerEurekaNodes().getPeerNodesView();
 		for (PeerEurekaNode node : list) {
 			try {
 				URI uri = new URI(node.getServiceUrl());
@@ -281,8 +280,7 @@ public class EurekaController {
 		StringBuilder filteredUrls = new StringBuilder();
 		for (String u : urls) {
 			if (u.contains("@")) {
-				filteredUrls.append(u, 0, u.indexOf("//") + 2)
-						.append(u.substring(u.indexOf("@") + 1)).append(",");
+				filteredUrls.append(u, 0, u.indexOf("//") + 2).append(u.substring(u.indexOf("@") + 1)).append(",");
 			}
 			else {
 				filteredUrls.append(u).append(",");

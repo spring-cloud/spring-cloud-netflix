@@ -16,28 +16,24 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-
-import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
-import com.sun.jersey.api.client.filter.ClientFilter;
-
 /**
  * @author Dave Syer
  */
-public class MutableDiscoveryClientOptionalArgs extends DiscoveryClientOptionalArgs {
+// FIXME: 4.0
+public class MutableDiscoveryClientOptionalArgs {
 
-	private Collection<ClientFilter> additionalFilters;
-
-	@Override
-	public void setAdditionalFilters(Collection<ClientFilter> additionalFilters) {
-		additionalFilters = new LinkedHashSet<>(additionalFilters);
-		this.additionalFilters = additionalFilters;
-		super.setAdditionalFilters(additionalFilters);
-	}
-
-	public Collection<ClientFilter> getAdditionalFilters() {
-		return this.additionalFilters;
-	}
-
-}
+} /*
+	 * extends DiscoveryClientOptionalArgs {
+	 *
+	 * private Collection<ClientFilter> additionalFilters;
+	 *
+	 * @Override public void setAdditionalFilters(Collection<ClientFilter>
+	 * additionalFilters) { additionalFilters = new LinkedHashSet<>(additionalFilters);
+	 * this.additionalFilters = additionalFilters;
+	 * super.setAdditionalFilters(additionalFilters); }
+	 *
+	 * public Collection<ClientFilter> getAdditionalFilters() { return
+	 * this.additionalFilters; }
+	 *
+	 * }
+	 */

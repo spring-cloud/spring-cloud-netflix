@@ -29,8 +29,9 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
-		<eureka-jersey.version>1.19.4</eureka-jersey.version>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+		<!-- FIXME: 4.0.0 -->
+		<duplicate-finder-maven-plugin.skip>true</duplicate-finder-maven-plugin.skip>
 	</properties>
 	<build>
 		<plugins>
@@ -113,31 +114,6 @@
 				<version>1</version>
 			</dependency>
 			<!-- Eureka core dep that is now optional -->
-			<dependency>
-				<groupId>com.sun.jersey</groupId>
-				<artifactId>jersey-servlet</artifactId>
-				<version>${eureka-jersey.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.jersey</groupId>
-				<artifactId>jersey-core</artifactId>
-				<version>${eureka-jersey.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.jersey</groupId>
-				<artifactId>jersey-client</artifactId>
-				<version>${eureka-jersey.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.jersey</groupId>
-				<artifactId>jersey-server</artifactId>
-				<version>${eureka-jersey.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.jersey.contribs</groupId>
-				<artifactId>jersey-apache-client4</artifactId>
-				<version>${eureka-jersey.version}</version>
-			</dependency>
 			<!-- end eureka deps -->
 		</dependencies>
 	</dependencyManagement>
@@ -187,6 +163,15 @@
 					<url>https://repo.spring.io/release</url>
 					<snapshots>
 						<enabled>false</enabled>
+					</snapshots>
+				</repository>
+				<!-- FIXME: 4.0 -->
+				<repository>
+					<id>netflix-snapshots</id>
+					<name>Netflix Snapshots</name>
+					<url>https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-snapshots</url>
+					<snapshots>
+						<enabled>true</enabled>
 					</snapshots>
 				</repository>
 			</repositories>

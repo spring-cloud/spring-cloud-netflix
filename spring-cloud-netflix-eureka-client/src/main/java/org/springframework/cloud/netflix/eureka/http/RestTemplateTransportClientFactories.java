@@ -25,7 +25,6 @@ import javax.net.ssl.SSLContext;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
-import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 /**
@@ -37,12 +36,6 @@ public class RestTemplateTransportClientFactories implements TransportClientFact
 
 	public RestTemplateTransportClientFactories(RestTemplateDiscoveryClientOptionalArgs args) {
 		this.args = args;
-	}
-
-	@Override
-	public TransportClientFactory newTransportClientFactory(Collection<Void> additionalFilters,
-			EurekaJerseyClient providedJerseyClient) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
