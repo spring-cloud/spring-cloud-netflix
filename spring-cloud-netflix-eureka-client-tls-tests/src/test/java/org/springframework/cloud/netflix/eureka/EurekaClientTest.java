@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import com.netflix.discovery.DiscoveryClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,8 +23,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class EurekaClientTest extends BaseCertTest {
 
@@ -42,7 +39,7 @@ public class EurekaClientTest extends BaseCertTest {
 		// Will use Jersey
 		// FIXME: 4.0
 		// assertThat(service.discoveryClientOptionalArgs())
-		//		.isInstanceOf(DiscoveryClient.DiscoveryClientOptionalArgs.class);
+		// .isInstanceOf(DiscoveryClient.DiscoveryClientOptionalArgs.class);
 		log.info("Successfully asserted that Jersey will be used");
 		waitForRegistration(() -> new EurekaClientTest().createEurekaClient());
 	}
