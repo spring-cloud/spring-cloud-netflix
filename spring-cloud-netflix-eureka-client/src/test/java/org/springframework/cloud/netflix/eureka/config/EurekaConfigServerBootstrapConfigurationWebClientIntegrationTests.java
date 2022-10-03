@@ -63,7 +63,7 @@ class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 	@RestController
 	static class WebClientController extends WebSecurityConfigurerAdapter {
 
-		@GetMapping
+		@GetMapping("/")
 		public String hello() {
 			StringBuilder s = new StringBuilder();
 			for (int i = 0; i < 300000; i++) {
