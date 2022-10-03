@@ -52,7 +52,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationNoWebfluxTest {
 		}
 		catch (Exception e) {
 			// this is the desired state
-			assertThat(e).hasMessageContaining("WebClient is not on the classpath");
+			assertThat(e).hasStackTraceContaining("WebClient is not on the classpath");
 		}
 		if (ctx != null) {
 			ctx.close();
