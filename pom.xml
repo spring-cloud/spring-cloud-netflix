@@ -30,6 +30,8 @@
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+		<!-- FIXME: 4.0.0 -->
+		<duplicate-finder-maven-plugin.skip>true</duplicate-finder-maven-plugin.skip>
 	</properties>
 	<build>
 		<plugins>
@@ -161,6 +163,15 @@
 					<url>https://repo.spring.io/release</url>
 					<snapshots>
 						<enabled>false</enabled>
+					</snapshots>
+				</repository>
+				<!-- FIXME: 4.0 -->
+				<repository>
+					<id>netflix-snapshots</id>
+					<name>Netflix Snapshots</name>
+					<url>https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-snapshots</url>
+					<snapshots>
+						<enabled>true</enabled>
 					</snapshots>
 				</repository>
 			</repositories>
