@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import org.junit.jupiter.api.AfterEach;
@@ -669,8 +670,8 @@ class EurekaClientAutoConfigurationTests {
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config,
-				ApplicationContext context) {
-			return new CloudEurekaClient(manager, config, null, context) {
+				ApplicationContext context, AbstractDiscoveryClientOptionalArgs optionalArgs) {
+			return new CloudEurekaClient(manager, config, optionalArgs, context) {
 				@Override
 				public synchronized void shutdown() {
 					CountDownLatch latch = countDownLatch();
