@@ -180,15 +180,9 @@
 				<dependencies>
 					<!-- https://github.com/wro4j/wro4j/issues/1129 -->
 					<dependency>
-						<groupId>ro.isdc.wro4j</groupId>
-						<artifactId>wro4j-extensions</artifactId>
-						<version>1.10.1</version>
-						<exclusions>
-							<exclusion>
-								<groupId>org.webjars.npm</groupId>
-								<artifactId>minimatch</artifactId>
-							</exclusion>
-						</exclusions>
+						<groupId>org.webjars.npm</groupId>
+						<artifactId>glob</artifactId>
+						<version>7.2.0</version>
 					</dependency>
 					<dependency>
 						<groupId>org.webjars.npm</groupId>

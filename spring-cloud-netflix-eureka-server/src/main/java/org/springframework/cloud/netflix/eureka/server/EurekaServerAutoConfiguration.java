@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.EurekaClient;
@@ -64,6 +65,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -81,6 +83,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -102,6 +105,11 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	 * List of packages containing Jersey resources required by the Eureka server.
 	 */
 	private static final String[] EUREKA_PACKAGES = new String[] { "com.netflix.discovery", "com.netflix.eureka" };
+
+	/**
+	 * Static content pattern for dashboard elements (images, css, etc...).
+	 */
+	private static final String STATIC_CONTENT_PATTERN = "/(fonts|images|css|js)/.*";
 
 	@Autowired
 	private ApplicationInfoManager applicationInfoManager;
@@ -223,19 +231,23 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
-	public FilterRegistrationBean<?> eurekaVersionFilterRegistration() {
+	public FilterRegistrationBean<?> eurekaVersionFilterRegistration(ServerProperties serverProperties) {
+		String contextPath = serverProperties.getServlet().getContextPath();
+		String regex = EurekaConstants.DEFAULT_PREFIX + STATIC_CONTENT_PATTERN;
+		if (StringUtils.hasText(contextPath)) {
+			regex = contextPath + regex;
+		}
+		Pattern staticPattern = Pattern.compile(regex);
 		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
 		bean.setFilter(new OncePerRequestFilter() {
 			@Override
 			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 					FilterChain filterChain) throws ServletException, IOException {
 				HttpServletRequest req = request;
-				String contextPath = request.getContextPath();
-				String pathInfo = request.getPathInfo();
 				String requestURI = request.getRequestURI();
-				String servletPath = request.getServletPath();
-				String requestURL = request.getRequestURL().toString();
-				if (!requestURI.startsWith(EurekaConstants.DEFAULT_PREFIX + "/v2")) {
+				if (!requestURI.startsWith(EurekaConstants.DEFAULT_PREFIX + "/v2")
+						// don't forward static requests (images, js, etc...) to /v2
+						&& !staticPattern.matcher(requestURI).matches()) {
 
 					String updatedPath = EurekaConstants.DEFAULT_PREFIX + "/v2"
 							+ requestURI.substring(EurekaConstants.DEFAULT_PREFIX.length());
@@ -297,8 +309,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 		// Construct the Jersey ResourceConfig
 		ResourceConfig rc = new ResourceConfig(classes).property(
 				// Skip static content used by the webapp
-				ServletProperties.FILTER_STATIC_CONTENT_REGEX,
-				EurekaConstants.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*");
+				ServletProperties.FILTER_STATIC_CONTENT_REGEX, EurekaConstants.DEFAULT_PREFIX + STATIC_CONTENT_PATTERN);
 
 		rc.register(new ContainerLifecycleListener() {
 			@Override
