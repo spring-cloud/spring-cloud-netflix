@@ -25,10 +25,10 @@
       "type": "java.lang.Boolean"
     },
     {
-      "defaultValue": "1",
+      "defaultValue": 1,
       "name": "eureka.instance.metadata-map.weight",
       "description": "The weight of service instance for weighted load balancing.",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "sourceType": "org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean"
     }
   ]
