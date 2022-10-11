@@ -25,6 +25,7 @@ import java.util.Objects;
 import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
+import org.apache.hc.client5.http.classic.HttpClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -126,14 +127,14 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	/**
 	 * Indicates how long to wait (in seconds) before a connection to eureka server needs
 	 * to timeout. Note that the connections in the client are pooled by
-	 * org.apache.http.client.HttpClient and this setting affects the actual connection
-	 * creation and also the wait time to get the connection from the pool.
+	 * {@link HttpClient} and this setting affects the actual connection creation and also
+	 * the wait time to get the connection from the pool.
 	 */
 	private int eurekaServerConnectTimeoutSeconds = 5;
 
 	/**
 	 * Gets the name of the implementation which implements BackupRegistry to fetch the
-	 * registry information as a fall back option for only the first time when the eureka
+	 * registry information as a fallback option for only the first time when the eureka
 	 * client starts.
 	 *
 	 * This may be needed for applications which needs additional resiliency for registry
