@@ -19,9 +19,12 @@ package org.springframework.cloud.netflix.eureka.http;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -32,23 +35,35 @@ import org.springframework.lang.Nullable;
  * {@link HttpClients}.
  *
  * @author Marcin Grzejszczak
+ * @author Olga Maciaszek-Sharma
  * @since 3.0.0
  */
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
-		HttpClientBuilder httpClientBuilder = HttpClients.custom();
-		if (sslContext != null) {
-			httpClientBuilder = httpClientBuilder.setSSLContext(sslContext);
-		}
-		if (hostnameVerifier != null) {
-			httpClientBuilder = httpClientBuilder.setSSLHostnameVerifier(hostnameVerifier);
+		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+		if (sslContext != null || hostnameVerifier != null) {
+			httpClientBuilder.setConnectionManager(buildConnectionManager(sslContext, hostnameVerifier));
 		}
 		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
 		return requestFactory;
+	}
+
+	private HttpClientConnectionManager buildConnectionManager(SSLContext sslContext,
+			HostnameVerifier hostnameVerifier) {
+		SSLConnectionSocketFactoryBuilder sslConnectionSocketFactoryBuilder = SSLConnectionSocketFactoryBuilder
+				.create();
+		if (sslContext != null) {
+			sslConnectionSocketFactoryBuilder.setSslContext(sslContext);
+		}
+		if (hostnameVerifier != null) {
+			sslConnectionSocketFactoryBuilder.setHostnameVerifier(hostnameVerifier);
+		}
+		return PoolingHttpClientConnectionManagerBuilder.create()
+				.setSSLSocketFactory(sslConnectionSocketFactoryBuilder.build()).build();
 	}
 
 }
