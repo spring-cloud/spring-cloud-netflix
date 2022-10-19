@@ -25,6 +25,7 @@ import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.appinfo.MyDataCenterInfo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtils.HostInfo;
@@ -285,6 +286,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	private EurekaInstanceConfigBean() {
 	}
 
+	@Autowired
 	public EurekaInstanceConfigBean(InetUtils inetUtils) {
 		this.inetUtils = inetUtils;
 		this.hostInfo = this.inetUtils.findFirstNonLoopbackHostInfo();
