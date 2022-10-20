@@ -37,7 +37,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -160,10 +159,7 @@ public class EurekaServerMockApplication {
 
 		@Bean
 		public InMemoryUserDetailsManager userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder()
-					.username("test")
-					.password("test")
-					.roles("USER")
+			UserDetails user = User.withDefaultPasswordEncoder().username("test").password("test").roles("USER")
 					.build();
 			return new InMemoryUserDetailsManager(user);
 		}
