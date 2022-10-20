@@ -32,14 +32,16 @@ import org.springframework.test.annotation.DirtiesContext;
  * @author Daniel Lavoie
  */
 @SpringBootTest(classes = EurekaServerMockApplication.class,
-		properties = { "debug=true", "security.basic.enabled=true" }, webEnvironment = WebEnvironment.RANDOM_PORT)
+		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.fetch-registry=false",
+				"eureka.client.register-with-eureka=false", "logging.level.org.springframework=INFO" },
+		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class RestTemplateEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
 
 	@Autowired
 	private InetUtils inetUtils;
 
-	@Value("http://${security.user.name}:${security.user.password}@localhost:${local.server.port}")
+	@Value("http://${security.user.name}:${security.user.password}@localhost:${local.server.port}/eureka")
 	private String serviceUrl;
 
 	@BeforeEach

@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,6 +61,7 @@ import static org.springframework.util.Assert.isTrue;
  */
 @Configuration(proxyBeanMethods = false)
 @RestController
+@RequestMapping("/eureka")
 @SpringBootApplication
 public class EurekaServerMockApplication {
 
@@ -135,7 +137,7 @@ public class EurekaServerMockApplication {
 
 	}
 
-	@GetMapping({ "/apps", "/apps/delta", "/vips/{address}", "/svips/{address}" })
+	@GetMapping({ "/apps/", "/apps/delta", "/vips/{address}", "/svips/{address}" })
 	public Applications getApplications(@PathVariable(required = false) String address,
 			@RequestParam(required = false) String regions) {
 		Applications applications = new Applications();

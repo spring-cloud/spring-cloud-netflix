@@ -33,7 +33,8 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Daniel Lavoie
  */
 @SpringBootTest(classes = EurekaServerMockApplication.class,
-		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.webclient.enabled=true" },
+		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.webclient.enabled=true",
+				"eureka.client.fetch-registry=false", "eureka.client.register-with-eureka=false" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
@@ -41,7 +42,7 @@ class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
 	@Autowired
 	private InetUtils inetUtils;
 
-	@Value("http://${security.user.name}:${security.user.password}@localhost:${local.server.port}")
+	@Value("http://${security.user.name}:${security.user.password}@localhost:${local.server.port}/eureka/")
 	private String serviceUrl;
 
 	@BeforeEach
