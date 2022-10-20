@@ -24,9 +24,10 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -61,7 +62,7 @@ class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@RestController
-	static class WebClientController extends WebSecurityConfigurerAdapter {
+	static class WebClientController {
 
 		@GetMapping("/")
 		public String hello() {
@@ -72,9 +73,10 @@ class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 			return s.toString();
 		}
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			http.authorizeRequests().anyRequest().permitAll().and().csrf().disable();
+			return http.build();
 		}
 
 	}

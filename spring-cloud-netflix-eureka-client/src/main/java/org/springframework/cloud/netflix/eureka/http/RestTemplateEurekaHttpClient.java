@@ -145,7 +145,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		ResponseEntity<EurekaApplications> response = restTemplate.exchange(url, HttpMethod.GET, null,
 				EurekaApplications.class);
 
-		return anEurekaHttpResponse(response.getStatusCodeValue(),
+		return anEurekaHttpResponse(response.getStatusCode().value(),
 				response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody()
 						? (Applications) response.getBody() : null).headers(headersOf(response)).build();
 	}

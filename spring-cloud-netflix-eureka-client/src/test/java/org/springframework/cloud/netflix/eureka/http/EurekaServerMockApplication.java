@@ -35,10 +35,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -155,23 +156,26 @@ public class EurekaServerMockApplication {
 
 	@Configuration(proxyBeanMethods = false)
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	protected static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
+	protected static class TestSecurityConfiguration {
 
-		TestSecurityConfiguration() {
-			super(true);
+		@Bean
+		public InMemoryUserDetailsManager userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder()
+					.username("test")
+					.password("test")
+					.roles("USER")
+					.build();
+			return new InMemoryUserDetailsManager(user);
 		}
 
 		@Bean
-		public UserDetailsService userDetailsService() {
-			InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-			manager.createUser(User.withUsername("test").password("{noop}test").roles("USER").build());
-			return manager;
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// super.configure(http);
-			http.antMatcher("/apps/**").httpBasic();
+		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.securityMatcher("/v2/apps/**")
+					.httpBasic();
+			// @formatter:on
+			return http.build();
 		}
 
 	}
