@@ -399,6 +399,7 @@ public class EurekaClientAutoConfiguration {
 
 }
 
+// Remove after adding hints to GraalVM reachability metadata repo
 class EurekaClientHints implements RuntimeHintsRegistrar {
 
 	@Override
