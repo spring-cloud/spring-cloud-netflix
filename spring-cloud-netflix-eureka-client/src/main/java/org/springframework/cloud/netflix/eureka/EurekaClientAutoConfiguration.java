@@ -424,11 +424,6 @@ class EurekaClientHints implements RuntimeHintsRegistrar {
 						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
 				.registerType(TypeReference.of(ApplicationInfoManager.class),
 						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
-				.registerType(TypeReference.of(DataCenterInfo.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
-				.registerType(TypeReference.of(DataCenterInfo.Name.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
 				.registerType(TypeReference.of(InstanceInfo.class),
 						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS,
 								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
@@ -436,14 +431,20 @@ class EurekaClientHints implements RuntimeHintsRegistrar {
 						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
 								MemberCategory.DECLARED_FIELDS))
 				.registerType(TypeReference.of(InstanceInfo.PortWrapper.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.INTROSPECT_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
 				.registerType(TypeReference.of(LeaseInfo.class),
 						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INTROSPECT_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
 				.registerType(TypeReference.of(MyDataCenterInfo.class),
 						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INTROSPECT_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+				.registerType(TypeReference.of(DataCenterInfo.class),
+						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+				.registerType(TypeReference.of(DataCenterInfo.Name.class),
+						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
 				.registerType(TypeReference.of(EurekaClient.class),
 						hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS))
 				.registerType(TypeReference.of(TimedSupervisorTask.class),
