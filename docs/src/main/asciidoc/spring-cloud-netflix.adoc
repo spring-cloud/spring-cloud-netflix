@@ -366,6 +366,12 @@ it can use the domain name from the server hostname as a proxy for the zone.
 If there is no other source of zone data, then a guess is made, based on the client configuration (as opposed to the instance configuration).
 We take `eureka.client.availabilityZones`, which is a map from region name to a list of zones, and pull out the first zone for the instance's own region (that is, the `eureka.client.region`, which defaults to "us-east-1", for compatibility with native Netflix).
 
+=== AOT and Native Image Support
+
+Spring Cloud Netflix Eureka Client integration supports Spring AOT transformations and native images, however, only with refresh mode enabled.
+
+WARNING: If you want to run Eureka Client in AOT or native image modes, make sure to set `spring.cloud.refresh.enabled` to `false`
+
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
 
@@ -590,6 +596,10 @@ when running a Eureka server you must include these dependencies in your POM or 
 	<artifactId>jaxb-runtime</artifactId>
 </dependency>
 ----
+
+=== AOT and Native Image Support
+
+Spring Cloud Netflix Eureka Server does not support Spring AOT transformations or native images.
 
 == Configuration properties
 
