@@ -56,7 +56,7 @@ public class EurekaController {
 	@Value("${eureka.dashboard.path:/}")
 	private String dashboardPath = "";
 
-	private ApplicationInfoManager applicationInfoManager;
+	private final ApplicationInfoManager applicationInfoManager;
 
 	private final EurekaProperties eurekaProperties;
 

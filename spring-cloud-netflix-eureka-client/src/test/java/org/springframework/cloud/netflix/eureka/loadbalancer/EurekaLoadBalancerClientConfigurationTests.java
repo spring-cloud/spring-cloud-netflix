@@ -35,16 +35,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class EurekaLoadBalancerClientConfigurationTests {
 
-	private EurekaClientConfigBean eurekaClientConfig = new EurekaClientConfigBean();
+	private final EurekaClientConfigBean eurekaClientConfig = new EurekaClientConfigBean();
 
-	private EurekaInstanceConfigBean eurekaInstanceConfig = new EurekaInstanceConfigBean(
+	private final EurekaInstanceConfigBean eurekaInstanceConfig = new EurekaInstanceConfigBean(
 			new InetUtils(new InetUtilsProperties()));
 
-	private LoadBalancerZoneConfig zoneConfig = new LoadBalancerZoneConfig(null);
+	private final LoadBalancerZoneConfig zoneConfig = new LoadBalancerZoneConfig(null);
 
-	private EurekaLoadBalancerProperties eurekaLoadBalancerProperties = new EurekaLoadBalancerProperties();
+	private final EurekaLoadBalancerProperties eurekaLoadBalancerProperties = new EurekaLoadBalancerProperties();
 
-	private EurekaLoadBalancerClientConfiguration postprocessor = new EurekaLoadBalancerClientConfiguration(
+	private final EurekaLoadBalancerClientConfiguration postprocessor = new EurekaLoadBalancerClientConfiguration(
 			eurekaClientConfig, eurekaInstanceConfig, zoneConfig, eurekaLoadBalancerProperties);
 
 	@Test

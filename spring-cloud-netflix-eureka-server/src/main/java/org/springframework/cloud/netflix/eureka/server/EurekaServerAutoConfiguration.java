@@ -174,6 +174,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 		return Jersey3TransportClientFactories.getInstance();
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Bean
 	public EurekaHttpClient eurekaHttpClient(TransportClientFactories transportClientFactories, Environment env) {
 		return transportClientFactories
@@ -337,7 +338,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	@Bean
 	@ConditionalOnBean(name = "httpTraceFilter")
 	public FilterRegistrationBean<?> traceFilterRegistration(@Qualifier("httpTraceFilter") Filter filter) {
-		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<Filter>();
+		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
 		bean.setFilter(filter);
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
 		return bean;

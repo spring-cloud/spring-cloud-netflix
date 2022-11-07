@@ -56,6 +56,7 @@ abstract class BaseCertTest {
 	protected BaseCertTest() {
 	}
 
+	@SuppressWarnings("rawtypes")
 	static EurekaServerRunner startEurekaServer(Class config) {
 		EurekaServerRunner server = new EurekaServerRunner(config);
 		server.enableTls();
@@ -70,6 +71,7 @@ abstract class BaseCertTest {
 		server.stop();
 	}
 
+	@SuppressWarnings("rawtypes")
 	static EurekaClientRunner startService(EurekaServerRunner server, Class config) {
 		EurekaClientRunner service = new EurekaClientRunner(config, server, "testservice");
 		enableTlsClient(service);
@@ -153,9 +155,7 @@ abstract class BaseCertTest {
 		EurekaClientRunner client = createEurekaClient();
 		enableTlsClient(client);
 		client.setKeyStore(clientCert, WRONG_PASSWORD, WRONG_PASSWORD);
-		Assertions.assertThrows(BeanCreationException.class, () -> {
-			client.start();
-		});
+		Assertions.assertThrows(BeanCreationException.class, client::start);
 	}
 
 	@Test
@@ -163,9 +163,7 @@ abstract class BaseCertTest {
 		EurekaClientRunner client = createEurekaClient();
 		enableTlsClient(client);
 		client.setKeyStore(new File("nonExistFile"));
-		Assertions.assertThrows(BeanCreationException.class, () -> {
-			client.start();
-		});
+		Assertions.assertThrows(BeanCreationException.class, client::start);
 	}
 
 	@Test
@@ -183,7 +181,7 @@ abstract class BaseCertTest {
 	}
 
 	private static File saveCert(KeyAndCert keyCert) throws Exception {
-		return saveKeyStore(keyCert.subject(), () -> keyCert.storeCert());
+		return saveKeyStore(keyCert.subject(), keyCert::storeCert);
 	}
 
 	private static File saveKeyStore(String prefix, KeyStoreSupplier func) throws Exception {

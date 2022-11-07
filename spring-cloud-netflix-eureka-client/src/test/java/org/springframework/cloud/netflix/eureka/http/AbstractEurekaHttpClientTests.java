@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Haytham Mohamed
  **/
-abstract class AbstractEurekaHttpClientTest {
+abstract class AbstractEurekaHttpClientTests {
 
 	protected EurekaHttpClient eurekaHttpClient;
 

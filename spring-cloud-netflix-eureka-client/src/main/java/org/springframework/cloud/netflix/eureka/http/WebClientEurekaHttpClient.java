@@ -28,8 +28,6 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse.EurekaHttpResponseBuilder;
 import com.netflix.discovery.util.StringUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -46,9 +44,7 @@ import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEureka
  */
 public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
-	protected final Log logger = LogFactory.getLog(getClass());
-
-	private WebClient webClient;
+	private final WebClient webClient;
 
 	public WebClientEurekaHttpClient(WebClient webClient) {
 		this.webClient = webClient;
@@ -206,8 +202,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 			return Collections.emptyMap();
 		}
 		Map<String, String> headers = new HashMap<>();
-		asHeaders.entrySet().stream()
-				.forEach(entry -> entry.getValue().stream().forEach(v -> headers.put(entry.getKey(), v)));
+		asHeaders.entrySet().forEach(entry -> entry.getValue().forEach(v -> headers.put(entry.getKey(), v)));
 		return headers;
 	}
 

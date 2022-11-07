@@ -1049,11 +1049,11 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 				registrySyncRetryWaitMs, remoteRegionAppWhitelist, remoteRegionConnectTimeoutMs,
 				remoteRegionConnectionIdleTimeoutSeconds, remoteRegionFetchThreadPoolSize, remoteRegionReadTimeoutMs,
 				remoteRegionRegistryFetchInterval, remoteRegionTotalConnections, remoteRegionTotalConnectionsPerHost,
-				remoteRegionTrustStore, remoteRegionTrustStorePassword, remoteRegionUrls, remoteRegionUrlsWithName,
-				renewalPercentThreshold, renewalThresholdUpdateIntervalMs, responseCacheAutoExpirationInSeconds,
-				responseCacheUpdateIntervalMs, retentionTimeInMSInDeltaQueue, route53BindRebindRetries,
-				route53BindingRetryIntervalMs, route53DomainTTL, syncWhenTimestampDiffers, useReadOnlyResponseCache,
-				waitTimeInMsWhenSyncEmpty, xmlCodecName, initialCapacityOfResponseCache,
+				remoteRegionTrustStore, remoteRegionTrustStorePassword, Arrays.hashCode(remoteRegionUrls),
+				remoteRegionUrlsWithName, renewalPercentThreshold, renewalThresholdUpdateIntervalMs,
+				responseCacheAutoExpirationInSeconds, responseCacheUpdateIntervalMs, retentionTimeInMSInDeltaQueue,
+				route53BindRebindRetries, route53BindingRetryIntervalMs, route53DomainTTL, syncWhenTimestampDiffers,
+				useReadOnlyResponseCache, waitTimeInMsWhenSyncEmpty, xmlCodecName, initialCapacityOfResponseCache,
 				expectedClientRenewalIntervalSeconds, useAwsAsgApi, myUrl);
 	}
 

@@ -46,7 +46,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 
 	private ApplicationContext ctxt;
 
-	private int defaultOpenForTrafficCount;
+	private final int defaultOpenForTrafficCount;
 
 	public InstanceRegistry(EurekaServerConfig serverConfig, EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
 			EurekaClient eurekaClient, EurekaHttpClient eurekaHttpClient, int expectedNumberOfClientsSendingRenews,

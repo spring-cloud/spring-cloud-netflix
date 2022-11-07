@@ -18,11 +18,9 @@ package org.springframework.cloud.netflix.eureka;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,14 +44,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class EurekaInstanceConfigBeanTests {
 
-	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	private String hostName;
 
 	private String ipAddress;
 
 	@BeforeEach
-	void init() throws Exception {
+	void init() {
 		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
 			InetUtils.HostInfo hostInfo = utils.findFirstNonLoopbackHostInfo();
 			this.hostName = hostInfo.getHostname();
@@ -158,13 +156,6 @@ class EurekaInstanceConfigBeanTests {
 		assertThat(getInstanceConfig().getInitialStatus()).as("initialStatus wrong").isEqualTo(InstanceStatus.UP);
 	}
 
-	void testBadInitialStatus() {
-		TestPropertyValues.of("eureka.instance.initial-status:FOO").applyTo(this.context);
-		Assertions.assertThrows(BeanCreationException.class, () -> {
-			setupContext();
-		});
-	}
-
 	@Test
 	void testCustomInitialStatus() {
 		TestPropertyValues.of("eureka.instance.initial-status:STARTING").applyTo(this.context);
@@ -173,7 +164,7 @@ class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	void testPreferIpAddress() throws Exception {
+	void testPreferIpAddress() {
 		TestPropertyValues.of("eureka.instance.preferIpAddress:true").applyTo(this.context);
 		setupContext();
 		EurekaInstanceConfigBean instance = getInstanceConfig();
@@ -183,7 +174,7 @@ class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	void testDefaultVirtualHostName() throws Exception {
+	void testDefaultVirtualHostName() {
 		TestPropertyValues.of("spring.application.name:myapp").applyTo(this.context);
 		setupContext();
 		assertThat(getInstanceConfig().getVirtualHostName()).as("virtualHostName wrong").isEqualTo("myapp");
@@ -192,7 +183,7 @@ class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	void testCustomVirtualHostName() throws Exception {
+	void testCustomVirtualHostName() {
 		TestPropertyValues.of("spring.application.name:myapp", "eureka.instance.virtualHostName=myvirthost",
 				"eureka.instance.secureVirtualHostName=mysecurevirthost").applyTo(this.context);
 		setupContext();
@@ -203,7 +194,7 @@ class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	void testDefaultAppName() throws Exception {
+	void testDefaultAppName() {
 		setupContext();
 		assertThat(getInstanceConfig().getAppname()).as("default app name is wrong").isEqualTo("unknown");
 		assertThat(getInstanceConfig().getVirtualHostName()).as("default virtual hostname is wrong")
@@ -213,21 +204,21 @@ class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	void testCustomInstanceId() throws Exception {
+	void testCustomInstanceId() {
 		TestPropertyValues.of("eureka.instance.instanceId=myinstance").applyTo(this.context);
 		setupContext();
 		assertThat(getInstanceConfig().getInstanceId()).as("instance id is wrong").isEqualTo("myinstance");
 	}
 
 	@Test
-	void testCustomInstanceIdWithMetadata() throws Exception {
+	void testCustomInstanceIdWithMetadata() {
 		TestPropertyValues.of("eureka.instance.metadataMap.instanceId=myinstance").applyTo(this.context);
 		setupContext();
 		assertThat(getInstanceConfig().getInstanceId()).as("instance id is wrong").isEqualTo("myinstance");
 	}
 
 	@Test
-	void testDefaultInstanceId() throws Exception {
+	void testDefaultInstanceId() {
 		setupContext();
 		assertThat(getInstanceConfig().getInstanceId()).as("default instance id is wrong").isEqualTo(null);
 	}

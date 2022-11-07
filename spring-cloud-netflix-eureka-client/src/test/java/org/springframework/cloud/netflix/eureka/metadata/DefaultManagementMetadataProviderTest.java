@@ -33,7 +33,7 @@ class DefaultManagementMetadataProviderTest {
 	private final ManagementMetadataProvider provider = new DefaultManagementMetadataProvider();
 
 	@BeforeEach
-	void setUp() throws Exception {
+	void setUp() {
 		when(INSTANCE.getHostname()).thenReturn("host");
 		when(INSTANCE.getHealthCheckUrlPath()).thenReturn("health");
 		when(INSTANCE.getStatusPageUrlPath()).thenReturn("info");
@@ -41,7 +41,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortIsRandomAndManagementPortIsNull() throws Exception {
+	void serverPortIsRandomAndManagementPortIsNull() {
 		int serverPort = 0;
 		String serverContextPath = "/";
 		String managementContextPath = null;
@@ -53,7 +53,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void managementPortIsRandom() throws Exception {
+	void managementPortIsRandom() {
 		int serverPort = 0;
 		String serverContextPath = "/";
 		String managementContextPath = null;
@@ -65,7 +65,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPort() throws Exception {
+	void serverPort() {
 		int serverPort = 7777;
 		String serverContextPath = "/";
 		String managementContextPath = null;
@@ -80,7 +80,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortManagementPort() throws Exception {
+	void serverPortManagementPort() {
 		int serverPort = 7777;
 		String serverContextPath = "/";
 		String managementContextPath = null;
@@ -95,7 +95,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortManagementPortServerContextPath() throws Exception {
+	void serverPortManagementPortServerContextPath() {
 		int serverPort = 7777;
 		String serverContextPath = "/Server";
 		String managementContextPath = null;
@@ -110,7 +110,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortManagementPortServerContextPathManagementContextPath() throws Exception {
+	void serverPortManagementPortServerContextPathManagementContextPath() {
 		int serverPort = 7777;
 		String serverContextPath = "/Server";
 		String managementContextPath = "/Management";
@@ -125,7 +125,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortServerContextPathManagementContextPath() throws Exception {
+	void serverPortServerContextPathManagementContextPath() {
 		int serverPort = 7777;
 		String serverContextPath = "/Server";
 		String managementContextPath = "/Management";
@@ -140,7 +140,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortManagementContextPath() throws Exception {
+	void serverPortManagementContextPath() {
 		int serverPort = 7777;
 		String serverContextPath = "/";
 		String managementContextPath = "/Management";
@@ -155,7 +155,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortServerContextPath() throws Exception {
+	void serverPortServerContextPath() {
 		int serverPort = 7777;
 		String serverContextPath = "/Server";
 		String managementContextPath = null;
@@ -170,7 +170,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void serverPortManagementPortManagementContextPath() throws Exception {
+	void serverPortManagementPortManagementContextPath() {
 		int serverPort = 7777;
 		String serverContextPath = "/";
 		String managementContextPath = "/Management";
@@ -186,7 +186,7 @@ class DefaultManagementMetadataProviderTest {
 	}
 
 	@Test
-	void setSecureHealthCheckUrl() throws Exception {
+	void setSecureHealthCheckUrl() {
 		int serverPort = 7777;
 		String serverContextPath = "/";
 		String managementContextPath = "/Management";

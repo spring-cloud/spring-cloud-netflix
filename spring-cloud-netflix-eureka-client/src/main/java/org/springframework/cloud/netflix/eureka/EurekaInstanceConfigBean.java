@@ -607,7 +607,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				leaseExpirationDurationInSeconds, virtualHostName, instanceId, secureVirtualHostName, aSGName,
 				metadataMap, dataCenterInfo, ipAddress, statusPageUrlPath, statusPageUrl, homePageUrlPath, homePageUrl,
 				healthCheckUrlPath, healthCheckUrl, secureHealthCheckUrl, namespace, hostname, preferIpAddress,
-				initialStatus, defaultAddressResolutionOrder, environment);
+				initialStatus, Arrays.hashCode(defaultAddressResolutionOrder), environment);
 	}
 
 	@Override

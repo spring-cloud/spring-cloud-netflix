@@ -62,6 +62,7 @@ class EurekaServiceRegistryTests {
 		verifyNoInteractions(eurekaClient);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void eurekaClientGetStatus() {
 		EurekaServiceRegistry registry = new EurekaServiceRegistry();
@@ -98,6 +99,7 @@ class EurekaServiceRegistryTests {
 				OUT_OF_SERVICE.toString());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void eurekaClientGetStatusNoInstance() {
 		EurekaServiceRegistry registry = new EurekaServiceRegistry();

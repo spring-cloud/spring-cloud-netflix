@@ -31,13 +31,4 @@ public class RestTemplateDiscoveryClientOptionalArgs extends AbstractDiscoveryCl
 		setTransportClientFactories(new RestTemplateTransportClientFactories(this));
 	}
 
-	/**
-	 * @deprecated - use
-	 * {@link RestTemplateDiscoveryClientOptionalArgs#RestTemplateDiscoveryClientOptionalArgs(EurekaClientHttpRequestFactorySupplier)}
-	 */
-	@Deprecated
-	public RestTemplateDiscoveryClientOptionalArgs() {
-		this(new DefaultEurekaClientHttpRequestFactorySupplier());
-	}
-
 }

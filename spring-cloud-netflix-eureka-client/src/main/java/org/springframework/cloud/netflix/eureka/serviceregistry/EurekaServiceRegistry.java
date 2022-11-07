@@ -86,6 +86,7 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		registration.getEurekaClient().setStatus(newStatus, info);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getStatus(EurekaRegistration registration) {
 		String appname = registration.getApplicationInfoManager().getInfo().getAppName();

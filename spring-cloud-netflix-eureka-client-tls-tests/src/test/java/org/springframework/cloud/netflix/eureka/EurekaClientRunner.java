@@ -72,13 +72,13 @@ public class EurekaClientRunner extends AppRunner {
 	}
 
 	public void waitServiceViaEureka(int seconds) {
-		assertInSeconds(() -> foundServiceViaEureka(), seconds);
+		assertInSeconds(this::foundServiceViaEureka, seconds);
 	}
 
 	private void assertInSeconds(BooleanSupplier assertion, int seconds) {
 		long start = System.currentTimeMillis();
 		long limit = 1000L * seconds;
-		long duration = 0;
+		long duration;
 
 		do {
 			if (assertion.getAsBoolean()) {
@@ -98,8 +98,9 @@ public class EurekaClientRunner extends AppRunner {
 		return !discovery.getServices().isEmpty();
 	}
 
+	@SuppressWarnings("unchecked")
 	public AbstractDiscoveryClientOptionalArgs<Void> discoveryClientOptionalArgs() {
-		return this.getBean(AbstractDiscoveryClientOptionalArgs.class);
+		return getBean(AbstractDiscoveryClientOptionalArgs.class);
 	}
 
 }

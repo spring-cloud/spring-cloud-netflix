@@ -93,7 +93,7 @@ class EurekaControllerTests {
 	}
 
 	@Test
-	void testStatus() throws Exception {
+	void testStatus() {
 		Map<String, Object> model = new HashMap<>();
 
 		EurekaController controller = new EurekaController(infoManager, new EurekaProperties());

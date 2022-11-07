@@ -39,7 +39,7 @@ import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
  */
 public class EurekaServiceInstance implements ServiceInstance {
 
-	private InstanceInfo instance;
+	private final InstanceInfo instance;
 
 	public EurekaServiceInstance(InstanceInfo instance) {
 		Assert.notNull(instance, "Service instance required");

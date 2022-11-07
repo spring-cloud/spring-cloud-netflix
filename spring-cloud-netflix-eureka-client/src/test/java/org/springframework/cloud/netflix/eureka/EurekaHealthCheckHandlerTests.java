@@ -321,7 +321,7 @@ class EurekaHealthCheckHandlerTests {
 		@Override
 		public Iterator<NamedContributor<HealthContributor>> iterator() {
 			Iterator<Map.Entry<String, HealthContributor>> iterator = contributorMap.entrySet().iterator();
-			return new Iterator<NamedContributor<HealthContributor>>() {
+			return new Iterator<>() {
 
 				@Override
 				public boolean hasNext() {

@@ -67,7 +67,7 @@ import org.springframework.util.Assert;
 public class EurekaHealthCheckHandler
 		implements HealthCheckHandler, ApplicationContextAware, InitializingBean, Ordered, Lifecycle {
 
-	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
+	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<>() {
 		{
 			put(Status.UNKNOWN, InstanceStatus.UNKNOWN);
 			put(Status.OUT_OF_SERVICE, InstanceStatus.DOWN);
@@ -76,18 +76,18 @@ public class EurekaHealthCheckHandler
 		}
 	};
 
-	private StatusAggregator statusAggregator;
+	private final StatusAggregator statusAggregator;
 
 	private ApplicationContext applicationContext;
 
-	private Map<String, HealthContributor> healthContributors = new HashMap<>();
+	private final Map<String, HealthContributor> healthContributors = new HashMap<>();
 
 	/**
 	 * {@code true} until the context is stopped.
 	 */
 	private boolean running = true;
 
-	private Map<String, ReactiveHealthContributor> reactiveHealthContributors = new HashMap<>();
+	private final Map<String, ReactiveHealthContributor> reactiveHealthContributors = new HashMap<>();
 
 	public EurekaHealthCheckHandler(StatusAggregator statusAggregator) {
 		this.statusAggregator = statusAggregator;
@@ -110,8 +110,7 @@ public class EurekaHealthCheckHandler
 		for (Map.Entry<String, HealthContributor> entry : healthContributors.entrySet()) {
 			// ignore EurekaHealthIndicator and flatten the rest of the composite
 			// otherwise there is a never ending cycle of down. See gh-643
-			if (entry.getValue() instanceof DiscoveryCompositeHealthContributor) {
-				DiscoveryCompositeHealthContributor indicator = (DiscoveryCompositeHealthContributor) entry.getValue();
+			if (entry.getValue() instanceof DiscoveryCompositeHealthContributor indicator) {
 				indicator.getIndicators().forEach((name, discoveryHealthIndicator) -> {
 					if (!(discoveryHealthIndicator instanceof EurekaHealthIndicator)) {
 						this.healthContributors.put(name, (HealthIndicator) discoveryHealthIndicator::health);

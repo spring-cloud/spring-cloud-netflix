@@ -36,7 +36,7 @@ import org.springframework.test.annotation.DirtiesContext;
 				"eureka.client.register-with-eureka=false", "logging.level.org.springframework=INFO" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-class RestTemplateEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
+class RestTemplateEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 
 	@Autowired
 	private InetUtils inetUtils;

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class EurekaClientConfigBeanTests {
 
-	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@AfterEach
 	void init() {
@@ -67,7 +67,7 @@ class EurekaClientConfigBeanTests {
 	void serviceUrlWithCompositePropertySource() {
 		CompositePropertySource source = new CompositePropertySource("composite");
 		this.context.getEnvironment().getPropertySources().addFirst(source);
-		source.addPropertySource(new MapPropertySource("config", Collections.<String, Object>singletonMap(
+		source.addPropertySource(new MapPropertySource("config", Collections.singletonMap(
 				"eureka.client.serviceUrl.defaultZone",
 				"https://example.com,https://example2.com, https://www.hugedomains.com/domain_profile.cfm?d=example3&e=com")));
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
