@@ -92,7 +92,7 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 		if (AopUtils.isAopProxy(eurekaClient)) {
 			discoveryClient = ProxyUtils.getTargetObject(eurekaClient);
 		}
-		else if (DiscoveryClient.class.isInstance(eurekaClient)) {
+		else if (eurekaClient instanceof DiscoveryClient) {
 			discoveryClient = (DiscoveryClient) eurekaClient;
 		}
 		return discoveryClient;

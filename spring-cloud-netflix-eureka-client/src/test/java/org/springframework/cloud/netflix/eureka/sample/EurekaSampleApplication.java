@@ -17,7 +17,6 @@
 package org.springframework.cloud.netflix.eureka.sample;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
@@ -103,7 +102,7 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		deregister();
 	}
 

@@ -48,13 +48,13 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	private final AtomicLong cacheRefreshedCount = new AtomicLong(0);
 
-	private ApplicationEventPublisher publisher;
+	private final ApplicationEventPublisher publisher;
 
-	private Field eurekaTransportField;
+	private final Field eurekaTransportField;
 
-	private ApplicationInfoManager applicationInfoManager;
+	private final ApplicationInfoManager applicationInfoManager;
 
-	private AtomicReference<EurekaHttpClient> eurekaHttpClient = new AtomicReference<>();
+	private final AtomicReference<EurekaHttpClient> eurekaHttpClient = new AtomicReference<>();
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config,
 			ApplicationEventPublisher publisher) {

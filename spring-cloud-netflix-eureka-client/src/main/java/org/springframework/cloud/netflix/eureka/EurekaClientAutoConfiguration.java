@@ -115,7 +115,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration" })
 public class EurekaClientAutoConfiguration {
 
-	private ConfigurableEnvironment env;
+	private final ConfigurableEnvironment env;
 
 	public EurekaClientAutoConfiguration(ConfigurableEnvironment env) {
 		this.env = env;

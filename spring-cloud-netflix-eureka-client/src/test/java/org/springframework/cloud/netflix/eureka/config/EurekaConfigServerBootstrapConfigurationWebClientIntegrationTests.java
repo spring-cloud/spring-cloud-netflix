@@ -66,16 +66,12 @@ class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 
 		@GetMapping("/")
 		public String hello() {
-			StringBuilder s = new StringBuilder();
-			for (int i = 0; i < 300000; i++) {
-				s.append(".");
-			}
-			return s.toString();
+			return ".".repeat(300000);
 		}
 
 		@Bean
 		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			http.authorizeRequests().anyRequest().permitAll().and().csrf().disable();
+			http.authorizeHttpRequests().anyRequest().permitAll().and().csrf().disable();
 			return http.build();
 		}
 

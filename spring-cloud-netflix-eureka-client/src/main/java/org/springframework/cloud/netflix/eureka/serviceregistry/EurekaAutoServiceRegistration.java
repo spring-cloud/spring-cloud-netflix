@@ -44,17 +44,17 @@ public class EurekaAutoServiceRegistration
 
 	private static final Log log = LogFactory.getLog(EurekaAutoServiceRegistration.class);
 
-	private AtomicBoolean running = new AtomicBoolean(false);
+	private final AtomicBoolean running = new AtomicBoolean(false);
 
-	private int order = 0;
+	private final int order = 0;
 
-	private AtomicInteger port = new AtomicInteger(0);
+	private final AtomicInteger port = new AtomicInteger(0);
 
-	private ApplicationContext context;
+	private final ApplicationContext context;
 
-	private EurekaServiceRegistry serviceRegistry;
+	private final EurekaServiceRegistry serviceRegistry;
 
-	private EurekaRegistration registration;
+	private final EurekaRegistration registration;
 
 	public EurekaAutoServiceRegistration(ApplicationContext context, EurekaServiceRegistry serviceRegistry,
 			EurekaRegistration registration) {

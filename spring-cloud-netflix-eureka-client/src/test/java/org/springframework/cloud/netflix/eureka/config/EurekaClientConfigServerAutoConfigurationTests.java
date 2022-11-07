@@ -36,9 +36,8 @@ class EurekaClientConfigServerAutoConfigurationTests {
 	@Test
 	void offByDefault() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class)).run(c -> {
-					assertThat(c.getBeanNamesForType(EurekaInstanceConfigBean.class).length).isEqualTo(0);
-				});
+				.withConfiguration(AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class))
+				.run(c -> assertThat(c.getBeanNamesForType(EurekaInstanceConfigBean.class).length).isEqualTo(0));
 	}
 
 	@Test

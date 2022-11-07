@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.io.IOException;
-
 import com.netflix.appinfo.InstanceInfo;
 import org.junit.jupiter.api.Test;
 
@@ -34,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class InstanceInfoFactoryTests {
 
-	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@Test
-	void instanceIdIsHostNameByDefault() throws IOException {
+	void instanceIdIsHostNameByDefault() {
 		InstanceInfo instanceInfo = setupInstance();
 		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
 			assertThat(instanceInfo.getId()).isEqualTo(utils.findFirstNonLoopbackHostInfo().getHostname());
@@ -45,7 +43,7 @@ class InstanceInfoFactoryTests {
 	}
 
 	@Test
-	void instanceIdIsIpWhenIpPreferred() throws Exception {
+	void instanceIdIsIpWhenIpPreferred() {
 		InstanceInfo instanceInfo = setupInstance("eureka.instance.preferIpAddress:true");
 		assertThat(instanceInfo.getId().matches("(\\d+\\.){3}\\d+")).isTrue();
 	}

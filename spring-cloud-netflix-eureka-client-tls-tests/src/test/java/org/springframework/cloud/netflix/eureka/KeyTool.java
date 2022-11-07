@@ -56,9 +56,7 @@ public class KeyTool {
 
 	public KeyAndCert signCertificate(KeyPair keyPair, String subject, KeyAndCert signer) throws Exception {
 		X509Certificate certificate = createCert(keyPair.getPublic(), signer.privateKey(), signer.subject(), subject);
-		KeyAndCert result = new KeyAndCert(keyPair, certificate);
-
-		return result;
+		return new KeyAndCert(keyPair, certificate);
 	}
 
 	public KeyPair createKeyPair() throws Exception {

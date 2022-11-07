@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -139,13 +139,13 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	 * serialized or deserialized. Achived with
 	 * {@link SerializationFeature#WRAP_ROOT_VALUE} and
 	 * {@link DeserializationFeature#UNWRAP_ROOT_VALUE}.
-	 * {@link PropertyNamingStrategy.SnakeCaseStrategy} is applied to the underlying
+	 * {@link PropertyNamingStrategies.SnakeCaseStrategy} is applied to the underlying
 	 * {@link ObjectMapper}.
 	 * @return a {@link MappingJackson2HttpMessageConverter} object
 	 */
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-		converter.setObjectMapper(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
+		converter.setObjectMapper(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE));
 
 		SimpleModule jsonModule = new SimpleModule();
 		jsonModule.setSerializerModifier(createJsonSerializerModifier()); // keyFormatter,

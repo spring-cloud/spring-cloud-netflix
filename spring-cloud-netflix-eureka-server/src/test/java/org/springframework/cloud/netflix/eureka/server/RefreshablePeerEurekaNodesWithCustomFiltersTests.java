@@ -48,8 +48,10 @@ class RefreshablePeerEurekaNodesWithCustomFiltersTests {
 		assertThat(peerEurekaNodes instanceof RefreshablePeerEurekaNodes)
 				.as("PeerEurekaNodes should be an instance of RefreshablePeerEurekaNodes").isTrue();
 
-		ReplicationClientAdditionalFilters filters = getField(RefreshablePeerEurekaNodes.class,
-				(RefreshablePeerEurekaNodes) peerEurekaNodes, "replicationClientAdditionalFilters");
+		// ReplicationClientAdditionalFilters filters =
+		// getField(RefreshablePeerEurekaNodes.class,
+		// (RefreshablePeerEurekaNodes) peerEurekaNodes,
+		// "replicationClientAdditionalFilters");
 		// assertThat(filters.getFilters())
 		// .as("PeerEurekaNodes'should have only one filter set on
 		// replicationClientAdditionalFilters").hasSize(1);

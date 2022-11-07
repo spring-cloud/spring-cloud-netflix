@@ -473,7 +473,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 		if (serviceUrls == null || serviceUrls.isEmpty()) {
 			serviceUrls = this.serviceUrl.get(DEFAULT_ZONE);
 		}
-		if (!StringUtils.isEmpty(serviceUrls)) {
+		if (StringUtils.hasText(serviceUrls)) {
 			final String[] serviceUrlsSplit = StringUtils.commaDelimitedListToStringArray(serviceUrls);
 			List<String> eurekaServiceUrls = new ArrayList<>(serviceUrlsSplit.length);
 			for (String eurekaServiceUrl : serviceUrlsSplit) {

@@ -28,9 +28,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 public class AppRunner implements AutoCloseable {
 
-	private Class<?> appClass;
+	private final Class<?> appClass;
 
-	private Map<String, String> props;
+	private final Map<String, String> props;
 
 	private ConfigurableApplicationContext app;
 

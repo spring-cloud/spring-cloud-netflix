@@ -65,11 +65,11 @@ public class EurekaLoadBalancerClientConfiguration {
 
 	@PostConstruct
 	public void postprocess() {
-		if (!StringUtils.isEmpty(zoneConfig.getZone())) {
+		if (StringUtils.hasText(zoneConfig.getZone())) {
 			return;
 		}
 		String zone = getZoneFromEureka();
-		if (!StringUtils.isEmpty(zone)) {
+		if (StringUtils.hasText(zone)) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Setting the value of '" + LOADBALANCER_ZONE + "' to " + zone);
 			}
@@ -85,7 +85,7 @@ public class EurekaLoadBalancerClientConfiguration {
 		}
 		else {
 			zone = eurekaConfig == null ? null : eurekaConfig.getMetadataMap().get("zone");
-			if (StringUtils.isEmpty(zone) && clientConfig != null) {
+			if (!StringUtils.hasText(zone) && clientConfig != null) {
 				String[] zones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
 				// Pick the first one from the regions we want to connect to
 				zone = zones != null && zones.length > 0 ? zones[0] : null;

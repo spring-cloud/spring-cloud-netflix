@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
  */
 public class ReplicationClientAdditionalFilters {
 
-	private Collection<?> filters;
+	private final Collection<?> filters;
 
 	public ReplicationClientAdditionalFilters(Collection<?> filters) {
 		this.filters = new LinkedHashSet<>(filters);

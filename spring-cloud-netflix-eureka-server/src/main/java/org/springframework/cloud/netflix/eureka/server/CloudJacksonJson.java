@@ -65,7 +65,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 	}
 
 	@Override
-	public <T> String encode(T object) throws IOException {
+	public <T> String encode(T object) {
 		return this.codec.writeToString(object);
 	}
 

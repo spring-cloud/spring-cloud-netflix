@@ -50,7 +50,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 
 	private String serviceUrl;
 
@@ -77,7 +77,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.POST, new HttpEntity<>(info, headers),
 				Void.class);
 
-		return anEurekaHttpResponse(response.getStatusCodeValue()).headers(headersOf(response)).build();
+		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.DELETE, null, Void.class);
 
-		return anEurekaHttpResponse(response.getStatusCodeValue()).headers(headersOf(response)).build();
+		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 				InstanceInfo.class);
 
 		EurekaHttpResponseBuilder<InstanceInfo> eurekaResponseBuilder = anEurekaHttpResponse(
-				response.getStatusCodeValue(), InstanceInfo.class).headers(headersOf(response));
+				response.getStatusCode().value(), InstanceInfo.class).headers(headersOf(response));
 
 		if (response.hasBody()) {
 			eurekaResponseBuilder.entity(response.getBody());
@@ -117,7 +117,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.PUT, null, Void.class);
 
-		return anEurekaHttpResponse(response.getStatusCodeValue()).headers(headersOf(response)).build();
+		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.DELETE, null, Void.class);
 
-		return anEurekaHttpResponse(response.getStatusCodeValue()).headers(headersOf(response)).build();
+		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -171,10 +171,10 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 		ResponseEntity<Application> response = restTemplate.exchange(urlPath, HttpMethod.GET, null, Application.class);
 
-		Application application = response.getStatusCodeValue() == HttpStatus.OK.value() && response.hasBody()
+		Application application = response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody()
 				? response.getBody() : null;
 
-		return anEurekaHttpResponse(response.getStatusCodeValue(), application).headers(headersOf(response)).build();
+		return anEurekaHttpResponse(response.getStatusCode().value(), application).headers(headersOf(response)).build();
 	}
 
 	@Override
@@ -193,8 +193,8 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		ResponseEntity<InstanceInfo> response = restTemplate.exchange(urlPath, HttpMethod.GET, null,
 				InstanceInfo.class);
 
-		return anEurekaHttpResponse(response.getStatusCodeValue(),
-				response.getStatusCodeValue() == HttpStatus.OK.value() && response.hasBody() ? response.getBody()
+		return anEurekaHttpResponse(response.getStatusCode().value(),
+				response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody() ? response.getBody()
 						: null).headers(headersOf(response)).build();
 	}
 

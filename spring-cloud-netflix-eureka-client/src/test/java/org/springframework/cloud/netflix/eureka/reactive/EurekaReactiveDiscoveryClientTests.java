@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.eureka.reactive;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 import org.junit.jupiter.api.Test;
@@ -46,9 +45,6 @@ class EurekaReactiveDiscoveryClientTests {
 
 	@Mock
 	private EurekaClient eurekaClient;
-
-	@Mock
-	private EurekaClientConfig clientConfig;
 
 	@InjectMocks
 	private EurekaReactiveDiscoveryClient client;
