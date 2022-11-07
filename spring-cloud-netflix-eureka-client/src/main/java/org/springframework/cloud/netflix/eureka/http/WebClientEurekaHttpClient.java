@@ -28,7 +28,6 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse.EurekaHttpResponseBuilder;
 import com.netflix.discovery.util.StringUtil;
-import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -55,14 +54,14 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
 		return webClient.post().uri("apps/" + info.getAppName(), Void.class).body(BodyInserters.fromValue(info))
 				.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchangeToMono(Mono::just)
-				.map(this::eurekaHttpResponse).block();
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchange()
+				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
-		return webClient.delete().uri("apps/" + appName + '/' + id, Void.class).exchangeToMono(Mono::just)
-				.map(this::eurekaHttpResponse).block();
+		return webClient.delete().uri("apps/" + appName + '/' + id, Void.class).exchange()
+				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
@@ -74,7 +73,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 		ClientResponse response = webClient.put().uri(urlPath, InstanceInfo.class)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchangeToMono(Mono::just).block();
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
 		EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(statusCodeValueOf(response),
 				InstanceInfo.class).headers(headersOf(response));
@@ -96,8 +95,8 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 				+ info.getLastDirtyTimestamp().toString();
 
 		return webClient.put().uri(urlPath, Void.class)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchangeToMono(Mono::just)
-				.map(this::eurekaHttpResponse).block();
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchange()
+				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
@@ -106,8 +105,8 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 				+ info.getLastDirtyTimestamp().toString();
 
 		return webClient.delete().uri(urlPath, Void.class)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchangeToMono(Mono::just)
-				.map(this::eurekaHttpResponse).block();
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).exchange()
+				.map(response -> eurekaHttpResponse(response)).block();
 	}
 
 	@Override
@@ -124,7 +123,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 		ClientResponse response = webClient.get().uri(url, Applications.class)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchangeToMono(Mono::just).block();
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 
@@ -153,7 +152,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	public EurekaHttpResponse<Application> getApplication(String appName) {
 
 		ClientResponse response = webClient.get().uri("apps/" + appName, Application.class)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchangeToMono(Mono::just).block();
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 		Application body = response.toEntity(Application.class).block().getBody();
@@ -175,7 +174,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
 		ClientResponse response = webClient.get().uri(urlPath, InstanceInfo.class)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchangeToMono(Mono::just).block();
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).exchange().block();
 
 		int statusCode = statusCodeValueOf(response);
 		InstanceInfo body = response.toEntity(InstanceInfo.class).block().getBody();

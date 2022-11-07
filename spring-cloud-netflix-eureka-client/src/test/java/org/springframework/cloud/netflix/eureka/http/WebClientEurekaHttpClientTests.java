@@ -37,7 +37,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 				"eureka.client.fetch-registry=false", "eureka.client.register-with-eureka=false" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-class WebClientEurekaHttpClientTest extends AbstractEurekaHttpClientTest {
+class WebClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 
 	@Autowired
 	private InetUtils inetUtils;
