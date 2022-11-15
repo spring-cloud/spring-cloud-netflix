@@ -28,7 +28,6 @@ public class RestTemplateDiscoveryClientOptionalArgs extends AbstractDiscoveryCl
 	public RestTemplateDiscoveryClientOptionalArgs(
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
 		this.eurekaClientHttpRequestFactorySupplier = eurekaClientHttpRequestFactorySupplier;
-		setTransportClientFactories(new RestTemplateTransportClientFactories(this));
 	}
 
 }

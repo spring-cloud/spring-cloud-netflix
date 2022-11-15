@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,7 +37,9 @@ import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFactories;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -69,6 +72,17 @@ public class DiscoveryClientOptionalArgsConfiguration {
 				eurekaClientHttpRequestFactorySupplier);
 		setupTLS(result, tlsProperties);
 		return result;
+	}
+
+	@Bean
+	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
+	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+			havingValue = "false")
+	public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
+			RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
+		return new RestTemplateTransportClientFactories(optionalArgs);
 	}
 
 	@Bean
@@ -120,6 +134,13 @@ public class DiscoveryClientOptionalArgsConfiguration {
 					builder::getIfAvailable);
 			setupTLS(result, tlsProperties);
 			return result;
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(value = TransportClientFactories.class, search = SearchStrategy.CURRENT)
+		public WebClientTransportClientFactories webClientTransportClientFactories(
+				ObjectProvider<WebClient.Builder> builder) {
+			return new WebClientTransportClientFactories(builder::getIfAvailable);
 		}
 
 	}

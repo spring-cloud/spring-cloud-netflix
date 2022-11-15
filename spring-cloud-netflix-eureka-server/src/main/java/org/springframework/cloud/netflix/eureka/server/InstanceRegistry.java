@@ -21,11 +21,11 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
-import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.lease.Lease;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
 import com.netflix.eureka.resources.ServerCodecs;
+import com.netflix.eureka.transport.EurekaServerHttpClientFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,9 +49,9 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	private final int defaultOpenForTrafficCount;
 
 	public InstanceRegistry(EurekaServerConfig serverConfig, EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
-			EurekaClient eurekaClient, EurekaHttpClient eurekaHttpClient, int expectedNumberOfClientsSendingRenews,
-			int defaultOpenForTrafficCount) {
-		super(serverConfig, clientConfig, serverCodecs, eurekaClient, eurekaHttpClient);
+			EurekaClient eurekaClient, EurekaServerHttpClientFactory eurekaServerHttpClientFactory,
+			int expectedNumberOfClientsSendingRenews, int defaultOpenForTrafficCount) {
+		super(serverConfig, clientConfig, serverCodecs, eurekaClient, eurekaServerHttpClientFactory);
 
 		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
 		this.defaultOpenForTrafficCount = defaultOpenForTrafficCount;

@@ -28,7 +28,6 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.EurekaJacksonCodec;
 import com.netflix.discovery.converters.wrappers.CodecWrapper;
 import com.netflix.discovery.converters.wrappers.CodecWrappers;
-import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories;
 import com.netflix.eureka.DefaultEurekaServerContext;
@@ -39,6 +38,8 @@ import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.DefaultServerCodecs;
 import com.netflix.eureka.resources.ServerCodecs;
+import com.netflix.eureka.transport.EurekaServerHttpClientFactory;
+import com.netflix.eureka.transport.Jersey3EurekaServerHttpClientFactory;
 import com.netflix.eureka.transport.Jersey3ReplicationClient;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -71,7 +72,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.eureka.EurekaConstants;
-import org.springframework.cloud.netflix.eureka.config.HostnameBasedUrlRandomizer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -170,25 +170,24 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(TransportClientFactories.class)
 	public Jersey3TransportClientFactories jersey3TransportClientFactories() {
 		return Jersey3TransportClientFactories.getInstance();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Bean
-	public EurekaHttpClient eurekaHttpClient(TransportClientFactories transportClientFactories, Environment env) {
-		return transportClientFactories
-				.newTransportClientFactory(this.eurekaClientConfig, Collections.emptyList(),
-						this.applicationInfoManager.getInfo())
-				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(this.eurekaClientConfig, env));
+	public Jersey3EurekaServerHttpClientFactory jersey3EurekaServerHttpClientFactory() {
+		return new Jersey3EurekaServerHttpClientFactory();
 	}
 
 	@Bean
 	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(ServerCodecs serverCodecs,
-			EurekaHttpClient eurekaHttpClient) {
+			EurekaServerHttpClientFactory eurekaServerHttpClientFactory) {
 		this.eurekaClient.getApplications(); // force initialization
 		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig, serverCodecs, this.eurekaClient,
-				eurekaHttpClient, this.instanceRegistryProperties.getExpectedNumberOfClientsSendingRenews(),
+				eurekaServerHttpClientFactory,
+				this.instanceRegistryProperties.getExpectedNumberOfClientsSendingRenews(),
 				this.instanceRegistryProperties.getDefaultOpenForTrafficCount());
 	}
 

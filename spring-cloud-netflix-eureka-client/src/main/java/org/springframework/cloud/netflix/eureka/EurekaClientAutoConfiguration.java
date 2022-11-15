@@ -47,6 +47,7 @@ import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.decorator.EurekaHttpClientDecorator;
 import com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient;
 import com.netflix.discovery.shared.transport.decorator.SessionedEurekaHttpClient;
+import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.aot.hint.MemberCategory;
@@ -261,8 +262,9 @@ public class EurekaClientAutoConfiguration {
 
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
-		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config) {
-			return new CloudEurekaClient(manager, config, this.optionalArgs, this.context);
+		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config,
+				TransportClientFactories<?> transportClientFactories) {
+			return new CloudEurekaClient(manager, config, transportClientFactories, this.optionalArgs, this.context);
 		}
 
 		@Bean
@@ -299,7 +301,8 @@ public class EurekaClientAutoConfiguration {
 		@org.springframework.cloud.context.config.annotation.RefreshScope
 		@Lazy
 		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config,
-				EurekaInstanceConfig instance, @Autowired(required = false) HealthCheckHandler healthCheckHandler) {
+				EurekaInstanceConfig instance, TransportClientFactories<?> transportClientFactories,
+				@Autowired(required = false) HealthCheckHandler healthCheckHandler) {
 			// If we use the proxy of the ApplicationInfoManager we could run into a
 			// problem
 			// when shutdown is called on the CloudEurekaClient where the
@@ -314,8 +317,8 @@ public class EurekaClientAutoConfiguration {
 			else {
 				appManager = manager;
 			}
-			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager, config, this.optionalArgs,
-					this.context);
+			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager, config, transportClientFactories,
+					this.optionalArgs, this.context);
 			cloudEurekaClient.registerHealthCheck(healthCheckHandler);
 			return cloudEurekaClient;
 		}

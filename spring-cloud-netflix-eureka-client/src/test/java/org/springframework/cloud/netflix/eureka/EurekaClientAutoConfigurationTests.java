@@ -26,6 +26,7 @@ import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -671,8 +672,9 @@ class EurekaClientAutoConfigurationTests {
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config,
-				ApplicationContext context, AbstractDiscoveryClientOptionalArgs optionalArgs) {
-			return new CloudEurekaClient(manager, config, optionalArgs, context) {
+				TransportClientFactories<?> transportClientFactories, ApplicationContext context,
+				AbstractDiscoveryClientOptionalArgs optionalArgs) {
+			return new CloudEurekaClient(manager, config, transportClientFactories, optionalArgs, context) {
 				@Override
 				public synchronized void shutdown() {
 					CountDownLatch latch = countDownLatch();
