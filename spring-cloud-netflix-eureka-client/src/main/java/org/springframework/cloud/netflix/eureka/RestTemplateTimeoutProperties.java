@@ -16,7 +16,13 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.Objects;
+
+import org.apache.http.client.config.RequestConfig;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -26,12 +32,67 @@ import org.springframework.web.client.RestTemplate;
  * @author Jiwon Jeon
  * @since 4.0.0
  */
-public interface RestTemplateTimeoutProperties {
+@Component
+@ConfigurationProperties("eureka.client.rest-template-timeout")
+public class RestTemplateTimeoutProperties {
 
-	int getConnectTimeout();
+	/**
+	 * Default values are set to -1 according to {@link RequestConfig .DEFAULT}.
+	 */
+	private int connectTimeout = -1;
 
-	int getConnectRequestTimeout();
+	private int connectRequestTimeout = -1;
 
-	int getSocketTimeout();
+	private int socketTimeout = -1;
+
+	public int getConnectTimeout() {
+		return connectTimeout;
+	}
+
+	public int getConnectRequestTimeout() {
+		return connectRequestTimeout;
+	}
+
+	public int getSocketTimeout() {
+		return socketTimeout;
+	}
+
+	public void setConnectTimeout(int connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	public void setConnectRequestTimeout(int connectRequestTimeout) {
+		this.connectRequestTimeout = connectRequestTimeout;
+	}
+
+	public void setSocketTimeout(int socketTimeout) {
+		this.socketTimeout = socketTimeout;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		RestTemplateTimeoutProperties that = (RestTemplateTimeoutProperties) o;
+
+		return connectTimeout == that.connectTimeout && connectRequestTimeout == that.connectRequestTimeout
+				&& socketTimeout == that.socketTimeout;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(connectTimeout, connectRequestTimeout, socketTimeout);
+	}
+
+	@Override
+	public String toString() {
+		return "RestTemplateTimeoutProperties{" + ", connectTimeout=" + connectTimeout + ", connectRequestTimeout="
+				+ connectRequestTimeout + ", socketTimeout=" + socketTimeout + '}';
+	}
 
 }

@@ -24,7 +24,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 
-import org.springframework.cloud.netflix.eureka.DefaultRestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -42,7 +41,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	private final RestTemplateTimeoutProperties restTemplateTimeoutProperties;
 
 	public DefaultEurekaClientHttpRequestFactorySupplier() {
-		this.restTemplateTimeoutProperties = new DefaultRestTemplateTimeoutProperties();
+		this.restTemplateTimeoutProperties = new RestTemplateTimeoutProperties();
 	}
 
 	public DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
