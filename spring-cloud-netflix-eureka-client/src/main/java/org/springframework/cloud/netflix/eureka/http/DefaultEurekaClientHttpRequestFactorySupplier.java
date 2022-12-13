@@ -19,10 +19,12 @@ package org.springframework.cloud.netflix.eureka.http;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 
+import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
@@ -36,6 +38,16 @@ import org.springframework.lang.Nullable;
  */
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
+	private final RestTemplateTimeoutProperties restTemplateTimeoutProperties;
+
+	public DefaultEurekaClientHttpRequestFactorySupplier() {
+		this.restTemplateTimeoutProperties = new RestTemplateTimeoutProperties();
+	}
+
+	public DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+		this.restTemplateTimeoutProperties = restTemplateTimeoutProperties;
+	}
+
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
@@ -45,10 +57,20 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 		if (hostnameVerifier != null) {
 			httpClientBuilder = httpClientBuilder.setSSLHostnameVerifier(hostnameVerifier);
 		}
+		if (restTemplateTimeoutProperties != null) {
+			httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
+		}
+
 		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
 		return requestFactory;
+	}
+
+	private RequestConfig buildRequestConfig() {
+		return RequestConfig.custom().setConnectTimeout(restTemplateTimeoutProperties.getConnectTimeout())
+				.setConnectionRequestTimeout(restTemplateTimeoutProperties.getConnectRequestTimeout())
+				.setSocketTimeout(restTemplateTimeoutProperties.getSocketTimeout()).build();
 	}
 
 }
