@@ -112,6 +112,19 @@ NOTE: Because of a limitation in Eureka, it is not possible to support per-serve
 
 If you want to customize the RestTemplate used by the Eureka HTTP Client you may want to create a bean of `EurekaClientHttpRequestFactorySupplier` and provide your own logic for generating a `ClientHttpRequestFactory` instance.
 
+All default timeout-related properties for RestTemplate used by the Eureka HTTP Client are set to 3 minutes (in keeping with Apache HC5 default `RequestConfig` and `SocketConfig`). Therefore, to specify the timeout values, you must specify the value directly with the properties in `eureka.client.rest-template-timeout`. (All timeout properties are in milliseconds.)
+
+.application.yml
+[source,yaml]
+----
+eureka:
+  client:
+    rest-template-timeout:
+      connect-timeout: 5000
+      connect-request-timeout: 8000
+      socket-timeout: 10000
+----
+
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
