@@ -22,7 +22,6 @@ import org.apache.http.client.config.RequestConfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -32,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
  * @author Jiwon Jeon
  * @since 4.0.0
  */
-@Component
 @ConfigurationProperties("eureka.client.rest-template-timeout")
 public class RestTemplateTimeoutProperties {
 
