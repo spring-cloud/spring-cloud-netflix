@@ -29,7 +29,7 @@ import org.springframework.web.client.RestTemplate;
  * {@link RestTemplateEurekaHttpClient}.
  *
  * @author Jiwon Jeon
- * @since 4.0.0
+ * @since 3.1.6
  */
 @ConfigurationProperties("eureka.client.rest-template-timeout")
 public class RestTemplateTimeoutProperties {

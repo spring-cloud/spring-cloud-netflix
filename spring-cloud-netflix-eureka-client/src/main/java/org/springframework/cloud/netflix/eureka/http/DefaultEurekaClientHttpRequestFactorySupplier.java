@@ -34,12 +34,18 @@ import org.springframework.lang.Nullable;
  * {@link HttpClients}.
  *
  * @author Marcin Grzejszczak
+ * @author Jiwon Jeon
  * @since 3.0.0
  */
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
 	private final RestTemplateTimeoutProperties restTemplateTimeoutProperties;
 
+	/**
+	 * @deprecated in favour of
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties)}
+	 */
+	@Deprecated
 	public DefaultEurekaClientHttpRequestFactorySupplier() {
 		this.restTemplateTimeoutProperties = new RestTemplateTimeoutProperties();
 	}
