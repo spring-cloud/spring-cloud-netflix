@@ -28,6 +28,7 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -501,12 +502,12 @@ class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	@Disabled
 	void basicAuth() {
 		TestPropertyValues
 				.of("server.port=8989", "eureka.client.serviceUrl.defaultZone=https://user:foo@example.com:80/eureka")
 				.applyTo(this.context);
-		setupContext(MockClientConfiguration.class);
-		// ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
+		// FIXME: ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
 		// Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
 	}
 
@@ -685,21 +686,6 @@ class EurekaClientAutoConfigurationTests {
 				}
 			};
 		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	protected static class MockClientConfiguration {
-
-		// FIXME: 4.0
-		/*
-		 * @Bean public EurekaJerseyClient jerseyClient() { EurekaJerseyClient mock =
-		 * Mockito.mock(EurekaJerseyClient.class);
-		 * Mockito.when(mock.getClient()).thenReturn(apacheClient()); return mock; }
-		 *
-		 * @Bean public ApacheHttpClient4 apacheClient() { return
-		 * Mockito.mock(ApacheHttpClient4.class); }
-		 */
 
 	}
 

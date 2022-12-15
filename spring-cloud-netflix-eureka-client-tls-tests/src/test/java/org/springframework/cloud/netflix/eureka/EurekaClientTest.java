@@ -22,7 +22,10 @@ import org.junit.jupiter.api.BeforeAll;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EurekaClientTest extends BaseCertTest {
 
@@ -36,10 +39,7 @@ public class EurekaClientTest extends BaseCertTest {
 	public static void setupAll() {
 		server = startEurekaServer(EurekaClientTest.TestEurekaServer.class);
 		service = startService(server, EurekaClientTest.TestApp.class);
-		// Will use Jersey
-		// FIXME: 4.0
-		// assertThat(service.discoveryClientOptionalArgs())
-		// .isInstanceOf(DiscoveryClient.DiscoveryClientOptionalArgs.class);
+		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
 		log.info("Successfully asserted that Jersey will be used");
 		waitForRegistration(() -> new EurekaClientTest().createEurekaClient());
 	}
