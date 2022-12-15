@@ -165,23 +165,6 @@
 						<enabled>false</enabled>
 					</snapshots>
 				</repository>
-				<!-- FIXME: 4.0 -->
-				<repository>
-					<id>netflix-snapshots</id>
-					<name>Netflix Snapshots</name>
-					<url>https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-snapshots</url>
-					<snapshots>
-						<enabled>true</enabled>
-					</snapshots>
-				</repository>
-				<repository>
-					<id>netflix-candidates</id>
-					<name>Netflix Candidates</name>
-					<url>https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-candidates</url>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
-				</repository>
 			</repositories>
 			<pluginRepositories>
 				<pluginRepository>

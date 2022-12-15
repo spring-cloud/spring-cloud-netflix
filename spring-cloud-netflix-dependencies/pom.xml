@@ -120,7 +120,6 @@
 			<dependency>
 				<groupId>com.netflix.eureka</groupId>
 				<artifactId>eureka-client-jersey3</artifactId>
-				<!-- FIXME: 4.0 -->
 				<version>${eureka.version}</version>
 				<exclusions>
 					<exclusion>
