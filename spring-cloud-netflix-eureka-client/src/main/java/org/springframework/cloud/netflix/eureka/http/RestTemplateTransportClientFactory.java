@@ -50,6 +50,7 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Provides the custom {@link RestTemplate} required by the
@@ -101,7 +102,14 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 
 	@Override
 	public EurekaHttpClient newClient(EurekaEndpoint serviceUrl) {
-		return new RestTemplateEurekaHttpClient(restTemplate(serviceUrl.getServiceUrl()), serviceUrl.getServiceUrl());
+		return new RestTemplateEurekaHttpClient(restTemplate(serviceUrl.getServiceUrl()),
+				stripUserInfo(serviceUrl.getServiceUrl()));
+	}
+
+	// apache http client 5.2 fails with non-null userinfo
+	// basic auth added in restTemplate() below
+	private String stripUserInfo(String serviceUrl) {
+		return UriComponentsBuilder.fromUriString(serviceUrl).userInfo(null).toUriString();
 	}
 
 	private RestTemplate restTemplate(String serviceUrl) {
