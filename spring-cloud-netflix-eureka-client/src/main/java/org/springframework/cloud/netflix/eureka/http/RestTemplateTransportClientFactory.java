@@ -148,8 +148,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		converter.setObjectMapper(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
 
 		SimpleModule jsonModule = new SimpleModule();
-		jsonModule.setSerializerModifier(createJsonSerializerModifier()); // keyFormatter,
-		// compact));
+		jsonModule.setSerializerModifier(createJsonSerializerModifier());
 		converter.getObjectMapper().registerModule(jsonModule);
 
 		converter.getObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true);
@@ -157,25 +156,10 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		converter.getObjectMapper().addMixIn(Applications.class, ApplicationsJsonMixIn.class);
 		converter.getObjectMapper().addMixIn(InstanceInfo.class, InstanceInfoJsonMixIn.class);
 
-		// converter.getObjectMapper().addMixIn(DataCenterInfo.class,
-		// DataCenterInfoXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(InstanceInfo.PortWrapper.class,
-		// PortWrapperXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(Application.class,
-		// ApplicationXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(Applications.class,
-		// ApplicationsXmlMixIn.class);
-
 		return converter;
 	}
 
-	public static BeanSerializerModifier createJsonSerializerModifier() { // final
-		// KeyFormatter
-		// keyFormatter,
-		// final
-		// boolean
-		// compactMode)
-		// {
+	public static BeanSerializerModifier createJsonSerializerModifier() {
 		return new BeanSerializerModifier() {
 			@Override
 			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
