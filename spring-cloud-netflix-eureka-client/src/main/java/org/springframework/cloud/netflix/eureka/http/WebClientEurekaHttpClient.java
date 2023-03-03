@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -55,14 +56,14 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		return webClient.post().uri("apps/" + info.getAppName()).body(BodyInserters.fromValue(info))
 				.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).retrieve()
-				.onStatus(HttpStatus::isError, this::ignoreError).toBodilessEntity().map(this::eurekaHttpResponse)
+				.onStatus(HttpStatusCode::isError, this::ignoreError).toBodilessEntity().map(this::eurekaHttpResponse)
 				.block();
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
 		return webClient.delete().uri("apps/" + appName + '/' + id).retrieve()
-				.onStatus(HttpStatus::isError, this::ignoreError).toBodilessEntity().map(this::eurekaHttpResponse)
+				.onStatus(HttpStatusCode::isError, this::ignoreError).toBodilessEntity().map(this::eurekaHttpResponse)
 				.block();
 	}
 
@@ -76,7 +77,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		ResponseEntity<InstanceInfo> response = webClient.put().uri(urlPath)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve()
-				.onStatus(HttpStatus::isError, this::ignoreError).toEntity(InstanceInfo.class).block();
+				.onStatus(HttpStatusCode::isError, this::ignoreError).toEntity(InstanceInfo.class).block();
 
 		EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(statusCodeValueOf(response),
 				InstanceInfo.class).headers(headersOf(response));
@@ -98,7 +99,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 				+ info.getLastDirtyTimestamp().toString();
 
 		return webClient.put().uri(urlPath).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.retrieve().onStatus(HttpStatus::isError, this::ignoreError).toBodilessEntity()
+				.retrieve().onStatus(HttpStatusCode::isError, this::ignoreError).toBodilessEntity()
 				.map(this::eurekaHttpResponse).block();
 	}
 
@@ -108,7 +109,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 				+ info.getLastDirtyTimestamp().toString();
 
 		return webClient.delete().uri(urlPath).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.retrieve().onStatus(HttpStatus::isError, this::ignoreError).toBodilessEntity()
+				.retrieve().onStatus(HttpStatusCode::isError, this::ignoreError).toBodilessEntity()
 				.map(this::eurekaHttpResponse).block();
 	}
 
@@ -127,7 +128,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 		ResponseEntity<Applications> response = webClient.get().uri(url)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve()
-				.onStatus(HttpStatus::isError, this::ignoreError).toEntity(Applications.class).block();
+				.onStatus(HttpStatusCode::isError, this::ignoreError).toEntity(Applications.class).block();
 
 		int statusCode = statusCodeValueOf(response);
 
@@ -157,7 +158,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 
 		ResponseEntity<Application> response = webClient.get().uri("apps/" + appName)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve()
-				.onStatus(HttpStatus::isError, this::ignoreError).toEntity(Application.class).block();
+				.onStatus(HttpStatusCode::isError, this::ignoreError).toEntity(Application.class).block();
 
 		int statusCode = statusCodeValueOf(response);
 		Application body = response.getBody();
@@ -180,7 +181,7 @@ public class WebClientEurekaHttpClient implements EurekaHttpClient {
 	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
 		ResponseEntity<InstanceInfo> response = webClient.get().uri(urlPath)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve()
-				.onStatus(HttpStatus::isError, this::ignoreError).toEntity(InstanceInfo.class).block();
+				.onStatus(HttpStatusCode::isError, this::ignoreError).toEntity(InstanceInfo.class).block();
 
 		int statusCode = statusCodeValueOf(response);
 		InstanceInfo body = response.getBody();
