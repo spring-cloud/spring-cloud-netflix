@@ -246,12 +246,15 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
-	public FilterRegistrationBean<?> eurekaVersionFilterRegistration(ServerProperties serverProperties) {
-		String contextPath = serverProperties.getServlet().getContextPath();
+	public FilterRegistrationBean<?> eurekaVersionFilterRegistration(ServerProperties serverProperties,
+			Environment env) {
+		final String contextPath = serverProperties.getServlet().getContextPath();
 		String regex = EurekaConstants.DEFAULT_PREFIX + STATIC_CONTENT_PATTERN;
 		if (StringUtils.hasText(contextPath)) {
 			regex = contextPath + regex;
 		}
+		String debugResponseHeader = env.getProperty("eureka.server.version.filter.debug.response-header");
+		boolean addDebugResponseHeader = StringUtils.hasText(debugResponseHeader);
 		Pattern staticPattern = Pattern.compile(regex);
 		FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
 		bean.setFilter(new OncePerRequestFilter() {
@@ -264,18 +267,29 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 						// don't forward static requests (images, js, etc...) to /v2
 						&& !staticPattern.matcher(requestURI).matches()) {
 
-					String updatedPath = EurekaConstants.DEFAULT_PREFIX + "/v2"
-							+ requestURI.substring(EurekaConstants.DEFAULT_PREFIX.length());
-
+					String prefix = EurekaConstants.DEFAULT_PREFIX;
+					if (StringUtils.hasText(contextPath)) {
+						prefix = contextPath + prefix;
+					}
+					String updatedPath = EurekaConstants.DEFAULT_PREFIX + "/v2" + requestURI.substring(prefix.length());
+					if (StringUtils.hasText(contextPath)) {
+						updatedPath = contextPath + updatedPath;
+					}
+					final String computedPath = updatedPath;
+					// only used if a special debug property is set, so in prod this is
+					// always skipped.
+					if (addDebugResponseHeader) {
+						response.addHeader(debugResponseHeader, computedPath);
+					}
 					HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request) {
 						@Override
 						public String getRequestURI() {
-							return updatedPath;
+							return computedPath;
 						}
 
 						@Override
 						public String getServletPath() {
-							return updatedPath;
+							return computedPath;
 						}
 					};
 					req = wrapper;
