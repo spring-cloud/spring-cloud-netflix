@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka.http;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
+import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
@@ -48,13 +49,20 @@ abstract class AbstractEurekaHttpClientTests {
 
 	@Test
 	void testSendHeartBeat() {
-		assertThat(eurekaHttpClient.sendHeartBeat("test", "test", info, null).getStatusCode())
-				.isEqualTo(HttpStatus.OK.value());
+		EurekaHttpResponse<InstanceInfo> response = eurekaHttpClient.sendHeartBeat("test", "test", info, null);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getEntity()).isNotNull();
 	}
 
 	@Test
 	void testSendHeartBeatFourOFour() {
 		assertThat(eurekaHttpClient.sendHeartBeat("fourOFour", "test", info, null).getStatusCode())
+				.isEqualTo(HttpStatus.NOT_FOUND.value());
+	}
+
+	@Test
+	void testSendHeartBeatFourOFourWithBody() {
+		assertThat(eurekaHttpClient.sendHeartBeat("fourOFourWithBody", "test", info, null).getStatusCode())
 				.isEqualTo(HttpStatus.NOT_FOUND.value());
 	}
 

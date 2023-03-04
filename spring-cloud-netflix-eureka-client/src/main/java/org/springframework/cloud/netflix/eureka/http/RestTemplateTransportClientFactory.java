@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -44,8 +46,11 @@ import com.netflix.discovery.shared.transport.TransportClientFactory;
 
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -113,7 +118,9 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	}
 
 	private RestTemplate restTemplate(String serviceUrl) {
-		RestTemplate restTemplate = restTemplate();
+		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
+				.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
 
 		try {
 			URI serviceURI = new URI(serviceUrl);
@@ -132,13 +139,15 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		restTemplate.getMessageConverters().add(0, mappingJacksonHttpMessageConverter());
 		restTemplate.setErrorHandler(new ErrorHandler());
 
-		return restTemplate;
-	}
+		restTemplate.getInterceptors().add((request, body, execution) -> {
+			ClientHttpResponse response = execution.execute(request, body);
+			if (!response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+				return response;
+			}
+			return new NotFoundHttpResponse(response);
+		});
 
-	private RestTemplate restTemplate() {
-		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
-				.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
-		return new RestTemplate(requestFactory);
+		return restTemplate;
 	}
 
 	/**
@@ -172,11 +181,6 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 			@Override
 			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
 					JsonSerializer<?> serializer) {
-				/*
-				 * if (beanDesc.getBeanClass().isAssignableFrom(Applications.class)) {
-				 * return new ApplicationsJsonBeanSerializer((BeanSerializerBase)
-				 * serializer, keyFormatter); }
-				 */
 				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
 					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
 				}
@@ -187,6 +191,50 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 
 	@Override
 	public void shutdown() {
+	}
+
+	/**
+	 * Response that ignores body, specifically for 404 errors.
+	 */
+	private static class NotFoundHttpResponse implements ClientHttpResponse {
+
+		private final ClientHttpResponse response;
+
+		NotFoundHttpResponse(ClientHttpResponse response) {
+			this.response = response;
+		}
+
+		@Override
+		public HttpStatusCode getStatusCode() throws IOException {
+			return response.getStatusCode();
+		}
+
+		@Override
+		public int getRawStatusCode() throws IOException {
+			return response.getRawStatusCode();
+		}
+
+		@Override
+		public String getStatusText() throws IOException {
+			return response.getStatusText();
+		}
+
+		@Override
+		public void close() {
+			response.close();
+		}
+
+		@Override
+		public InputStream getBody() throws IOException {
+			// ignore body on 404 for heartbeat, see gh-4145
+			return null;
+		}
+
+		@Override
+		public HttpHeaders getHeaders() {
+			return response.getHeaders();
+		}
+
 	}
 
 	class ErrorHandler extends DefaultResponseErrorHandler {

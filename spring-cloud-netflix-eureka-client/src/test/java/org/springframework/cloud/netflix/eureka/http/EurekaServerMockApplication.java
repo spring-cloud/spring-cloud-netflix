@@ -118,6 +118,11 @@ public class EurekaServerMockApplication {
 		if ("fourOFour".equals(appName)) {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
+		if ("fourOFourWithBody".equals(appName)) {
+			return new ResponseEntity(
+					"{ \"error\": \"Not Found\", \"message\": null, \"path\": \"/1\", \"requestId\": \"9e5d3244-1\", \"status\": 404, \"timestamp\": \"2023-03-04T03:31:20.810+00:00\" }",
+					HttpStatus.NOT_FOUND);
+		}
 		return new ResponseEntity<>(new InstanceInfo(null, null, null, null, null, null, null, null, null, null, null,
 				null, null, 0, null, null, null, null, null, null, null, new HashMap<>(), 0L, 0L, null, null),
 				HttpStatus.OK);

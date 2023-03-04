@@ -38,6 +38,7 @@ import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
@@ -149,6 +150,12 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 			if (clientResponse.statusCode().value() == 400) {
 				ClientResponse newResponse = clientResponse.mutate().statusCode(HttpStatus.OK).build();
 				newResponse.body((clientHttpResponse, context) -> clientHttpResponse.getBody());
+				return Mono.just(newResponse);
+			}
+			if (clientResponse.statusCode().equals(HttpStatus.NOT_FOUND)) {
+				ClientResponse newResponse = clientResponse.mutate().statusCode(clientResponse.statusCode())
+						// ignore body on 404 for heartbeat, see gh-4145
+						.body(Flux.empty()).build();
 				return Mono.just(newResponse);
 			}
 			return Mono.just(clientResponse);
