@@ -473,8 +473,12 @@ class EurekaClientHints implements RuntimeHintsRegistrar {
 				.registerType(TypeReference.of(RetryableEurekaHttpClient.class),
 						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
 								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(SessionedEurekaHttpClient.class), hint -> hint
-						.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS));
+				.registerType(TypeReference.of(SessionedEurekaHttpClient.class),
+						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+								MemberCategory.DECLARED_FIELDS))
+				.registerType(TypeReference.of(EurekaServiceInstance.class),
+						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS));
 	}
 
 }
