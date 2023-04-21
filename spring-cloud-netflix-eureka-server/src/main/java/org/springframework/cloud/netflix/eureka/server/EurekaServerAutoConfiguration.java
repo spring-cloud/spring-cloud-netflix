@@ -86,6 +86,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.eureka.EurekaConstants;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -198,8 +199,12 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	@Bean
 	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(ServerCodecs serverCodecs,
-			EurekaServerHttpClientFactory eurekaServerHttpClientFactory) {
-		this.eurekaClient.getApplications(); // force initialization
+			EurekaServerHttpClientFactory eurekaServerHttpClientFactory,
+			EurekaInstanceConfigBean eurekaInstanceConfigBean) {
+		if (!eurekaInstanceConfigBean.isSkipForcedClientInitialization()) {
+			this.eurekaClient.getApplications(); // force initialization
+		}
+
 		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig, serverCodecs, this.eurekaClient,
 				eurekaServerHttpClientFactory,
 				this.instanceRegistryProperties.getExpectedNumberOfClientsSendingRenews(),
