@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
+import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 
@@ -32,6 +34,12 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration> {
 
 	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
+
+	private final EurekaInstanceConfigBean eurekaInstanceConfigBean;
+
+	public EurekaServiceRegistry(EurekaInstanceConfigBean eurekaInstanceConfigBean) {
+		this.eurekaInstanceConfigBean = eurekaInstanceConfigBean;
+	}
 
 	@Override
 	public void register(EurekaRegistration reg) {
@@ -51,7 +59,15 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 	private void maybeInitializeClient(EurekaRegistration reg) {
 		// force initialization of possibly scoped proxies
 		reg.getApplicationInfoManager().getInfo();
-		reg.getEurekaClient().getApplications();
+
+		CloudEurekaClient eurekaClient = reg.getEurekaClient();
+
+		if (eurekaInstanceConfigBean.isSkipForcedClientInitialization()) {
+			eurekaClient.getEurekaClientConfig();
+		}
+		else {
+			eurekaClient.getApplications();
+		}
 	}
 
 	@Override

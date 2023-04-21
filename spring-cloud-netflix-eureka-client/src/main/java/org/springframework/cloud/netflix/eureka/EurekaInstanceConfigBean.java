@@ -270,6 +270,12 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	private boolean preferIpAddress = false;
 
 	/**
+	 * If true the EurekaClient will not be forced to initialize when the InstanceRegistry
+	 * bean is created.
+	 */
+	private boolean skipForcedClientInitialization;
+
+	/**
 	 * Initial status to register with remote Eureka server.
 	 */
 	private InstanceStatus initialStatus = InstanceStatus.UP;
@@ -547,6 +553,14 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 		this.preferIpAddress = preferIpAddress;
 	}
 
+	public boolean isSkipForcedClientInitialization() {
+		return skipForcedClientInitialization;
+	}
+
+	public void setSkipForcedClientInitialization(boolean skipForcedClientInitialization) {
+		this.skipForcedClientInitialization = skipForcedClientInitialization;
+	}
+
 	public InstanceStatus getInitialStatus() {
 		return initialStatus;
 	}
@@ -597,6 +611,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				&& Objects.equals(namespace, that.namespace) && Objects.equals(hostname, that.hostname)
 				&& preferIpAddress == that.preferIpAddress && Objects.equals(initialStatus, that.initialStatus)
 				&& Arrays.equals(defaultAddressResolutionOrder, that.defaultAddressResolutionOrder)
+				&& skipForcedClientInitialization == that.skipForcedClientInitialization
 				&& Objects.equals(environment, that.environment);
 	}
 
@@ -607,7 +622,8 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				leaseExpirationDurationInSeconds, virtualHostName, instanceId, secureVirtualHostName, aSGName,
 				metadataMap, dataCenterInfo, ipAddress, statusPageUrlPath, statusPageUrl, homePageUrlPath, homePageUrl,
 				healthCheckUrlPath, healthCheckUrl, secureHealthCheckUrl, namespace, hostname, preferIpAddress,
-				initialStatus, Arrays.hashCode(defaultAddressResolutionOrder), environment);
+				skipForcedClientInitialization, initialStatus, Arrays.hashCode(defaultAddressResolutionOrder),
+				environment);
 	}
 
 	@Override
@@ -631,6 +647,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				.append("', ").append("healthCheckUrl='").append(healthCheckUrl).append("', ")
 				.append("secureHealthCheckUrl='").append(secureHealthCheckUrl).append("', ").append("namespace='")
 				.append(namespace).append("', ").append("hostname='").append(hostname).append("', ")
+				.append("skipForcedClientInitialization=").append(skipForcedClientInitialization).append(", ")
 				.append("preferIpAddress=").append(preferIpAddress).append(", ").append("initialStatus=")
 				.append(initialStatus).append(", ").append("defaultAddressResolutionOrder=")
 				.append(Arrays.toString(defaultAddressResolutionOrder)).append(", ").append("environment=")

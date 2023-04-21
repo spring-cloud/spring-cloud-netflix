@@ -224,8 +224,8 @@ public class EurekaClientAutoConfiguration {
 	}
 
 	@Bean
-	public EurekaServiceRegistry eurekaServiceRegistry() {
-		return new EurekaServiceRegistry();
+	public EurekaServiceRegistry eurekaServiceRegistry(EurekaInstanceConfigBean eurekaInstanceConfigBean) {
+		return new EurekaServiceRegistry(eurekaInstanceConfigBean);
 	}
 
 	// @Bean
