@@ -17,13 +17,18 @@
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
+import org.springframework.cloud.loadbalancer.support.SimpleObjectProvider;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
@@ -34,6 +39,8 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus.OUT_OF_SERVICE;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -41,11 +48,15 @@ import static org.mockito.Mockito.when;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
+@ExtendWith(MockitoExtension.class)
 class EurekaServiceRegistryTests {
+
+	@Mock
+	private EurekaInstanceConfigBean eurekaInstanceConfigBean;
 
 	@Test
 	void eurekaClientNotShutdownInDeregister() {
-		EurekaServiceRegistry registry = new EurekaServiceRegistry();
+		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
 
 		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
 		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
@@ -65,7 +76,7 @@ class EurekaServiceRegistryTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	void eurekaClientGetStatus() {
-		EurekaServiceRegistry registry = new EurekaServiceRegistry();
+		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
 		config.setAppname("myapp");
@@ -102,15 +113,13 @@ class EurekaServiceRegistryTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	void eurekaClientGetStatusNoInstance() {
-		EurekaServiceRegistry registry = new EurekaServiceRegistry();
+		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
 		config.setAppname("myapp");
 		config.setInstanceId("1234");
 
 		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
-
-		when(eurekaClient.getInstanceInfo("myapp", "1234")).thenReturn(null);
 
 		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
 		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
@@ -128,6 +137,61 @@ class EurekaServiceRegistryTests {
 		Map<Object, Object> map = (Map<Object, Object>) status;
 
 		assertThat(map).hasSize(1).containsEntry("status", UNKNOWN.toString());
+	}
+
+	@Test
+	void eurekaClientInitializesClientAsynchronously() throws InterruptedException {
+		when(eurekaInstanceConfigBean.isAsyncClientInitialization()).thenReturn(true);
+		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
+
+		final AtomicBoolean applicationsFetched = new AtomicBoolean();
+
+		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
+		when(eurekaClient.getApplications()).thenAnswer((answer) -> {
+			applicationsFetched.set(true);
+			synchronized (applicationsFetched) {
+				applicationsFetched.notifyAll();
+			}
+			return answer;
+		});
+
+		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+
+		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
+
+		EurekaRegistration registration = EurekaRegistration
+				.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()))).with(eurekaClient)
+				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+				.with(new SimpleObjectProvider<>(null)).build();
+
+		registry.register(registration);
+
+		synchronized (applicationsFetched) {
+			applicationsFetched.wait();
+		}
+
+		verify(eurekaClient).getApplications();
+		assertThat(applicationsFetched).isTrue();
+	}
+
+	@Test
+	void eurekaClientInitializesClientSynchronously() {
+		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
+
+		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
+		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+
+		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
+
+		EurekaRegistration registration = EurekaRegistration
+				.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()))).with(eurekaClient)
+				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+				.with(new SimpleObjectProvider<>(null)).build();
+
+		registry.register(registration);
+
+		verify(eurekaClient).getApplications();
+		verify(eurekaClient, never()).getEurekaClientConfig();
 	}
 
 }

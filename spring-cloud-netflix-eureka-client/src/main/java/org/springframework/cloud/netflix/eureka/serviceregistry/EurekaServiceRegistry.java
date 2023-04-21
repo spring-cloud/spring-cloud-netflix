@@ -17,12 +17,15 @@
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.netflix.appinfo.InstanceInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 
@@ -33,9 +36,26 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 
 	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
 
+	private final EurekaInstanceConfigBean eurekaInstanceConfigBean;
+
+	public EurekaServiceRegistry(EurekaInstanceConfigBean eurekaInstanceConfigBean) {
+		this.eurekaInstanceConfigBean = eurekaInstanceConfigBean;
+	}
+
 	@Override
 	public void register(EurekaRegistration reg) {
-		maybeInitializeClient(reg);
+		if (eurekaInstanceConfigBean.isAsyncClientInitialization()) {
+			log.debug("Initializing client asynchronously...");
+
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			executorService.submit(() -> {
+				maybeInitializeClient(reg);
+				log.debug("Asynchronous client initialization done.");
+			});
+		}
+		else {
+			maybeInitializeClient(reg);
+		}
 
 		if (log.isInfoEnabled()) {
 			log.info("Registering application " + reg.getApplicationInfoManager().getInfo().getAppName()
