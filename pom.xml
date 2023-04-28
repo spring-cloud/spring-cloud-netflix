@@ -21,7 +21,7 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<spring-cloud-commons.version>3.1.6</spring-cloud-commons.version>
+		<spring-cloud-commons.version>3.1.7-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>3.1.8-SNAPSHOT</spring-cloud-config.version>
 
 		<!-- Sonar -->
