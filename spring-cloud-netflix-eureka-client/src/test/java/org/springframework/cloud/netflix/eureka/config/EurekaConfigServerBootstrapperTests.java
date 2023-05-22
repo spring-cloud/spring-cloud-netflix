@@ -16,16 +16,21 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import org.apache.commons.logging.Log;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.bind.BindHandler;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.web.client.ResourceAccessException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 class EurekaConfigServerBootstrapperTests {
 
@@ -48,7 +53,10 @@ class EurekaConfigServerBootstrapperTests {
 				.addBootstrapRegistryInitializer(registry -> registry.addCloseListener(event -> {
 					ConfigServerInstanceProvider.Function providerFn = event.getBootstrapContext()
 							.get(ConfigServerInstanceProvider.Function.class);
-					assertThat(providerFn.apply("id")).as("Should return empty list").isEmpty();
+					Binder binder = event.getBootstrapContext().get(Binder.class);
+					BindHandler bindHandler = event.getBootstrapContext().get(BindHandler.class);
+					assertThat(providerFn.apply("id", binder, bindHandler, mock(Log.class)))
+							.as("Should return empty list").isEmpty();
 				})).run().close();
 	}
 
@@ -60,19 +68,25 @@ class EurekaConfigServerBootstrapperTests {
 				.addBootstrapRegistryInitializer(registry -> registry.addCloseListener(event -> {
 					ConfigServerInstanceProvider.Function providerFn = event.getBootstrapContext()
 							.get(ConfigServerInstanceProvider.Function.class);
-					assertThat(providerFn.apply("id")).as("Should return empty list").isEmpty();
+					Binder binder = event.getBootstrapContext().get(Binder.class);
+					BindHandler bindHandler = event.getBootstrapContext().get(BindHandler.class);
+					assertThat(providerFn.apply("id", binder, bindHandler, mock(Log.class)))
+							.as("Should return empty list").isEmpty();
 				})).run().close();
 	}
 
 	@Test
 	void enabledAddsInstanceProviderFn() {
 		new SpringApplicationBuilder(TestConfig.class)
-				.properties("spring.cloud.config.discovery.enabled=true",
-						"spring.cloud.service-registry.auto-registration.enabled=false")
+				.properties("spring.config.import: classpath:bootstrapper.yaml",
+						ConfigClientProperties.PREFIX + ".enabled=true")
 				.addBootstrapRegistryInitializer(registry -> registry.addCloseListener(event -> {
 					ConfigServerInstanceProvider.Function providerFn = event.getBootstrapContext()
 							.get(ConfigServerInstanceProvider.Function.class);
-					assertThatThrownBy(() -> providerFn.apply("id")).isInstanceOf(ResourceAccessException.class)
+					Binder binder = event.getBootstrapContext().get(Binder.class);
+					BindHandler bindHandler = event.getBootstrapContext().get(BindHandler.class);
+					assertThatThrownBy(() -> providerFn.apply("id", binder, bindHandler, mock(Log.class)))
+							.isInstanceOf(ResourceAccessException.class)
 							.hasMessageContaining("I/O error on GET request for \"http://localhost:8761/eureka/apps/\"")
 							.as("Should have tried to connect to Eureka to fetch instances.");
 				})).run().close();

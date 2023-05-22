@@ -1,0 +1,12 @@
+spring:
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      enabled: true
+      discovery:
+        service-id: eureka-configserver
+        enabled: true
+    service-registry:
+      auto-registration:
+        enabled: false
