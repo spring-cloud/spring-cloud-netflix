@@ -64,7 +64,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnMissingClass("jakarta.ws.rs.client.ClientRequestFilter")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -80,7 +80,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnMissingClass("jakarta.ws.rs.client.ClientRequestFilter")
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -118,7 +118,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
+	@ConditionalOnMissingClass("jakarta.ws.rs.client.ClientRequestFilter")
 	@ConditionalOnClass(name = "org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientConfiguration {
@@ -149,7 +149,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnMissingClass({ "com.sun.jersey.api.client.filter.ClientFilter",
+	@ConditionalOnMissingClass({ "jakarta.ws.rs.client.ClientRequestFilter",
 			"org.springframework.web.reactive.function.client.WebClient" })
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientNotFoundConfiguration {

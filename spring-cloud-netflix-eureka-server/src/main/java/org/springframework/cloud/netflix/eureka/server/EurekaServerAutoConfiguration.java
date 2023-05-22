@@ -28,8 +28,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.Jersey3DiscoveryClientOptionalArgs;
 import com.netflix.discovery.converters.EurekaJacksonCodec;
 import com.netflix.discovery.converters.wrappers.CodecWrapper;
 import com.netflix.discovery.converters.wrappers.CodecWrappers;
@@ -192,8 +194,15 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Bean
+	@ConditionalOnMissingBean(EurekaServerHttpClientFactory.class)
 	public Jersey3EurekaServerHttpClientFactory jersey3EurekaServerHttpClientFactory() {
 		return new Jersey3EurekaServerHttpClientFactory();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(AbstractDiscoveryClientOptionalArgs.class)
+	public Jersey3DiscoveryClientOptionalArgs jersey3DiscoveryClientOptionalArgs() {
+		return new Jersey3DiscoveryClientOptionalArgs();
 	}
 
 	@Bean
