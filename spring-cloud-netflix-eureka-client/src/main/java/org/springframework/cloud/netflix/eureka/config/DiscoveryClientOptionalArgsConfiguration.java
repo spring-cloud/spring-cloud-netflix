@@ -64,7 +64,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("jakarta.ws.rs.client.ClientRequestFilter")
+	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -80,7 +80,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("jakarta.ws.rs.client.ClientRequestFilter")
+	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -106,7 +106,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(name = "jakarta.ws.rs.client.ClientRequestFilter")
+	@ConditionalOnClass(name = "org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
 	static class DiscoveryClientOptionalArgsTlsConfiguration {
 
@@ -118,7 +118,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	@ConditionalOnMissingClass("jakarta.ws.rs.client.ClientRequestFilter")
+	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnClass(name = "org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientConfiguration {
@@ -149,7 +149,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnMissingClass({ "jakarta.ws.rs.client.ClientRequestFilter",
+	@ConditionalOnMissingClass({ "org.glassfish.jersey.client.JerseyClient",
 			"org.springframework.web.reactive.function.client.WebClient" })
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientNotFoundConfiguration {

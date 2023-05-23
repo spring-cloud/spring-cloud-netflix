@@ -68,8 +68,8 @@
 						<artifactId>annotations</artifactId>
 					</exclusion>
 					<exclusion>
-						<groupId>jakarta.ws.rs</groupId>
-						<artifactId>jakarta.ws.rs-api</artifactId>
+						<groupId>org.glassfish.jersey.core</groupId>
+						<artifactId>jersey-client</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
