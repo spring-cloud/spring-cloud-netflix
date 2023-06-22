@@ -28,7 +28,6 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -39,7 +38,6 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.context.event.ApplicationPreparedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -49,6 +47,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
+import org.springframework.cloud.context.config.ContextRefreshedWithApplicationEvent;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.cloud.context.scope.GenericScope;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
@@ -471,9 +470,9 @@ class EurekaClientAutoConfigurationTests {
 
 		ContextRefresher refresher = this.context.getBean(ContextRefresher.class);
 		if (refresher instanceof ApplicationListener) {
-			ApplicationListener<ApplicationPreparedEvent> listener = (ApplicationListener) refresher;
-			listener.onApplicationEvent(
-					new ApplicationPreparedEvent(Mockito.mock(SpringApplication.class), new String[0], this.context));
+			ApplicationListener<ContextRefreshedWithApplicationEvent> listener = (ApplicationListener) refresher;
+			listener.onApplicationEvent(new ContextRefreshedWithApplicationEvent(Mockito.mock(SpringApplication.class),
+					new String[0], this.context));
 		}
 		refresher.refresh();
 
@@ -499,16 +498,6 @@ class EurekaClientAutoConfigurationTests {
 		this.context.close();
 
 		assertThat(isShutdown.get()).isTrue();
-	}
-
-	@Test
-	@Disabled
-	void basicAuth() {
-		TestPropertyValues
-				.of("server.port=8989", "eureka.client.serviceUrl.defaultZone=https://user:foo@example.com:80/eureka")
-				.applyTo(this.context);
-		// FIXME: ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
-		// Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
 	}
 
 	@Test

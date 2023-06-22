@@ -66,6 +66,10 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		return this.serviceUrl;
 	}
 
+	public RestTemplate getRestTemplate() {
+		return restTemplate;
+	}
+
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
 		String urlPath = serviceUrl + "apps/" + info.getAppName();

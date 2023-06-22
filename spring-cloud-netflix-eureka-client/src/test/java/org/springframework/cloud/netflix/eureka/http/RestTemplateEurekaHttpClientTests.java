@@ -16,9 +16,13 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.List;
+
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +30,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.web.client.RestTemplate;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Daniel Lavoie
@@ -61,6 +70,16 @@ class RestTemplateEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 		config.setInstanceId("127.0.0.1:customapp:4444");
 
 		info = new EurekaConfigBasedInstanceInfoProvider(config).get();
+	}
+
+	@Test
+	void basicAuth() {
+		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
+		RestTemplateEurekaHttpClient restTemplateEurekaHttpClient = (RestTemplateEurekaHttpClient) eurekaHttpClient;
+		RestTemplate restTemplate = restTemplateEurekaHttpClient.getRestTemplate();
+		List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
+		boolean hasBasicAuth = interceptors.stream().anyMatch(interceptor -> interceptor instanceof BasicAuthenticationInterceptor);
+		assertThat(hasBasicAuth).as("Basic Auth not configured").isTrue();
 	}
 
 }
