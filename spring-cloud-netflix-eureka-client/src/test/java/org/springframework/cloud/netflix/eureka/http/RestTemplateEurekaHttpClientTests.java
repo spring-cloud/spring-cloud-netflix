@@ -77,7 +77,8 @@ class RestTemplateEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 		RestTemplateEurekaHttpClient restTemplateEurekaHttpClient = (RestTemplateEurekaHttpClient) eurekaHttpClient;
 		RestTemplate restTemplate = restTemplateEurekaHttpClient.getRestTemplate();
 		List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-		boolean hasBasicAuth = interceptors.stream().anyMatch(interceptor -> interceptor instanceof BasicAuthenticationInterceptor);
+		boolean hasBasicAuth = interceptors.stream()
+				.anyMatch(interceptor -> interceptor instanceof BasicAuthenticationInterceptor);
 		assertThat(hasBasicAuth).as("Basic Auth not configured").isTrue();
 	}
 
