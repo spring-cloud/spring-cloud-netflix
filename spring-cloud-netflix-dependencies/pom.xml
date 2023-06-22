@@ -14,8 +14,7 @@
 	<name>spring-cloud-netflix-dependencies</name>
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
-<!--		TODO: move to TLS after testing-->
-		<eureka.version>2.0.1-SNAPSHOT</eureka.version>
+		<eureka.version>2.0.0</eureka.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>

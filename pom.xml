@@ -156,15 +156,6 @@
 		<profile>
 			<id>spring</id>
 			<repositories>
-<!--				TODO: remove after tests-->
-				<repository>
-					<id>netflix-snapshots</id>
-					<name>Netflix Snapshots</name>
-					<url>https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-snapshots</url>
-					<snapshots>
-						<enabled>true</enabled>
-					</snapshots>
-				</repository>
 				<repository>
 					<id>spring-snapshots</id>
 					<name>Spring Snapshots</name>
