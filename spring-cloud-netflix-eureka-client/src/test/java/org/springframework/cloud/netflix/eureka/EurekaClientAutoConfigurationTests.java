@@ -28,7 +28,6 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -499,16 +498,6 @@ class EurekaClientAutoConfigurationTests {
 		this.context.close();
 
 		assertThat(isShutdown.get()).isTrue();
-	}
-
-	@Test
-	@Disabled
-	void basicAuth() {
-		TestPropertyValues
-				.of("server.port=8989", "eureka.client.serviceUrl.defaultZone=https://user:foo@example.com:80/eureka")
-				.applyTo(this.context);
-		// FIXME: ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
-		// Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
 	}
 
 	@Test
