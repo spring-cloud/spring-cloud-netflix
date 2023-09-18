@@ -9,6 +9,7 @@ include::_attributes.adoc[]
 :nofooter:
 :branch: main
 
+[[spring-cloud-netflix]]
 = Spring Cloud Netflix
 
 *{spring-cloud-version}*
@@ -16,6 +17,7 @@ include::_attributes.adoc[]
 include::intro.adoc[]
 
 
+[[service-discovery:-eureka-clients]]
 == Service Discovery: Eureka Clients
 
 Service Discovery is one of the key tenets of a microservice-based architecture.
@@ -29,6 +31,7 @@ The server can be configured and deployed to be highly available, with each serv
 To include the Eureka Client in your project, use the starter with a group ID of `org.springframework.cloud` and an artifact ID of  `spring-cloud-starter-netflix-eureka-client`.
 See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page] for details on setting up your build system with the current Spring Cloud Release Train.
 
+[[registering-with-eureka]]
 === Registering with Eureka
 
 When a client registers with Eureka, it provides meta-data about itself -- such as host, port, health indicator URL, home page, and other details.
@@ -83,6 +86,7 @@ To disable the Eureka Discovery Client, you can set `eureka.client.enabled` to `
 
 NOTE: Specifying the version of the Spring Cloud Netflix Eureka server as a path parameter is not currently supported. This means you cannot set the version in the context path (`eurekaServerURLContext`). Instead, you can include the version in the server URL (for example, you can set `defaultZone: http://localhost:8761/eureka/v2`).
 
+[[authenticating-with-the-eureka-server]]
 === Authenticating with the Eureka Server
 
 HTTP basic authentication is automatically added to your eureka client if one of the `eureka.client.serviceUrl.defaultZone` URLs has credentials embedded in it (curl style, as follows: `https://user:password@localhost:8761/eureka`).
@@ -125,6 +129,7 @@ eureka:
       socket-timeout: 10000
 ----
 
+[[status-page-and-health-indicator]]
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
@@ -143,6 +148,7 @@ These links show up in the metadata that is consumed by clients and are used in 
 NOTE: In Dalston it was also required to set the status and health check URLs when changing
 that management context path.  This requirement was removed beginning in Edgware.
 
+[[registering-a-secure-application]]
 === Registering a Secure Application
 
 If your app wants to be contacted over HTTPS, you can set two flags in the `EurekaInstanceConfigBean`:
@@ -174,6 +180,7 @@ NOTE: If your application runs behind a proxy, and the SSL termination is in the
 If the Tomcat container embedded in a Spring Boot application has explicit configuration for the 'X-Forwarded-\*` headers, this happens automatically.
 The links rendered by your app to itself being wrong (the wrong host, port, or protocol) is a sign that you got this configuration wrong.
 
+[[eureka-s-health-checks]]
 === Eureka's Health Checks
 
 By default, Eureka uses the client heartbeat to determine if a client is up.
@@ -194,6 +201,7 @@ WARNING: `eureka.client.healthcheck.enabled=true` should only be set in `applica
 
 If you require more control over the health checks, consider implementing your own `com.netflix.appinfo.HealthCheckHandler`.
 
+[[eureka-metadata-for-instances-and-clients]]
 === Eureka Metadata for Instances and Clients
 
 It is worth spending a bit of time understanding how the Eureka metadata works, so you can use it in a way that makes sense in your platform.
@@ -204,6 +212,7 @@ In general, additional metadata does not change the behavior of the client, unle
 There are a couple of special cases, described later in this document, where Spring Cloud already assigns meaning to the metadata map.
 // TODO Add links from here to the relevant places in the document
 
+[[using-eureka-on-cloud-foundry]]
 ==== Using Eureka on Cloud Foundry
 
 Cloud Foundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
@@ -223,6 +232,7 @@ eureka:
 Depending on the way the security rules are set up in your Cloud Foundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls.
 This feature is not yet available on Pivotal Web Services (https://run.pivotal.io[PWS]).
 
+[[using-eureka-on-aws]]
 ==== Using Eureka on AWS
 
 If the application is planned to be deployed to an AWS cloud, the Eureka instance must be configured to be AWS-aware. You can do so by customizing the {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] as follows:
@@ -239,6 +249,7 @@ public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
 }
 ----
 
+[[changing-the-eureka-instance-id]]
 ==== Changing the Eureka Instance ID
 
 A vanilla Netflix Eureka instance is registered with an ID that is equal to its host name (that is, there is only one service per host).
@@ -260,6 +271,7 @@ eureka:
 With the metadata shown in the preceding example and multiple service instances deployed on localhost, the random value is inserted there to make the instance unique.
 In Cloud Foundry, the `vcap.application.instance_id` is populated automatically in a Spring Boot application, so the random value is not needed.
 
+[[using-the-eurekaclient]]
 === Using the EurekaClient
 
 Once you have an application that is a discovery client, you can use it to discover service instances from the <<spring-cloud-eureka-server,
@@ -282,6 +294,7 @@ Do not use the `EurekaClient` in a `@PostConstruct` method or in a `@Scheduled` 
 It is initialized in a `SmartLifecycle` (with `phase=0`), so the earliest you can rely on it being available is in another `SmartLifecycle` with a higher phase.
 ====
 
+[[eurekaclient-with-jersey]]
 ==== EurekaClient with Jersey
 
 By default, EurekaClient uses Spring's `RestTemplate` for HTTP communication.
@@ -303,6 +316,7 @@ The following example shows the dependencies you need to add:
 </dependency>
 ----
 
+[[alternatives-to-the-native-netflix-eurekaclient]]
 === Alternatives to the Native Netflix EurekaClient
 
 You need not use the raw Netflix `EurekaClient`.
@@ -324,6 +338,7 @@ public String serviceUrl() {
 }
 ----
 
+[[why-is-it-so-slow-to-register-a-service?]]
 === Why Is It so Slow to Register a Service?
 
 Being an instance also involves a periodic heartbeat to the registry
@@ -334,6 +349,7 @@ You can change the period by setting `eureka.instance.leaseRenewalIntervalInSeco
 Setting it to a value of less than 30 speeds up the process of getting clients connected to other services.
 In production, it is probably better to stick with the default, because of internal computations in the server that make assumptions about the lease renewal period.
 
+[[zones]]
 === Zones
 
 If you have deployed Eureka clients to multiple zones, you may prefer that those clients use services within the same zone before trying services in another zone.
@@ -360,6 +376,7 @@ eureka.instance.metadataMap.zone = zone2
 eureka.client.preferSameZoneEureka = true
 ```
 
+[[refreshing-eureka-clients]]
 === Refreshing Eureka Clients
 
 By default, the `EurekaClient` bean is refreshable, meaning the Eureka client properties can be changed and refreshed.
@@ -367,6 +384,7 @@ When a refresh occurs clients will be unregistered from the Eureka server and th
 where all instance of a given service are not available. One way to eliminate this from happening is to disable
 the ability to refresh Eureka clients.  To do this set `eureka.client.refresh.enable=false`.
 
+[[using-eureka-with-spring-cloud-loadbalancer]]
 === Using Eureka with Spring Cloud LoadBalancer
 
 We offer support for the Spring Cloud LoadBalancer `ZonePreferenceServiceInstanceListSupplier`.
@@ -379,6 +397,7 @@ it can use the domain name from the server hostname as a proxy for the zone.
 If there is no other source of zone data, then a guess is made, based on the client configuration (as opposed to the instance configuration).
 We take `eureka.client.availabilityZones`, which is a map from region name to a list of zones, and pull out the first zone for the instance's own region (that is, the `eureka.client.region`, which defaults to "us-east-1", for compatibility with native Netflix).
 
+[[aot-and-native-image-support]]
 === AOT and Native Image Support
 
 Spring Cloud Netflix Eureka Client integration supports Spring AOT transformations and native images, however, only with refresh mode disabled.
@@ -452,6 +471,7 @@ dependencyManagement {
 ----
 ====
 
+[[defaultopenfortrafficcount-and-its-effect-on-eurekaserver-warmup-time]]
 === `defaultOpenForTrafficCount` and its effect on EurekaServer warmup time
 
 Netflix Eureka's `waitTimeInMsWhenSyncEmpty` setting is not taken into account in Spring Cloud Eureka server at the beginning. In order to enable the warmup time, set `eureka.server.defaultOpenForTrafficCount=0`.
@@ -572,6 +592,7 @@ Only explict way of setting the hostname is by setting `eureka.instance.hostname
 You can set your hostname at the run-time by using an environment variable -- for example, `eureka.instance.hostname=${HOST_NAME}`.
 ====
 
+[[securing-the-eureka-server]]
 === Securing The Eureka Server
 
 You can secure your Eureka server simply by adding Spring Security to your
@@ -596,6 +617,7 @@ For more information on CSRF see the https://docs.spring.io/spring-security/site
 
 A demo Eureka Server can be found in the Spring Cloud Samples https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security-4.x[repo].
 
+[[jdk-11-support]]
 === JDK 11 Support
 
 The JAXB modules which the Eureka server depends upon were removed in JDK 11.  If you intend to use JDK 11
@@ -609,10 +631,12 @@ when running a Eureka server you must include these dependencies in your POM or 
 </dependency>
 ----
 
+[[aot-and-native-image-support]]
 === AOT and Native Image Support
 
 Spring Cloud Netflix Eureka Server does not support Spring AOT transformations or native images.
 
+[[configuration-properties]]
 == Configuration properties
 
 To see the list of all Spring Cloud Netflix related configuration properties please check link:appendix.html[the Appendix page].
