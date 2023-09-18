@@ -1,10 +1,8 @@
-include::_attributes.adoc[]
 
 image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main"]
 image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main"]
 
 
-include::intro.adoc[]
 
 [[features]]
 = Features

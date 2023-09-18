@@ -1,4 +1,3 @@
-include::_attributes.adoc[]
 
 
 :github-tag: main
@@ -14,7 +13,6 @@ include::_attributes.adoc[]
 
 *{spring-cloud-version}*
 
-include::intro.adoc[]
 
 
 [[service-discovery:-eureka-clients]]
