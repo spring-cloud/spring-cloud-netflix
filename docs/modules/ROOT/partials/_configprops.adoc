@@ -1,0 +1,84 @@
+|===
+|Name | Default | Description
+
+|spring.cloud.compatibility-verifier.compatible-boot-versions | `+++3.2.x+++` | Default accepted versions for the Spring Boot dependency. You can set {@code x} for the patch version if you don't want to specify a concrete value. Example: {@code 3.4.x}
+|spring.cloud.compatibility-verifier.enabled | `+++false+++` | Enables creation of Spring Cloud compatibility verification.
+|spring.cloud.config.allow-override | `+++true+++` | Flag to indicate that {@link #isOverrideSystemProperties() systemPropertiesOverride} can be used. Set to false to prevent users from changing the default accidentally. Default true.
+|spring.cloud.config.initialize-on-context-refresh | `+++false+++` | Flag to initialize bootstrap configuration on context refresh event. Default false.
+|spring.cloud.config.override-none | `+++false+++` | Flag to indicate that when {@link #setAllowOverride(boolean) allowOverride} is true, external properties should take lowest priority and should not override any existing property sources (including local config files). Default false. This will only have an effect when using config first bootstrap.
+|spring.cloud.config.override-system-properties | `+++true+++` | Flag to indicate that the external properties should override system properties. Default true.
+|spring.cloud.decrypt-environment-post-processor.enabled | `+++true+++` | Enable the DecryptEnvironmentPostProcessor.
+|spring.cloud.discovery.client.composite-indicator.enabled | `+++true+++` | Enables discovery client composite health indicator.
+|spring.cloud.discovery.client.health-indicator.enabled | `+++true+++` | 
+|spring.cloud.discovery.client.health-indicator.include-description | `+++false+++` | 
+|spring.cloud.discovery.client.health-indicator.use-services-query | `+++true+++` | Whether or not the indicator should use {@link DiscoveryClient#getServices} to check its health. When set to {@code false} the indicator instead uses the lighter {@link DiscoveryClient#probe()}. This can be helpful in large deployments where the number of services returned makes the operation unnecessarily heavy.
+|spring.cloud.discovery.client.simple.instances |  | 
+|spring.cloud.discovery.client.simple.local.host |  | 
+|spring.cloud.discovery.client.simple.local.instance-id |  | 
+|spring.cloud.discovery.client.simple.local.metadata |  | 
+|spring.cloud.discovery.client.simple.local.port | `+++0+++` | 
+|spring.cloud.discovery.client.simple.local.secure | `+++false+++` | 
+|spring.cloud.discovery.client.simple.local.service-id |  | 
+|spring.cloud.discovery.client.simple.local.uri |  | 
+|spring.cloud.discovery.client.simple.order |  | 
+|spring.cloud.discovery.enabled | `+++true+++` | Enables discovery client health indicators.
+|spring.cloud.features.enabled | `+++true+++` | Enables the features endpoint.
+|spring.cloud.httpclientfactories.apache.enabled | `+++true+++` | Enables creation of Apache Http Client factory beans.
+|spring.cloud.httpclientfactories.ok.enabled | `+++true+++` | Enables creation of OK Http Client factory beans.
+|spring.cloud.hypermedia.refresh.fixed-delay | `+++5000+++` | 
+|spring.cloud.hypermedia.refresh.initial-delay | `+++10000+++` | 
+|spring.cloud.inetutils.default-hostname | `+++localhost+++` | The default hostname. Used in case of errors.
+|spring.cloud.inetutils.default-ip-address | `+++127.0.0.1+++` | The default IP address. Used in case of errors.
+|spring.cloud.inetutils.ignored-interfaces |  | List of Java regular expressions for network interfaces that will be ignored.
+|spring.cloud.inetutils.preferred-networks |  | List of Java regular expressions for network addresses that will be preferred.
+|spring.cloud.inetutils.timeout-seconds | `+++1+++` | Timeout, in seconds, for calculating hostname.
+|spring.cloud.inetutils.use-only-site-local-interfaces | `+++false+++` | Whether to use only interfaces with site local addresses. See {@link InetAddress#isSiteLocalAddress()} for more details.
+|spring.cloud.loadbalancer.cache.caffeine.spec |  | The spec to use to create caches. See CaffeineSpec for more details on the spec format.
+|spring.cloud.loadbalancer.cache.capacity | `+++256+++` | Initial cache capacity expressed as int.
+|spring.cloud.loadbalancer.cache.enabled | `+++true+++` | Enables Spring Cloud LoadBalancer caching mechanism.
+|spring.cloud.loadbalancer.cache.ttl | `+++35s+++` | Time To Live - time counted from writing of the record, after which cache entries are expired, expressed as a {@link Duration}. The property {@link String} has to be in keeping with the appropriate syntax as specified in Spring Boot <code>StringToDurationConverter</code>. @see <a href= "https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/convert/StringToDurationConverter.java">StringToDurationConverter.java</a>
+|spring.cloud.loadbalancer.call-get-with-request-on-delegates | `+++true+++` | If this flag is set to {@code true}, {@code ServiceInstanceListSupplier#get(Request request)} method will be implemented to call {@code delegate.get(request)} in classes assignable from {@code DelegatingServiceInstanceListSupplier} that don't already implement that method, with the exclusion of {@code CachingServiceInstanceListSupplier} and {@code HealthCheckServiceInstanceListSupplier}, which should be placed in the instance supplier hierarchy directly after the supplier performing instance retrieval over the network, before any request-based filtering is done, {@code true} by default.
+|spring.cloud.loadbalancer.clients |  | 
+|spring.cloud.loadbalancer.configurations | `+++default+++` | Enables a predefined LoadBalancer configuration.
+|spring.cloud.loadbalancer.eager-load.clients |  | Names of the clients.
+|spring.cloud.loadbalancer.enabled | `+++true+++` | Enables Spring Cloud LoadBalancer.
+|spring.cloud.loadbalancer.eureka.approximate-zone-from-hostname | `+++false+++` | Used to determine whether we should try to get the `zone` value from host name.
+|spring.cloud.loadbalancer.health-check.initial-delay | `+++0+++` | Initial delay value for the HealthCheck scheduler.
+|spring.cloud.loadbalancer.health-check.interval | `+++25s+++` | Interval for rerunning the HealthCheck scheduler.
+|spring.cloud.loadbalancer.health-check.interval  | `+++25s+++` | Interval for rerunning the HealthCheck scheduler.
+|spring.cloud.loadbalancer.health-check.path |  | Path at which the health-check request should be made. Can be set up per `serviceId`. A `default` value can be set up as well. If none is set up, `/actuator/health` will be used.
+|spring.cloud.loadbalancer.health-check.port |  | Path at which the health-check request should be made. If none is set, the port under which the requested service is available at the service instance.
+|spring.cloud.loadbalancer.health-check.refetch-instances | `+++false+++` | Indicates whether the instances should be refetched by the `HealthCheckServiceInstanceListSupplier`. This can be used if the instances can be updated and the underlying delegate does not provide an ongoing flux.
+|spring.cloud.loadbalancer.health-check.refetch-instances-interval | `+++25s+++` | Interval for refetching available service instances.
+|spring.cloud.loadbalancer.health-check.repeat-health-check | `+++true+++` | Indicates whether health checks should keep repeating. It might be useful to set it to `false` if periodically refetching the instances, as every refetch will also trigger a healthcheck.
+|spring.cloud.loadbalancer.health-check.update-results-list | `+++true+++` | Indicates whether the {@code healthCheckFlux} should emit on each alive {@link ServiceInstance} that has been retrieved. If set to {@code false}, the entire alive instances sequence is first collected into a list and only then emitted.
+|spring.cloud.loadbalancer.hint |  | Allows setting the value of <code>hint</code> that is passed on to the LoadBalancer request and can subsequently be used in {@link ReactiveLoadBalancer} implementations.
+|spring.cloud.loadbalancer.hint-header-name | `+++X-SC-LB-Hint+++` | Allows setting the name of the header used for passing the hint for hint-based service instance filtering.
+|spring.cloud.loadbalancer.retry.avoid-previous-instance | `+++true+++` | Enables wrapping ServiceInstanceListSupplier beans with `RetryAwareServiceInstanceListSupplier` if Spring-Retry is in the classpath.
+|spring.cloud.loadbalancer.retry.backoff.enabled | `+++false+++` | Indicates whether Reactor Retry backoffs should be applied.
+|spring.cloud.loadbalancer.retry.backoff.jitter | `+++0.5+++` | Used to set `RetryBackoffSpec.jitter`.
+|spring.cloud.loadbalancer.retry.backoff.max-backoff | `+++Long.MAX ms+++` | Used to set `RetryBackoffSpec.maxBackoff`.
+|spring.cloud.loadbalancer.retry.backoff.min-backoff | `+++5 ms+++` | Used to set `RetryBackoffSpec#minBackoff`.
+|spring.cloud.loadbalancer.retry.enabled | `+++true+++` | Enables LoadBalancer retries.
+|spring.cloud.loadbalancer.retry.max-retries-on-next-service-instance | `+++1+++` | Number of retries to be executed on the next `ServiceInstance`. A `ServiceInstance` is chosen before each retry call.
+|spring.cloud.loadbalancer.retry.max-retries-on-same-service-instance | `+++0+++` | Number of retries to be executed on the same `ServiceInstance`.
+|spring.cloud.loadbalancer.retry.retry-on-all-exceptions | `+++false+++` | Indicates retries should be attempted for all exceptions, not only those specified in `retryableExceptions`.
+|spring.cloud.loadbalancer.retry.retry-on-all-operations | `+++false+++` | Indicates retries should be attempted on operations other than `HttpMethod.GET`.
+|spring.cloud.loadbalancer.retry.retryable-exceptions | `+++{}+++` | A `Set` of `Throwable` classes that should trigger a retry.
+|spring.cloud.loadbalancer.retry.retryable-status-codes | `+++{}+++` | A `Set` of status codes that should trigger a retry.
+|spring.cloud.loadbalancer.service-discovery.timeout |  | String representation of Duration of the timeout for calls to service discovery.
+|spring.cloud.loadbalancer.stats.micrometer.enabled | `+++false+++` | Enables Spring Cloud LoadBalancer Micrometer stats.
+|spring.cloud.loadbalancer.sticky-session.add-service-instance-cookie | `+++false+++` | Indicates whether a cookie with the newly selected instance should be added by LoadBalancer.
+|spring.cloud.loadbalancer.sticky-session.instance-id-cookie-name | `+++sc-lb-instance-id+++` | The name of the cookie holding the preferred instance id.
+|spring.cloud.loadbalancer.x-forwarded.enabled | `+++false+++` | To Enable X-Forwarded Headers.
+|spring.cloud.loadbalancer.zone |  | Spring Cloud LoadBalancer zone.
+|spring.cloud.refresh.additional-property-sources-to-retain |  | Additional property sources to retain during a refresh. Typically only system property sources are retained. This property allows property sources, such as property sources created by EnvironmentPostProcessors to be retained as well.
+|spring.cloud.refresh.enabled | `+++true+++` | Enables autoconfiguration for the refresh scope and associated features.
+|spring.cloud.refresh.extra-refreshable | `+++true+++` | Additional class names for beans to post process into refresh scope.
+|spring.cloud.refresh.never-refreshable | `+++true+++` | Comma separated list of class names for beans to never be refreshed or rebound.
+|spring.cloud.service-registry.auto-registration.enabled | `+++true+++` | Whether service auto-registration is enabled. Defaults to true.
+|spring.cloud.service-registry.auto-registration.fail-fast | `+++false+++` | Whether startup fails if there is no AutoServiceRegistration. Defaults to false.
+|spring.cloud.service-registry.auto-registration.register-management | `+++true+++` | Whether to register the management as a service. Defaults to true.
+|spring.cloud.util.enabled | `+++true+++` | Enables creation of Spring Cloud utility beans.
+
+|===

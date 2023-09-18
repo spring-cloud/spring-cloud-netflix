@@ -29,7 +29,6 @@ antrun
 node
 node_modules
 build
-_configprops.adoc
 _spans.adoc
 _metrics.adoc
 _conventions.adoc
