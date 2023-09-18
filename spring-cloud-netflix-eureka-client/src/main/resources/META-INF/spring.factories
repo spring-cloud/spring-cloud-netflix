@@ -1,5 +1,0 @@
-org.springframework.cloud.bootstrap.BootstrapConfiguration=\
-org.springframework.cloud.netflix.eureka.config.EurekaConfigServerBootstrapConfiguration
-
-org.springframework.boot.BootstrapRegistryInitializer=\
-org.springframework.cloud.netflix.eureka.config.EurekaConfigServerBootstrapper

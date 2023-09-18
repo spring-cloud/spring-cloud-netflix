@@ -1,0 +1,27 @@
+
+{{#if env.ALGOLIA_API_KEY}}
+
+<div class="modal micromodal-slide" id="modal-1" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+            <main class="modal__content" id="modal-1-content">
+                <div id="searchbox"></div>
+                <div id="counter"></div>
+                <div class="search-by">
+                    <a target="_blank" rel="noopener noreferrer" href="https://www.algolia.com/" aria-label="Search by Algolia">
+                        <img class="light" width="140" src="{{{uiRootPath}}}/img/algolia-light.svg" />
+                        <img class="dark" width="140" src="{{{uiRootPath}}}/img/algolia-dark.svg" />
+                    </a>
+                </div>
+                <div id="hits"></div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.17.0/dist/algoliasearch-lite.umd.js" integrity="sha256-Lf9DrpGmcRip6OQzbcL6lnvNmoZNSKpyQX5pMlwatWE=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.54.1/dist/instantsearch.production.min.js" integrity="sha256-xYsZPDeNjYNTBWLvqD2Lxe98hOxcDgOHyMPfz4tVAbk=" crossorigin="anonymous"></script>
+<script async id="search-script" src="{{{uiRootPath}}}/js/vendor/search.js"{{#if env.ALGOLIA_APP_ID}} data-app-id="{{env.ALGOLIA_APP_ID}}"{{/if}} data-api-key="{{env.ALGOLIA_API_KEY}}" data-index-name="{{env.ALGOLIA_INDEX_NAME}}" data-stylesheet="{{{uiRootPath}}}/css/vendor/search.css" data-page-version="{{{page.version}}}"></script>
+
+{{/if}}
