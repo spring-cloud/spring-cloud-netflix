@@ -1,3 +1,6 @@
+/application.yml
+/application.properties
+asciidoctor.css
 *~
 #*
 *#
@@ -5,6 +8,7 @@
 .classpath
 .project
 .settings/
+.settings
 .springBeans
 target/
 bin/
@@ -18,5 +22,16 @@ _site/
 .shelf
 *.swp
 *.swo
+/spring-cloud-release-tools*.jar
+antrun
 .vscode/
 .flattened-pom.xml
+node
+node_modules
+build
+_configprops.adoc
+_spans.adoc
+_metrics.adoc
+_conventions.adoc
+package.json
+package-lock.json

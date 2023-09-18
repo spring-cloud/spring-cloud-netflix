@@ -1,9 +1,5 @@
-* xref:index.adoc[]
-* xref:_attributes.adoc[]
-* xref:intro.adoc[]
-* xref:README.adoc[]
-* xref:_configprops.adoc[]
-* xref:appendix.adoc[]
-* xref:sagan-boot.adoc[]
-* xref:sagan-index.adoc[]
+* xref:index.adoc[Introduction]
 * xref:spring-cloud-netflix.adoc[]
+* xref:appendix.adoc[]
+** xref:configprops.adoc[]
+

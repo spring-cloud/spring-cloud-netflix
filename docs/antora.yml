@@ -1,6 +1,6 @@
-name: PROJECT_WITHOUT_SPRING
+name: cloud-netflix
 version: true
-title: PROJECT_NAME
+title: Spring Cloud Netflix
 nav:
   - modules/ROOT/nav.adoc
 ext:

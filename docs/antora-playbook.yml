@@ -6,15 +6,10 @@ antora:
     - '@antora/collector-extension'
     - '@antora/atlas-extension'
     - require: '@springio/antora-extensions/root-component-extension'
-      root_component_name: 'PROJECT_WITHOUT_SPRING'
-      # FIXME: Run antora once using this extension to migrate to the Asciidoc Tabs syntax
-      # and then remove this extension
-    - require: '@springio/antora-extensions/tabs-migration-extension'
-      unwrap_example_block: always
-      save_result: true
+      root_component_name: 'cloud-netflix'
 site:
-  title: PROJECT_FULL_NAME
-  url: https://docs.spring.io/PROJECT_NAME/reference/
+  title: Spring Cloud Netflix
+  url: https://docs.spring.io/spring-cloud-netflix/reference/
 content:
   sources:
     - url: ./..
