@@ -6,9 +6,8 @@ Edit the files in the src/main/asciidoc/ directory instead.
 
 
 
-image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main"]
-image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main"]
-
+image::https://github.com/spring-cloud/spring-cloud-netflix/workflows/Build/badge.svg?branch=main&style=svg["Build",link="https://github.com/spring-cloud/spring-cloud-openfeign/actions"]
+image:https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-openfeign"]
 
 
 [[features]]
