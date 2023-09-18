@@ -1,7 +1,8 @@
 include::_attributes.adoc[]
 
-image::https://github.com/spring-cloud/spring-cloud-netflix/workflows/Build/badge.svg?branch=main&style=svg["Build",link="https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/maven/badge.svg"]
-image:https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix"]
+image::https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/maven.yml/badge.svg?branch=4.0.x&style=svg["Build",link="https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/maven.yml"]
+
+image:https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/4.0.x/graph/badge.svg["Codecov", link="https://app.codecov.io/gh/spring-cloud/spring-cloud-netflix/tree/4.0.x"]
 
 include::intro.adoc[]
 
