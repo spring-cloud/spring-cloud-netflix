@@ -21,8 +21,9 @@ Edit the files in the src/main/asciidoc/ directory instead.
 :sc-ext: java
 :project-full-name: Spring Cloud Netflix
 
-image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main"]
-image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main"]
+image::https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/maven.yml/badge.svg?branch=3.1.x&style=svg["Build",link="https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/maven.yml"]
+
+image:https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/3.1.x/graph/badge.svg["Codecov", link="https://app.codecov.io/gh/spring-cloud/spring-cloud-netflix/tree/3.1.x"]
 
 
 :doctype: book

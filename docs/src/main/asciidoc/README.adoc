@@ -1,8 +1,8 @@
 include::_attributes.adoc[]
 
-image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/main"]
-image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main"]
+image::https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/maven.yml/badge.svg?branch=3.1.x&style=svg["Build",link="https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/maven.yml"]
 
+image:https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/3.1.x/graph/badge.svg["Codecov", link="https://app.codecov.io/gh/spring-cloud/spring-cloud-netflix/tree/3.1.x"]
 
 include::intro.adoc[]
 
@@ -14,14 +14,14 @@ include::intro.adoc[]
 
 == Building
 
-include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/src/main/asciidoc/building-jdk8.adoc[]
+include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/3.1.x/docs/src/main/asciidoc/building-jdk8.adoc[]
 
 NOTE:  To build the module `spring-cloud-netflix-hystrix-contract` along with the entire Netflix project run the
 `build.sh` script in the `scripts` directory.
 
 == Contributing
 
-include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/src/main/asciidoc/contributing.adoc[]
+include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/3.1.x/docs/src/main/asciidoc/contributing.adoc[]
 
 == License
 
