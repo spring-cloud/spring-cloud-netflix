@@ -272,8 +272,8 @@ In Cloud Foundry, the `vcap.application.instance_id` is populated automatically 
 [[using-the-eurekaclient]]
 === Using the EurekaClient
 
-Once you have an application that is a discovery client, you can use it to discover service instances from the <<spring-cloud-eureka-server,
-Eureka Server>>.
+Once you have an application that is a discovery client, you can use it to discover service instances from the <<spring-cloud-eureka-server, Eureka Server>>
+.
 One way to do so is to use the native `com.netflix.discovery.EurekaClient` (as opposed to the Spring Cloud `DiscoveryClient`), as shown in the following example:
 
 ----
