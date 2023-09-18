@@ -1,8 +1,6 @@
 :doctype: book
 :idprefix:
 :idseparator: -
-:toc: left
-:toclevels: 4
 :tabsize: 4
 :numbered:
 :sectanchors:

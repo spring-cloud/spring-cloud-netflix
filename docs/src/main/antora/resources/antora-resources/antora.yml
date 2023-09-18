@@ -1,0 +1,20 @@
+version: @antora-component.version@
+prerelease: @antora-component.prerelease@
+
+asciidoc:
+  attributes:
+    attribute-missing: 'warn'
+    chomp: 'all'
+    project-root: @maven.multiModuleProjectDirectory@
+    github-repo: @docs.main@
+    github-raw: https://raw.githubusercontent.com/spring-cloud/@docs.main@/@github-tag@
+    github-code: https://github.com/spring-cloud/@docs.main@/tree/@github-tag@
+    github-issues: https://github.com/spring-cloud/@docs.main@/issues/
+    github-wiki: https://github.com/spring-cloud/@docs.main@/wiki
+    spring-cloud-version: @project.version@
+    github-tag: @github-tag@
+    version-type: @version-type@
+    docs-url: https://docs.spring.io/@docs.main@/docs/@project.version@
+    raw-docs-url: https://raw.githubusercontent.com/spring-cloud/@docs.main@/@github-tag@
+    project-version: @project.version@
+    project-name: @docs.main@

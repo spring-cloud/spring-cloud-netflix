@@ -1,0 +1,6 @@
+[[configuration-properties]]
+= Configuration Properties
+
+Below you can find a list of configuration properties.
+
+include::partial$_configprops.adoc[]
