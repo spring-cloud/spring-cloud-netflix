@@ -7,14 +7,14 @@ image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph
 include::intro.adoc[]
 
 [[features]]
-== Features
+= Features
 
 * Service Discovery: Eureka instances can be registered and clients can discover the instances using Spring-managed beans
 * Service Discovery: an embedded Eureka server can be created with declarative Java configuration
 
 
 [[building]]
-== Building
+= Building
 
 include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/src/main/asciidoc/building-jdk8.adoc[]
 
@@ -22,11 +22,11 @@ NOTE:  To build the module `spring-cloud-netflix-hystrix-contract` along with th
 `build.sh` script in the `scripts` directory.
 
 [[contributing]]
-== Contributing
+= Contributing
 
 include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/main/docs/src/main/asciidoc/contributing.adoc[]
 
 [[license]]
-== License
+= License
 
 The project license file is available https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/main/LICENSE.txt[here].
