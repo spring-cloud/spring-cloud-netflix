@@ -76,6 +76,7 @@
 |spring.cloud.refresh.enabled | `+++true+++` | Enables autoconfiguration for the refresh scope and associated features.
 |spring.cloud.refresh.extra-refreshable | `+++true+++` | Additional class names for beans to post process into refresh scope.
 |spring.cloud.refresh.never-refreshable | `+++true+++` | Comma separated list of class names for beans to never be refreshed or rebound.
+|spring.cloud.refresh.on-restart.enabled | `+++true+++` | Enable refreshing context on start.
 |spring.cloud.service-registry.auto-registration.enabled | `+++true+++` | Whether service auto-registration is enabled. Defaults to true.
 |spring.cloud.service-registry.auto-registration.fail-fast | `+++false+++` | Whether startup fails if there is no AutoServiceRegistration. Defaults to false.
 |spring.cloud.service-registry.auto-registration.register-management | `+++true+++` | Whether to register the management as a service. Defaults to true.
