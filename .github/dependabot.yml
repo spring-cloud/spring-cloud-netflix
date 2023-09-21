@@ -1,0 +1,49 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "3.1.x" # oldest OSS supported branch
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "4.0.x" # oldest OSS supported branch
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: daily
+    target-branch: 3.1.x
+    ignore:
+      # only upgrade patch versions for maintenance branch
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: daily
+    target-branch: 4.0.x
+    ignore:
+      # only upgrade patch versions for maintenance branch
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: daily
+    target-branch: main
+    ignore:
+      # only upgrade by minor or patch
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
