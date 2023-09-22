@@ -43,8 +43,15 @@
 					<environment>
 						<ALGOLIA_API_KEY>9d489079e5ec46dbb238909fee5c9c29</ALGOLIA_API_KEY>
 						<ALGOLIA_APP_ID>WB1FQYI187</ALGOLIA_APP_ID>
-						<ALGOLIA_INDEX_NAME>springcloudnetflix</ALGOLIA_INDEX_NAME>
+						<ALGOLIA_INDEX_NAME>springdocs</ALGOLIA_INDEX_NAME>
 					</environment>
+					<packages>
+						<package>@antora/atlas-extension@1.0.0-alpha.1</package>
+						<package>@antora/collector-extension@1.0.0-alpha.3</package>
+						<package>@asciidoctor/tabs@1.0.0-beta.3</package>
+						<package>@springio/antora-extensions@1.6.0</package>
+						<package>@springio/asciidoctor-extensions@1.0.0-alpha.9</package>
+					</packages>
 				</configuration>
 			</plugin>
 		</plugins>
