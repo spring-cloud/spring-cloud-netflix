@@ -7,6 +7,7 @@ antora:
     - '@antora/atlas-extension'
     - require: '@springio/antora-extensions/root-component-extension'
       root_component_name: 'cloud-netflix'
+    - '@springio/antora-extensions/static-page-extension'
 site:
   title: Spring Cloud Netflix
   url: https://docs.spring.io/spring-cloud-netflix/reference/
@@ -35,4 +36,4 @@ runtime:
     format: pretty
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.7/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.4.2/ui-bundle.zip
