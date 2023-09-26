@@ -51,14 +51,13 @@ patterns provided include Service Discovery (Eureka).
 
 == Features
 
-* Service Discovery: Eureka instances can be registered and clients can discover the instances using Spring-managed beans
-* Service Discovery: an embedded Eureka server can be created with declarative Java configuration
-
+* Service Registration: Eureka instances can be registered with Spring-managed beans
+* Service Discovery: Clients can discover the registered instances using Spring-managed beans
+* Embedded Eureka Server: An Eureka server can be embedded with declarative Java configuration
 
 == Building
 
-
-:jdkversion: 17
+:jdkversion: 1.8
 
 === Basic Compile and Test
 
