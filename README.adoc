@@ -25,7 +25,6 @@ image::https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/ma
 
 image:https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/3.1.x/graph/badge.svg["Codecov", link="https://app.codecov.io/gh/spring-cloud/spring-cloud-netflix/tree/3.1.x"]
 
-
 :doctype: book
 :idprefix:
 :idseparator: -
