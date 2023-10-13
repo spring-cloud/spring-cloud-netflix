@@ -84,8 +84,8 @@ public class EurekaDiscoveryClientConfiguration {
 		private EurekaAutoServiceRegistration autoRegistration;
 
 		public void onApplicationEvent(RefreshScopeRefreshedEvent event) {
-			// This will force the creation of the EurkaClient bean if not already created
-			// to make sure the client will be reregistered after a refresh event
+			// This will force the creation of the EurekaClient bean if not already created
+			// to make sure the client will be re-registered after a refresh event
 			if (eurekaClient != null) {
 				eurekaClient.getApplications();
 			}
