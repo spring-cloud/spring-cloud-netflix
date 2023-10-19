@@ -307,7 +307,7 @@ public class EurekaClientAutoConfiguration {
 			// problem
 			// when shutdown is called on the CloudEurekaClient where the
 			// ApplicationInfoManager bean is
-			// requested but wont be allowed because we are shutting down. To avoid this
+			// requested but won't be allowed because we are shutting down. To avoid this
 			// we use the
 			// object directly.
 			ApplicationInfoManager appManager;
