@@ -30,8 +30,6 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse.EurekaHttpResponseBuilder;
 import com.netflix.discovery.util.StringUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -47,8 +45,6 @@ import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEureka
  * @author Daniel Lavoie
  */
 public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
-
-	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final RestTemplate restTemplate;
 
