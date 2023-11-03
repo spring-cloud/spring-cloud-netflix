@@ -14,7 +14,7 @@
 	<name>spring-cloud-netflix-dependencies</name>
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
-		<eureka.version>1.10.17</eureka.version>
+		<eureka.version>1.10.18</eureka.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
