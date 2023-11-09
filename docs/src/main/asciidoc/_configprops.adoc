@@ -14,7 +14,6 @@
 |eureka.client.register-with-eureka | `+++true+++` | Indicates whether or not this instance should register its information with eureka server for discovery by others. In some cases, you do not want your instances to be discovered whereas you just want do discover other instances.
 |eureka.server.peer-eureka-nodes-update-interval-ms | `+++0+++` | 
 |eureka.server.peer-eureka-status-refresh-time-interval-ms | `+++0+++` | 
-|ribbon.eureka.enabled | `+++true+++` | Enables the use of Eureka with Ribbon.
 |spring.cloud.loadbalancer.eureka.approximate-zone-from-hostname | `+++false+++` | Used to determine whether we should try to get the `zone` value from host name.
 
 |===
