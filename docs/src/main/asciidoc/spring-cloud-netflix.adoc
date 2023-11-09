@@ -307,7 +307,7 @@ The following example shows the dependencies you need to add:
 
 You need not use the raw Netflix `EurekaClient`.
 Also, it is usually more convenient to use it behind a wrapper of some sort.
-Spring Cloud has support for <<spring-cloud-feign, Feign>> (a REST client builder) and <<spring-cloud-ribbon, Spring `RestTemplate`>> through the logical Eureka service identifiers (VIPs) instead of physical URLs.
+Spring Cloud has support for <<spring-cloud-feign, Feign>> (a REST client builder) and https://docs.spring.io/spring-cloud-commons/docs/3.1.7/reference/html/#spring-cloud-loadbalancer[Spring Cloud LoadBalancer] through the logical Eureka service identifiers (VIPs) instead of physical URLs.
 
 You can also use the `org.springframework.cloud.client.discovery.DiscoveryClient`, which provides a simple API (not specific to Netflix) for discovery clients, as shown in the following example:
 

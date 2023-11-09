@@ -13,12 +13,6 @@
       "type": "java.lang.Boolean"
     },
     {
-      "defaultValue": true,
-      "name": "ribbon.eureka.enabled",
-      "description": "Enables the use of Eureka with Ribbon.",
-      "type": "java.lang.Boolean"
-    },
-    {
       "defaultValue": false,
       "name": "eureka.client.webclient.enabled",
       "description": "Enables the use of WebClient for Eureka HTTP Client.",
