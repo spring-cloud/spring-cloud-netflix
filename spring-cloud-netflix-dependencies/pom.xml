@@ -52,8 +52,8 @@
 						<artifactId>compactmap</artifactId>
 					</exclusion>
 					<exclusion>
-						<groupId>javax.servlet</groupId>
-						<artifactId>servlet-api</artifactId>
+						<groupId>jakarta.servlet</groupId>
+						<artifactId>jakarta.servlet-api</artifactId>
 					</exclusion>
 					<exclusion>
 						<artifactId>commons-logging</artifactId>
@@ -83,8 +83,8 @@
 						<artifactId>archaius-core</artifactId>
 					</exclusion>
 					<exclusion>
-						<groupId>javax.servlet</groupId>
-						<artifactId>servlet-api</artifactId>
+						<groupId>jakarta.servlet</groupId>
+						<artifactId>jakarta.servlet-api</artifactId>
 					</exclusion>
 					<exclusion>
 						<artifactId>commons-logging</artifactId>
