@@ -56,6 +56,10 @@
 						<artifactId>jakarta.servlet-api</artifactId>
 					</exclusion>
 					<exclusion>
+						<groupId>javax.servlet</groupId>
+						<artifactId>servlet-api</artifactId>
+					</exclusion>
+					<exclusion>
 						<artifactId>commons-logging</artifactId>
 						<groupId>commons-logging</groupId>
 					</exclusion>
@@ -85,6 +89,10 @@
 					<exclusion>
 						<groupId>jakarta.servlet</groupId>
 						<artifactId>jakarta.servlet-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.servlet</groupId>
+						<artifactId>servlet-api</artifactId>
 					</exclusion>
 					<exclusion>
 						<artifactId>commons-logging</artifactId>
