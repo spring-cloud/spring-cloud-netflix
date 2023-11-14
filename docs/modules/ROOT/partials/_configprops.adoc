@@ -70,6 +70,8 @@
 |spring.cloud.loadbalancer.stats.micrometer.enabled | `+++false+++` | Enables Spring Cloud LoadBalancer Micrometer stats.
 |spring.cloud.loadbalancer.sticky-session.add-service-instance-cookie | `+++false+++` | Indicates whether a cookie with the newly selected instance should be added by LoadBalancer.
 |spring.cloud.loadbalancer.sticky-session.instance-id-cookie-name | `+++sc-lb-instance-id+++` | The name of the cookie holding the preferred instance id.
+|spring.cloud.loadbalancer.subset.instance-id |  | Instance id of deterministic subsetting. If not set, {@link IdUtils#getDefaultInstanceId(PropertyResolver)} will be used.
+|spring.cloud.loadbalancer.subset.size | `+++100+++` | Max subset size of deterministic subsetting.
 |spring.cloud.loadbalancer.x-forwarded.enabled | `+++false+++` | To Enable X-Forwarded Headers.
 |spring.cloud.loadbalancer.zone |  | Spring Cloud LoadBalancer zone.
 |spring.cloud.refresh.additional-property-sources-to-retain |  | Additional property sources to retain during a refresh. Typically only system property sources are retained. This property allows property sources, such as property sources created by EnvironmentPostProcessors to be retained as well.
