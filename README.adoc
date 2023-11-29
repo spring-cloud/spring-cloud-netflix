@@ -10,6 +10,8 @@ image::https://github.com/spring-cloud/spring-cloud-netflix/actions/workflows/ma
 
 image:https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/main/graph/badge.svg["Codecov", link="https://app.codecov.io/gh/spring-cloud/spring-cloud-netflix/tree/main"]
 
+image:https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A["Revved up by Develocity", link="https://ge.spring.io/scans?search.rootProjectNames=Spring Cloud Netflix"]
+
 
 [[features]]
 == Features

@@ -35,3 +35,4 @@ _metrics.adoc
 _conventions.adoc
 /package.json
 package-lock.json
+.mvn/.develocity
