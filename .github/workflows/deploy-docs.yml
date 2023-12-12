@@ -38,7 +38,7 @@ jobs:
         run: |
           ./mvnw --no-transfer-progress -B antora
       - name: Publish Docs
-        uses: spring-io/spring-doc-actions/rsync-antora-reference@v0.0.11
+        uses: spring-io/spring-doc-actions/rsync-antora-reference@v0.0.13
         with:
           docs-username: ${{ secrets.DOCS_USERNAME }}
           docs-host: ${{ secrets.DOCS_HOST }}
