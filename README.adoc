@@ -142,7 +142,7 @@ NOTE:  To build the module `spring-cloud-netflix-hystrix-contract` along with th
 
 == Contributing
 
-:spring-cloud-build-branch: master
+:spring-cloud-build-branch: 3.1.x
 
 Spring Cloud is released under the non-restrictive Apache 2.0 license,
 and follows a very standard Github development process, using Github
@@ -159,7 +159,7 @@ author credit if we do.  Active contributors might be asked to join the core tea
 given the ability to merge pull requests.
 
 === Code of Conduct
-This project adheres to the Contributor Covenant https://github.com/spring-cloud/spring-cloud-build/blob/master/docs/src/main/asciidoc/code-of-conduct.adoc[code of
+This project adheres to the Contributor Covenant https://github.com/spring-cloud/spring-cloud-build/blob/3.1.x/docs/src/main/asciidoc/code-of-conduct.adoc[code of
 conduct]. By participating, you  are expected to uphold this code. Please report
 unacceptable behavior to spring-code-of-conduct@pivotal.io.
 
@@ -170,7 +170,7 @@ added after the original pull request but before a merge.
 * Use the Spring Framework code format conventions. If you use Eclipse
   you can import formatter settings using the
   `eclipse-code-formatter.xml` file from the
-  https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-dependencies-parent/eclipse-code-formatter.xml[Spring
+  https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/3.1.x/spring-cloud-dependencies-parent/eclipse-code-formatter.xml[Spring
   Cloud Build] project. If using IntelliJ, you can use the
   https://plugins.jetbrains.com/plugin/6546[Eclipse Code Formatter
   Plugin] to import the same file.
@@ -266,7 +266,7 @@ If you need to suppress some rules (e.g. line length needs to be longer), then i
 It's advisable to copy the `${spring-cloud-build.rootFolder}/.editorconfig` and `${spring-cloud-build.rootFolder}/.springformat` to your project. That way, some default formatting rules will be applied. You can do so by running this script:
 
 ```bash
-$ curl https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/.editorconfig -o .editorconfig
+$ curl https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/3.1.x/.editorconfig -o .editorconfig
 $ touch .springformat
 ```
 
@@ -275,7 +275,7 @@ $ touch .springformat
 ==== Intellij IDEA
 
 In order to setup Intellij you should import our coding conventions, inspection profiles and set up the checkstyle plugin.
-The following files can be found in the https://github.com/spring-cloud/spring-cloud-build/tree/master/spring-cloud-build-tools[Spring Cloud Build] project.
+The following files can be found in the https://github.com/spring-cloud/spring-cloud-build/tree/3.1.x/spring-cloud-build-tools[Spring Cloud Build] project.
 
 .spring-cloud-build-tools/
 ----
@@ -314,10 +314,10 @@ To have Intellij work with Checkstyle, you have to install the `Checkstyle` plug
 
 image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/{spring-cloud-build-branch}/docs/src/main/asciidoc/images/intellij-checkstyle.png[Checkstyle]
 
-Go to `File` -> `Settings` -> `Other settings` -> `Checkstyle`. There click on the `+` icon in the `Configuration file` section. There, you'll have to define where the checkstyle rules should be picked from. In the image above, we've picked the rules from the cloned Spring Cloud Build repository. However, you can point to the Spring Cloud Build's GitHub repository (e.g. for the `checkstyle.xml` : `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/main/resources/checkstyle.xml`). We need to provide the following variables:
+Go to `File` -> `Settings` -> `Other settings` -> `Checkstyle`. There click on the `+` icon in the `Configuration file` section. There, you'll have to define where the checkstyle rules should be picked from. In the image above, we've picked the rules from the cloned Spring Cloud Build repository. However, you can point to the Spring Cloud Build's GitHub repository (e.g. for the `checkstyle.xml` : `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/3.1.x/spring-cloud-build-tools/src/main/resources/checkstyle.xml`). We need to provide the following variables:
 
-- `checkstyle.header.file` - please point it to the Spring Cloud Build's, `spring-cloud-build-tools/src/main/resources/checkstyle-header.txt` file either in your cloned repo or via the `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/main/resources/checkstyle-header.txt` URL.
-- `checkstyle.suppressions.file` - default suppressions. Please point it to the Spring Cloud Build's, `spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml` file either in your cloned repo or via the `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml` URL.
+- `checkstyle.header.file` - please point it to the Spring Cloud Build's, `spring-cloud-build-tools/src/main/resources/checkstyle-header.txt` file either in your cloned repo or via the `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/3.1.x/spring-cloud-build-tools/src/main/resources/checkstyle-header.txt` URL.
+- `checkstyle.suppressions.file` - default suppressions. Please point it to the Spring Cloud Build's, `spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml` file either in your cloned repo or via the `https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/3.1.x/spring-cloud-build-tools/src/checkstyle/checkstyle-suppressions.xml` URL.
 - `checkstyle.additional.suppressions.file` - this variable corresponds to suppressions in your local project. E.g. you're working on `spring-cloud-contract`. Then point to the `project-root/src/checkstyle/checkstyle-suppressions.xml` folder. Example for `spring-cloud-contract` would be: `/home/username/spring-cloud-contract/src/checkstyle/checkstyle-suppressions.xml`.
 
 IMPORTANT: Remember to set the `Scan Scope` to `All sources` since we apply checkstyle rules for production and test sources.
