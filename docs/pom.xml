@@ -17,10 +17,7 @@
 	<properties>
 		<docs.main>spring-cloud-netflix</docs.main>
 		<main.basedir>${basedir}/..</main.basedir>
-		<configprops.inclusionPattern>
-			.*.eureka.*
-		</configprops.inclusionPattern>
-		<configprops.inclusionPattern>spring.cloud.*</configprops.inclusionPattern>
+		<configprops.inclusionPattern>eureka.*|spring.cloud.*</configprops.inclusionPattern>
 		<!-- Don't upload docs jar to central / repo.spring.io -->
 		<maven-deploy-plugin-default.phase>none</maven-deploy-plugin-default.phase>
 	</properties>
