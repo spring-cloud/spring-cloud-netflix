@@ -17,18 +17,16 @@
 package org.springframework.cloud.netflix.eureka.config;
 
 import java.util.Collections;
-import java.util.List;
 
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
-import org.apache.commons.logging.Log;
 
 import org.springframework.boot.BootstrapContext;
 import org.springframework.boot.BootstrapRegistry;
 import org.springframework.boot.BootstrapRegistryInitializer;
 import org.springframework.boot.context.properties.bind.BindHandler;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.config.client.ConfigServerConfigDataLocationResolver.PropertyResolver;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
@@ -45,52 +43,39 @@ public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitiali
 			return;
 		}
 
-		// It is important that we pass a lambda for the Function or else we will get a
-		// ClassNotFoundException when config is not on the classpath
-		registry.registerIfAbsent(ConfigServerInstanceProvider.Function.class, EurekaFunction::create);
-	}
-
-	private static Boolean getDiscoveryEnabled(Binder binder) {
-		return binder.bind(ConfigClientProperties.CONFIG_DISCOVERY_ENABLED, Boolean.class).orElse(false)
-				&& binder.bind("eureka.client.enabled", Boolean.class).orElse(true)
-				&& binder.bind("spring.cloud.discovery.enabled", Boolean.class).orElse(true);
-	}
-
-	final static class EurekaFunction implements ConfigServerInstanceProvider.Function {
-
-		private final BootstrapContext context;
-
-		static EurekaFunction create(BootstrapContext context) {
-			return new EurekaFunction(context);
-		}
-
-		private EurekaFunction(BootstrapContext context) {
-			this.context = context;
-		}
-
-		@Override
-		public List<ServiceInstance> apply(String serviceId, Binder binder, BindHandler bindHandler, Log log) {
-			if (binder == null || !getDiscoveryEnabled(binder)) {
-				return Collections.emptyList();
+		registry.registerIfAbsent(EurekaClientConfigBean.class, context -> {
+			if (!getDiscoveryEnabled(context)) {
+				return null;
 			}
+			PropertyResolver propertyResolver = getPropertyResolver(context);
+			return propertyResolver.resolveConfigurationProperties(EurekaClientConfigBean.PREFIX,
+					EurekaClientConfigBean.class, EurekaClientConfigBean::new);
+		});
 
-			EurekaClientConfigBean config = binder.bind(EurekaClientConfigBean.PREFIX, EurekaClientConfigBean.class)
-					.orElseGet(EurekaClientConfigBean::new);
+		registry.registerIfAbsent(ConfigServerInstanceProvider.Function.class, context -> {
+			if (!getDiscoveryEnabled(context)) {
+				return (id) -> Collections.emptyList();
+			}
+			EurekaClientConfigBean config = context.get(EurekaClientConfigBean.class);
 			EurekaHttpClient httpClient = new RestTemplateTransportClientFactory(
 					context.getOrElse(TlsProperties.class, null),
 					context.getOrElse(EurekaClientHttpRequestFactorySupplier.class,
-							new DefaultEurekaClientHttpRequestFactorySupplier()))
-									.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, binder));
-			return new EurekaConfigServerInstanceProvider(httpClient, config).getInstances(serviceId);
-		}
+							new DefaultEurekaClientHttpRequestFactorySupplier())).newClient(
+									HostnameBasedUrlRandomizer.randomEndpoint(config, getPropertyResolver(context)));
+			return new EurekaConfigServerInstanceProvider(httpClient, config)::getInstances;
+		});
+	}
 
-		@Override
-		public List<ServiceInstance> apply(String serviceId) {
-			// This should never be called now but is here for backward
-			// compatibility
-			return apply(serviceId, null, null, null);
-		}
+	private static PropertyResolver getPropertyResolver(BootstrapContext context) {
+		return context.getOrElseSupply(PropertyResolver.class,
+				() -> new PropertyResolver(context.get(Binder.class), context.getOrElse(BindHandler.class, null)));
+	}
 
+	public static Boolean getDiscoveryEnabled(BootstrapContext bootstrapContext) {
+		PropertyResolver propertyResolver = getPropertyResolver(bootstrapContext);
+		return propertyResolver.get(ConfigClientProperties.CONFIG_DISCOVERY_ENABLED, Boolean.class, false)
+				&& propertyResolver.get("eureka.client.enabled", Boolean.class, true)
+				&& propertyResolver.get("spring.cloud.discovery.enabled", Boolean.class, true);
 	}
 
 }
