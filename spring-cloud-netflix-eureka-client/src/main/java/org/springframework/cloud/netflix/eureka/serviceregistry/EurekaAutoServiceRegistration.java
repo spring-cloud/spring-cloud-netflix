@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.cloud.client.discovery.event.InstancePreRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistration;
 import org.springframework.context.ApplicationContext;
@@ -33,11 +34,15 @@ import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.core.Ordered;
 
 /**
+ * Provides an implementation of {@link AutoServiceRegistration} for registering service
+ * instances in Eureka.
+ *
  * @author Dave Syer
  * @author Spencer Gibb
  * @author Jon Schneider
  * @author Jakub Narloch
  * @author Raiyan Raiyan
+ * @author Olga Maciaszek-Sharma
  */
 public class EurekaAutoServiceRegistration
 		implements AutoServiceRegistration, SmartLifecycle, Ordered, SmartApplicationListener {
@@ -65,37 +70,38 @@ public class EurekaAutoServiceRegistration
 
 	@Override
 	public void start() {
-		// only set the port if the nonSecurePort or securePort is 0 and this.port != 0
-		if (this.port.get() != 0) {
-			if (this.registration.getNonSecurePort() == 0) {
-				this.registration.setNonSecurePort(this.port.get());
+		// only set the port if the nonSecurePort or securePort is 0 and port != 0
+		if (port.get() != 0) {
+			if (registration.getNonSecurePort() == 0) {
+				registration.setNonSecurePort(port.get());
 			}
 
-			if (this.registration.getSecurePort() == 0 && this.registration.isSecure()) {
-				this.registration.setSecurePort(this.port.get());
+			if (registration.getSecurePort() == 0 && registration.isSecure()) {
+				registration.setSecurePort(port.get());
 			}
 		}
 
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
-		if (!this.running.get() && this.registration.getNonSecurePort() > 0) {
+		if (!running.get() && registration.getNonSecurePort() > 0) {
+			context.publishEvent(new InstancePreRegisteredEvent(this, registration));
 
-			this.serviceRegistry.register(this.registration);
+			serviceRegistry.register(registration);
 
-			this.context.publishEvent(new InstanceRegisteredEvent<>(this, this.registration.getInstanceConfig()));
-			this.running.set(true);
+			context.publishEvent(new InstanceRegisteredEvent<>(this, registration.getInstanceConfig()));
+			running.set(true);
 		}
 	}
 
 	@Override
 	public void stop() {
-		this.serviceRegistry.deregister(this.registration);
-		this.running.set(false);
+		serviceRegistry.deregister(registration);
+		running.set(false);
 	}
 
 	@Override
 	public boolean isRunning() {
-		return this.running.get();
+		return running.get();
 	}
 
 	@Override
@@ -116,7 +122,7 @@ public class EurekaAutoServiceRegistration
 
 	@Override
 	public int getOrder() {
-		return this.order;
+		return order;
 	}
 
 	@Override
@@ -140,9 +146,9 @@ public class EurekaAutoServiceRegistration
 		String contextName = event.getApplicationContext().getServerNamespace();
 		if (contextName == null || !contextName.equals("management")) {
 			int localPort = event.getWebServer().getPort();
-			if (this.port.get() == 0) {
+			if (port.get() == 0) {
 				log.info("Updating port to " + localPort);
-				this.port.compareAndSet(0, localPort);
+				port.compareAndSet(0, localPort);
 				start();
 			}
 		}
