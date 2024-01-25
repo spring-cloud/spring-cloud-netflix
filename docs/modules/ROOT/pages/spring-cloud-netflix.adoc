@@ -267,25 +267,31 @@ Do not use the `EurekaClient` in a `@PostConstruct` method or in a `@Scheduled` 
 It is initialized in a `SmartLifecycle` (with `phase=0`), so the earliest you can rely on it being available is in another `SmartLifecycle` with a higher phase.
 ====
 
-==== EurekaClient with Jersey
+==== Underlying HTTP clients
 
-By default, EurekaClient uses Spring's `RestTemplate` for HTTP communication.
+`EurekaClient` uses either `RestTemplate`, `WebClient` or `JerseyClient` under the hood. In order to use the `EurekaClient`, you need to have one of the supported HTTP clients on your classpath.
+
+To use `RestTemplate`, add `spring-boot-starter-web` to your dependencies. To use `WebClient`, add `spring-boot-starter-webflux` to your dependencies. If both `RestTemplate` and `WebClient` are on the classpath when `eureka.client.webclient.enabled` is set to `true`, `WebClient` is used. Otherwise, `RestTemplate` is used.
+
 If you wish to use Jersey instead, you need to add the Jersey dependencies to your classpath.
 The following example shows the dependencies you need to add:
 
+[source,xml]
 ----
-<dependency>
-    <groupId>com.sun.jersey</groupId>
-    <artifactId>jersey-client</artifactId>
-</dependency>
-<dependency>
-    <groupId>com.sun.jersey</groupId>
-    <artifactId>jersey-core</artifactId>
-</dependency>
-<dependency>
-    <groupId>com.sun.jersey.contribs</groupId>
-    <artifactId>jersey-apache-client4</artifactId>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.jersey.contribs</groupId>
+        <artifactId>jersey-apache-client4</artifactId>
+    </dependency>
+</dependencies>
 ----
 
 === Alternatives to the Native Netflix EurekaClient
