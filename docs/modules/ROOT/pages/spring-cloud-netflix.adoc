@@ -271,7 +271,7 @@ It is initialized in a `SmartLifecycle` (with `phase=0`), so the earliest you ca
 
 `EurekaClient` uses either `RestTemplate`, `WebClient` or `JerseyClient` under the hood. In order to use the `EurekaClient`, you need to have one of the supported HTTP clients on your classpath.
 
-To use `RestTemplate`, add `spring-boot-starter-web` to your dependencies. To use `WebClient`, add `spring-boot-starter-webflux` to your dependencies. If both `RestTemplate` and `WebClient` are on the classpath, when `eureka.client.webclient.enabled` is set to `true`, `WebClient` will be used. Otherwise, `RestTemplate` will be used.
+To use `RestTemplate`, add `spring-boot-starter-web` to your dependencies. To use `WebClient`, add `spring-boot-starter-webflux` to your dependencies. If both `RestTemplate` and `WebClient` are on the classpath when `eureka.client.webclient.enabled` is set to `true`, `WebClient` is used. Otherwise, `RestTemplate` is used.
 
 If you wish to use Jersey instead, you need to add the Jersey dependencies to your classpath.
 The following example shows the dependencies you need to add:
