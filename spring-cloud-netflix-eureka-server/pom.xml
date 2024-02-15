@@ -78,12 +78,6 @@
 			<!-- FIXME: 4.0 -->
 			<version>3.0.6</version>
 		</dependency>
-		<dependency>
-			<groupId>jakarta.inject</groupId>
-			<artifactId>jakarta.inject-api</artifactId>
-			<!-- FIXME: 4.0 -->
-			<version>2.0.1</version>
-		</dependency>
 		<!-- Eureka deps that are now optional in eureka -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
