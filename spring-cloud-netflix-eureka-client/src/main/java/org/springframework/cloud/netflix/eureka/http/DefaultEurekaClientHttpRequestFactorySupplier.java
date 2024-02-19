@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.eureka.http;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -29,8 +30,10 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -43,9 +46,13 @@ import org.springframework.lang.Nullable;
  * @author Marcin Grzejszczak
  * @author Olga Maciaszek-Sharma
  * @author Jiwon Jeon
+ * @author Armin Krezovic
  * @since 3.0.0
  */
-public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
+public class DefaultEurekaClientHttpRequestFactorySupplier
+		implements EurekaClientHttpRequestFactorySupplier, DisposableBean {
+
+	private final AtomicReference<CloseableHttpClient> ref = new AtomicReference<>();
 
 	private final RestTemplateTimeoutProperties restTemplateTimeoutProperties;
 
@@ -64,7 +71,18 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
-		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+		TimeValue timeValue;
+
+		if (restTemplateTimeoutProperties != null) {
+			timeValue = TimeValue.ofMilliseconds(restTemplateTimeoutProperties.getIdleTimeout());
+		}
+		else {
+			timeValue = TimeValue.of(30, TimeUnit.SECONDS);
+		}
+
+		HttpClientBuilder httpClientBuilder = HttpClients.custom().evictExpiredConnections()
+				.evictIdleConnections(timeValue);
+
 		if (sslContext != null || hostnameVerifier != null || restTemplateTimeoutProperties != null) {
 			httpClientBuilder.setConnectionManager(
 					buildConnectionManager(sslContext, hostnameVerifier, restTemplateTimeoutProperties));
@@ -73,7 +91,11 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 			httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
 		}
 
-		CloseableHttpClient httpClient = httpClientBuilder.build();
+		if (ref.get() == null) {
+			ref.compareAndSet(null, httpClientBuilder.build());
+		}
+
+		CloseableHttpClient httpClient = ref.get();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
 		return requestFactory;
@@ -106,6 +128,15 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 				.setConnectionRequestTimeout(
 						Timeout.of(restTemplateTimeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS))
 				.build();
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		CloseableHttpClient httpClient = ref.get();
+
+		if (httpClient != null) {
+			httpClient.close();
+		}
 	}
 
 }
