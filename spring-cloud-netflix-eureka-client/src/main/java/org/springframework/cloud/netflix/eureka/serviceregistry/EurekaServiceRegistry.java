@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,17 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 
 /**
  * @author Spencer Gibb
+ * @author Robert Bleyl
  */
 public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration> {
 
 	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
 
-	private final EurekaInstanceConfigBean eurekaInstanceConfigBean;
+	private EurekaInstanceConfigBean eurekaInstanceConfigBean;
+
+	public EurekaServiceRegistry() {
+
+	}
 
 	public EurekaServiceRegistry(EurekaInstanceConfigBean eurekaInstanceConfigBean) {
 		this.eurekaInstanceConfigBean = eurekaInstanceConfigBean;
@@ -44,13 +49,17 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 
 	@Override
 	public void register(EurekaRegistration reg) {
-		if (eurekaInstanceConfigBean.isAsyncClientInitialization()) {
-			log.debug("Initializing client asynchronously...");
+		if (eurekaInstanceConfigBean != null && eurekaInstanceConfigBean.isAsyncClientInitialization()) {
+			if (log.isDebugEnabled()) {
+				log.debug("Initializing client asynchronously...");
+			}
 
 			ExecutorService executorService = Executors.newSingleThreadExecutor();
 			executorService.submit(() -> {
 				maybeInitializeClient(reg);
-				log.debug("Asynchronous client initialization done.");
+				if (log.isDebugEnabled()) {
+					log.debug("Asynchronous client initialization done.");
+				}
 			});
 		}
 		else {

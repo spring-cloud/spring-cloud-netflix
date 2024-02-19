@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,6 +111,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author Biju Kunjummen
  * @author Fahim Farook
  * @author Weix Sun
+ * @author Robert Bleyl
  */
 @Configuration(proxyBeanMethods = false)
 @Import(EurekaServerInitializerConfiguration.class)
@@ -213,12 +214,16 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 			EurekaServerHttpClientFactory eurekaServerHttpClientFactory,
 			EurekaInstanceConfigBean eurekaInstanceConfigBean) {
 		if (eurekaInstanceConfigBean.isAsyncClientInitialization()) {
-			log.debug("Initializing client asynchronously...");
+			if (log.isDebugEnabled()) {
+				log.debug("Initializing client asynchronously...");
+			}
 
 			ExecutorService executorService = Executors.newSingleThreadExecutor();
 			executorService.submit(() -> {
 				this.eurekaClient.getApplications();
-				log.debug("Asynchronous client initialization done.");
+				if (log.isDebugEnabled()) {
+					log.debug("Asynchronous client initialization done.");
+				}
 			});
 		}
 		else {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Spencer Gibb
  * @author Tim Ysewyn
+ * @author Robert Bleyl
  */
 @ExtendWith(MockitoExtension.class)
 class EurekaServiceRegistryTests {
@@ -56,7 +58,7 @@ class EurekaServiceRegistryTests {
 
 	@Test
 	void eurekaClientNotShutdownInDeregister() {
-		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
+		EurekaServiceRegistry registry = new EurekaServiceRegistry();
 
 		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
 		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
@@ -76,7 +78,7 @@ class EurekaServiceRegistryTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	void eurekaClientGetStatus() {
-		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
+		EurekaServiceRegistry registry = new EurekaServiceRegistry();
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
 		config.setAppname("myapp");
@@ -113,7 +115,7 @@ class EurekaServiceRegistryTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	void eurekaClientGetStatusNoInstance() {
-		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
+		EurekaServiceRegistry registry = new EurekaServiceRegistry();
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
 		config.setAppname("myapp");
@@ -164,7 +166,15 @@ class EurekaServiceRegistryTests {
 				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
 				.with(new SimpleObjectProvider<>(null)).build();
 
-		registry.register(registration);
+		Executors.newSingleThreadExecutor().execute(() -> {
+			try {
+				Thread.sleep(1000L);
+			}
+			catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			registry.register(registration);
+		});
 
 		synchronized (applicationsFetched) {
 			applicationsFetched.wait();
