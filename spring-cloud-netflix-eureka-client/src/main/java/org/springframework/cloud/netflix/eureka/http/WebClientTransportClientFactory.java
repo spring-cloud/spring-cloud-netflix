@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Provides the custom {@link WebClient.Builder} required by the
@@ -58,6 +59,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  *
  * @author Daniel Lavoie
  * @author Haytham Mohamed
+ * @author Armin Krezovic
  */
 public class WebClientTransportClientFactory implements TransportClientFactory {
 
@@ -78,14 +80,14 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	}
 
 	private WebClient.Builder setUrl(WebClient.Builder builder, String serviceUrl) {
-		String url = serviceUrl;
+		String url = UriComponentsBuilder.fromUriString(serviceUrl).userInfo(null).toUriString();
+
 		try {
 			URI serviceURI = new URI(serviceUrl);
 			if (serviceURI.getUserInfo() != null) {
 				String[] credentials = serviceURI.getUserInfo().split(":");
 				if (credentials.length == 2) {
 					builder.filter(ExchangeFilterFunctions.basicAuthentication(credentials[0], credentials[1]));
-					url = serviceUrl.replace(credentials[0] + ":" + credentials[1] + "@", "");
 				}
 			}
 		}
