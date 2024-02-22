@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -165,7 +166,10 @@ class EurekaServiceRegistryTests {
 
 		registry.register(registration);
 
-		await().until(applicationsFetched::get);
+		await()
+				.atMost(Duration.ofSeconds(5))
+				.pollInterval(Duration.ofMillis(500))
+				.until(applicationsFetched::get);
 
 		verify(eurekaClient).getApplications();
 		assertThat(applicationsFetched).isTrue();
