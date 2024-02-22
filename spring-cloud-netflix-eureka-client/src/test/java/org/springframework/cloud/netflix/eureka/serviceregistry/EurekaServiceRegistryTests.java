@@ -17,7 +17,6 @@
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -39,6 +38,7 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus.DOWN;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.OUT_OF_SERVICE;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -142,7 +142,7 @@ class EurekaServiceRegistryTests {
 	}
 
 	@Test
-	void eurekaClientInitializesClientAsynchronously() throws InterruptedException {
+	void eurekaClientInitializesClientAsynchronously() {
 		when(eurekaInstanceConfigBean.isAsyncClientInitialization()).thenReturn(true);
 		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
 
@@ -151,9 +151,6 @@ class EurekaServiceRegistryTests {
 		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
 		when(eurekaClient.getApplications()).thenAnswer((answer) -> {
 			applicationsFetched.set(true);
-			synchronized (applicationsFetched) {
-				applicationsFetched.notifyAll();
-			}
 			return answer;
 		});
 
@@ -166,19 +163,9 @@ class EurekaServiceRegistryTests {
 				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
 				.with(new SimpleObjectProvider<>(null)).build();
 
-		Executors.newSingleThreadExecutor().execute(() -> {
-			try {
-				Thread.sleep(1000L);
-			}
-			catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-			registry.register(registration);
-		});
+		registry.register(registration);
 
-		synchronized (applicationsFetched) {
-			applicationsFetched.wait();
-		}
+		await().until(applicationsFetched::get);
 
 		verify(eurekaClient).getApplications();
 		assertThat(applicationsFetched).isTrue();
