@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,54 @@
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.netflix.appinfo.InstanceInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 
 /**
  * @author Spencer Gibb
+ * @author Robert Bleyl
  */
 public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration> {
 
 	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
 
+	private EurekaInstanceConfigBean eurekaInstanceConfigBean;
+
+	public EurekaServiceRegistry() {
+
+	}
+
+	public EurekaServiceRegistry(EurekaInstanceConfigBean eurekaInstanceConfigBean) {
+		this.eurekaInstanceConfigBean = eurekaInstanceConfigBean;
+	}
+
 	@Override
 	public void register(EurekaRegistration reg) {
-		maybeInitializeClient(reg);
+		if (eurekaInstanceConfigBean != null && eurekaInstanceConfigBean.isAsyncClientInitialization()) {
+			if (log.isDebugEnabled()) {
+				log.debug("Initializing client asynchronously...");
+			}
+
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			executorService.submit(() -> {
+				maybeInitializeClient(reg);
+				if (log.isDebugEnabled()) {
+					log.debug("Asynchronous client initialization done.");
+				}
+			});
+		}
+		else {
+			maybeInitializeClient(reg);
+		}
 
 		if (log.isInfoEnabled()) {
 			log.info("Registering application " + reg.getApplicationInfoManager().getInfo().getAppName()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.util.StringUtils;
  * @author Spencer Gibb
  * @author Ryan Baxter
  * @author Gregor Zurowski
+ * @author Robert Bleyl
  */
 @ConfigurationProperties("eureka.instance")
 public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware {
@@ -268,6 +269,12 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	 * used in preference to the hostname reported by the OS.
 	 */
 	private boolean preferIpAddress = false;
+
+	/**
+	 * If true the EurekaClient will be initialized asynchronously when the
+	 * InstanceRegistry bean is created.
+	 */
+	private boolean asyncClientInitialization;
 
 	/**
 	 * Initial status to register with remote Eureka server.
@@ -547,6 +554,14 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 		this.preferIpAddress = preferIpAddress;
 	}
 
+	public boolean isAsyncClientInitialization() {
+		return asyncClientInitialization;
+	}
+
+	public void setAsyncClientInitialization(boolean asyncClientInitialization) {
+		this.asyncClientInitialization = asyncClientInitialization;
+	}
+
 	public InstanceStatus getInitialStatus() {
 		return initialStatus;
 	}
@@ -597,6 +612,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				&& Objects.equals(namespace, that.namespace) && Objects.equals(hostname, that.hostname)
 				&& preferIpAddress == that.preferIpAddress && Objects.equals(initialStatus, that.initialStatus)
 				&& Arrays.equals(defaultAddressResolutionOrder, that.defaultAddressResolutionOrder)
+				&& asyncClientInitialization == that.asyncClientInitialization
 				&& Objects.equals(environment, that.environment);
 	}
 
@@ -607,7 +623,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				leaseExpirationDurationInSeconds, virtualHostName, instanceId, secureVirtualHostName, aSGName,
 				metadataMap, dataCenterInfo, ipAddress, statusPageUrlPath, statusPageUrl, homePageUrlPath, homePageUrl,
 				healthCheckUrlPath, healthCheckUrl, secureHealthCheckUrl, namespace, hostname, preferIpAddress,
-				initialStatus, Arrays.hashCode(defaultAddressResolutionOrder), environment);
+				asyncClientInitialization, initialStatus, Arrays.hashCode(defaultAddressResolutionOrder), environment);
 	}
 
 	@Override
@@ -631,6 +647,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				.append("', ").append("healthCheckUrl='").append(healthCheckUrl).append("', ")
 				.append("secureHealthCheckUrl='").append(secureHealthCheckUrl).append("', ").append("namespace='")
 				.append(namespace).append("', ").append("hostname='").append(hostname).append("', ")
+				.append("asyncClientInitialization=").append(asyncClientInitialization).append(", ")
 				.append("preferIpAddress=").append(preferIpAddress).append(", ").append("initialStatus=")
 				.append(initialStatus).append(", ").append("defaultAddressResolutionOrder=")
 				.append(Arrays.toString(defaultAddressResolutionOrder)).append(", ").append("environment=")
