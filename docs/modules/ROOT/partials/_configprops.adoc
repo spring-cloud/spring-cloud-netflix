@@ -68,6 +68,7 @@
 |eureka.instance.a-s-g-name |  | Gets the AWS autoscaling group name associated with this instance. This information is specifically used in an AWS environment to automatically put an instance out of service after the instance is launched and it has been disabled for traffic..
 |eureka.instance.app-group-name |  | Get the name of the application group to be registered with eureka.
 |eureka.instance.appname | `+++unknown+++` | Get the name of the application to be registered with eureka.
+|eureka.instance.async-client-initialization | `+++false+++` | If true the EurekaClient will be initialized asynchronously when the InstanceRegistry bean is created.
 |eureka.instance.data-center-info |  | Returns the data center this instance is deployed. This information is used to get some AWS specific instance information if the instance is deployed in AWS.
 |eureka.instance.default-address-resolution-order | `+++[]+++` | 
 |eureka.instance.environment |  | 

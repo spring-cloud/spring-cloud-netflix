@@ -166,10 +166,7 @@ class EurekaServiceRegistryTests {
 
 		registry.register(registration);
 
-		await()
-				.atMost(Duration.ofSeconds(5))
-				.pollInterval(Duration.ofMillis(500))
-				.until(applicationsFetched::get);
+		await().atMost(Duration.ofSeconds(5)).pollInterval(Duration.ofMillis(500)).until(applicationsFetched::get);
 
 		verify(eurekaClient).getApplications();
 		assertThat(applicationsFetched).isTrue();
