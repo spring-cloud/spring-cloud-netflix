@@ -636,7 +636,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				.append(nonSecurePortEnabled).append(", ").append("securePortEnabled=").append(securePortEnabled)
 				.append(", ").append("leaseRenewalIntervalInSeconds=").append(leaseRenewalIntervalInSeconds)
 				.append(", ").append("leaseExpirationDurationInSeconds=").append(leaseExpirationDurationInSeconds)
-				.append(", ").append("virtualHostName='").append(virtualHostName).append("', ").append("instanceId='")
+				.append(", ").append("', ").append("instanceId='")
 				.append(instanceId).append("', ").append("secureVirtualHostName='").append(secureVirtualHostName)
 				.append("', ").append("aSGName='").append(aSGName).append("', ").append("metadataMap=")
 				.append(metadataMap).append(", ").append("dataCenterInfo=").append(dataCenterInfo).append(", ")
