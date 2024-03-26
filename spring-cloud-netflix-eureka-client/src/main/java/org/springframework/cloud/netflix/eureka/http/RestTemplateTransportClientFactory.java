@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -45,7 +44,6 @@ import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.http.HttpHeaders;
@@ -74,20 +72,11 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 
 	private final EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier;
 
-	private final Supplier<RestTemplateBuilder> restTemplateBuilderSupplier;
-
 	public RestTemplateTransportClientFactory(TlsProperties tlsProperties,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
-			Supplier<RestTemplateBuilder> restTemplateBuilderSupplier) {
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
 		this.sslContext = context(tlsProperties);
 		this.hostnameVerifier = Optional.empty();
 		this.eurekaClientHttpRequestFactorySupplier = eurekaClientHttpRequestFactorySupplier;
-		this.restTemplateBuilderSupplier = restTemplateBuilderSupplier;
-	}
-
-	public RestTemplateTransportClientFactory(TlsProperties tlsProperties,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
-		this(tlsProperties, eurekaClientHttpRequestFactorySupplier, RestTemplateBuilder::new);
 	}
 
 	private Optional<SSLContext> context(TlsProperties properties) {
@@ -104,23 +93,16 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 
 	public RestTemplateTransportClientFactory(Optional<SSLContext> sslContext,
 			Optional<HostnameVerifier> hostnameVerifier,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
-			Supplier<RestTemplateBuilder> restTemplateBuilderSupplier) {
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
 		this.sslContext = sslContext;
 		this.hostnameVerifier = hostnameVerifier;
 		this.eurekaClientHttpRequestFactorySupplier = eurekaClientHttpRequestFactorySupplier;
-		this.restTemplateBuilderSupplier = restTemplateBuilderSupplier;
-	}
-
-	public RestTemplateTransportClientFactory(Optional<SSLContext> sslContext,
-			Optional<HostnameVerifier> hostnameVerifier,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
-
-		this(sslContext, hostnameVerifier, eurekaClientHttpRequestFactorySupplier, RestTemplateBuilder::new);
 	}
 
 	public RestTemplateTransportClientFactory() {
-		this(Optional.empty(), Optional.empty(), new DefaultEurekaClientHttpRequestFactorySupplier());
+		this.sslContext = Optional.empty();
+		this.hostnameVerifier = Optional.empty();
+		this.eurekaClientHttpRequestFactorySupplier = new DefaultEurekaClientHttpRequestFactorySupplier();
 	}
 
 	@Override
@@ -138,15 +120,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	private RestTemplate restTemplate(String serviceUrl) {
 		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
 				.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
-
-		RestTemplate restTemplate;
-
-		if (restTemplateBuilderSupplier != null && restTemplateBuilderSupplier.get() != null) {
-			restTemplate = restTemplateBuilderSupplier.get().requestFactory(() -> requestFactory).build();
-		}
-		else {
-			restTemplate = new RestTemplate(requestFactory);
-		}
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
 
 		try {
 			URI serviceURI = new URI(serviceUrl);

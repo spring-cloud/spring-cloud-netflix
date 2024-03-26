@@ -29,7 +29,6 @@ import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.configuration.TlsProperties;
@@ -72,10 +71,9 @@ public class EurekaConfigServerBootstrapConfiguration {
 			havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
 			Environment env, @Nullable TlsProperties properties,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
-			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) {
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
 		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory(properties,
-				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable)
+				eurekaClientHttpRequestFactorySupplier)
 						.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 	}
 
