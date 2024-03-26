@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
  * {@link RestTemplateEurekaHttpClient}.
  *
  * @author Jiwon Jeon
+ * @author Armin Krezovic
  * @since 3.1.6
  */
 @ConfigurationProperties("eureka.client.rest-template-timeout")
@@ -44,6 +45,12 @@ public class RestTemplateTimeoutProperties {
 	private int connectRequestTimeout = 3 * 60 * 1000;
 
 	private int socketTimeout = 3 * 60 * 1000;
+
+	/**
+	 * Indicates how long a connection can be idle before it is evicted from the
+	 * connection pool.
+	 */
+	private long idleTimeout = 30 * 60 * 1000L;
 
 	public int getConnectTimeout() {
 		return connectTimeout;
@@ -69,6 +76,14 @@ public class RestTemplateTimeoutProperties {
 		this.socketTimeout = socketTimeout;
 	}
 
+	public long getIdleTimeout() {
+		return idleTimeout;
+	}
+
+	public void setIdleTimeout(long idleTimeout) {
+		this.idleTimeout = idleTimeout;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -81,18 +96,18 @@ public class RestTemplateTimeoutProperties {
 		RestTemplateTimeoutProperties that = (RestTemplateTimeoutProperties) o;
 
 		return connectTimeout == that.connectTimeout && connectRequestTimeout == that.connectRequestTimeout
-				&& socketTimeout == that.socketTimeout;
+				&& socketTimeout == that.socketTimeout && idleTimeout == that.idleTimeout;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(connectTimeout, connectRequestTimeout, socketTimeout);
+		return Objects.hash(connectTimeout, connectRequestTimeout, socketTimeout, idleTimeout);
 	}
 
 	@Override
 	public String toString() {
 		return "RestTemplateTimeoutProperties{" + ", connectTimeout=" + connectTimeout + ", connectRequestTimeout="
-				+ connectRequestTimeout + ", socketTimeout=" + socketTimeout + '}';
+				+ connectRequestTimeout + ", socketTimeout=" + socketTimeout + ", idleTimeout=" + idleTimeout + '}';
 	}
 
 }
