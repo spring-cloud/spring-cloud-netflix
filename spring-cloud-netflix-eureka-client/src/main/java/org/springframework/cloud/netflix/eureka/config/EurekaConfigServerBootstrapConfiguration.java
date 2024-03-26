@@ -33,6 +33,7 @@ import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
@@ -55,7 +56,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
 @Conditional(EurekaConfigServerBootstrapConfiguration.EurekaConfigServerBootstrapCondition.class)
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties
+@EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
 public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
@@ -78,8 +79,9 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier() {
-		return new DefaultEurekaClientHttpRequestFactorySupplier();
+	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+		return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
 	}
 
 	@Bean
