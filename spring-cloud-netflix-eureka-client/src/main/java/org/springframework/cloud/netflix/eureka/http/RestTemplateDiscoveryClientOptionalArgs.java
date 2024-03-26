@@ -16,7 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.function.Supplier;
+
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+
+import org.springframework.boot.web.client.RestTemplateBuilder;
 
 /**
  * @author Daniel Lavoie
@@ -25,9 +29,18 @@ public class RestTemplateDiscoveryClientOptionalArgs extends AbstractDiscoveryCl
 
 	protected final EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier;
 
+	protected final Supplier<RestTemplateBuilder> restTemplateBuilderSupplier;
+
 	public RestTemplateDiscoveryClientOptionalArgs(
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
+		this(eurekaClientHttpRequestFactorySupplier, RestTemplateBuilder::new);
+	}
+
+	public RestTemplateDiscoveryClientOptionalArgs(
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			Supplier<RestTemplateBuilder> restTemplateBuilderSupplier) {
 		this.eurekaClientHttpRequestFactorySupplier = eurekaClientHttpRequestFactorySupplier;
+		this.restTemplateBuilderSupplier = restTemplateBuilderSupplier;
 	}
 
 }
