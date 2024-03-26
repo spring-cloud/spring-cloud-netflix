@@ -16,35 +16,38 @@
 
 package org.springframework.cloud.netflix.eureka.server.metrics;
 
-import java.util.List;
 import java.util.Objects;
 
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.MeterBinder;
 
 /**
- * @author heowc
+ * TBD.
+ *
+ * @author wonchul heo
+ * @since 4.1.1
  */
-public class EurekaInstanceMetricsBinder implements MeterBinder {
+public class EurekaInstanceMeterBinder implements MeterBinder {
 
 	private final PeerAwareInstanceRegistry instanceRegistry;
 
-	EurekaInstanceMetricsBinder(PeerAwareInstanceRegistry instanceRegistry) {
+	EurekaInstanceMeterBinder(PeerAwareInstanceRegistry instanceRegistry) {
 		this.instanceRegistry = Objects.requireNonNull(instanceRegistry);
 	}
 
 	@Override
 	public void bindTo(MeterRegistry meterRegistry) {
 		instanceRegistry.getApplications().getRegisteredApplications().stream()
-				.flatMap(application -> application.getInstances().stream()).forEach(instanceInfo -> {
+				.flatMap(application -> application.getInstances().stream())
+				.forEach(instanceInfo -> {
 					Gauge.builder("eureka.server.application.instances", () -> 1L)
 							.description("Information about application instances registered on the Eureka server.")
-							.tags(List.of(Tag.of("application", instanceInfo.getAppName()),
-									Tag.of("id", instanceInfo.getId()), Tag.of("host", instanceInfo.getHostName()),
-									Tag.of("port", String.valueOf(instanceInfo.getPort())),
+							.tags(Tags.of(
+									Tag.of("application", instanceInfo.getAppName()),
 									Tag.of("status", instanceInfo.getStatus().name())))
 							.register(meterRegistry);
 				});

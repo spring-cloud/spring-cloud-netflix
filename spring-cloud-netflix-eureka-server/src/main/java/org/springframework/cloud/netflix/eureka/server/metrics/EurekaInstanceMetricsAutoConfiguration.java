@@ -23,13 +23,18 @@ import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegi
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
 /**
- * @author heowc
+ * TBD.
+ *
+ * @author wonchul heo
+ * @since 4.1.1
  */
+@ConditionalOnClass(MeterRegistry.class)
 @ConditionalOnBean(MeterRegistry.class)
 @AutoConfigureAfter({ MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class,
 		EurekaServerAutoConfiguration.class })
@@ -37,8 +42,8 @@ class EurekaInstanceMetricsAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public EurekaInstanceMetricsBinder eurekaInstanceMetricsBinder(PeerAwareInstanceRegistry instanceRegistry) {
-		return new EurekaInstanceMetricsBinder(instanceRegistry);
+	public EurekaInstanceMeterBinder eurekaInstanceMetricsBinder(PeerAwareInstanceRegistry instanceRegistry) {
+		return new EurekaInstanceMeterBinder(instanceRegistry);
 	}
 
 }

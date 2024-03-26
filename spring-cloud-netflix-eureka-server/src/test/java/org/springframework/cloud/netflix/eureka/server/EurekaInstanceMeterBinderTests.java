@@ -19,24 +19,21 @@ package org.springframework.cloud.netflix.eureka.server;
 import java.util.List;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceMetricsBinder;
+import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceMeterBinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.eureka.server.InstanceRegistryTests.getInstanceInfo;
 import static org.springframework.cloud.netflix.eureka.server.InstanceRegistryTests.getLeaseInfo;
 
 @SpringBootTest(classes = InstanceRegistryTests.TestApplication.class,
-		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka",
-				"logging.level.org.springframework.cloud.netflix.eureka.server.InstanceRegistry=DEBUG" })
-class EurekaInstanceMetricsBinderTests {
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka" })
+class EurekaInstanceMeterBinderTests {
 
 	private static final String APP_NAME = "MY-APP-NAME";
 
@@ -46,14 +43,14 @@ class EurekaInstanceMetricsBinderTests {
 
 	private static final int PORT = 8008;
 
-	@SpyBean(PeerAwareInstanceRegistry.class)
+	@Autowired
 	private InstanceRegistry instanceRegistry;
 
 	@Autowired
 	private MeterRegistry meterRegistry;
 
 	@Autowired
-	private EurekaInstanceMetricsBinder binder;
+	private EurekaInstanceMeterBinder binder;
 
 	@Test
 	void testMetrics() {
