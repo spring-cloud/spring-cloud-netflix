@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -64,7 +63,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -80,7 +78,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -105,20 +102,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		}
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(name = "org.glassfish.jersey.client.JerseyClient")
-	@ConditionalOnBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
-	static class DiscoveryClientOptionalArgsTlsConfiguration {
-
-		DiscoveryClientOptionalArgsTlsConfiguration(TlsProperties tlsProperties,
-				AbstractDiscoveryClientOptionalArgs optionalArgs) throws GeneralSecurityException, IOException {
-			logger.info("Eureka HTTP Client uses Jersey");
-			setupTLS(optionalArgs, tlsProperties);
-		}
-
-	}
-
-	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnClass(name = "org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientConfiguration {
@@ -149,8 +132,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnMissingClass({ "org.glassfish.jersey.client.JerseyClient",
-			"org.springframework.web.reactive.function.client.WebClient" })
+	@ConditionalOnMissingClass({ "org.springframework.web.reactive.function.client.WebClient" })
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientNotFoundConfiguration {
 
