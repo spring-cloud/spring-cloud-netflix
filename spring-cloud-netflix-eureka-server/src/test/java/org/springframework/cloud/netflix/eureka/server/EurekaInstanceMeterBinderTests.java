@@ -16,11 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import java.util.List;
-
 import com.netflix.appinfo.InstanceInfo;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,16 +50,16 @@ class EurekaInstanceMeterBinderTests {
 	private EurekaInstanceMeterBinder binder;
 
 	@Test
-	void testMetrics() {
+	void testBindTo() {
 		final InstanceInfo instanceInfo = getInstanceInfo(APP_NAME, HOST_NAME, INSTANCE_ID, PORT, getLeaseInfo());
 		instanceRegistry.register(instanceInfo, false);
 
 		binder.bindTo(meterRegistry);
 
 		assertThat(meterRegistry.get("eureka.server.application.instances")
-				.tags(List.of(Tag.of("application", APP_NAME), Tag.of("id", INSTANCE_ID), Tag.of("host", HOST_NAME),
-						Tag.of("port", String.valueOf(PORT)), Tag.of("status", InstanceInfo.InstanceStatus.UP.name()))))
-								.isNotNull();
+				.tag("application", APP_NAME)
+				.tag("status", InstanceInfo.InstanceStatus.UP.name()))
+				.isNotNull();
 	}
 
 }

@@ -21,8 +21,6 @@ import java.util.Objects;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tag;
-import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.MeterBinder;
 
 /**
@@ -43,12 +41,11 @@ public class EurekaInstanceMeterBinder implements MeterBinder {
 	public void bindTo(MeterRegistry meterRegistry) {
 		instanceRegistry.getApplications().getRegisteredApplications().stream()
 				.flatMap(application -> application.getInstances().stream())
-				.forEach(instanceInfo -> {
+				.forEach(instanceInfo -> {	
 					Gauge.builder("eureka.server.application.instances", () -> 1L)
 							.description("Information about application instances registered on the Eureka server.")
-							.tags(Tags.of(
-									Tag.of("application", instanceInfo.getAppName()),
-									Tag.of("status", instanceInfo.getStatus().name())))
+							.tag("application", instanceInfo.getAppName())
+							.tag("status", instanceInfo.getStatus().name())
 							.register(meterRegistry);
 				});
 	}

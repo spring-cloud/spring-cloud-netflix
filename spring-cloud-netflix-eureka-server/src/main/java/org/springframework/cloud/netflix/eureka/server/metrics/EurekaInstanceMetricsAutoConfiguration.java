@@ -42,7 +42,7 @@ class EurekaInstanceMetricsAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public EurekaInstanceMeterBinder eurekaInstanceMetricsBinder(PeerAwareInstanceRegistry instanceRegistry) {
+	public EurekaInstanceMeterBinder eurekaInstanceMeterBinder(PeerAwareInstanceRegistry instanceRegistry) {
 		return new EurekaInstanceMeterBinder(instanceRegistry);
 	}
 
