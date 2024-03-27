@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 /**
  * @author Daniel Lavoie
+ * @author Armin Krezovic
  */
 public class RestTemplateTransportClientFactories implements TransportClientFactories<Void> {
 
@@ -42,7 +43,7 @@ public class RestTemplateTransportClientFactories implements TransportClientFact
 	public TransportClientFactory newTransportClientFactory(EurekaClientConfig clientConfig,
 			Collection<Void> additionalFilters, InstanceInfo myInstanceInfo) {
 		return new RestTemplateTransportClientFactory(this.args.getSSLContext(), this.args.getHostnameVerifier(),
-				this.args.eurekaClientHttpRequestFactorySupplier);
+				this.args.eurekaClientHttpRequestFactorySupplier, this.args.restTemplateBuilderSupplier);
 	}
 
 	@Override
@@ -50,7 +51,7 @@ public class RestTemplateTransportClientFactories implements TransportClientFact
 			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
 			final Optional<SSLContext> sslContext, final Optional<HostnameVerifier> hostnameVerifier) {
 		return new RestTemplateTransportClientFactory(this.args.getSSLContext(), this.args.getHostnameVerifier(),
-				this.args.eurekaClientHttpRequestFactorySupplier);
+				this.args.eurekaClientHttpRequestFactorySupplier, this.args.restTemplateBuilderSupplier);
 	}
 
 }
