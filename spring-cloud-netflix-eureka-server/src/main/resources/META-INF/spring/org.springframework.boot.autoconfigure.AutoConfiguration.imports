@@ -1,1 +1,2 @@
 org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration
+org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceMetricsAutoConfiguration

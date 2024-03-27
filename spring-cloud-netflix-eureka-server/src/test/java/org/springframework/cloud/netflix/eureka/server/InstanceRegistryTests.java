@@ -147,14 +147,14 @@ class InstanceRegistryTests {
 		assertThat(event2.getInstanceInfo()).isEqualTo(instanceInfo2);
 	}
 
-	private LeaseInfo getLeaseInfo() {
+	static LeaseInfo getLeaseInfo() {
 		LeaseInfo.Builder leaseBuilder = LeaseInfo.Builder.newBuilder();
 		leaseBuilder.setRenewalIntervalInSecs(10);
 		leaseBuilder.setDurationInSecs(15);
 		return leaseBuilder.build();
 	}
 
-	private InstanceInfo getInstanceInfo(String appName, String hostName, String instanceId, int port,
+	static InstanceInfo getInstanceInfo(String appName, String hostName, String instanceId, int port,
 			LeaseInfo leaseInfo) {
 		InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder();
 		builder.setAppName(appName);
