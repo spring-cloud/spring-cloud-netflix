@@ -53,7 +53,7 @@ public class EurekaConfigServerInstanceProvider {
 		if (log.isDebugEnabled()) {
 			log.debug("eurekaConfigServerInstanceProvider finding instances for " + serviceId);
 		}
-		EurekaHttpResponse<Applications> response = client.getApplications(config.getRegion());
+		EurekaHttpResponse<Applications> response = client.getApplications();
 		List<ServiceInstance> instances = new ArrayList<>();
 		if (!isSuccessful(response) || response.getEntity() == null) {
 			return instances;
