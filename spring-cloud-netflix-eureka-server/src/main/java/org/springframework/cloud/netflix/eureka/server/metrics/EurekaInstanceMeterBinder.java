@@ -32,20 +32,22 @@ import io.micrometer.core.instrument.binder.MeterBinder;
 public class EurekaInstanceMeterBinder implements MeterBinder {
 
 	private final PeerAwareInstanceRegistry instanceRegistry;
+	private final EurekaInstanceTagProvider tagProvider;
 
-	EurekaInstanceMeterBinder(PeerAwareInstanceRegistry instanceRegistry) {
+	EurekaInstanceMeterBinder(PeerAwareInstanceRegistry instanceRegistry,
+							  EurekaInstanceTagProvider tagProvider) {
 		this.instanceRegistry = Objects.requireNonNull(instanceRegistry);
-	}
+        this.tagProvider = Objects.requireNonNull(tagProvider);
+    }
 
 	@Override
 	public void bindTo(MeterRegistry meterRegistry) {
 		instanceRegistry.getApplications().getRegisteredApplications().stream()
 				.flatMap(application -> application.getInstances().stream())
-				.forEach(instanceInfo -> {	
+				.forEach(instanceInfo -> {
 					Gauge.builder("eureka.server.application.instances", () -> 1L)
 							.description("Information about application instances registered on the Eureka server.")
-							.tag("application", instanceInfo.getAppName())
-							.tag("status", instanceInfo.getStatus().name())
+							.tags(tagProvider.eurekaInstanceTags(instanceInfo))
 							.register(meterRegistry);
 				});
 	}

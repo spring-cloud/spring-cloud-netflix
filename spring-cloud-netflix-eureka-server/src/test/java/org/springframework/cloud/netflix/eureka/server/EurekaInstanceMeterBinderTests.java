@@ -25,20 +25,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceMeterBinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.cloud.netflix.eureka.server.InstanceRegistryTests.getInstanceInfo;
-import static org.springframework.cloud.netflix.eureka.server.InstanceRegistryTests.getLeaseInfo;
+import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getInstanceInfo;
+import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getLeaseInfo;
 
 @SpringBootTest(classes = InstanceRegistryTests.TestApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = { "spring.application.name=eureka" })
 class EurekaInstanceMeterBinderTests {
-
-	private static final String APP_NAME = "MY-APP-NAME";
-
-	private static final String HOST_NAME = "my-host-name";
-
-	private static final String INSTANCE_ID = "my-host-name:8008";
-
-	private static final int PORT = 8008;
 
 	@Autowired
 	private InstanceRegistry instanceRegistry;
@@ -51,13 +43,14 @@ class EurekaInstanceMeterBinderTests {
 
 	@Test
 	void testBindTo() {
-		final InstanceInfo instanceInfo = getInstanceInfo(APP_NAME, HOST_NAME, INSTANCE_ID, PORT, getLeaseInfo());
+		final String expectedAppName = "MY-APP-NAME";
+		final InstanceInfo instanceInfo = getInstanceInfo(expectedAppName, "my-host-name", "my-host-name:8008", 8008, getLeaseInfo());
 		instanceRegistry.register(instanceInfo, false);
 
 		binder.bindTo(meterRegistry);
 
 		assertThat(meterRegistry.get("eureka.server.application.instances")
-				.tag("application", APP_NAME)
+				.tag("application", expectedAppName)
 				.tag("status", InstanceInfo.InstanceStatus.UP.name()))
 				.isNotNull();
 	}

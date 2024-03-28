@@ -42,6 +42,8 @@ import org.springframework.context.event.SmartApplicationListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getInstanceInfo;
+import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getLeaseInfo;
 
 /**
  * @author Bartlomiej Slota
@@ -145,24 +147,6 @@ class InstanceRegistryTests {
 		final EurekaInstanceRenewedEvent event2 = (EurekaInstanceRenewedEvent) (this.testEvents.applicationEvents
 				.get(1));
 		assertThat(event2.getInstanceInfo()).isEqualTo(instanceInfo2);
-	}
-
-	static LeaseInfo getLeaseInfo() {
-		LeaseInfo.Builder leaseBuilder = LeaseInfo.Builder.newBuilder();
-		leaseBuilder.setRenewalIntervalInSecs(10);
-		leaseBuilder.setDurationInSecs(15);
-		return leaseBuilder.build();
-	}
-
-	static InstanceInfo getInstanceInfo(String appName, String hostName, String instanceId, int port,
-			LeaseInfo leaseInfo) {
-		InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder();
-		builder.setAppName(appName);
-		builder.setHostName(hostName);
-		builder.setInstanceId(instanceId);
-		builder.setPort(port);
-		builder.setLeaseInfo(leaseInfo);
-		return builder.build();
 	}
 
 	@Configuration(proxyBeanMethods = false)
