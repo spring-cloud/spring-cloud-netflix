@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
@@ -49,6 +50,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Daniel Lavoie
+ * @author Armin Krezovic
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
@@ -69,11 +71,11 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier)
-			throws GeneralSecurityException, IOException {
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
 		logger.info("Eureka HTTP Client uses RestTemplate.");
 		RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
-				eurekaClientHttpRequestFactorySupplier);
+				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable);
 		setupTLS(result, tlsProperties);
 		return result;
 	}
