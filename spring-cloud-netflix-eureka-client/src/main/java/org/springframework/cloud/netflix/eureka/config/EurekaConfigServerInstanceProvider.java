@@ -32,7 +32,7 @@ import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 import org.springframework.http.HttpStatus;
 
 /**
- * @author puppy
+ * @author Tang Xiong
  */
 public class EurekaConfigServerInstanceProvider {
 
