@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 import org.springframework.http.HttpStatus;
 
+/**
+ * @author Tang Xiong
+ */
 public class EurekaConfigServerInstanceProvider {
 
 	private final Log log;
@@ -53,7 +56,11 @@ public class EurekaConfigServerInstanceProvider {
 		if (log.isDebugEnabled()) {
 			log.debug("eurekaConfigServerInstanceProvider finding instances for " + serviceId);
 		}
-		EurekaHttpResponse<Applications> response = client.getApplications(config.getRegion());
+		String remoteRegionsStr = config.fetchRegistryForRemoteRegions();
+		String[] remoteRegions = remoteRegionsStr == null ? null : remoteRegionsStr.split(",");
+		EurekaHttpResponse<Applications> response = config.getRegistryRefreshSingleVipAddress() == null
+				? client.getApplications(remoteRegions)
+				: client.getVip(config.getRegistryRefreshSingleVipAddress(), remoteRegions);
 		List<ServiceInstance> instances = new ArrayList<>();
 		if (!isSuccessful(response) || response.getEntity() == null) {
 			return instances;

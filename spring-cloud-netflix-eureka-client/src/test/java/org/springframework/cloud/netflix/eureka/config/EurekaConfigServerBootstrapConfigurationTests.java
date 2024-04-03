@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
+ * @author Tang Xiong
  */
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions("spring-webflux-*")
@@ -163,7 +164,34 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 						"eureka.client.enabled=true",
 						"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
 						"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
-				.run();
+				.run().close();
+		assertThat(output).contains("eurekaConfigServerInstanceProvider finding instances for configserver")
+				.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
+	}
+
+	@Test
+	public void eurekaConfigServerInstanceProviderCalledWithRemoteRegions() {
+		TomcatURLStreamHandlerFactory.disable();
+		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
+				.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
+						"eureka.client.enabled=true", "eureka.client.fetchRemoteRegionsRegistry=us-east-1,us-east-2",
+						"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
+						"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
+				.run().close();
+		assertThat(output).contains("eurekaConfigServerInstanceProvider finding instances for configserver")
+				.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
+	}
+
+	@Test
+	public void eurekaConfigServerInstanceProviderCalledWithVipAddress() {
+		TomcatURLStreamHandlerFactory.disable();
+		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
+				.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
+						"eureka.client.enabled=true", "eureka.client.registryRefreshSingleVipAddress=vip1",
+						"eureka.client.fetchRemoteRegionsRegistry=us-east-1,us-east-2",
+						"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
+						"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
+				.run().close();
 		assertThat(output).contains("eurekaConfigServerInstanceProvider finding instances for configserver")
 				.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
 	}
@@ -208,7 +236,9 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 			when(response.getEntity()).thenReturn(applications);
 
 			EurekaHttpClient client = mock(EurekaHttpClient.class);
-			when(client.getApplications("us-east-1")).thenReturn(response);
+			when(client.getApplications("us-east-1", "us-east-2")).thenReturn(response);
+			when(client.getApplications((String) null)).thenReturn(response);
+			when(client.getVip("vip1", "us-east-1", "us-east-2")).thenReturn(response);
 			return client;
 		}
 
