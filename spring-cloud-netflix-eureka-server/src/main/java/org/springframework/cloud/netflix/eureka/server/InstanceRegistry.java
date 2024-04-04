@@ -50,8 +50,8 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	private final int defaultOpenForTrafficCount;
 
 	public InstanceRegistry(EurekaServerConfig serverConfig, EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
-			EurekaClient eurekaClient, EurekaServerHttpClientFactory eurekaServerHttpClientFactory,
-			int expectedNumberOfClientsSendingRenews, int defaultOpenForTrafficCount) {
+							EurekaClient eurekaClient, EurekaServerHttpClientFactory eurekaServerHttpClientFactory,
+							int expectedNumberOfClientsSendingRenews, int defaultOpenForTrafficCount) {
 		super(serverConfig, clientConfig, serverCodecs, eurekaClient, eurekaServerHttpClientFactory);
 
 		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
@@ -92,21 +92,27 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	@Override
 	public boolean cancel(String appName, String serverId, boolean isReplication) {
 		final boolean cancelled = super.cancel(appName, serverId, isReplication);
-		handleCancelation(appName, serverId, isReplication);
+		if (cancelled) {
+			handleCancelation(appName, serverId, isReplication);
+		}
 		return cancelled;
 	}
 
 	@Override
 	public boolean renew(final String appName, final String serverId, boolean isReplication) {
 		final boolean renewed = super.renew(appName, serverId, isReplication);
-		handleRenewal(appName, serverId, isReplication);
+		if (renewed) {
+			handleRenewal(appName, serverId, isReplication);
+		}
 		return renewed;
 	}
 
 	@Override
 	protected boolean internalCancel(String appName, String id, boolean isReplication) {
 		final boolean cancelled = super.internalCancel(appName, id, isReplication);
-		handleCancelation(appName, id, isReplication);
+		if (cancelled) {
+			handleCancelation(appName, id, isReplication);
+		}
 		return cancelled;
 	}
 
