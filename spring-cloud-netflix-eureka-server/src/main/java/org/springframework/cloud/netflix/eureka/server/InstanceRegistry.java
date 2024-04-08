@@ -50,8 +50,8 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	private final int defaultOpenForTrafficCount;
 
 	public InstanceRegistry(EurekaServerConfig serverConfig, EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
-							EurekaClient eurekaClient, EurekaServerHttpClientFactory eurekaServerHttpClientFactory,
-							int expectedNumberOfClientsSendingRenews, int defaultOpenForTrafficCount) {
+			EurekaClient eurekaClient, EurekaServerHttpClientFactory eurekaServerHttpClientFactory,
+			int expectedNumberOfClientsSendingRenews, int defaultOpenForTrafficCount) {
 		super(serverConfig, clientConfig, serverCodecs, eurekaClient, eurekaServerHttpClientFactory);
 
 		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
@@ -128,7 +128,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	}
 
 	private void handleRenewal(final String appName, final String serverId, boolean isReplication) {
-		log("renew " + appName + " serverId " + serverId + ", isReplication {}" + isReplication);
+		log("renewed " + appName + ", serverId " + serverId + ", isReplication " + isReplication);
 		final Application application = getApplication(appName);
 		if (application != null) {
 			final InstanceInfo instanceInfo = application.getByInstanceId(serverId);
