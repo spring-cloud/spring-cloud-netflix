@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Spencer Gibb
+ * @author Wonchul Heo
  */
 public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements ApplicationContextAware {
 
@@ -78,50 +79,63 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 
 	@Override
 	public void register(InstanceInfo info, int leaseDuration, boolean isReplication) {
-		handleRegistration(info, leaseDuration, isReplication);
 		super.register(info, leaseDuration, isReplication);
+		handleRegistration(info, leaseDuration, isReplication);
 	}
 
 	@Override
 	public void register(final InstanceInfo info, final boolean isReplication) {
-		handleRegistration(info, resolveInstanceLeaseDuration(info), isReplication);
 		super.register(info, isReplication);
+		handleRegistration(info, resolveInstanceLeaseDuration(info), isReplication);
 	}
 
 	@Override
 	public boolean cancel(String appName, String serverId, boolean isReplication) {
-		handleCancelation(appName, serverId, isReplication);
-		return super.cancel(appName, serverId, isReplication);
+		final boolean cancelled = super.cancel(appName, serverId, isReplication);
+		if (cancelled) {
+			handleCancelation(appName, serverId, isReplication);
+		}
+		return cancelled;
 	}
 
 	@Override
 	public boolean renew(final String appName, final String serverId, boolean isReplication) {
-		log("renew " + appName + " serverId " + serverId + ", isReplication {}" + isReplication);
-		Application application = getApplication(appName);
-		if (application != null) {
-			InstanceInfo instanceInfo = application.getByInstanceId(serverId);
-			if (instanceInfo != null) {
-				publishEvent(new EurekaInstanceRenewedEvent(this, appName, serverId, instanceInfo, isReplication));
-			}
+		final boolean renewed = super.renew(appName, serverId, isReplication);
+		if (renewed) {
+			handleRenewal(appName, serverId, isReplication);
 		}
-		return super.renew(appName, serverId, isReplication);
+		return renewed;
 	}
 
 	@Override
 	protected boolean internalCancel(String appName, String id, boolean isReplication) {
-		handleCancelation(appName, id, isReplication);
-		return super.internalCancel(appName, id, isReplication);
+		final boolean cancelled = super.internalCancel(appName, id, isReplication);
+		if (cancelled) {
+			handleCancelation(appName, id, isReplication);
+		}
+		return cancelled;
 	}
 
 	private void handleCancelation(String appName, String id, boolean isReplication) {
-		log("cancel " + appName + ", serverId " + id + ", isReplication " + isReplication);
+		log("cancelled " + appName + ", serverId " + id + ", isReplication " + isReplication);
 		publishEvent(new EurekaInstanceCanceledEvent(this, appName, id, isReplication));
 	}
 
 	private void handleRegistration(InstanceInfo info, int leaseDuration, boolean isReplication) {
-		log("register " + info.getAppName() + ", vip " + info.getVIPAddress() + ", leaseDuration " + leaseDuration
+		log("registered " + info.getAppName() + ", vip " + info.getVIPAddress() + ", leaseDuration " + leaseDuration
 				+ ", isReplication " + isReplication);
 		publishEvent(new EurekaInstanceRegisteredEvent(this, info, leaseDuration, isReplication));
+	}
+
+	private void handleRenewal(final String appName, final String serverId, boolean isReplication) {
+		log("renewed " + appName + ", serverId " + serverId + ", isReplication " + isReplication);
+		final Application application = getApplication(appName);
+		if (application != null) {
+			final InstanceInfo instanceInfo = application.getByInstanceId(serverId);
+			if (instanceInfo != null) {
+				publishEvent(new EurekaInstanceRenewedEvent(this, appName, serverId, instanceInfo, isReplication));
+			}
+		}
 	}
 
 	private void log(String message) {
