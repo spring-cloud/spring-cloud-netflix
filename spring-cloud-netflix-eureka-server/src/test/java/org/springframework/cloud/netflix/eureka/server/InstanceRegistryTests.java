@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 the original author or authors.
+ * Copyright 2016-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,12 @@ import java.util.List;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.cloud.netflix.eureka.server.InstanceRegistryTests.TestApplication;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceCanceledEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent;
@@ -58,7 +56,7 @@ class InstanceRegistryTests {
 
 	private static final int PORT = 8008;
 
-	@SpyBean(PeerAwareInstanceRegistry.class)
+	@Autowired
 	private InstanceRegistry instanceRegistry;
 
 	@BeforeEach

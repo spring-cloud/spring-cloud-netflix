@@ -30,7 +30,7 @@ import org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfigura
 import org.springframework.context.annotation.Bean;
 
 /**
- * TBD.
+ * Auto-configuration for Eureka Instance metrics.
  *
  * @author wonchul heo
  * @since 4.1.1
@@ -44,15 +44,15 @@ class EurekaInstanceMetricsAutoConfiguration {
 
 	@ConditionalOnMissingBean
 	@Bean
-	public EurekaInstanceTagProvider eurekaInstanceTagProvider() {
-		return new DefaultEurekaInstanceTagProvider();
+	public EurekaInstanceTagsProvider eurekaInstanceTagProvider() {
+		return new DefaultEurekaInstanceTagsProvider();
 	}
 
 	@ConditionalOnMissingBean
 	@Bean
-	public EurekaInstanceMeterBinder eurekaInstanceMeterBinder(PeerAwareInstanceRegistry instanceRegistry,
-															   EurekaInstanceTagProvider tagProvider) {
-		return new EurekaInstanceMeterBinder(instanceRegistry, tagProvider);
+	public EurekaInstanceMonitor eurekaInstanceMeterBinder(MeterRegistry meterRegistry,
+			PeerAwareInstanceRegistry instanceRegistry, EurekaInstanceTagsProvider tagProvider) {
+		return new EurekaInstanceMonitor(meterRegistry, instanceRegistry, tagProvider);
 	}
 
 }

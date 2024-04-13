@@ -615,6 +615,18 @@ when running a Eureka server you must include these dependencies in your POM or 
 
 Spring Cloud Netflix Eureka Server does not support Spring AOT transformations or native images.
 
+=== Metrics
+
+Starting with version 4.1.1, `MultuGuage` listens events related to Eureka instances and creates and updates Eureka instance information in the metrics registry. By default, this setting is disabled, if you want to enable it, you need to change `eureka.instance.metrics.enabled` to `true`.
+
+The multi-gauge is named `eureka.server.instance.status`     and has the following tags (value are merged based on tags)
+
+- `application`: application name
+
+- `status`: instance status
+
+You can add additional tags by implementing `EurekaInstanceTagsProvider` separately. However, status is added separately because it is always needed.
+
 == Configuration properties
 
 To see the list of all Spring Cloud Netflix related configuration properties please check link:appendix.html[the Appendix page].
