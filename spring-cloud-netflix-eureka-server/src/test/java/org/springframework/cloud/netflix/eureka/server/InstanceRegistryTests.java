@@ -16,13 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
-import com.netflix.discovery.shared.Application;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +39,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.SmartApplicationListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getInstanceInfo;
 import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getLeaseInfo;
 
@@ -67,6 +64,7 @@ class InstanceRegistryTests {
 	@BeforeEach
 	void setup() {
 		this.testEvents.applicationEvents.clear();
+		this.instanceRegistry.clearRegistry();
 	}
 
 	@Autowired
@@ -105,39 +103,41 @@ class InstanceRegistryTests {
 
 	@Test
 	void testInternalCancel() {
+		// registering instance info
+		final InstanceInfo instanceInfo = getInstanceInfo(APP_NAME, HOST_NAME, INSTANCE_ID, PORT, null);
+		instanceRegistry.register(instanceInfo, false);
 		// calling tested method
-		instanceRegistry.internalCancel(APP_NAME, HOST_NAME, false);
+		instanceRegistry.internalCancel(APP_NAME, INSTANCE_ID, false);
 		// event of proper type is registered
-		assertThat(this.testEvents.applicationEvents.size()).isEqualTo(1);
-		assertThat(this.testEvents.applicationEvents.get(0) instanceof EurekaInstanceCanceledEvent).isTrue();
+		assertThat(this.testEvents.applicationEvents.size()).isEqualTo(2);
+		assertThat(this.testEvents.applicationEvents.get(0) instanceof EurekaInstanceRegisteredEvent).isTrue();
+		assertThat(this.testEvents.applicationEvents.get(1) instanceof EurekaInstanceCanceledEvent).isTrue();
 		// event details are correct
 		final EurekaInstanceCanceledEvent registeredEvent = (EurekaInstanceCanceledEvent) (this.testEvents.applicationEvents
-				.get(0));
+				.get(1));
 		assertThat(registeredEvent.getAppName()).isEqualTo(APP_NAME);
-		assertThat(registeredEvent.getServerId()).isEqualTo(HOST_NAME);
+		assertThat(registeredEvent.getServerId()).isEqualTo(INSTANCE_ID);
 		assertThat(registeredEvent.getSource()).isEqualTo(instanceRegistry);
 		assertThat(registeredEvent.isReplication()).isFalse();
 	}
 
 	@Test
 	void testRenew() {
-		// Creating two instances of the app
+		// registering two instances of the app
 		final InstanceInfo instanceInfo1 = getInstanceInfo(APP_NAME, HOST_NAME, INSTANCE_ID, PORT, null);
 		final InstanceInfo instanceInfo2 = getInstanceInfo(APP_NAME, HOST_NAME, "my-host-name:8009", 8009, null);
-		// creating application list with an app having two instances
-		final Application application = new Application(APP_NAME, Arrays.asList(instanceInfo1, instanceInfo2));
-		// stubbing application
-		doReturn(application).when(instanceRegistry).getApplication(APP_NAME);
+		instanceRegistry.register(instanceInfo1, false);
+		instanceRegistry.register(instanceInfo2, false);
 		// calling tested method
 		instanceRegistry.renew(APP_NAME, INSTANCE_ID, false);
 		instanceRegistry.renew(APP_NAME, "my-host-name:8009", false);
 		// event of proper type is registered
-		assertThat(this.testEvents.applicationEvents.size()).isEqualTo(2);
-		assertThat(this.testEvents.applicationEvents.get(0) instanceof EurekaInstanceRenewedEvent).isTrue();
-		assertThat(this.testEvents.applicationEvents.get(1) instanceof EurekaInstanceRenewedEvent).isTrue();
+		assertThat(this.testEvents.applicationEvents.size()).isEqualTo(4);
+		assertThat(this.testEvents.applicationEvents.get(2) instanceof EurekaInstanceRenewedEvent).isTrue();
+		assertThat(this.testEvents.applicationEvents.get(3) instanceof EurekaInstanceRenewedEvent).isTrue();
 		// event details are correct
 		final EurekaInstanceRenewedEvent event1 = (EurekaInstanceRenewedEvent) (this.testEvents.applicationEvents
-				.get(0));
+				.get(2));
 		assertThat(event1.getAppName()).isEqualTo(APP_NAME);
 		assertThat(event1.getServerId()).isEqualTo(INSTANCE_ID);
 		assertThat(event1.getSource()).isEqualTo(instanceRegistry);
@@ -145,7 +145,7 @@ class InstanceRegistryTests {
 		assertThat(event1.isReplication()).isFalse();
 
 		final EurekaInstanceRenewedEvent event2 = (EurekaInstanceRenewedEvent) (this.testEvents.applicationEvents
-				.get(1));
+				.get(3));
 		assertThat(event2.getInstanceInfo()).isEqualTo(instanceInfo2);
 	}
 

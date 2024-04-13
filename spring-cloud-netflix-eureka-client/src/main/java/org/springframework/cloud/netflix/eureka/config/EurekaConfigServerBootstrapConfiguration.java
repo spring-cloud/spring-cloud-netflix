@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,12 @@ import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
@@ -51,11 +53,12 @@ import org.springframework.web.reactive.function.client.WebClient;
  * discovery.
  *
  * @author Dave Syer
+ * @author Armin Krezovic
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
 @Conditional(EurekaConfigServerBootstrapConfiguration.EurekaConfigServerBootstrapCondition.class)
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties
+@EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
 public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
@@ -70,16 +73,18 @@ public class EurekaConfigServerBootstrapConfiguration {
 			havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
 			Environment env, @Nullable TlsProperties properties,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) {
 		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory(properties,
-				eurekaClientHttpRequestFactorySupplier)
+				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable)
 						.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier() {
-		return new DefaultEurekaClientHttpRequestFactorySupplier();
+	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+		return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
 	}
 
 	@Bean

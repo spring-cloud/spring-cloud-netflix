@@ -24,8 +24,11 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
@@ -76,7 +79,7 @@ public class RestTemplateEurekaClientTest extends BaseCertTest {
 				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier)
 				throws GeneralSecurityException, IOException {
 			return configuration.restTemplateDiscoveryClientOptionalArgs(tlsProperties,
-					eurekaClientHttpRequestFactorySupplier);
+					eurekaClientHttpRequestFactorySupplier, new RestTemplateBuilderObjectProvider());
 		}
 
 	}
@@ -85,6 +88,32 @@ public class RestTemplateEurekaClientTest extends BaseCertTest {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	public static class RestTemplateTestEurekaServer {
+
+	}
+
+	private static class RestTemplateBuilderObjectProvider implements ObjectProvider<RestTemplateBuilder> {
+
+		private final RestTemplateBuilder builder = new RestTemplateBuilder();
+
+		@Override
+		public RestTemplateBuilder getObject(Object... args) throws BeansException {
+			return builder;
+		}
+
+		@Override
+		public RestTemplateBuilder getIfAvailable() throws BeansException {
+			return builder;
+		}
+
+		@Override
+		public RestTemplateBuilder getIfUnique() throws BeansException {
+			return builder;
+		}
+
+		@Override
+		public RestTemplateBuilder getObject() throws BeansException {
+			return builder;
+		}
 
 	}
 
