@@ -617,9 +617,9 @@ Spring Cloud Netflix Eureka Server does not support Spring AOT transformations o
 
 === Metrics
 
-Starting with version 4.1.1, `MultuGuage` listens events related to Eureka instances and creates and updates Eureka instance information in the metrics registry. By default, this setting is disabled, if you want to enable it, you need to change `eureka.instance.metrics.enabled` to `true`.
+Starting with version 4.1.1, `MultuGuage` listens events related to Eureka instances and creates and updates Eureka instance information in the metrics registry. By default, this setting is disabled, if you want to enable it, you need to change `eureka.server.metrics.enabled` to `true`.
 
-The multi-gauge is named `eureka.server.instance.status`     and has the following tags (value are merged based on tags)
+The multi-gauge is named `eureka.server.instance.status` and has the following tags (value are merged based on tags)
 
 - `application`: application name
 

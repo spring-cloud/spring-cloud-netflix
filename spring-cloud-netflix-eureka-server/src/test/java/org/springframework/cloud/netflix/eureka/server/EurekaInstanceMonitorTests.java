@@ -34,15 +34,15 @@ import org.springframework.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getInstanceInfo;
-import static org.springframework.cloud.netflix.eureka.server.FixtureEurekaInstances.getLeaseInfo;
+import static org.springframework.cloud.netflix.eureka.server.EurekaInstancesFixture.getInstanceInfo;
+import static org.springframework.cloud.netflix.eureka.server.EurekaInstancesFixture.getLeaseInfo;
 
 /**
  * @author Wonchul Heo
  */
 @SpringBootTest(classes = EurekaInstanceMonitorTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-		value = { "spring.application.name=eureka", "eureka.instance.metrics.enabled=true" })
+		value = { "spring.application.name=eureka", "eureka.server.metrics.enabled=true" })
 class EurekaInstanceMonitorTests {
 
 	private static final String APP_NAME = "MY-APP-NAME";
@@ -59,10 +59,10 @@ class EurekaInstanceMonitorTests {
 
 	@BeforeEach
 	void setup() {
-		this.instanceRegistry.clearRegistry();
-		this.meterRegistry.clear();
-		this.instanceInfo = getInstanceInfo(APP_NAME, "my-host-name", "my-host-name:8008", 8008, getLeaseInfo());
-		this.instanceInfo2 = getInstanceInfo(APP_NAME, "my-host-name", "my-host-name:8009", 8009, getLeaseInfo());
+		instanceRegistry.clearRegistry();
+		meterRegistry.clear();
+		instanceInfo = getInstanceInfo(APP_NAME, "my-host-name", "my-host-name:8008", 8008, getLeaseInfo());
+		instanceInfo2 = getInstanceInfo(APP_NAME, "my-host-name", "my-host-name:8009", 8009, getLeaseInfo());
 	}
 
 	@Test

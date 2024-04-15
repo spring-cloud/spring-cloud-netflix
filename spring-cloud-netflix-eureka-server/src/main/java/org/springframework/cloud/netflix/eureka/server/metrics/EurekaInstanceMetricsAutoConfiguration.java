@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnBean(MeterRegistry.class)
 @AutoConfigureAfter({ MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class,
 		EurekaServerAutoConfiguration.class })
-@ConditionalOnProperty(name = "eureka.instance.metrics.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "eureka.server.metrics.enabled", havingValue = "true")
 class EurekaInstanceMetricsAutoConfiguration {
 
 	@ConditionalOnMissingBean

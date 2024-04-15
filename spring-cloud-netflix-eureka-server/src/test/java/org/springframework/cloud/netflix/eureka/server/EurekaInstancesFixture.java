@@ -19,9 +19,9 @@ package org.springframework.cloud.netflix.eureka.server;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
 
-public final class FixtureEurekaInstances {
+public final class EurekaInstancesFixture {
 
-	private FixtureEurekaInstances() {
+	private EurekaInstancesFixture() {
 	}
 
 	public static LeaseInfo getLeaseInfo() {

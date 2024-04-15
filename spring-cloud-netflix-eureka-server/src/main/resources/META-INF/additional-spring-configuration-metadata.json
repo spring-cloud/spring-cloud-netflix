@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "eureka.server.metrics.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": "false",
+      "description": "Indicates whether the metrics should be enabled for eureka instances."
+    }
+  ]
+}
