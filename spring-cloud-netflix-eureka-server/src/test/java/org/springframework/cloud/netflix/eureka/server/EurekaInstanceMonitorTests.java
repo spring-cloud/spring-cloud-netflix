@@ -71,7 +71,7 @@ class EurekaInstanceMonitorTests {
 	@Test
 	void testNoRegistration() {
 		assertThatThrownBy(() -> {
-			meterRegistry.get("eureka.server.instance.status").meter();
+			meterRegistry.get("eureka.server.instances").meter();
 		}).isInstanceOf(MeterNotFoundException.class);
 	}
 
@@ -152,7 +152,7 @@ class EurekaInstanceMonitorTests {
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
 		meterRegistryCounts.forEach((tags, count) -> {
-			assertThat((long) meterRegistry.get("eureka.server.instance.status").tags(tags).gauge().value())
+			assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
 					.isEqualTo(count);
 		});
 	}
