@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.netflix.appinfo.InstanceInfo;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.MultiGauge;
@@ -41,7 +40,7 @@ import org.springframework.context.event.SmartApplicationListener;
  */
 public class EurekaInstanceMonitor implements SmartApplicationListener {
 
-	private final MultiGauge eurekaInstanceStatuses;
+	private final MultiGauge eurekaInstances;
 
 	private final PeerAwareInstanceRegistry instanceRegistry;
 
@@ -52,8 +51,8 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 		Objects.requireNonNull(meterRegistry);
 		this.instanceRegistry = Objects.requireNonNull(instanceRegistry);
 		this.tagProvider = Objects.requireNonNull(tagProvider);
-		this.eurekaInstanceStatuses = MultiGauge.builder("eureka.server.instance.status")
-				.description("Status of application instances registered with the Eureka server.")
+		this.eurekaInstances = MultiGauge.builder("eureka.server.instances")
+				.description("Count of application instances registered with the Eureka server.")
 				.register(meterRegistry);
 	}
 
@@ -68,13 +67,8 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 	public void onApplicationEvent(ApplicationEvent event) {
 		final Map<Tags, Long> aggregatedCounts = instanceRegistry.getApplications().getRegisteredApplications().stream()
 				.flatMap(application -> application.getInstances().stream())
-				.collect(Collectors.groupingBy(this::tags, Collectors.counting()));
-		eurekaInstanceStatuses.register(aggregatedCounts.entrySet().stream()
+				.collect(Collectors.groupingBy(tagProvider::eurekaInstanceTags, Collectors.counting()));
+		eurekaInstances.register(aggregatedCounts.entrySet().stream()
 				.map(it -> MultiGauge.Row.of(it.getKey(), it.getValue())).collect(Collectors.toList()), true);
 	}
-
-	private Tags tags(InstanceInfo instanceInfo) {
-		return tagProvider.eurekaInstanceTags(instanceInfo).and("status", instanceInfo.getStatus().name());
-	}
-
 }

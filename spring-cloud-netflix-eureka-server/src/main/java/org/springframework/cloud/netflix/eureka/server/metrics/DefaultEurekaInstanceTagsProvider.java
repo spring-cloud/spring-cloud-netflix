@@ -30,7 +30,8 @@ class DefaultEurekaInstanceTagsProvider implements EurekaInstanceTagsProvider {
 
 	@Override
 	public Tags eurekaInstanceTags(InstanceInfo instanceInfo) {
-		return Tags.of(Tag.of("application", instanceInfo.getAppName()));
+		return Tags.of(Tag.of("application", instanceInfo.getAppName()),
+				Tag.of("status", instanceInfo.getStatus().name()));
 	}
 
 }
