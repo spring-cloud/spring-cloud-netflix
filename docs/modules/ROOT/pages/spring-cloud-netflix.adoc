@@ -110,17 +110,6 @@ eureka:
       socket-timeout: 10000
 ----
 
-When using the default Apache HTTP Client Request Factory, an additional parameter can be used to configure timeout for evicting idle connections. Default value is 30 seconds. Value must be specified in milliseconds.
-
-.application.yml
-[source,yaml]
-----
-eureka:
-  client:
-    rest-template-timeout:
-      idle-timeout: 30000
-----
-
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
