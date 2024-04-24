@@ -22,7 +22,6 @@ import com.netflix.appinfo.InstanceInfo;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
-import io.micrometer.core.instrument.search.MeterNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,9 +31,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.cloud.netflix.eureka.server.EurekaInstancesFixture.getInstanceInfo;
-import static org.springframework.cloud.netflix.eureka.server.EurekaInstancesFixture.getLeaseInfo;
+import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getInstanceInfo;
+import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getLeaseInfo;
 
 /**
  * @author Wonchul Heo
@@ -45,6 +43,7 @@ import static org.springframework.cloud.netflix.eureka.server.EurekaInstancesFix
 class EurekaInstanceMonitorTests {
 
 	private static final String FOO_APP_NAME = "FOO-APP-NAME";
+
 	private static final String BAR_APP_NAME = "BAR-APP-NAME";
 
 	@Autowired
@@ -54,8 +53,11 @@ class EurekaInstanceMonitorTests {
 	private MeterRegistry meterRegistry;
 
 	private InstanceInfo fooInstanceInfo;
+
 	private InstanceInfo fooInstanceInfo2;
+
 	private InstanceInfo barInstanceInfo;
+
 	private InstanceInfo barInstanceInfo2;
 
 	@BeforeEach
@@ -70,9 +72,7 @@ class EurekaInstanceMonitorTests {
 
 	@Test
 	void testNoRegistration() {
-		assertThatThrownBy(() -> {
-			meterRegistry.get("eureka.server.instances").meter();
-		}).isInstanceOf(MeterNotFoundException.class);
+		assertThat(meterRegistry.find("eureka.server.instances").gauge()).isNull();
 	}
 
 	@Test
@@ -151,10 +151,9 @@ class EurekaInstanceMonitorTests {
 	}
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
-		meterRegistryCounts.forEach((tags, count) -> {
-			assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
-					.isEqualTo(count);
-		});
+		meterRegistryCounts.forEach((tags,
+				count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
+						.isEqualTo(count));
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -163,4 +162,5 @@ class EurekaInstanceMonitorTests {
 	protected static class Application {
 
 	}
+
 }

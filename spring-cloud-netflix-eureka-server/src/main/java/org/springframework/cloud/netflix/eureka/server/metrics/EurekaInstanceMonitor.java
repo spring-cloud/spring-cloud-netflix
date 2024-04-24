@@ -36,7 +36,7 @@ import org.springframework.context.event.SmartApplicationListener;
  * {@link PeerAwareInstanceRegistry}.
  *
  * @author Wonchul Heo
- * @since 4.1.1
+ * @since 4.1.2
  */
 public class EurekaInstanceMonitor implements SmartApplicationListener {
 
@@ -52,12 +52,13 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 		this.instanceRegistry = Objects.requireNonNull(instanceRegistry);
 		this.tagProvider = Objects.requireNonNull(tagProvider);
 		this.eurekaInstances = MultiGauge.builder("eureka.server.instances")
-				.description("Count of application instances registered with the Eureka server.")
+				.description("Number of application instances registered with the Eureka server.")
 				.register(meterRegistry);
 	}
 
 	@Override
 	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+		// If events that change state are added, an event class must be added.
 		return EurekaInstanceCanceledEvent.class.isAssignableFrom(eventType)
 				|| EurekaInstanceRegisteredEvent.class.isAssignableFrom(eventType)
 				|| EurekaInstanceRenewedEvent.class.isAssignableFrom(eventType);
@@ -69,6 +70,7 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 				.flatMap(application -> application.getInstances().stream())
 				.collect(Collectors.groupingBy(tagProvider::eurekaInstanceTags, Collectors.counting()));
 		eurekaInstances.register(aggregatedCounts.entrySet().stream()
-				.map(it -> MultiGauge.Row.of(it.getKey(), it.getValue())).collect(Collectors.toList()), true);
+				.map(entry -> MultiGauge.Row.of(entry.getKey(), entry.getValue())).collect(Collectors.toList()), true);
 	}
+
 }

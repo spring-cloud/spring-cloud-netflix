@@ -17,14 +17,13 @@
 package org.springframework.cloud.netflix.eureka.server.metrics;
 
 import com.netflix.appinfo.InstanceInfo;
-import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 
 /**
- * Provides {@link Tag Tags} for Eureka instance metrics.
+ * Provides {@link Tags} for Eureka instance metrics.
  *
  * @author Wonchul Heo
- * @since 4.1.1
+ * @since 4.1.2
  */
 public interface EurekaInstanceTagsProvider {
 

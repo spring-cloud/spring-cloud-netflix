@@ -37,8 +37,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.SmartApplicationListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.cloud.netflix.eureka.server.EurekaInstancesFixture.getInstanceInfo;
-import static org.springframework.cloud.netflix.eureka.server.EurekaInstancesFixture.getLeaseInfo;
+import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getInstanceInfo;
+import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getLeaseInfo;
 
 /**
  * @author Bartlomiej Slota

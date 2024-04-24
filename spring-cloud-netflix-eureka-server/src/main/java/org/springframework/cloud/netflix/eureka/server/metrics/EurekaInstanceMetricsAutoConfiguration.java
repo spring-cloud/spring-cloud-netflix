@@ -32,8 +32,8 @@ import org.springframework.context.annotation.Bean;
 /**
  * Auto-configuration for Eureka Instance metrics.
  *
- * @author wonchul heo
- * @since 4.1.1
+ * @author Wonchul Heo
+ * @since 4.1.2
  */
 @ConditionalOnClass(MeterRegistry.class)
 @ConditionalOnBean(MeterRegistry.class)

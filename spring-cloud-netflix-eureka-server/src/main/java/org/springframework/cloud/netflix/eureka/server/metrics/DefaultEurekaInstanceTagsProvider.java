@@ -24,7 +24,7 @@ import io.micrometer.core.instrument.Tags;
  * Default implementation for {@link EurekaInstanceTagsProvider}.
  *
  * @author Wonchul Heo
- * @since 4.1.1
+ * @since 4.1.2
  */
 class DefaultEurekaInstanceTagsProvider implements EurekaInstanceTagsProvider {
 
