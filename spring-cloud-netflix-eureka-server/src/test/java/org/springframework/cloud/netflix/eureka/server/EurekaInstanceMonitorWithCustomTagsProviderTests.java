@@ -43,7 +43,7 @@ import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixt
 		value = { "spring.application.name=eureka", "eureka.server.metrics.enabled=true" })
 class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
-	private static final String FOO_APP_NAME = "FOO-APP-NAME";
+	private static final String APP_NAME = "FOO-APP-NAME";
 
 	@Autowired
 	private InstanceRegistry instanceRegistry;
@@ -51,16 +51,16 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	@Autowired
 	private MeterRegistry meterRegistry;
 
-	private InstanceInfo fooInstanceInfo;
+	private InstanceInfo firstInstanceInfo;
 
-	private InstanceInfo fooInstanceInfo2;
+	private InstanceInfo secondInstanceInfo;
 
 	@BeforeEach
 	void setup() {
 		instanceRegistry.clearRegistry();
 		meterRegistry.clear();
-		fooInstanceInfo = getInstanceInfo(FOO_APP_NAME, "my-host-name", "my-host-name:8008", 8008, getLeaseInfo());
-		fooInstanceInfo2 = getInstanceInfo(FOO_APP_NAME, "my-host-name", "my-host-name:8009", 8009, getLeaseInfo());
+		firstInstanceInfo = getInstanceInfo(APP_NAME, "my-host-name", "my-host-name:8008", 8008, getLeaseInfo());
+		secondInstanceInfo = getInstanceInfo(APP_NAME, "my-host-name", "my-host-name:8009", 8009, getLeaseInfo());
 	}
 
 	@Test
@@ -70,10 +70,10 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
 	@Test
 	void testMultipleRegistrations() {
-		instanceRegistry.register(fooInstanceInfo, false);
-		instanceRegistry.register(fooInstanceInfo2, false);
+		instanceRegistry.register(firstInstanceInfo, false);
+		instanceRegistry.register(secondInstanceInfo, false);
 
-		final Map<Tags, Long> counts = Map.of(tags(fooInstanceInfo), 1L, tags(fooInstanceInfo2), 1L);
+		final Map<Tags, Long> counts = Map.of(tags(firstInstanceInfo), 1L, tags(secondInstanceInfo), 1L);
 		assertEurekaInstance(counts);
 	}
 
