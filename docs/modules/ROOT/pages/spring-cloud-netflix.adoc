@@ -606,7 +606,7 @@ Spring Cloud Netflix Eureka Server does not support Spring AOT transformations o
 
 === Metrics
 
-`EurekaInstanceMonitor` listens to events related to Eureka instance registration and creates/updates `Gauge`s for Eureka instance information Micrometer's `MeterRegistry`. By default, this behavior is disabled. Ff you want to enable it, you need to set `eureka.server.metrics.enabled` to `true`.
+`EurekaInstanceMonitor` listens to events related to Eureka instance registration and creates/updates `Gauge`s for Eureka instance information in Micrometer's `MeterRegistry`. By default, this behavior is disabled. If you want to enable it, you need to set `eureka.server.metrics.enabled` to `true`.
 
 By default, the `Gauge`s are named `eureka.server.instances` and have the following tags:
 
