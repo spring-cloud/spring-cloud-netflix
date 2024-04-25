@@ -604,6 +604,17 @@ when running a Eureka server you must include these dependencies in your POM or 
 
 Spring Cloud Netflix Eureka Server does not support Spring AOT transformations or native images.
 
+=== Metrics
+
+`EurekaInstanceMonitor` listens to events related to Eureka instance registration and creates/updates `Gauge`s for Eureka instance information in Micrometer's `MeterRegistry`. By default, this behavior is disabled. If you want to enable it, you need to set `eureka.server.metrics.enabled` to `true`.
+
+By default, the `Gauge`s are named `eureka.server.instances` and have the following tags:
+
+- `application`: application name
+- `status`: instance status (`UP`, `DOWN`, `STARTING`, `OUT_OF_SERVICE`, `UNKNOWN`, see: `com.netflix.appinfo.InstanceInfo.InstanceStatus`)
+
+You can add additional tags by injecting your own implementation of `EurekaInstanceTagsProvider`.
+
 == Configuration properties
 
 To see the list of all Spring Cloud Netflix related configuration properties please check link:appendix.html[the Appendix page].
