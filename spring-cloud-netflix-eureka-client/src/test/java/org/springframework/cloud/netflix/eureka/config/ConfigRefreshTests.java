@@ -42,6 +42,8 @@ class ConfigRefreshTests {
 	// Mocked in RefreshEurekaSampleApplication
 	private EurekaClient client;
 
+	private static boolean isFirstRun = true;
+
 	@Test
 	// This test is used to verify that getApplications is called the correct number of
 	// times when a refresh event is fired. The getApplications call in
@@ -49,8 +51,9 @@ class ConfigRefreshTests {
 	// ensures that the EurekaClient bean is recreated after a refresh event and that we
 	// reregister the client with the server
 	void verifyGetApplications() {
-		if (publisher != null) {
+		if (publisher != null && isFirstRun) {
 			publisher.publishEvent(new RefreshScopeRefreshedEvent());
+			isFirstRun = false;
 		}
 		verify(client, times(3)).getApplications();
 	}
