@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -37,6 +38,8 @@ import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
+import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.RestClientTransportClientFactory;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
@@ -46,6 +49,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.Nullable;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -54,6 +58,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  *
  * @author Dave Syer
  * @author Armin Krezovic
+ * @author Wonchul Heo
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
 @Conditional(EurekaConfigServerBootstrapConfiguration.EurekaConfigServerBootstrapCondition.class)
@@ -69,8 +74,6 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(EurekaHttpClient.class)
-	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-			havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
 			Environment env, @Nullable TlsProperties properties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
@@ -104,6 +107,22 @@ public class EurekaConfigServerBootstrapConfiguration {
 		public WebClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(EurekaClientConfigBean config,
 				ObjectProvider<WebClient.Builder> builder, Environment env) {
 			return (WebClientEurekaHttpClient) new WebClientTransportClientFactory(builder::getIfAvailable)
+					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnClass(name = "org.springframework.web.client.RestClient")
+	@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "true")
+	@ImportAutoConfiguration(RestClientAutoConfiguration.class)
+	protected static class RestClientConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean(EurekaHttpClient.class)
+		public RestClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(EurekaClientConfigBean config,
+				ObjectProvider<RestClient.Builder> builder, Environment env) {
+			return (RestClientEurekaHttpClient) new RestClientTransportClientFactory(builder::getIfAvailable)
 					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 		}
 

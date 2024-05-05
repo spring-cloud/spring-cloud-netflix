@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * @author Daniel Lavoie
- */
-class RestTemplateTransportClientFactoryTest {
+import org.springframework.web.client.RestClient;
 
-	private RestTemplateTransportClientFactory transportClientFactory;
+/**
+ * @author Wonchul Heo
+ */
+class RestClientTransportClientFactoryTest {
+
+	private RestClientTransportClientFactory transportClientFactory;
 
 	@BeforeEach
 	void setup() {
-		transportClientFactory = new RestTemplateTransportClientFactory();
+		transportClientFactory = new RestClientTransportClientFactory(RestClient::builder);
 	}
 
 	@Test
