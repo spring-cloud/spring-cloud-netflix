@@ -67,46 +67,43 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		return new TlsProperties();
 	}
 
+	@Bean
+	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
+	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
+	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
+	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
+		logger.info("Eureka HTTP Client uses RestTemplate.");
+		RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
+				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable);
+		setupTLS(result, tlsProperties);
+		return result;
+	}
+
+	@Bean
+	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
+	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
+	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
+	public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
+			RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
+		return new RestTemplateTransportClientFactories(optionalArgs);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
+	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+		return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
+	}
+
 	private static void setupTLS(AbstractDiscoveryClientOptionalArgs<?> args, TlsProperties properties)
 			throws GeneralSecurityException, IOException {
 		if (properties.isEnabled()) {
 			SSLContextFactory factory = new SSLContextFactory(properties);
 			args.setSSLContext(factory.createSSLContext());
 		}
-	}
-
-	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
-	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	protected static class RestTemplateConfiguration {
-
-		@Bean
-		@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
-				search = SearchStrategy.CURRENT)
-		public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(
-				TlsProperties tlsProperties,
-				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
-				ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
-			logger.info("Eureka HTTP Client uses RestTemplate.");
-			RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
-					eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable);
-			setupTLS(result, tlsProperties);
-			return result;
-		}
-
-		@Bean
-		@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
-		public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
-				RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
-			return new RestTemplateTransportClientFactories(optionalArgs);
-		}
-
-		@Bean
-		@ConditionalOnMissingBean
-		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-				RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
-		}
-
 	}
 
 	@Configuration(proxyBeanMethods = false)
