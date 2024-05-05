@@ -179,7 +179,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(value = TransportClientFactories.class, search = SearchStrategy.CURRENT)
-		public RestClientTransportClientFactories webClientTransportClientFactories(
+		public RestClientTransportClientFactories restClientTransportClientFactories(
 				ObjectProvider<RestClient.Builder> builder) {
 			return new RestClientTransportClientFactories(builder::getIfAvailable);
 		}

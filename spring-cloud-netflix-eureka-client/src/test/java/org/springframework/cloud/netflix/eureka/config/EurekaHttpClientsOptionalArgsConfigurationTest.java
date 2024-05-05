@@ -41,7 +41,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class EurekaHttpClientsOptionalArgsConfigurationTest {
 
 	@Test
-	public void contextLoadsWithRestTemplateWhenWebClientIsDisabled() {
+	public void contextLoadsWithRestTemplateWhenWebClientDisabled() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 				.withPropertyValues("eureka.client.webclient.enabled=false").run(context -> {
 					assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
@@ -51,7 +51,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTest {
 	}
 
 	@Test
-	public void contextLoadsWithRestTemplateWhenRestClientIsDisabled() {
+	public void contextLoadsWithRestTemplateWhenRestClientDisabled() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 				.withPropertyValues("eureka.client.restclient.enabled=false").run(context -> {
 					assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);

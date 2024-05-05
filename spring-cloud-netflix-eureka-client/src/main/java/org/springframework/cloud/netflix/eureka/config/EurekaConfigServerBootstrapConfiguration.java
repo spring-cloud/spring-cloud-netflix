@@ -120,7 +120,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(EurekaHttpClient.class)
-		public RestClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(EurekaClientConfigBean config,
+		public RestClientEurekaHttpClient configDiscoveryRestClientEurekaHttpClient(EurekaClientConfigBean config,
 				ObjectProvider<RestClient.Builder> builder, Environment env) {
 			return (RestClientEurekaHttpClient) new RestClientTransportClientFactory(builder::getIfAvailable)
 					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));

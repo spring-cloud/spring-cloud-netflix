@@ -46,7 +46,7 @@ class EurekaConfigServerBootstrapConfigurationRestClientTests {
 	}
 
 	@Test
-	void properBeansCreatedWhenEnabledWebClientDisabled() {
+	void properBeansCreatedWhenEnabledRestClientDisabled() {
 		new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
