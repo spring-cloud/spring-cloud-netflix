@@ -3,9 +3,13 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-netflix-docs-build</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<parent>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-netflix</artifactId>
+		<version>4.1.3-SNAPSHOT</version>
+	</parent>
 
 	<name>Spring Cloud Netflix Docs Build</name>
 	<description>Builds Spring Cloud Netflix Docs.</description>
@@ -22,56 +26,12 @@
 		<url>https://github.com/spring-cloud/spring-cloud-netflix/issues</url>
 	</issueManagement>
 
-	<properties>
-		<io.spring.maven.antora-version>0.0.3</io.spring.maven.antora-version>
-	</properties>
-
-
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>io.spring.maven.antora</groupId>
+				<groupId>org.antora</groupId>
 				<artifactId>antora-maven-plugin</artifactId>
-				<version>${io.spring.maven.antora-version}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<options>
-						<option>--to-dir=target/antora/site</option>
-						<option>--stacktrace</option>
-						<option>--fetch</option>
-					</options>
-					<environment>
-						<ALGOLIA_API_KEY>9d489079e5ec46dbb238909fee5c9c29</ALGOLIA_API_KEY>
-						<ALGOLIA_APP_ID>WB1FQYI187</ALGOLIA_APP_ID>
-						<ALGOLIA_INDEX_NAME>springdocs</ALGOLIA_INDEX_NAME>
-					</environment>
-					<packages>
-						<package>@antora/atlas-extension@1.0.0-alpha.1</package>
-						<package>@antora/collector-extension@1.0.0-alpha.3</package>
-						<package>@asciidoctor/tabs@1.0.0-beta.3</package>
-						<package>@springio/antora-extensions@1.6.0</package>
-						<package>@springio/asciidoctor-extensions@1.0.0-alpha.9</package>
-					</packages>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
-	<repositories>
-		<repository>
-			<id>spring-snapshot</id>
-			<url>https://repo.spring.io/snapshot</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-		<repository>
-			<id>spring-milestone</id>
-			<url>https://repo.spring.io/milestone</url>
-		</repository>
-	</repositories>
-
 </project>
