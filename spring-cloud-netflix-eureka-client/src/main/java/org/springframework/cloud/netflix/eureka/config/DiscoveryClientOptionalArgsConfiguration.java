@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -40,17 +39,21 @@ import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
+import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestClientTransportClientFactories;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFactories;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Daniel Lavoie
  * @author Armin Krezovic
+ * @author Wonchul Heo
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
@@ -68,8 +71,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-			havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
 			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
@@ -84,8 +85,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-			havingValue = "false")
 	public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
 			RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
 		return new RestTemplateTransportClientFactories(optionalArgs);
@@ -125,14 +124,11 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientConfiguration {
 
-		@Autowired
-		private TlsProperties tlsProperties;
-
 		@Bean
 		@ConditionalOnMissingBean(
 				value = { AbstractDiscoveryClientOptionalArgs.class, RestTemplateDiscoveryClientOptionalArgs.class },
 				search = SearchStrategy.CURRENT)
-		public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs(
+		public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
 				ObjectProvider<WebClient.Builder> builder) throws GeneralSecurityException, IOException {
 			logger.info("Eureka HTTP Client uses WebClient.");
 			WebClientDiscoveryClientOptionalArgs result = new WebClientDiscoveryClientOptionalArgs(
@@ -160,6 +156,32 @@ public class DiscoveryClientOptionalArgsConfiguration {
 			throw new IllegalStateException(
 					"eureka.client.webclient.enabled is true, " + "but WebClient is not on the classpath. Please add "
 							+ "spring-boot-starter-webflux as a dependency.");
+		}
+
+	}
+
+	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
+	@ConditionalOnClass(name = "org.springframework.web.client.RestClient")
+	@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "true")
+	protected static class RestClientConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
+				search = SearchStrategy.CURRENT)
+		public RestClientDiscoveryClientOptionalArgs restClientDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
+				ObjectProvider<RestClient.Builder> builder) throws GeneralSecurityException, IOException {
+			logger.info("Eureka HTTP Client uses RestClient.");
+			RestClientDiscoveryClientOptionalArgs result = new RestClientDiscoveryClientOptionalArgs(
+					builder::getIfAvailable);
+			setupTLS(result, tlsProperties);
+			return result;
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(value = TransportClientFactories.class, search = SearchStrategy.CURRENT)
+		public RestClientTransportClientFactories restClientTransportClientFactories(
+				ObjectProvider<RestClient.Builder> builder) {
+			return new RestClientTransportClientFactories(builder::getIfAvailable);
 		}
 
 	}

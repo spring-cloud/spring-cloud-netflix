@@ -33,6 +33,7 @@ import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Bean;
 
@@ -80,6 +81,15 @@ public class RestTemplateEurekaClientTest extends BaseCertTest {
 				throws GeneralSecurityException, IOException {
 			return configuration.restTemplateDiscoveryClientOptionalArgs(tlsProperties,
 					eurekaClientHttpRequestFactorySupplier, new RestTemplateBuilderObjectProvider());
+		}
+
+		// Want to force reusing exactly the same bean as on production without excluding
+		// jersey from the classpath
+		@Bean
+		public RestTemplateTransportClientFactories forceRestTemplateTransportClientFactories(
+				DiscoveryClientOptionalArgsConfiguration configuration,
+				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
+			return configuration.restTemplateTransportClientFactories(discoveryClientOptionalArgs);
 		}
 
 	}
