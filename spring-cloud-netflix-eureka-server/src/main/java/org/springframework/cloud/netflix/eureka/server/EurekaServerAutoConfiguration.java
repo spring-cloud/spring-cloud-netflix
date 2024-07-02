@@ -115,6 +115,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author Fahim Farook
  * @author Weix Sun
  * @author Robert Bleyl
+ * @author Olga Maciaszek-Sharma
  */
 @Configuration(proxyBeanMethods = false)
 @Import(EurekaServerInitializerConfiguration.class)
