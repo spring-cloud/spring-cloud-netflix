@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -88,6 +89,8 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.configuration.SSLContextFactory;
+import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.eureka.EurekaConstants;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
@@ -112,6 +115,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author Fahim Farook
  * @author Weix Sun
  * @author Robert Bleyl
+ * @author Olga Maciaszek-Sharma
  */
 @Configuration(proxyBeanMethods = false)
 @Import(EurekaServerInitializerConfiguration.class)
@@ -205,8 +209,14 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 	@Bean
 	@ConditionalOnMissingBean(AbstractDiscoveryClientOptionalArgs.class)
-	public Jersey3DiscoveryClientOptionalArgs jersey3DiscoveryClientOptionalArgs() {
-		return new Jersey3DiscoveryClientOptionalArgs();
+	public Jersey3DiscoveryClientOptionalArgs jersey3DiscoveryClientOptionalArgs(
+			@Autowired(required = false) TlsProperties tlsProperties) throws GeneralSecurityException, IOException {
+		Jersey3DiscoveryClientOptionalArgs optionalArgs = new Jersey3DiscoveryClientOptionalArgs();
+		if (tlsProperties != null && tlsProperties.isEnabled()) {
+			SSLContextFactory factory = new SSLContextFactory(tlsProperties);
+			optionalArgs.setSSLContext(factory.createSSLContext());
+		}
+		return optionalArgs;
 	}
 
 	@Bean
