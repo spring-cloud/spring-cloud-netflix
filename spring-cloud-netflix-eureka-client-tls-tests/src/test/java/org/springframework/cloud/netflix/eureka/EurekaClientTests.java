@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EurekaClientTest extends BaseCertTest {
+public class EurekaClientTests extends BaseCertTests {
 
-	private static final Log log = LogFactory.getLog(EurekaClientTest.class);
+	private static final Log log = LogFactory.getLog(EurekaClientTests.class);
 
 	static EurekaServerRunner server;
 
@@ -37,11 +37,11 @@ public class EurekaClientTest extends BaseCertTest {
 
 	@BeforeAll
 	public static void setupAll() {
-		server = startEurekaServer(EurekaClientTest.TestEurekaServer.class);
-		service = startService(server, EurekaClientTest.TestApp.class);
+		server = startEurekaServer(EurekaClientTests.TestEurekaServer.class);
+		service = startService(server, EurekaClientTests.TestApp.class);
 		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
 		log.info("Successfully asserted that Jersey will be used");
-		waitForRegistration(() -> new EurekaClientTest().createEurekaClient());
+		waitForRegistration(() -> new EurekaClientTests().createEurekaClient());
 	}
 
 	@Override

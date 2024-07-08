@@ -26,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
+import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -45,12 +47,14 @@ import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClient
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFactories;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Daniel Lavoie
  * @author Armin Krezovic
+ * @author Olga Maciaszek-Sharma
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
@@ -66,7 +70,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
+	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -82,7 +86,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
+	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -108,7 +112,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(name = "org.glassfish.jersey.client.JerseyClient")
+	@Conditional(JerseyClientPresentAndEnabledCondition.class)
 	@ConditionalOnBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
 	static class DiscoveryClientOptionalArgsTlsConfiguration {
 
@@ -120,7 +124,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
+	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
 	@ConditionalOnClass(name = "org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientConfiguration {
@@ -151,8 +155,8 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnMissingClass({ "org.glassfish.jersey.client.JerseyClient",
-			"org.springframework.web.reactive.function.client.WebClient" })
+	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+	@ConditionalOnMissingClass("org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientNotFoundConfiguration {
 
@@ -160,6 +164,42 @@ public class DiscoveryClientOptionalArgsConfiguration {
 			throw new IllegalStateException(
 					"eureka.client.webclient.enabled is true, " + "but WebClient is not on the classpath. Please add "
 							+ "spring-boot-starter-webflux as a dependency.");
+		}
+
+	}
+
+	static class JerseyClientPresentAndEnabledCondition extends AllNestedConditions {
+
+		JerseyClientPresentAndEnabledCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnClass(name = "org.glassfish.jersey.client.JerseyClient")
+		static class OnJerseyClientPresent {
+
+		}
+
+		@ConditionalOnProperty(value = "eureka.client.jersey.enabled", matchIfMissing = true)
+		static class OnJerseyClientEnabled {
+
+		}
+
+	}
+
+	static class JerseyClientNotPresentOrNotEnabledCondition extends AnyNestedCondition {
+
+		JerseyClientNotPresentOrNotEnabledCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
+		static class OnJerseyClientMissing {
+
+		}
+
+		@ConditionalOnProperty(value = "eureka.client.jersey.enabled", havingValue = "false")
+		static class OnJerseyClientDisabled {
+
 		}
 
 	}

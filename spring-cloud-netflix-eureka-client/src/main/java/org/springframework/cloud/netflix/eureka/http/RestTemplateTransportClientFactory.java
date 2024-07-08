@@ -264,10 +264,10 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		@Override
 		protected boolean hasError(HttpStatusCode statusCode) {
 			/**
-			 * When the Eureka server restarts and a client tries to sent a heartbeat the
-			 * server will respond with a 404. By default RestTemplate will throw an
+			 * When the Eureka server restarts and a client tries to send a heartbeat the
+			 * server will respond with a 404. By default, RestTemplate will throw an
 			 * exception in this case. What we want is to return the 404 to the upstream
-			 * code so it will send another registration request to the server.
+			 * code, so it will send another registration request to the server.
 			 */
 			if (statusCode.is4xxClientError()) {
 				return false;

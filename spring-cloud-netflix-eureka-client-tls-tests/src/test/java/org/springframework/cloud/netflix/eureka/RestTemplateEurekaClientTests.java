@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ import org.springframework.context.annotation.Bean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RestTemplateEurekaClientTest extends BaseCertTest {
+public class RestTemplateEurekaClientTests extends BaseCertTests {
 
-	private static final Log log = LogFactory.getLog(RestTemplateEurekaClientTest.class);
+	private static final Log log = LogFactory.getLog(RestTemplateEurekaClientTests.class);
 
 	private static EurekaServerRunner server;
 
@@ -48,12 +48,12 @@ public class RestTemplateEurekaClientTest extends BaseCertTest {
 
 	@BeforeAll
 	public static void setupAll() {
-		server = startEurekaServer(RestTemplateEurekaClientTest.RestTemplateTestEurekaServer.class);
-		service = startService(server, RestTemplateEurekaClientTest.RestTemplateTestApp.class);
+		server = startEurekaServer(RestTemplateEurekaClientTests.RestTemplateTestEurekaServer.class);
+		service = startService(server, RestTemplateEurekaClientTests.RestTemplateTestApp.class);
 		// Will use RestTemplate
 		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
 		log.info("Successfully asserted that RestTemplate will be used");
-		waitForRegistration(() -> new RestTemplateEurekaClientTest().createEurekaClient());
+		waitForRegistration(() -> new RestTemplateEurekaClientTests().createEurekaClient());
 	}
 
 	@AfterAll

@@ -294,6 +294,8 @@ The following example shows the dependencies you need to add:
 </dependencies>
 ----
 
+If you have `JerseyClient` on the classpath but do not wish to use it in your `EuerekaClient`, make sure to set `eureka.client.jersey.enabled` to `false`.
+
 === Alternatives to the Native Netflix EurekaClient
 
 You need not use the raw Netflix `EurekaClient`.
