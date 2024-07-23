@@ -61,13 +61,13 @@ abstract class AbstractEurekaHttpClientTests {
 	@Test
 	void testSendHeartBeatFourOFour() {
 		assertThat(eurekaHttpClient.sendHeartBeat("fourOFour", "test", info, null).getStatusCode())
-				.isEqualTo(HttpStatus.NOT_FOUND.value());
+			.isEqualTo(HttpStatus.NOT_FOUND.value());
 	}
 
 	@Test
 	void testSendHeartBeatFourOFourWithBody() {
 		assertThat(eurekaHttpClient.sendHeartBeat("fourOFourWithBody", "test", info, null).getStatusCode())
-				.isEqualTo(HttpStatus.NOT_FOUND.value());
+			.isEqualTo(HttpStatus.NOT_FOUND.value());
 	}
 
 	@ParameterizedTest
@@ -75,13 +75,13 @@ abstract class AbstractEurekaHttpClientTests {
 	void testStatusUpdate(String instanceId) {
 		assertThat(
 				eurekaHttpClient.statusUpdate("test", instanceId, InstanceInfo.InstanceStatus.UP, info).getStatusCode())
-						.isEqualTo(HttpStatus.OK.value());
+			.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
 	void testDeleteStatusOverride() {
 		assertThat(eurekaHttpClient.deleteStatusOverride("test", "test", info).getStatusCode())
-				.isEqualTo(HttpStatus.OK.value());
+			.isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test

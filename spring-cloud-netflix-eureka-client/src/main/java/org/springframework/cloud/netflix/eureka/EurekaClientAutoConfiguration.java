@@ -281,8 +281,11 @@ public class EurekaClientAutoConfiguration {
 		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient,
 				CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager,
 				@Autowired(required = false) ObjectProvider<HealthCheckHandler> healthCheckHandler) {
-			return EurekaRegistration.builder(instanceConfig).with(applicationInfoManager).with(eurekaClient)
-					.with(healthCheckHandler).build();
+			return EurekaRegistration.builder(instanceConfig)
+				.with(applicationInfoManager)
+				.with(eurekaClient)
+				.with(healthCheckHandler)
+				.build();
 		}
 
 	}
@@ -340,8 +343,11 @@ public class EurekaClientAutoConfiguration {
 		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient,
 				CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager,
 				@Autowired(required = false) ObjectProvider<HealthCheckHandler> healthCheckHandler) {
-			return EurekaRegistration.builder(instanceConfig).with(applicationInfoManager).with(eurekaClient)
-					.with(healthCheckHandler).build();
+			return EurekaRegistration.builder(instanceConfig)
+				.with(applicationInfoManager)
+				.with(eurekaClient)
+				.with(healthCheckHandler)
+				.build();
 		}
 
 	}
@@ -411,75 +417,77 @@ class EurekaClientHints implements RuntimeHintsRegistrar {
 		if (!ClassUtils.isPresent("com.netflix.discovery.DiscoveryClient", classLoader)) {
 			return;
 		}
-		hints.reflection().registerType(TypeReference.of(DiscoveryClient.class),
-				hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INTROSPECT_DECLARED_METHODS))
-				.registerType(TypeReference.of(EurekaEndpoint.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
-				.registerType(TypeReference.of(DefaultEndpoint.class),
-						hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
-				.registerType(TypeReference.of(EurekaHttpClientDecorator.class),
-						hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS,
-								MemberCategory.INTROSPECT_DECLARED_METHODS))
-				.registerType(TypeReference.of(EurekaHttpResponse.class),
-						hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
-				.registerType(TypeReference.of(EurekaHttpClientDecorator.RequestExecutor.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
-				.registerType(TypeReference.of(ApplicationInfoManager.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
-				.registerType(TypeReference.of(InstanceInfo.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
-				.registerType(TypeReference.of(InstanceInfo.ActionType.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(InstanceInfo.PortWrapper.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(LeaseInfo.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(MyDataCenterInfo.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(DataCenterInfo.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(DataCenterInfo.Name.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(EurekaClient.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS))
-				.registerType(TypeReference.of(TimedSupervisorTask.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(DataCenterTypeInfoResolver.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
-				.registerType(TypeReference.of(ApplicationsJacksonBuilder.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(InstanceInfoJsonMixIn.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(Application.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(Applications.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(AsyncResolver.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(RetryableEurekaHttpClient.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(SessionedEurekaHttpClient.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.DECLARED_FIELDS))
-				.registerType(TypeReference.of(EurekaServiceInstance.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS));
+		hints.reflection()
+			.registerType(TypeReference.of(DiscoveryClient.class),
+					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS,
+							MemberCategory.INTROSPECT_DECLARED_METHODS))
+			.registerType(TypeReference.of(EurekaEndpoint.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
+			.registerType(TypeReference.of(DefaultEndpoint.class),
+					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
+			.registerType(TypeReference.of(EurekaHttpClientDecorator.class),
+					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS,
+							MemberCategory.INTROSPECT_DECLARED_METHODS))
+			.registerType(TypeReference.of(EurekaHttpResponse.class),
+					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
+			.registerType(TypeReference.of(EurekaHttpClientDecorator.RequestExecutor.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
+			.registerType(TypeReference.of(ApplicationInfoManager.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
+			.registerType(TypeReference.of(InstanceInfo.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
+			.registerType(TypeReference.of(InstanceInfo.ActionType.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(InstanceInfo.PortWrapper.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(LeaseInfo.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(MyDataCenterInfo.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(DataCenterInfo.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(DataCenterInfo.Name.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(EurekaClient.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS))
+			.registerType(TypeReference.of(TimedSupervisorTask.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(DataCenterTypeInfoResolver.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
+			.registerType(TypeReference.of(ApplicationsJacksonBuilder.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(InstanceInfoJsonMixIn.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(Application.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(Applications.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(AsyncResolver.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(RetryableEurekaHttpClient.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(SessionedEurekaHttpClient.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.DECLARED_FIELDS))
+			.registerType(TypeReference.of(EurekaServiceInstance.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS));
 	}
 
 }

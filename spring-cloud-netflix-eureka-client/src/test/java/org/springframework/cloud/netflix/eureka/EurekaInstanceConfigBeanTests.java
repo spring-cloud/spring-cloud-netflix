@@ -169,7 +169,8 @@ class EurekaInstanceConfigBeanTests {
 		setupContext();
 		EurekaInstanceConfigBean instance = getInstanceConfig();
 		assertThat(getInstanceConfig().getHostname().equals(instance.getIpAddress()))
-				.as("Wrong hostname: " + instance.getHostname()).isTrue();
+			.as("Wrong hostname: " + instance.getHostname())
+			.isTrue();
 
 	}
 
@@ -184,12 +185,14 @@ class EurekaInstanceConfigBeanTests {
 
 	@Test
 	void testCustomVirtualHostName() {
-		TestPropertyValues.of("spring.application.name:myapp", "eureka.instance.virtualHostName=myvirthost",
-				"eureka.instance.secureVirtualHostName=mysecurevirthost").applyTo(this.context);
+		TestPropertyValues
+			.of("spring.application.name:myapp", "eureka.instance.virtualHostName=myvirthost",
+					"eureka.instance.secureVirtualHostName=mysecurevirthost")
+			.applyTo(this.context);
 		setupContext();
 		assertThat(getInstanceConfig().getVirtualHostName()).as("virtualHostName wrong").isEqualTo("myvirthost");
 		assertThat(getInstanceConfig().getSecureVirtualHostName()).as("secureVirtualHostName wrong")
-				.isEqualTo("mysecurevirthost");
+			.isEqualTo("mysecurevirthost");
 
 	}
 
@@ -198,9 +201,9 @@ class EurekaInstanceConfigBeanTests {
 		setupContext();
 		assertThat(getInstanceConfig().getAppname()).as("default app name is wrong").isEqualTo("unknown");
 		assertThat(getInstanceConfig().getVirtualHostName()).as("default virtual hostname is wrong")
-				.isEqualTo("unknown");
+			.isEqualTo("unknown");
 		assertThat(getInstanceConfig().getSecureVirtualHostName()).as("default secure virtual hostname is wrong")
-				.isEqualTo("unknown");
+			.isEqualTo("unknown");
 	}
 
 	@Test

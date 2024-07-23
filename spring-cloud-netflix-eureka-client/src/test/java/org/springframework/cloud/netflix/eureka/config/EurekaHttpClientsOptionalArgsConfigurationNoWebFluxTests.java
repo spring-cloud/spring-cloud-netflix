@@ -46,7 +46,8 @@ public class EurekaHttpClientsOptionalArgsConfigurationNoWebFluxTests {
 		try {
 			TomcatURLStreamHandlerFactory.disable();
 			ctx = new SpringApplicationBuilder(EurekaSampleApplication.class)
-					.properties("eureka.client.webclient.enabled=true").run();
+				.properties("eureka.client.webclient.enabled=true")
+				.run();
 			fail("exception not thrown");
 		}
 		catch (Exception e) {

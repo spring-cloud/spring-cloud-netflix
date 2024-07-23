@@ -83,8 +83,8 @@ class RefreshablePeerEurekaNodesTests {
 		this.context.publishEvent(new EnvironmentChangeEvent(new HashSet<>(Arrays.asList(USE_DNS, DEFAULT_ZONE))));
 
 		assertThat(serviceUrlMatches("https://default-host1:8678/eureka/"))
-				.as("PeerEurekaNodes' are updated when eureka.client.use-dns-for-fetching-service-urls is true")
-				.isFalse();
+			.as("PeerEurekaNodes' are updated when eureka.client.use-dns-for-fetching-service-urls is true")
+			.isFalse();
 	}
 
 	@Test
@@ -95,8 +95,8 @@ class RefreshablePeerEurekaNodesTests {
 		this.context.publishEvent(new EnvironmentChangeEvent(new HashSet<>(Arrays.asList(USE_DNS, DEFAULT_ZONE))));
 
 		assertThat(serviceUrlMatches("https://default-host2:8678/eureka/"))
-				.as("PeerEurekaNodes' are not updated when eureka.client.use-dns-for-fetching-service-urls is false")
-				.isTrue();
+			.as("PeerEurekaNodes' are not updated when eureka.client.use-dns-for-fetching-service-urls is false")
+			.isTrue();
 	}
 
 	@Test
@@ -108,12 +108,14 @@ class RefreshablePeerEurekaNodesTests {
 				"eureka.client.service-url.region2-zone=https://region2-zone-host:8678/eureka/");
 		this.context.publishEvent(new EnvironmentChangeEvent(Collections.singleton(REGION)));
 		assertThat(serviceUrlMatches("https://region1-zone-host:8678/eureka/"))
-				.as("PeerEurekaNodes' are not updated when eureka.client.region is changed").isTrue();
+			.as("PeerEurekaNodes' are not updated when eureka.client.region is changed")
+			.isTrue();
 
 		changeProperty("eureka.client.region=region2");
 		this.context.publishEvent(new EnvironmentChangeEvent(Collections.singleton(REGION)));
 		assertThat(serviceUrlMatches("https://region2-zone-host:8678/eureka/"))
-				.as("PeerEurekaNodes' are not updated when eureka.client.region is changed").isTrue();
+			.as("PeerEurekaNodes' are not updated when eureka.client.region is changed")
+			.isTrue();
 	}
 
 	@Test
@@ -124,14 +126,17 @@ class RefreshablePeerEurekaNodesTests {
 				"eureka.client.service-url.defaultZone=https://default-host3:8678/eureka/");
 		this.context.publishEvent(
 				new EnvironmentChangeEvent(Collections.singleton("eureka.client.availability-zones.region3")));
-		assertThat(this.peerEurekaNodes.getPeerEurekaNodes().get(0).getServiceUrl()
-				.equals("https://default-host3:8678/eureka/")).isTrue();
+		assertThat(this.peerEurekaNodes.getPeerEurekaNodes()
+			.get(0)
+			.getServiceUrl()
+			.equals("https://default-host3:8678/eureka/")).isTrue();
 
 		changeProperty("eureka.client.availability-zones.region4=region4-zone");
 		this.context.publishEvent(
 				new EnvironmentChangeEvent(Collections.singleton("eureka.client.availability-zones.region4")));
 		assertThat(serviceUrlMatches("https://region4-zone-host:8678/eureka/"))
-				.as("PeerEurekaNodes' are not updated when eureka.client.availability-zones are changed").isTrue();
+			.as("PeerEurekaNodes' are not updated when eureka.client.availability-zones are changed")
+			.isTrue();
 	}
 
 	@Test
@@ -168,7 +173,8 @@ class RefreshablePeerEurekaNodesTests {
 	void peerEurekaNodesIsRefreshablePeerEurekaNodes() {
 		assertThat(this.peerEurekaNodes).isNotNull();
 		assertThat(this.peerEurekaNodes instanceof RefreshablePeerEurekaNodes)
-				.as("PeerEurekaNodes should be an instance of RefreshablePeerEurekaNodes").isTrue();
+			.as("PeerEurekaNodes should be an instance of RefreshablePeerEurekaNodes")
+			.isTrue();
 	}
 
 	@Test
@@ -177,7 +183,7 @@ class RefreshablePeerEurekaNodesTests {
 				"eureka.client.service-url.defaultZone=https://defaul-host3:8678/eureka/,http://defaul-host4:8678/eureka/");
 		forceUpdate();
 		assertThat(this.peerEurekaNodes.getPeerEurekaNodes().size()).as("PeerEurekaNodes' peer count is incorrect.")
-				.isEqualTo(2);
+			.isEqualTo(2);
 	}
 
 	@Test
@@ -185,7 +191,8 @@ class RefreshablePeerEurekaNodesTests {
 		changeProperty("eureka.client.service-url.defaultZone=https://defaul-host4:8678/eureka/");
 		forceUpdate();
 		assertThat(serviceUrlMatches("https://defaul-host4:8678/eureka/"))
-				.as("PeerEurekaNodes' new peer[0] is incorrect").isTrue();
+			.as("PeerEurekaNodes' new peer[0] is incorrect")
+			.isTrue();
 	}
 
 	@Test
@@ -198,7 +205,8 @@ class RefreshablePeerEurekaNodesTests {
 		final String body = entity.getBody();
 		assertThat(body).isNotNull();
 		assertThat(body.contains("https://defaul-host5:8678/eureka/"))
-				.as("DS Replicas not updated in the Eureka Server dashboard").isTrue();
+			.as("DS Replicas not updated in the Eureka Server dashboard")
+			.isTrue();
 	}
 
 	@Test
@@ -206,10 +214,11 @@ class RefreshablePeerEurekaNodesTests {
 		changeProperty("eureka.client.use-dns-for-fetching-service-urls=false",
 				"eureka.client.region=unavailable-region", // to force defaultZone
 				"eureka.client.service-url.defaultZone=https://defaul-host6:8678/eureka/");
-		this.context.publishEvent(
-				new EnvironmentChangeEvent(Collections.singleton("eureka.client.serviceUrl.defaultZone")));
+		this.context
+			.publishEvent(new EnvironmentChangeEvent(Collections.singleton("eureka.client.serviceUrl.defaultZone")));
 		assertThat(serviceUrlMatches("https://defaul-host6:8678/eureka/"))
-				.as("PeerEurekaNodes' are updated for keys with relaxed binding").isFalse();
+			.as("PeerEurekaNodes' are updated for keys with relaxed binding")
+			.isFalse();
 	}
 
 	/*
@@ -225,8 +234,8 @@ class RefreshablePeerEurekaNodesTests {
 	private void forceUpdate() {
 		changeProperty("eureka.client.use-dns-for-fetching-service-urls=false",
 				"eureka.client.region=unavailable-region"); // to force defaultZone
-		this.context.publishEvent(
-				new EnvironmentChangeEvent(Collections.singleton("eureka.client.service-url.defaultZone")));
+		this.context
+			.publishEvent(new EnvironmentChangeEvent(Collections.singleton("eureka.client.service-url.defaultZone")));
 	}
 
 	/*

@@ -36,9 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EurekaReactiveDiscoveryClientConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
-					ReactiveCommonsClientAutoConfiguration.class, EurekaClientAutoConfiguration.class,
-					DiscoveryClientOptionalArgsConfiguration.class, EurekaReactiveDiscoveryClientConfiguration.class));
+		.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
+				ReactiveCommonsClientAutoConfiguration.class, EurekaClientAutoConfiguration.class,
+				DiscoveryClientOptionalArgsConfiguration.class, EurekaReactiveDiscoveryClientConfiguration.class));
 
 	@Test
 	void shouldWorkWithDefaults() {

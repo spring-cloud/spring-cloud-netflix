@@ -138,7 +138,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 
 	private RestTemplate restTemplate(String serviceUrl) {
 		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
-				.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
+			.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
 
 		RestTemplate restTemplate;
 
@@ -155,7 +155,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 				String[] credentials = serviceURI.getUserInfo().split(":");
 				if (credentials.length == 2) {
 					restTemplate.getInterceptors()
-							.add(new BasicAuthenticationInterceptor(credentials[0], credentials[1]));
+						.add(new BasicAuthenticationInterceptor(credentials[0], credentials[1]));
 				}
 			}
 		}

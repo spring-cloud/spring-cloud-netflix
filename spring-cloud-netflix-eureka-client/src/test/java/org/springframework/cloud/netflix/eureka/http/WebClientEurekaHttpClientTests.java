@@ -48,7 +48,7 @@ class WebClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 	@BeforeEach
 	void setup() {
 		eurekaHttpClient = new WebClientTransportClientFactory(WebClient::builder)
-				.newClient(new DefaultEndpoint(serviceUrl));
+			.newClient(new DefaultEndpoint(serviceUrl));
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
 

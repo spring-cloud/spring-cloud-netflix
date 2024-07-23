@@ -41,19 +41,21 @@ public class EurekaHttpClientsOptionalArgsConfigurationTests {
 	@Test
 	public void contextLoadsWithRestTemplate() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
-				.withPropertyValues("eureka.client.webclient.enabled=false").run(context -> {
-					assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
-					assertThat(context).doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
-				});
+			.withPropertyValues("eureka.client.webclient.enabled=false")
+			.run(context -> {
+				assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
+				assertThat(context).doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
+			});
 	}
 
 	@Test
 	public void contextLoadsWithWebClient() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
-				.withPropertyValues("eureka.client.webclient.enabled=true").run(context -> {
-					assertThat(context).doesNotHaveBean(RestTemplateDiscoveryClientOptionalArgs.class);
-					assertThat(context).hasSingleBean(WebClientDiscoveryClientOptionalArgs.class);
-				});
+			.withPropertyValues("eureka.client.webclient.enabled=true")
+			.run(context -> {
+				assertThat(context).doesNotHaveBean(RestTemplateDiscoveryClientOptionalArgs.class);
+				assertThat(context).hasSingleBean(WebClientDiscoveryClientOptionalArgs.class);
+			});
 	}
 
 	@Test

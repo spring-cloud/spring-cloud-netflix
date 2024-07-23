@@ -65,26 +65,46 @@ import static org.springframework.util.Assert.isTrue;
 @SpringBootApplication
 public class EurekaServerMockApplication {
 
-	private static final InstanceInfo INFO = InstanceInfo.Builder.newBuilder().setInstanceId("app1instance1")
-			.setAppName("app1").setAppNameForDeser("app1fordeser").setAppGroupName("app1group")
-			.setAppGroupNameForDeser("app1group1fordeser").setHostName("app1host1")
-			.setStatus(InstanceInfo.InstanceStatus.UP).setOverriddenStatus(InstanceInfo.InstanceStatus.DOWN)
-			.setIPAddr("127.0.0.1").setSID("app1sid").setPort(8080).setSecurePort(4443)
-			.enablePort(InstanceInfo.PortType.UNSECURE, true).setHomePageUrl("/", "http://localhost/")
-			.setHomePageUrlForDeser("http://localhost/").setStatusPageUrl("/status", "http://localhost/info")
-			.setStatusPageUrlForDeser("http://localhost/status")
-			.setHealthCheckUrls("/ping", "http://localhost/ping", null)
-			.setHealthCheckUrlsForDeser("http://localhost/ping", null).setVIPAddress("localhost:8080")
-			.setVIPAddressDeser("localhost:8080").setSecureVIPAddress("localhost:4443")
-			.setSecureVIPAddressDeser("localhost:4443")
-			.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
-			.setLeaseInfo(LeaseInfo.Builder.newBuilder().setDurationInSecs(30).setRenewalIntervalInSecs(30)
-					.setEvictionTimestamp(System.currentTimeMillis() + 30000)
-					.setRenewalTimestamp(System.currentTimeMillis() - 1000)
-					.setRegistrationTimestamp(System.currentTimeMillis() - 2000).build())
-			.add("metadatakey1", "metadatavalue1").setASGName("asg1").setIsCoordinatingDiscoveryServer(false)
-			.setLastUpdatedTimestamp(System.currentTimeMillis()).setLastDirtyTimestamp(System.currentTimeMillis())
-			.setActionType(InstanceInfo.ActionType.ADDED).setNamespace("namespace1").build();
+	private static final InstanceInfo INFO = InstanceInfo.Builder.newBuilder()
+		.setInstanceId("app1instance1")
+		.setAppName("app1")
+		.setAppNameForDeser("app1fordeser")
+		.setAppGroupName("app1group")
+		.setAppGroupNameForDeser("app1group1fordeser")
+		.setHostName("app1host1")
+		.setStatus(InstanceInfo.InstanceStatus.UP)
+		.setOverriddenStatus(InstanceInfo.InstanceStatus.DOWN)
+		.setIPAddr("127.0.0.1")
+		.setSID("app1sid")
+		.setPort(8080)
+		.setSecurePort(4443)
+		.enablePort(InstanceInfo.PortType.UNSECURE, true)
+		.setHomePageUrl("/", "http://localhost/")
+		.setHomePageUrlForDeser("http://localhost/")
+		.setStatusPageUrl("/status", "http://localhost/info")
+		.setStatusPageUrlForDeser("http://localhost/status")
+		.setHealthCheckUrls("/ping", "http://localhost/ping", null)
+		.setHealthCheckUrlsForDeser("http://localhost/ping", null)
+		.setVIPAddress("localhost:8080")
+		.setVIPAddressDeser("localhost:8080")
+		.setSecureVIPAddress("localhost:4443")
+		.setSecureVIPAddressDeser("localhost:4443")
+		.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
+		.setLeaseInfo(LeaseInfo.Builder.newBuilder()
+			.setDurationInSecs(30)
+			.setRenewalIntervalInSecs(30)
+			.setEvictionTimestamp(System.currentTimeMillis() + 30000)
+			.setRenewalTimestamp(System.currentTimeMillis() - 1000)
+			.setRegistrationTimestamp(System.currentTimeMillis() - 2000)
+			.build())
+		.add("metadatakey1", "metadatavalue1")
+		.setASGName("asg1")
+		.setIsCoordinatingDiscoveryServer(false)
+		.setLastUpdatedTimestamp(System.currentTimeMillis())
+		.setLastDirtyTimestamp(System.currentTimeMillis())
+		.setActionType(InstanceInfo.ActionType.ADDED)
+		.setNamespace("namespace1")
+		.build();
 
 	/**
 	 * Simulates Eureka Server own's serialization.
@@ -166,8 +186,11 @@ public class EurekaServerMockApplication {
 
 		@Bean
 		public InMemoryUserDetailsManager userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("test").password("test").roles("USER")
-					.build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("test")
+				.password("test")
+				.roles("USER")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 

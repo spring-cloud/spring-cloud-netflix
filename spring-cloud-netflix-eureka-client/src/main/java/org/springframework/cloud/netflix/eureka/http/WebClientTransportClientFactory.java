@@ -155,9 +155,11 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 				return Mono.just(newResponse);
 			}
 			if (clientResponse.statusCode().equals(HttpStatus.NOT_FOUND)) {
-				ClientResponse newResponse = clientResponse.mutate().statusCode(clientResponse.statusCode())
-						// ignore body on 404 for heartbeat, see gh-4145
-						.body(Flux.empty()).build();
+				ClientResponse newResponse = clientResponse.mutate()
+					.statusCode(clientResponse.statusCode())
+					// ignore body on 404 for heartbeat, see gh-4145
+					.body(Flux.empty())
+					.build();
 				return Mono.just(newResponse);
 			}
 			return Mono.just(clientResponse);

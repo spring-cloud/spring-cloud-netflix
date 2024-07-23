@@ -36,13 +36,17 @@ public class JerseyClientOptionalArgsConfigurationTests {
 	@Test
 	void shouldCreateRestTemplateDiscoveryClientOptionalArgsWhenJerseyClientDisabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(DiscoveryClientOptionalArgsConfiguration.class))
-				.withPropertyValues("eureka.client.jersey.enabled=false").run(context -> {
-					assertThat(context).hasSingleBean(AbstractDiscoveryClientOptionalArgs.class);
-					assertThat(context.getBeansOfType(AbstractDiscoveryClientOptionalArgs.class).values().stream()
-							.findFirst().get()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
-					assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
-				});
+			.withConfiguration(AutoConfigurations.of(DiscoveryClientOptionalArgsConfiguration.class))
+			.withPropertyValues("eureka.client.jersey.enabled=false")
+			.run(context -> {
+				assertThat(context).hasSingleBean(AbstractDiscoveryClientOptionalArgs.class);
+				assertThat(context.getBeansOfType(AbstractDiscoveryClientOptionalArgs.class)
+					.values()
+					.stream()
+					.findFirst()
+					.get()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
+				assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
+			});
 	}
 
 }

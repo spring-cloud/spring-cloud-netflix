@@ -71,8 +71,10 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).path("apps/{appName}").buildAndExpand(info.getAppName())
-				.toUri();
+		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+			.path("apps/{appName}")
+			.buildAndExpand(info.getAppName())
+			.toUri();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(HttpHeaders.ACCEPT_ENCODING, "gzip");
@@ -86,8 +88,10 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).path("apps/{appName}/{id}").buildAndExpand(appName, id)
-				.toUri();
+		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+			.path("apps/{appName}/{id}")
+			.buildAndExpand(appName, id)
+			.toUri();
 
 		ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
 
@@ -97,9 +101,10 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info,
 			InstanceStatus overriddenStatus) {
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serviceUrl).path("apps/{appName}/{id}")
-				.queryParam("status", info.getStatus().toString())
-				.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString());
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+			.path("apps/{appName}/{id}")
+			.queryParam("status", info.getStatus().toString())
+			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString());
 
 		if (overriddenStatus != null) {
 			uriBuilder = uriBuilder.queryParam("overriddenstatus", overriddenStatus.name());
@@ -110,7 +115,8 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		ResponseEntity<InstanceInfo> response = restTemplate.exchange(uri, HttpMethod.PUT, null, InstanceInfo.class);
 
 		EurekaHttpResponseBuilder<InstanceInfo> eurekaResponseBuilder = anEurekaHttpResponse(
-				response.getStatusCode().value(), InstanceInfo.class).headers(headersOf(response));
+				response.getStatusCode().value(), InstanceInfo.class)
+			.headers(headersOf(response));
 
 		if (response.hasBody()) {
 			eurekaResponseBuilder.entity(response.getBody());
@@ -122,10 +128,12 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Void> statusUpdate(String appName, String id, InstanceStatus newStatus,
 			InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).path("apps/{appName}/{id}/status")
-				.queryParam("value", newStatus.name())
-				.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString()).buildAndExpand(appName, id)
-				.toUri();
+		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+			.path("apps/{appName}/{id}/status")
+			.queryParam("value", newStatus.name())
+			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
+			.buildAndExpand(appName, id)
+			.toUri();
 
 		ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.PUT, null, Void.class);
 
@@ -134,9 +142,11 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> deleteStatusOverride(String appName, String id, InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).path("apps/{appName}/{id}/status")
-				.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString()).buildAndExpand(appName, id)
-				.toUri();
+		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+			.path("apps/{appName}/{id}/status")
+			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
+			.buildAndExpand(appName, id)
+			.toUri();
 
 		ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
 
@@ -162,7 +172,9 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 		return anEurekaHttpResponse(response.getStatusCode().value(),
 				response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody()
-						? (Applications) response.getBody() : null).headers(headersOf(response)).build();
+						? (Applications) response.getBody() : null)
+			.headers(headersOf(response))
+			.build();
 	}
 
 	@Override
@@ -209,7 +221,9 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 		return anEurekaHttpResponse(response.getStatusCode().value(),
 				response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody() ? response.getBody()
-						: null).headers(headersOf(response)).build();
+						: null)
+			.headers(headersOf(response))
+			.build();
 	}
 
 	@Override

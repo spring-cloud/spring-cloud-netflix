@@ -80,7 +80,7 @@ class InstanceRegistryTests {
 		assertThat(this.testEvents.applicationEvents.get(0) instanceof EurekaInstanceRegisteredEvent).isTrue();
 		// event details are correct
 		final EurekaInstanceRegisteredEvent registeredEvent = (EurekaInstanceRegisteredEvent) (this.testEvents.applicationEvents
-				.get(0));
+			.get(0));
 		assertThat(registeredEvent.getInstanceInfo()).isEqualTo(instanceInfo);
 		assertThat(registeredEvent.getLeaseDuration()).isEqualTo(leaseInfo.getDurationInSecs());
 		assertThat(registeredEvent.getSource()).isEqualTo(instanceRegistry);
@@ -95,7 +95,7 @@ class InstanceRegistryTests {
 		instanceRegistry.register(instanceInfo, false);
 		// instance info duration is set to default
 		final EurekaInstanceRegisteredEvent registeredEvent = (EurekaInstanceRegisteredEvent) (this.testEvents.applicationEvents
-				.get(0));
+			.get(0));
 		assertThat(registeredEvent.getLeaseDuration()).isEqualTo(LeaseInfo.DEFAULT_LEASE_DURATION);
 	}
 
@@ -112,7 +112,7 @@ class InstanceRegistryTests {
 		assertThat(this.testEvents.applicationEvents.get(1) instanceof EurekaInstanceCanceledEvent).isTrue();
 		// event details are correct
 		final EurekaInstanceCanceledEvent registeredEvent = (EurekaInstanceCanceledEvent) (this.testEvents.applicationEvents
-				.get(1));
+			.get(1));
 		assertThat(registeredEvent.getAppName()).isEqualTo(APP_NAME);
 		assertThat(registeredEvent.getServerId()).isEqualTo(INSTANCE_ID);
 		assertThat(registeredEvent.getSource()).isEqualTo(instanceRegistry);
@@ -135,7 +135,7 @@ class InstanceRegistryTests {
 		assertThat(this.testEvents.applicationEvents.get(3) instanceof EurekaInstanceRenewedEvent).isTrue();
 		// event details are correct
 		final EurekaInstanceRenewedEvent event1 = (EurekaInstanceRenewedEvent) (this.testEvents.applicationEvents
-				.get(2));
+			.get(2));
 		assertThat(event1.getAppName()).isEqualTo(APP_NAME);
 		assertThat(event1.getServerId()).isEqualTo(INSTANCE_ID);
 		assertThat(event1.getSource()).isEqualTo(instanceRegistry);
@@ -143,7 +143,7 @@ class InstanceRegistryTests {
 		assertThat(event1.isReplication()).isFalse();
 
 		final EurekaInstanceRenewedEvent event2 = (EurekaInstanceRenewedEvent) (this.testEvents.applicationEvents
-				.get(3));
+			.get(3));
 		assertThat(event2.getInstanceInfo()).isEqualTo(instanceInfo2);
 	}
 

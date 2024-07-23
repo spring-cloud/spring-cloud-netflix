@@ -63,96 +63,100 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	@Test
 	public void offByDefault() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void properBeansCreatedWhenDiscoveryEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true").run(this::assertEurekaBeansPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
+			.run(this::assertEurekaBeansPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenDiscoveryNotEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=false")
-				.run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=false")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenDiscoveryDisabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.disabled").run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.disabled")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenEurekaClientEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("eureka.client.enabled=true").run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("eureka.client.enabled=true")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenEurekaClientNotEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("eureka.client.enabled=false").run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("eureka.client.enabled=false")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenEurekaClientDisabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("eureka.client.disabled").run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("eureka.client.disabled")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void properBeansCreatedWhenDiscoveryEnabled_EurekaEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
-				.run(this::assertEurekaBeansPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
+			.run(this::assertEurekaBeansPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenDiscoveryEnabled_EurekaNotEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=false")
-				.run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=false")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenDiscoveryNotEnabled_EurekaEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=false", "eureka.client.enabled=true")
-				.run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=false", "eureka.client.enabled=true")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void beansNotCreatedWhenDiscoveryNotEnabled_EurekaNotEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=false", "eureka.client.enabled=false")
-				.run(this::assertEurekaBeansNotPresent);
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=false", "eureka.client.enabled=false")
+			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
 	public void eurekaDnsConfigurationWorks() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
-						"eureka.instance.hostname=eurekaclient1",
-						"eureka.client.use-dns-for-fetching-service-urls=true",
-						"eureka.client.eureka-server-d-n-s-name=myeurekahost",
-						"eureka.client.eureka-server-u-r-l-context=eureka", "eureka.client.eureka-server-port=30000")
-				.run(context -> assertThat(output)
-						.contains("Cannot get cnames bound to the region:txt.us-east-1.myeurekahost"));
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
+					"eureka.instance.hostname=eurekaclient1", "eureka.client.use-dns-for-fetching-service-urls=true",
+					"eureka.client.eureka-server-d-n-s-name=myeurekahost",
+					"eureka.client.eureka-server-u-r-l-context=eureka", "eureka.client.eureka-server-port=30000")
+			.run(context -> assertThat(output)
+				.contains("Cannot get cnames bound to the region:txt.us-east-1.myeurekahost"));
 	}
 
 	@Test
@@ -160,40 +164,43 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 		// FIXME: why do I need to do this? (fails in maven build without it.
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
-				.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
-						"eureka.client.enabled=true",
-						"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
-						"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
-				.run().close();
+			.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
+					"eureka.client.enabled=true",
+					"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
+					"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
+			.run()
+			.close();
 		assertThat(output).contains("eurekaConfigServerInstanceProvider finding instances for configserver")
-				.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
+			.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
 	}
 
 	@Test
 	public void eurekaConfigServerInstanceProviderCalledWithRemoteRegions() {
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
-				.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
-						"eureka.client.enabled=true", "eureka.client.fetchRemoteRegionsRegistry=us-east-1,us-east-2",
-						"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
-						"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
-				.run().close();
+			.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
+					"eureka.client.enabled=true", "eureka.client.fetchRemoteRegionsRegistry=us-east-1,us-east-2",
+					"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
+					"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
+			.run()
+			.close();
 		assertThat(output).contains("eurekaConfigServerInstanceProvider finding instances for configserver")
-				.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
+			.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
 	}
 
 	@Test
 	public void eurekaConfigServerInstanceProviderCalledWithVipAddress() {
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
-				.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
-						"eureka.client.enabled=true", "eureka.client.registryRefreshSingleVipAddress=vip1",
-						"eureka.client.fetchRemoteRegionsRegistry=us-east-1,us-east-2",
-						"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
-						"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
-				.run().close();
+			.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
+					"eureka.client.enabled=true", "eureka.client.registryRefreshSingleVipAddress=vip1",
+					"eureka.client.fetchRemoteRegionsRegistry=us-east-1,us-east-2",
+					"spring.main.sources=" + TestConfigDiscoveryBootstrapConfiguration.class.getName(),
+					"logging.level.org.springframework.cloud.netflix.eureka.config=DEBUG")
+			.run()
+			.close();
 		assertThat(output).contains("eurekaConfigServerInstanceProvider finding instances for configserver")
-				.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
+			.contains("eurekaConfigServerInstanceProvider found 1 instance(s) for configserver");
 	}
 
 	private void assertEurekaBeansPresent(AssertableApplicationContext context) {

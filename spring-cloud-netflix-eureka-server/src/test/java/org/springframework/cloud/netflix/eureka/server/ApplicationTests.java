@@ -59,7 +59,7 @@ class ApplicationTests {
 	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
-				.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
+			.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
@@ -99,12 +99,14 @@ class ApplicationTests {
 	@Test
 	void customCodecWorks() throws Exception {
 		assertThat(this.serverCodecs).as("serverCodecs is wrong type")
-				.isInstanceOf(EurekaServerAutoConfiguration.CloudServerCodecs.class);
+			.isInstanceOf(EurekaServerAutoConfiguration.CloudServerCodecs.class);
 		CodecWrapper codec = this.serverCodecs.getFullJsonCodec();
 		assertThat(codec).as("codec is wrong type").isInstanceOf(CloudJacksonJson.class);
 
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("fooapp").add("instanceId", "foo")
-				.build();
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+			.setAppName("fooapp")
+			.add("instanceId", "foo")
+			.build();
 		String encoded = codec.encode(instanceInfo);
 		InstanceInfo decoded = codec.decode(encoded, InstanceInfo.class);
 		assertThat(decoded.getInstanceId()).as("instanceId was wrong").isEqualTo("foo");

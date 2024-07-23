@@ -53,7 +53,7 @@ class ApplicationContextTests {
 	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
-				.getForEntity("http://localhost:" + this.port + "/context/eureka/apps", Map.class);
+			.getForEntity("http://localhost:" + this.port + "/context/eureka/apps", Map.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String computedPath = entity.getHeaders().getFirst("X-Version-Filter-Computed-Path");
 		assertThat(computedPath).isEqualTo("/context/eureka/v2/apps");
@@ -62,7 +62,7 @@ class ApplicationContextTests {
 	@Test
 	void dashboardLoads() {
 		ResponseEntity<String> entity = new TestRestTemplate()
-				.getForEntity("http://localhost:" + this.port + "/context/", String.class);
+			.getForEntity("http://localhost:" + this.port + "/context/", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		String body = entity.getBody();
 		// System.err.println(body);
@@ -75,14 +75,14 @@ class ApplicationContextTests {
 	@Test
 	void cssAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
-				.getForEntity("http://localhost:" + this.port + "/context/eureka/css/wro.css", String.class);
+			.getForEntity("http://localhost:" + this.port + "/context/eureka/css/wro.css", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
 	void jsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate()
-				.getForEntity("http://localhost:" + this.port + "/context/eureka/js/wro.js", String.class);
+			.getForEntity("http://localhost:" + this.port + "/context/eureka/js/wro.js", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 

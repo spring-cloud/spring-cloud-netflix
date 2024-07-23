@@ -77,7 +77,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) {
 		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory(properties,
 				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable)
-						.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+			.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 	}
 
 	@Bean
@@ -104,7 +104,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 		public WebClientEurekaHttpClient configDiscoveryWebClientEurekaHttpClient(EurekaClientConfigBean config,
 				ObjectProvider<WebClient.Builder> builder, Environment env) {
 			return (WebClientEurekaHttpClient) new WebClientTransportClientFactory(builder::getIfAvailable)
-					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 		}
 
 	}

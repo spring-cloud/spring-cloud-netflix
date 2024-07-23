@@ -76,11 +76,12 @@ class EurekaLoadBalancerClientConfigurationTests {
 	@Test
 	void disabledViaProperty() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(LoadBalancerEurekaAutoConfiguration.class))
-				.withPropertyValues("eureka.client.enabled=false").run(context -> {
-					assertThat(context).doesNotHaveBean(EurekaLoadBalancerProperties.class);
-					assertThat(context).doesNotHaveBean(LoadBalancerZoneConfig.class);
-				});
+			.withConfiguration(AutoConfigurations.of(LoadBalancerEurekaAutoConfiguration.class))
+			.withPropertyValues("eureka.client.enabled=false")
+			.run(context -> {
+				assertThat(context).doesNotHaveBean(EurekaLoadBalancerProperties.class);
+				assertThat(context).doesNotHaveBean(LoadBalancerZoneConfig.class);
+			});
 	}
 
 }

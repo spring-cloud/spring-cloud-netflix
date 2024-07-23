@@ -82,9 +82,9 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	private HttpClientConnectionManager buildConnectionManager(SSLContext sslContext, HostnameVerifier hostnameVerifier,
 			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
 		PoolingHttpClientConnectionManagerBuilder connectionManagerBuilder = PoolingHttpClientConnectionManagerBuilder
-				.create();
+			.create();
 		SSLConnectionSocketFactoryBuilder sslConnectionSocketFactoryBuilder = SSLConnectionSocketFactoryBuilder
-				.create();
+			.create();
 		if (sslContext != null) {
 			sslConnectionSocketFactoryBuilder.setSslContext(sslContext);
 		}
@@ -94,18 +94,18 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 		connectionManagerBuilder.setSSLSocketFactory(sslConnectionSocketFactoryBuilder.build());
 		if (restTemplateTimeoutProperties != null) {
 			connectionManagerBuilder.setDefaultSocketConfig(SocketConfig.custom()
-					.setSoTimeout(Timeout.of(restTemplateTimeoutProperties.getSocketTimeout(), TimeUnit.MILLISECONDS))
-					.build());
+				.setSoTimeout(Timeout.of(restTemplateTimeoutProperties.getSocketTimeout(), TimeUnit.MILLISECONDS))
+				.build());
 		}
 		return connectionManagerBuilder.build();
 	}
 
 	private RequestConfig buildRequestConfig() {
 		return RequestConfig.custom()
-				.setConnectTimeout(Timeout.of(restTemplateTimeoutProperties.getConnectTimeout(), TimeUnit.MILLISECONDS))
-				.setConnectionRequestTimeout(
-						Timeout.of(restTemplateTimeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS))
-				.build();
+			.setConnectTimeout(Timeout.of(restTemplateTimeoutProperties.getConnectTimeout(), TimeUnit.MILLISECONDS))
+			.setConnectionRequestTimeout(
+					Timeout.of(restTemplateTimeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS))
+			.build();
 	}
 
 }

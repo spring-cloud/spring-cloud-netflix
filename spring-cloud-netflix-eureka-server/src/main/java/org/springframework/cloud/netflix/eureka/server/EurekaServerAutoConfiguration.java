@@ -383,8 +383,9 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 		rc.register(new ContainerLifecycleListener() {
 			@Override
 			public void onStartup(Container container) {
-				ServiceLocator serviceLocator = container.getApplicationHandler().getInjectionManager()
-						.getInstance(ServiceLocator.class);
+				ServiceLocator serviceLocator = container.getApplicationHandler()
+					.getInjectionManager()
+					.getInstance(ServiceLocator.class);
 				SpringBridge.getSpringBridge().initializeSpringBridge(serviceLocator);
 				serviceLocator.getService(SpringIntoHK2Bridge.class).bridgeSpringBeanFactory(beanFactory);
 			}
@@ -483,17 +484,18 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 
 				String jerseyClientName = "Discovery-PeerNodeClient-" + hostname;
 				EurekaJersey3ClientImpl.EurekaJersey3ClientBuilder clientBuilder = new EurekaJersey3ClientImpl.EurekaJersey3ClientBuilder()
-						.withClientName(jerseyClientName).withUserAgent("Java-EurekaClient-Replication")
-						.withEncoderWrapper(serverCodecs.getFullJsonCodec())
-						.withDecoderWrapper(serverCodecs.getFullJsonCodec())
-						.withConnectionTimeout(config.getPeerNodeConnectTimeoutMs())
-						.withReadTimeout(config.getPeerNodeReadTimeoutMs())
-						.withMaxConnectionsPerHost(config.getPeerNodeTotalConnectionsPerHost())
-						.withMaxTotalConnections(config.getPeerNodeTotalConnections())
-						.withConnectionIdleTimeout(config.getPeerNodeConnectionIdleTimeoutSeconds());
+					.withClientName(jerseyClientName)
+					.withUserAgent("Java-EurekaClient-Replication")
+					.withEncoderWrapper(serverCodecs.getFullJsonCodec())
+					.withDecoderWrapper(serverCodecs.getFullJsonCodec())
+					.withConnectionTimeout(config.getPeerNodeConnectTimeoutMs())
+					.withReadTimeout(config.getPeerNodeReadTimeoutMs())
+					.withMaxConnectionsPerHost(config.getPeerNodeTotalConnectionsPerHost())
+					.withMaxTotalConnections(config.getPeerNodeTotalConnections())
+					.withConnectionIdleTimeout(config.getPeerNodeConnectionIdleTimeoutSeconds());
 
 				if (serviceUrl.startsWith("https://") && "true"
-						.equals(System.getProperty("com.netflix.eureka.shouldSSLConnectionsUseSystemSocketFactory"))) {
+					.equals(System.getProperty("com.netflix.eureka.shouldSSLConnectionsUseSystemSocketFactory"))) {
 					clientBuilder.withSystemSSLConfiguration();
 				}
 				jerseyClient = clientBuilder.build();
