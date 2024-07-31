@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,14 +37,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
 
 /**
  * @author Daniel Lavoie
  * @author Václav Plic
+ * @author Soeren Unruh
  */
 public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
@@ -71,29 +71,24 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
-			.path("apps/{appName}")
-			.buildAndExpand(info.getAppName())
-			.toUri();
+		String urlPath = serviceUrl + "apps/{appName}";
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(HttpHeaders.ACCEPT_ENCODING, "gzip");
 		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
-		ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(info, headers),
-				Void.class);
+		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.POST, new HttpEntity<>(info, headers),
+				Void.class, info.getAppName());
 
 		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
-			.path("apps/{appName}/{id}")
-			.buildAndExpand(appName, id)
-			.toUri();
+		String urlPath = serviceUrl + "apps/{appName}/{id}";
 
-		ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
+		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.DELETE, null, Void.class, appName,
+				id);
 
 		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
@@ -101,18 +96,14 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info,
 			InstanceStatus overriddenStatus) {
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serviceUrl)
-			.path("apps/{appName}/{id}")
-			.queryParam("status", info.getStatus().toString())
-			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString());
+		String urlPath = serviceUrl + "apps/{appName}/{id}?status={status}&lastDirtyTimestamp={lastDirtyTimestamp}";
 
 		if (overriddenStatus != null) {
-			uriBuilder = uriBuilder.queryParam("overriddenstatus", overriddenStatus.name());
+			urlPath = urlPath + "&overriddenstatus={overriddenStatus}";
 		}
 
-		URI uri = uriBuilder.buildAndExpand(appName, id).toUri();
-
-		ResponseEntity<InstanceInfo> response = restTemplate.exchange(uri, HttpMethod.PUT, null, InstanceInfo.class);
+		ResponseEntity<InstanceInfo> response = restTemplate.exchange(urlPath, HttpMethod.PUT, null, InstanceInfo.class,
+				appName, id, info.getStatus(), info.getLastDirtyTimestamp(), overriddenStatus);
 
 		EurekaHttpResponseBuilder<InstanceInfo> eurekaResponseBuilder = anEurekaHttpResponse(
 				response.getStatusCode().value(), InstanceInfo.class)
@@ -128,27 +119,21 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Void> statusUpdate(String appName, String id, InstanceStatus newStatus,
 			InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
-			.path("apps/{appName}/{id}/status")
-			.queryParam("value", newStatus.name())
-			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
-			.buildAndExpand(appName, id)
-			.toUri();
+		String urlPath = serviceUrl
+				+ "apps/{appName}/{id}/status?value={value}&lastDirtyTimestamp={lastDirtyTimestamp}";
 
-		ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.PUT, null, Void.class);
+		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.PUT, null, Void.class, appName, id,
+				newStatus, info.getLastDirtyTimestamp());
 
 		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> deleteStatusOverride(String appName, String id, InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
-			.path("apps/{appName}/{id}/status")
-			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
-			.buildAndExpand(appName, id)
-			.toUri();
+		String urlPath = serviceUrl + "apps/{appName}/{id}/status?lastDirtyTimestamp={lastDirtyTimestamp}";
 
-		ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
+		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.DELETE, null, Void.class, appName, id,
+				info.getLastDirtyTimestamp());
 
 		return anEurekaHttpResponse(response.getStatusCode().value()).headers(headersOf(response)).build();
 	}
@@ -158,17 +143,16 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		return getApplicationsInternal("apps/", regions);
 	}
 
-	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath, String[] regions) {
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serviceUrl).path(urlPath);
+	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath, String[] regions,
+			Object... uriVariables) {
+		String url = serviceUrl + urlPath;
 
 		if (regions != null && regions.length > 0) {
-			uriBuilder = uriBuilder.queryParam("regions", StringUtil.join(regions));
+			url = url + (urlPath.contains("?") ? "&" : "?") + "regions={regions}";
 		}
 
-		URI uri = uriBuilder.build().toUri();
-
-		ResponseEntity<EurekaApplications> response = restTemplate.exchange(uri, HttpMethod.GET, null,
-				EurekaApplications.class);
+		ResponseEntity<EurekaApplications> response = restTemplate.exchange(url, HttpMethod.GET, null,
+				EurekaApplications.class, ObjectUtils.addObjectToArray(uriVariables, StringUtil.join(regions)));
 
 		return anEurekaHttpResponse(response.getStatusCode().value(),
 				response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody()
@@ -184,19 +168,20 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Applications> getVip(String vipAddress, String... regions) {
-		return getApplicationsInternal("vips/" + vipAddress, regions);
+		return getApplicationsInternal("vips/{vipAddress}", regions, vipAddress);
 	}
 
 	@Override
 	public EurekaHttpResponse<Applications> getSecureVip(String secureVipAddress, String... regions) {
-		return getApplicationsInternal("svips/" + secureVipAddress, regions);
+		return getApplicationsInternal("svips/{secureVipAddress}", regions, secureVipAddress);
 	}
 
 	@Override
 	public EurekaHttpResponse<Application> getApplication(String appName) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).path("apps/{appName}").buildAndExpand(appName).toUri();
+		String urlPath = serviceUrl + "apps/{appName}";
 
-		ResponseEntity<Application> response = restTemplate.exchange(uri, HttpMethod.GET, null, Application.class);
+		ResponseEntity<Application> response = restTemplate.exchange(urlPath, HttpMethod.GET, null, Application.class,
+				appName);
 
 		Application application = response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody()
 				? response.getBody() : null;
@@ -206,18 +191,19 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<InstanceInfo> getInstance(String appName, String id) {
-		return getInstanceInternal("apps", appName, id);
+		return getInstanceInternal("apps/{appName}/{id}", appName, id);
 	}
 
 	@Override
 	public EurekaHttpResponse<InstanceInfo> getInstance(String id) {
-		return getInstanceInternal("instances", id);
+		return getInstanceInternal("instances/{id}", id);
 	}
 
-	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String... pathSegments) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).pathSegment(pathSegments).build().toUri();
+	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath, Object... uriVariables) {
+		urlPath = serviceUrl + urlPath;
 
-		ResponseEntity<InstanceInfo> response = restTemplate.exchange(uri, HttpMethod.GET, null, InstanceInfo.class);
+		ResponseEntity<InstanceInfo> response = restTemplate.exchange(urlPath, HttpMethod.GET, null, InstanceInfo.class,
+				uriVariables);
 
 		return anEurekaHttpResponse(response.getStatusCode().value(),
 				response.getStatusCode().value() == HttpStatus.OK.value() && response.hasBody() ? response.getBody()
