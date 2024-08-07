@@ -181,7 +181,7 @@
 					<dependency>
 						<groupId>org.webjars.npm</groupId>
 						<artifactId>jquery</artifactId>
-						<version>3.6.0</version>
+						<version>3.7.1</version>
 					</dependency>
 					<dependency>
 						<groupId>org.webjars.npm</groupId>
