@@ -28,6 +28,8 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: ./mvnw clean install -B -U -P sonar
+        env:
+          DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
       - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: false
