@@ -77,7 +77,7 @@
 |eureka.instance.home-page-url |  | Gets the absolute home page URL for this instance. The users can provide the homePageUrlPath if the home page resides in the same instance talking to eureka, else in the cases where the instance is a proxy for some other server, users can provide the full URL. If the full URL is provided it takes precedence. It is normally used for informational purposes for other services to use it as a landing page. The full URL should follow the format http://${eureka.hostname}:7001/ where the value ${eureka.hostname} is replaced at runtime.
 |eureka.instance.home-page-url-path | `+++/+++` | Gets the relative home page URL Path for this instance. The home page URL is then constructed out of the hostName and the type of communication - secure or unsecure. It is normally used for informational purposes for other services to use it as a landing page.
 |eureka.instance.hostname |  | The hostname if it can be determined at configuration time (otherwise it will be guessed from OS primitives).
-|eureka.instance.initial-status |  | Initial status to register with remote Eureka server.
+|eureka.instance.initial-status | `+++up+++` | Initial status to register with remote Eureka server.
 |eureka.instance.instance-enabled-onit | `+++false+++` | Indicates whether the instance should be enabled for taking traffic as soon as it is registered with eureka. Sometimes the application might need to do some pre-processing before it is ready to take traffic.
 |eureka.instance.instance-id |  | Get the unique Id (within the scope of the appName) of this instance to be registered with eureka.
 |eureka.instance.ip-address |  | Get the IPAdress of the instance. This information is for academic purposes only as the communication from other instances primarily happen using the information supplied in {@link #getHostName(boolean)}.
@@ -104,7 +104,7 @@
 |eureka.server.a-w-s-access-id |  | 
 |eureka.server.a-w-s-secret-key |  | 
 |eureka.server.batch-replication | `+++false+++` | 
-|eureka.server.binding-strategy |  | 
+|eureka.server.binding-strategy | `+++eip+++` | 
 |eureka.server.delta-retention-timer-interval-in-ms | `+++0+++` | 
 |eureka.server.disable-delta | `+++false+++` | 
 |eureka.server.disable-delta-for-remote-regions | `+++false+++` | 
