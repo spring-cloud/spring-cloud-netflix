@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.concurrent.Semaphore;
+
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
@@ -33,8 +35,6 @@ import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServic
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.Semaphore;
 
 /**
  * @author Dave Syer
