@@ -63,3 +63,18 @@ updates:
       - dependency-name: "*"
         update-types:
           - version-update:semver-major
+  - package-ecosystem: npm
+    target-branch: docs-build
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    target-branch: main
+    directory: /docs
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    target-branch: 4.1.x
+    directory: /docs
+    schedule:
+      interval: weekly
