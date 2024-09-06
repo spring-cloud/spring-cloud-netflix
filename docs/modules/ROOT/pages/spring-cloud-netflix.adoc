@@ -35,8 +35,9 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(Application.class).web(true).run(args);
-    }
+		SpringApplication.run(CustomerServiceTestApplication.class, args);
+	}
+
 
 }
 ----
@@ -411,8 +412,9 @@ The following example shows a minimal Eureka server:
 public class Application {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(Application.class).web(true).run(args);
-    }
+		SpringApplication.run(CustomerServiceTestApplication.class, args);
+	}
+
 
 }
 ----
