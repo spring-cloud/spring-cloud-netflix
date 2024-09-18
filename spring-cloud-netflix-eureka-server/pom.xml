@@ -12,7 +12,7 @@
 	<name>Spring Cloud Netflix Eureka Server</name>
 	<url>https://projects.spring.io/spring-cloud/</url>
 	<properties>
-		<wro4j.version>1.8.0</wro4j.version>
+		<wro4j.version>2.0.0</wro4j.version>
 		<wiremock.version>2.27.2</wiremock.version>
 	</properties>
 	<dependencies>
