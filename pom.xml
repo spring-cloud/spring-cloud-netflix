@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>4.1.4-SNAPSHOT</version>
+		<version>4.2.0-M1</version>
 		<relativePath />
 	</parent>
 	<scm>
