@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>spring-cloud-dependencies-parent</artifactId>
 		<groupId>org.springframework.cloud</groupId>
-		<version>4.0.7-SNAPSHOT</version>
+		<version>4.1.0-RC1</version>
 		<relativePath/>
 	</parent>
 	<artifactId>spring-cloud-netflix-dependencies</artifactId>
