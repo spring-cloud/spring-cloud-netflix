@@ -39,11 +39,11 @@ public class RestTemplateTimeoutProperties {
 	 * Default values are set to 180000, in keeping with {@link RequestConfig} and
 	 * {@link SocketConfig} defaults.
 	 */
-	private int connectTimeout = 3 * 60 * 1000;
+	private int connectTimeout = 180000; // 3 * MINUTES
 
-	private int connectRequestTimeout = 3 * 60 * 1000;
+	private int connectRequestTimeout = 180000; // 3 * MINUTES
 
-	private int socketTimeout = 3 * 60 * 1000;
+	private int socketTimeout = 180000; // 3 * MINUTES
 
 	public int getConnectTimeout() {
 		return connectTimeout;

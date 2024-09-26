@@ -60,8 +60,6 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	 */
 	public static final String DEFAULT_ZONE = "defaultZone";
 
-	private static final int MINUTES = 60;
-
 	@Autowired(required = false)
 	PropertyResolver propertyResolver;
 
@@ -96,7 +94,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	 * Eureka servers could be added or removed and this setting controls how soon the
 	 * eureka clients should know about it.
 	 */
-	private int eurekaServiceUrlPollIntervalSeconds = 5 * MINUTES;
+	private int eurekaServiceUrlPollIntervalSeconds = 300; // 5 * MINUTES
 
 	/**
 	 * Gets the proxy port to eureka server if any.
