@@ -21,8 +21,8 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<spring-cloud-commons.version>4.2.0-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>4.2.0-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-commons.version>4.1.5-SNAPSHOT</spring-cloud-commons.version>
+		<spring-cloud-config.version>4.1.4-SNAPSHOT</spring-cloud-config.version>
 		<testcontainers.version>1.20.1</testcontainers.version>
 		<mockserverclient.version>5.15.0</mockserverclient.version>
 
