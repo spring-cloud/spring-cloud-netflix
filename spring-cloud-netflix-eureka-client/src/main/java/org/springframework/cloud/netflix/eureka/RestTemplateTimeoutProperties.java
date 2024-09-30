@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
  * {@link RestTemplateEurekaHttpClient}.
  *
  * @author Jiwon Jeon
+ * @author Mooyong Lee
  * @since 3.1.6
  */
 @ConfigurationProperties("eureka.client.rest-template-timeout")
@@ -39,11 +40,11 @@ public class RestTemplateTimeoutProperties {
 	 * Default values are set to 180000, in keeping with {@link RequestConfig} and
 	 * {@link SocketConfig} defaults.
 	 */
-	private int connectTimeout = 3 * 60 * 1000;
+	private int connectTimeout = 180000; // 3 * MINUTES
 
-	private int connectRequestTimeout = 3 * 60 * 1000;
+	private int connectRequestTimeout = 180000; // 3 * MINUTES
 
-	private int socketTimeout = 3 * 60 * 1000;
+	private int socketTimeout = 180000; // 3 * MINUTES
 
 	public int getConnectTimeout() {
 		return connectTimeout;
