@@ -19,6 +19,12 @@
       "type": "java.lang.Boolean"
     },
     {
+      "defaultValue": true,
+      "name": "eureka.client.jersey.enabled",
+      "description": "Enables the use of JerseyClient for Eureka HTTP Client.",
+      "type": "java.lang.Boolean"
+    },
+    {
       "defaultValue": 1,
       "name": "eureka.instance.metadata-map.weight",
       "description": "The weight of service instance for weighted load balancing.",
