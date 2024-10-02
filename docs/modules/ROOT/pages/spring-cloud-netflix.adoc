@@ -377,7 +377,9 @@ We take `eureka.client.availabilityZones`, which is a map from region name to a 
 
 Spring Cloud Netflix Eureka Client integration supports Spring AOT transformations and native images, however, only with refresh mode disabled.
 
-WARNING: If you want to run Eureka Client in AOT or native image modes, make sure to set `spring.cloud.refresh.enabled` to `false`
+WARNING: If you want to run Eureka Client in AOT or native image modes, make sure to set `spring.cloud.refresh.enabled` to `false`.
+
+NOTE:  Given the AOT and native image closed-world assumption, using random port with Eureka clients is not supported for ahead of time compilation or native images.
 
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
