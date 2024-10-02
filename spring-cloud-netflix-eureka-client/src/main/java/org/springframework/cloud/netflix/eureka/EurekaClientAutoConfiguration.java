@@ -429,7 +429,7 @@ class EurekaClientHints implements RuntimeHintsRegistrar {
 							MemberCategory.INTROSPECT_DECLARED_METHODS))
 				.registerTypes(TypeReference.listOf(EurekaEndpoint.class,
 								EurekaHttpClientDecorator.RequestExecutor.class,
-								EurekaClient.class),
+								EurekaClient.class, DiscoveryClient.class),
 					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
 				.registerTypes(TypeReference.listOf(DataCenterTypeInfoResolver.class),
 						hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
