@@ -418,76 +418,29 @@ class EurekaClientHints implements RuntimeHintsRegistrar {
 			return;
 		}
 		hints.reflection()
-			.registerType(TypeReference.of(DiscoveryClient.class),
+				.registerTypes(TypeReference.listOf(ApplicationInfoManager.class),
+						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
+				.registerTypes(
+						TypeReference.listOf(DiscoveryClient.class, EurekaHttpClientDecorator.class,
+								InstanceInfo.ActionType.class, InstanceInfoJsonMixIn.class, SessionedEurekaHttpClient.class,
+								RetryableEurekaHttpClient.class, AsyncResolver.class, Applications.class,
+								TimedSupervisorTask.class),
 					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS,
 							MemberCategory.INTROSPECT_DECLARED_METHODS))
-			.registerType(TypeReference.of(EurekaEndpoint.class),
+				.registerTypes(TypeReference.listOf(EurekaEndpoint.class,
+								EurekaHttpClientDecorator.RequestExecutor.class,
+								EurekaClient.class),
 					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
-			.registerType(TypeReference.of(DefaultEndpoint.class),
+				.registerTypes(TypeReference.listOf(DataCenterTypeInfoResolver.class),
+						hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
+				.registerTypes(TypeReference.listOf(Application.class),
+						hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INTROSPECT_DECLARED_METHODS,
+								MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
+				.registerTypes(TypeReference.listOf(DefaultEndpoint.class, EurekaHttpResponse.class, InstanceInfo.class,
+								InstanceInfo.PortWrapper.class, LeaseInfo.class, MyDataCenterInfo.class, DataCenterInfo.class,
+								DataCenterInfo.Name.class, ApplicationsJacksonBuilder.class, EurekaServiceInstance.class),
 					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
-			.registerType(TypeReference.of(EurekaHttpClientDecorator.class),
-					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS,
-							MemberCategory.INTROSPECT_DECLARED_METHODS))
-			.registerType(TypeReference.of(EurekaHttpResponse.class),
-					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
-			.registerType(TypeReference.of(EurekaHttpClientDecorator.RequestExecutor.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
-			.registerType(TypeReference.of(ApplicationInfoManager.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
-			.registerType(TypeReference.of(InstanceInfo.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
-			.registerType(TypeReference.of(InstanceInfo.ActionType.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(InstanceInfo.PortWrapper.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(LeaseInfo.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(MyDataCenterInfo.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(DataCenterInfo.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(DataCenterInfo.Name.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(EurekaClient.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS))
-			.registerType(TypeReference.of(TimedSupervisorTask.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(DataCenterTypeInfoResolver.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
-			.registerType(TypeReference.of(ApplicationsJacksonBuilder.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(InstanceInfoJsonMixIn.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(Application.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(Applications.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(AsyncResolver.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(RetryableEurekaHttpClient.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(SessionedEurekaHttpClient.class),
-					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS,
-							MemberCategory.DECLARED_FIELDS))
-			.registerType(TypeReference.of(EurekaServiceInstance.class),
-					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.DECLARED_FIELDS));
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
 	}
 
 }
