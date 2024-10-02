@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.core.style.ToStringCreator;
 /**
  * @author Dave Syer
  * @author Gregor Zurowski
+ * @author Mooyong Lee
  */
 @ConfigurationProperties(EurekaServerConfigBean.PREFIX)
 public class EurekaServerConfigBean implements EurekaServerConfig {
@@ -42,8 +43,6 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	 * Eureka server configuration properties prefix.
 	 */
 	public static final String PREFIX = "eureka.server";
-
-	private static final int MINUTES = 60 * 1000;
 
 	@Autowired(required = false)
 	PropertyResolver propertyResolver;
@@ -54,23 +53,23 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int eIPBindRebindRetries = 3;
 
-	private int eIPBindingRetryIntervalMs = 5 * MINUTES;
+	private int eIPBindingRetryIntervalMs = 300000; // 5 * MINUTES
 
-	private int eIPBindingRetryIntervalMsWhenUnbound = 1 * MINUTES;
+	private int eIPBindingRetryIntervalMsWhenUnbound = 60000; // 1 * MINUTES
 
 	private boolean enableSelfPreservation = true;
 
 	private double renewalPercentThreshold = 0.85;
 
-	private int renewalThresholdUpdateIntervalMs = 15 * MINUTES;
+	private int renewalThresholdUpdateIntervalMs = 900000; // 15 * MINUTES
 
-	private int peerEurekaNodesUpdateIntervalMs = 10 * MINUTES;
+	private int peerEurekaNodesUpdateIntervalMs = 600000; // 10 * MINUTES
 
 	private int numberOfReplicationRetries = 5;
 
 	private int peerEurekaStatusRefreshTimeIntervalMs = 30 * 1000;
 
-	private int waitTimeInMsWhenSyncEmpty = 5 * MINUTES;
+	private int waitTimeInMsWhenSyncEmpty = 300000; // 5 * MINUTES
 
 	private int peerNodeConnectTimeoutMs = 200;
 
@@ -82,23 +81,24 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int peerNodeConnectionIdleTimeoutSeconds = 30;
 
-	private long retentionTimeInMSInDeltaQueue = 3 * MINUTES;
+	private long retentionTimeInMSInDeltaQueue = 180000; // 3 * MINUTES
 
-	private long deltaRetentionTimerIntervalInMs = 30 * 1000;
+	private long deltaRetentionTimerIntervalInMs = 30000; // 30 * SECONDS
 
 	private long evictionIntervalTimerInMs = 60 * 1000;
 
 	private int aSGQueryTimeoutMs = 300;
 
-	private long aSGUpdateIntervalMs = 5 * MINUTES;
+	private long aSGUpdateIntervalMs = 300000; // 5 * MINUTES
 
-	private long aSGCacheExpiryTimeoutMs = 10 * MINUTES; // defaults to longer than the
+	private long aSGCacheExpiryTimeoutMs = 600000; // 10 * MINUTES // defaults to longer
+													// than the
 
 	// asg update interval
 
 	private long responseCacheAutoExpirationInSeconds = 180;
 
-	private long responseCacheUpdateIntervalMs = 30 * 1000;
+	private long responseCacheUpdateIntervalMs = 30000; // 30 * SECONDS
 
 	private boolean useReadOnlyResponseCache = true;
 
@@ -186,7 +186,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int route53BindRebindRetries = 3;
 
-	private int route53BindingRetryIntervalMs = 5 * MINUTES;
+	private int route53BindingRetryIntervalMs = 300000; // 5 * MINUTES
 
 	private long route53DomainTTL = 30;
 
