@@ -418,27 +418,27 @@ class EurekaClientHints implements RuntimeHintsRegistrar {
 			return;
 		}
 		hints.reflection()
-				.registerTypes(TypeReference.listOf(ApplicationInfoManager.class),
-						hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
-				.registerTypes(
-						TypeReference.listOf(DiscoveryClient.class, EurekaHttpClientDecorator.class,
-								InstanceInfo.ActionType.class, InstanceInfoJsonMixIn.class, SessionedEurekaHttpClient.class,
-								RetryableEurekaHttpClient.class, AsyncResolver.class, Applications.class,
-								TimedSupervisorTask.class),
+			.registerTypes(TypeReference.listOf(ApplicationInfoManager.class),
+					hint -> hint.withMembers(MemberCategory.INTROSPECT_DECLARED_METHODS))
+			.registerTypes(
+					TypeReference.listOf(DiscoveryClient.class, EurekaHttpClientDecorator.class,
+							InstanceInfo.ActionType.class, InstanceInfoJsonMixIn.class, SessionedEurekaHttpClient.class,
+							RetryableEurekaHttpClient.class, AsyncResolver.class, Applications.class,
+							TimedSupervisorTask.class),
 					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS,
 							MemberCategory.INTROSPECT_DECLARED_METHODS))
-				.registerTypes(TypeReference.listOf(EurekaEndpoint.class,
-								EurekaHttpClientDecorator.RequestExecutor.class,
-								EurekaClient.class, DiscoveryClient.class),
+			.registerTypes(
+					TypeReference.listOf(EurekaEndpoint.class, EurekaHttpClientDecorator.RequestExecutor.class,
+							EurekaClient.class, DiscoveryClient.class),
 					hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS))
-				.registerTypes(TypeReference.listOf(DataCenterTypeInfoResolver.class),
-						hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
-				.registerTypes(TypeReference.listOf(Application.class),
-						hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INTROSPECT_DECLARED_METHODS,
-								MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
-				.registerTypes(TypeReference.listOf(DefaultEndpoint.class, EurekaHttpResponse.class, InstanceInfo.class,
-								InstanceInfo.PortWrapper.class, LeaseInfo.class, MyDataCenterInfo.class, DataCenterInfo.class,
-								DataCenterInfo.Name.class, ApplicationsJacksonBuilder.class, EurekaServiceInstance.class),
+			.registerTypes(TypeReference.listOf(DataCenterTypeInfoResolver.class),
+					hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
+			.registerTypes(TypeReference.listOf(Application.class),
+					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INTROSPECT_DECLARED_METHODS,
+							MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS))
+			.registerTypes(TypeReference.listOf(DefaultEndpoint.class, EurekaHttpResponse.class, InstanceInfo.class,
+					InstanceInfo.PortWrapper.class, LeaseInfo.class, MyDataCenterInfo.class, DataCenterInfo.class,
+					DataCenterInfo.Name.class, ApplicationsJacksonBuilder.class, EurekaServiceInstance.class),
 					hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS,
 							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
 	}
