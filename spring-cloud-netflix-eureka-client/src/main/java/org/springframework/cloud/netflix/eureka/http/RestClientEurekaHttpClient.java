@@ -40,7 +40,7 @@ import org.springframework.web.util.UriBuilder;
 import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEurekaHttpResponse;
 
 /**
- * {@link RestClient} implementation of {@link EurekaHttpClient}
+ * {@link RestClient} implementation of {@link EurekaHttpClient}.
  *
  * @author Wonchul Heo
  */

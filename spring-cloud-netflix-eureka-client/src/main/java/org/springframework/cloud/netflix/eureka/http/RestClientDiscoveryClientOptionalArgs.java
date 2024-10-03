@@ -19,12 +19,13 @@ package org.springframework.cloud.netflix.eureka.http;
 import java.util.function.Supplier;
 
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
-
 import jakarta.ws.rs.client.ClientRequestFilter;
+
 import org.springframework.web.client.RestClient;
 
 /**
- * {@link RestClient} implementation of DiscoveryClientOptionalArgs that supports supplying {@link ClientRequestFilter}
+ * {@link RestClient} implementation of DiscoveryClientOptionalArgs that supports
+ * supplying {@link ClientRequestFilter}.
  *
  * @author Wonchul Heo
  */

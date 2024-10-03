@@ -40,8 +40,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 /**
  * @author Wonchul Heo
  */
-@SpringBootTest(properties = { "spring.cloud.config.discovery.enabled=true",
-		"eureka.client.enabled=true",
+@SpringBootTest(properties = { "spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
 		"eureka.client.restclient.enabled=true" }, webEnvironment = RANDOM_PORT)
 class EurekaConfigServerBootstrapConfigurationRestClientIntegrationTests {
 
@@ -62,7 +61,7 @@ class EurekaConfigServerBootstrapConfigurationRestClientIntegrationTests {
 		assertThat(response.getBody()).isEqualTo("rest-client");
 	}
 
-	@SpringBootConfiguration(proxyBeanMethods=false)
+	@SpringBootConfiguration(proxyBeanMethods = false)
 	@EnableAutoConfiguration
 	@RestController
 	static class RestClientController {

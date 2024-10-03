@@ -32,10 +32,10 @@ import org.springframework.web.client.RestClient;
 /**
  * @author Wonchul Heo
  */
-@SpringBootTest(classes = EurekaServerMockApplication.class, properties = { "debug=true",
-		"security.basic.enabled=true", "eureka.client.fetch-registry=false",
-		"eureka.client.register-with-eureka=false",
-		"logging.level.org.springframework=INFO" }, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = EurekaServerMockApplication.class,
+		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.fetch-registry=false",
+				"eureka.client.register-with-eureka=false", "logging.level.org.springframework=INFO" },
+		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 
