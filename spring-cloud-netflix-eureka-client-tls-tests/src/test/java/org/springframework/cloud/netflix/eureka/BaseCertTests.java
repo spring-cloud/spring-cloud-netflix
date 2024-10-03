@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ import org.springframework.beans.factory.BeanCreationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-abstract class BaseCertTest {
+abstract class BaseCertTests {
 
-	private static final Log log = LogFactory.getLog(BaseCertTest.class);
+	private static final Log log = LogFactory.getLog(BaseCertTests.class);
 
 	protected static final String KEY_STORE_PASSWORD = "test-key-store-password";
 
@@ -53,7 +53,7 @@ abstract class BaseCertTest {
 
 	protected static File wrongClientCert;
 
-	protected BaseCertTest() {
+	protected BaseCertTests() {
 	}
 
 	@SuppressWarnings("rawtypes")

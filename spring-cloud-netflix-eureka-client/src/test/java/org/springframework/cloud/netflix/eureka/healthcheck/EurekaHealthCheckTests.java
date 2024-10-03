@@ -51,7 +51,7 @@ class EurekaHealthCheckTests {
 		System.setProperty("status", "UP");
 
 		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
-				.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
+			.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
 
 		assertThat(status).isNotNull();
 		assertThat(status).isEqualTo(InstanceInfo.InstanceStatus.UP);
@@ -62,7 +62,7 @@ class EurekaHealthCheckTests {
 		System.setProperty("status", "OUT_OF_SERVICE");
 
 		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
-				.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
+			.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
 
 		assertThat(status).isNotNull();
 		assertThat(status).isEqualTo(InstanceInfo.InstanceStatus.DOWN);

@@ -55,8 +55,10 @@ class EurekaControllerTests {
 		PeerEurekaNodes peerEurekaNodes = mock(PeerEurekaNodes.class);
 		when(peerEurekaNodes.getPeerNodesView()).thenReturn(Collections.<PeerEurekaNode>emptyList());
 
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("test")
-				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn)).build();
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+			.setAppName("test")
+			.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
+			.build();
 
 		this.infoManager = mock(ApplicationInfoManager.class);
 		this.original = ApplicationInfoManager.getInstance();
@@ -64,8 +66,11 @@ class EurekaControllerTests {
 		when(this.infoManager.getInfo()).thenReturn(instanceInfo);
 
 		Application myapp = new Application("myapp");
-		myapp.addInstance(InstanceInfo.Builder.newBuilder().setAppName("myapp")
-				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn)).setInstanceId("myapp:1").build());
+		myapp.addInstance(InstanceInfo.Builder.newBuilder()
+			.setAppName("myapp")
+			.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
+			.setInstanceId("myapp:1")
+			.build());
 
 		ArrayList<Application> applications = new ArrayList<>();
 		applications.add(myapp);

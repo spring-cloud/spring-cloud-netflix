@@ -49,14 +49,17 @@ class RefreshablePeerEurekaNodesWithCustomFiltersTests {
 	@Test
 	void testCustomPeerNodesShouldTakePrecedenceOverDefault() {
 		assertThat(peerEurekaNodes instanceof RefreshablePeerEurekaNodes)
-				.as("PeerEurekaNodes should be an instance of RefreshablePeerEurekaNodes").isTrue();
+			.as("PeerEurekaNodes should be an instance of RefreshablePeerEurekaNodes")
+			.isTrue();
 		RefreshablePeerEurekaNodes refreshablePeerEurekaNodes = (RefreshablePeerEurekaNodes) peerEurekaNodes;
 
 		ReplicationClientAdditionalFilters filters = refreshablePeerEurekaNodes.replicationClientAdditionalFilters;
 		assertThat(filters.getFilters())
-				.as("PeerEurekaNodes'should have only one filter set on replicationClientAdditionalFilters").hasSize(1);
+			.as("PeerEurekaNodes'should have only one filter set on replicationClientAdditionalFilters")
+			.hasSize(1);
 		assertThat(filters.getFilters().iterator().next() instanceof Application.CustomClientFilter)
-				.as("The type of the filter should be CustomClientFilter as user declared so").isTrue();
+			.as("The type of the filter should be CustomClientFilter as user declared so")
+			.isTrue();
 	}
 
 	private static <T, R> R getField(Class<T> clazz, T target, String fieldName) {

@@ -45,7 +45,8 @@ class EurekaCustomPeerNodesTests {
 	@Test
 	void testCustomPeerNodesShouldTakePrecedenceOverDefault() {
 		assertThat(peerEurekaNodes instanceof CustomEurekaPeerNodes)
-				.as("PeerEurekaNodes should be the user created one").isTrue();
+			.as("PeerEurekaNodes should be the user created one")
+			.isTrue();
 	}
 
 	@Configuration(proxyBeanMethods = false)

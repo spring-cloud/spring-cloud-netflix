@@ -24,8 +24,11 @@ class EurekaServiceInstanceTests {
 
 	@Test
 	void getSchemeReturnsNonNull() {
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("test").setHostName("myhost")
-				.setPort(8080).build();
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+			.setAppName("test")
+			.setHostName("myhost")
+			.setPort(8080)
+			.build();
 		EurekaServiceInstance instance = new EurekaServiceInstance(instanceInfo);
 		Assertions.assertThat(instance.getScheme()).isEqualTo("http");
 	}

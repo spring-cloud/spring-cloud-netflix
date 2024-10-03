@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*", "spring-webflux-*" })
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class EurekaHttpClientsOptionalArgsConfigurationNoWebfluxTest {
+public class EurekaHttpClientsOptionalArgsConfigurationNoWebFluxTests {
 
 	@Test
 	public void contextFailsWithoutWebClient() {
@@ -46,7 +46,8 @@ public class EurekaHttpClientsOptionalArgsConfigurationNoWebfluxTest {
 		try {
 			TomcatURLStreamHandlerFactory.disable();
 			ctx = new SpringApplicationBuilder(EurekaSampleApplication.class)
-					.properties("eureka.client.webclient.enabled=true").run();
+				.properties("eureka.client.webclient.enabled=true")
+				.run();
 			fail("exception not thrown");
 		}
 		catch (Exception e) {

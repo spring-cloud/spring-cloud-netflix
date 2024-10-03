@@ -87,9 +87,16 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRegisteredEvent{").append("instanceInfo=").append(instanceInfo)
-				.append(", ").append("leaseDuration=").append(leaseDuration).append(", ").append("replication=")
-				.append(replication).append("}").toString();
+		return new StringBuilder("EurekaInstanceRegisteredEvent{").append("instanceInfo=")
+			.append(instanceInfo)
+			.append(", ")
+			.append("leaseDuration=")
+			.append(leaseDuration)
+			.append(", ")
+			.append("replication=")
+			.append(replication)
+			.append("}")
+			.toString();
 	}
 
 }

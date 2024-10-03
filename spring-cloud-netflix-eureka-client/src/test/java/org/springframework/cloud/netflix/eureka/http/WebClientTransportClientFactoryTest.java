@@ -86,7 +86,7 @@ class WebClientTransportClientFactoryTest {
 		String expectedUrl = "http://localhost:8761";
 
 		WebClientEurekaHttpClient client = (WebClientEurekaHttpClient) transportClientFatory
-				.newClient(new DefaultEndpoint("http://test:MyPassword%40@localhost:8761"));
+			.newClient(new DefaultEndpoint("http://test:MyPassword%40@localhost:8761"));
 
 		client.getWebClient().get().retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 

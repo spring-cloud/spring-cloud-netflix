@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2023 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,10 +59,10 @@ import static org.mockserver.model.HttpResponse.response;
  * @author Ryan Baxter
  */
 @Testcontainers
-public class EurekaConfigServerBootstrapperIT {
+public class EurekaConfigServerBootstrapperIntegrationTests {
 
 	public static final DockerImageName MOCKSERVER_IMAGE = DockerImageName.parse("mockserver/mockserver")
-			.withTag("mockserver-" + MockServerClient.class.getPackage().getImplementationVersion());
+		.withTag("mockserver-" + MockServerClient.class.getPackage().getImplementationVersion());
 
 	@Container
 	static MockServerContainer mockServer = new MockServerContainer(MOCKSERVER_IMAGE);
@@ -93,21 +93,25 @@ public class EurekaConfigServerBootstrapperIT {
 		try (MockServerClient mockServerClient = new MockServerClient(mockServer.getHost(),
 				mockServer.getMappedPort(MockServerContainer.PORT))) {
 			mockServerClient.when(request().withPath("/application/default"))
-					.respond(response().withBody(objectMapper.writeValueAsString(environment))
-							.withHeader("content-type", "application/json"));
+				.respond(response().withBody(objectMapper.writeValueAsString(environment))
+					.withHeader("content-type", "application/json"));
 			InstanceInfo configServerInstanceInfo = InstanceInfo.Builder.newBuilder()
-					.setVIPAddress("eureka-configserver").setInstanceId("eureka-configserver")
-					.setAppName("eureka-configserver").setStatus(InstanceInfo.InstanceStatus.UP)
-					.enablePort(InstanceInfo.PortType.UNSECURE, true).setHostName("localhost")
-					.setPort(mockServer.getMappedPort(MockServerContainer.PORT)).build();
+				.setVIPAddress("eureka-configserver")
+				.setInstanceId("eureka-configserver")
+				.setAppName("eureka-configserver")
+				.setStatus(InstanceInfo.InstanceStatus.UP)
+				.enablePort(InstanceInfo.PortType.UNSECURE, true)
+				.setHostName("localhost")
+				.setPort(mockServer.getMappedPort(MockServerContainer.PORT))
+				.build();
 			Application configServer = new Application("eureka-configserver",
 					Collections.singletonList(configServerInstanceInfo));
 			EurekaApplications eurekaApplications = new EurekaApplications("hashcode", 0L,
 					Collections.singletonList(configServer));
 			mockServerClient.when(request().withPath("/apps/"))
-					.respond(response()
-							.withBody("{\"applications\":" + objectMapper.writeValueAsString(eurekaApplications) + "}")
-							.withHeader("content-type", "application/json"));
+				.respond(response()
+					.withBody("{\"applications\":" + objectMapper.writeValueAsString(eurekaApplications) + "}")
+					.withHeader("content-type", "application/json"));
 			this.context = setup().run();
 			assertThat(this.context.getEnvironment().getProperty("hello")).isEqualTo("world");
 		}
@@ -129,7 +133,7 @@ public class EurekaConfigServerBootstrapperIT {
 
 	SpringApplicationBuilder setup(String... env) {
 		SpringApplicationBuilder builder = new SpringApplicationBuilder(TestConfig.class)
-				.properties(addDefaultEnv(env));
+			.properties(addDefaultEnv(env));
 		return builder;
 	}
 

@@ -35,8 +35,8 @@ public class InstanceInfoFactory {
 
 	public InstanceInfo create(EurekaInstanceConfig config) {
 		LeaseInfo.Builder leaseInfoBuilder = LeaseInfo.Builder.newBuilder()
-				.setRenewalIntervalInSecs(config.getLeaseRenewalIntervalInSeconds())
-				.setDurationInSecs(config.getLeaseExpirationDurationInSeconds());
+			.setRenewalIntervalInSecs(config.getLeaseRenewalIntervalInSeconds())
+			.setDurationInSecs(config.getLeaseExpirationDurationInSeconds());
 
 		// Builder the instance information to be registered with eureka
 		// server
@@ -46,19 +46,24 @@ public class InstanceInfoFactory {
 		if (!namespace.endsWith(".")) {
 			namespace = namespace + ".";
 		}
-		builder.setNamespace(namespace).setAppName(config.getAppname()).setInstanceId(config.getInstanceId())
-				.setAppGroupName(config.getAppGroupName()).setDataCenterInfo(config.getDataCenterInfo())
-				.setIPAddr(config.getIpAddress()).setHostName(config.getHostName(false))
-				.setPort(config.getNonSecurePort())
-				.enablePort(InstanceInfo.PortType.UNSECURE, config.isNonSecurePortEnabled())
-				.setSecurePort(config.getSecurePort())
-				.enablePort(InstanceInfo.PortType.SECURE, config.getSecurePortEnabled())
-				.setVIPAddress(config.getVirtualHostName()).setSecureVIPAddress(config.getSecureVirtualHostName())
-				.setHomePageUrl(config.getHomePageUrlPath(), config.getHomePageUrl())
-				.setStatusPageUrl(config.getStatusPageUrlPath(), config.getStatusPageUrl())
-				.setHealthCheckUrls(config.getHealthCheckUrlPath(), config.getHealthCheckUrl(),
-						config.getSecureHealthCheckUrl())
-				.setASGName(config.getASGName());
+		builder.setNamespace(namespace)
+			.setAppName(config.getAppname())
+			.setInstanceId(config.getInstanceId())
+			.setAppGroupName(config.getAppGroupName())
+			.setDataCenterInfo(config.getDataCenterInfo())
+			.setIPAddr(config.getIpAddress())
+			.setHostName(config.getHostName(false))
+			.setPort(config.getNonSecurePort())
+			.enablePort(InstanceInfo.PortType.UNSECURE, config.isNonSecurePortEnabled())
+			.setSecurePort(config.getSecurePort())
+			.enablePort(InstanceInfo.PortType.SECURE, config.getSecurePortEnabled())
+			.setVIPAddress(config.getVirtualHostName())
+			.setSecureVIPAddress(config.getSecureVirtualHostName())
+			.setHomePageUrl(config.getHomePageUrlPath(), config.getHomePageUrl())
+			.setStatusPageUrl(config.getStatusPageUrlPath(), config.getStatusPageUrl())
+			.setHealthCheckUrls(config.getHealthCheckUrlPath(), config.getHealthCheckUrl(),
+					config.getSecureHealthCheckUrl())
+			.setASGName(config.getASGName());
 
 		// Start off with the STARTING state to avoid traffic
 		if (!config.isInstanceEnabledOnit()) {

@@ -60,8 +60,8 @@ public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitiali
 			EurekaHttpClient httpClient = new RestTemplateTransportClientFactory(
 					context.getOrElse(TlsProperties.class, null),
 					context.getOrElse(EurekaClientHttpRequestFactorySupplier.class,
-							new DefaultEurekaClientHttpRequestFactorySupplier())).newClient(
-									HostnameBasedUrlRandomizer.randomEndpoint(config, getPropertyResolver(context)));
+							new DefaultEurekaClientHttpRequestFactorySupplier()))
+				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, getPropertyResolver(context)));
 			return new EurekaConfigServerInstanceProvider(httpClient, config)::getInstances;
 		});
 	}

@@ -54,8 +54,11 @@ class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 	@Test
 	void webClientRespectsCodecProperties() {
 		WebClient webClient = eurekaHttpClient.getWebClient();
-		ResponseEntity<String> response = webClient.get().uri("http://localhost:" + port).retrieve()
-				.toEntity(String.class).block();
+		ResponseEntity<String> response = webClient.get()
+			.uri("http://localhost:" + port)
+			.retrieve()
+			.toEntity(String.class)
+			.block();
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -75,7 +78,8 @@ class EurekaConfigServerBootstrapConfigurationWebClientIntegrationTests {
 		@Bean
 		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			return http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-					.csrf(AbstractHttpConfigurer::disable).build();
+				.csrf(AbstractHttpConfigurer::disable)
+				.build();
 		}
 
 	}

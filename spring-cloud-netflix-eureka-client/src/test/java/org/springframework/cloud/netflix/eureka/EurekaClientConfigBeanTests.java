@@ -59,7 +59,7 @@ class EurekaClientConfigBeanTests {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.getBean(EurekaClientConfigBean.class).getServiceUrl().toString())
-				.isEqualTo("{defaultZone=https://example.com}");
+			.isEqualTo("{defaultZone=https://example.com}");
 		assertThat(getEurekaServiceUrlsForDefaultZone()).isEqualTo("[https://example.com/]");
 	}
 

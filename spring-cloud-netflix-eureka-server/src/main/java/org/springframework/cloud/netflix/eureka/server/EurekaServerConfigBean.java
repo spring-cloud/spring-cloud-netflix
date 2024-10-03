@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.core.style.ToStringCreator;
 /**
  * @author Dave Syer
  * @author Gregor Zurowski
+ * @author Mooyong Lee
  */
 @ConfigurationProperties(EurekaServerConfigBean.PREFIX)
 public class EurekaServerConfigBean implements EurekaServerConfig {
@@ -42,8 +43,6 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	 * Eureka server configuration properties prefix.
 	 */
 	public static final String PREFIX = "eureka.server";
-
-	private static final int MINUTES = 60 * 1000;
 
 	@Autowired(required = false)
 	PropertyResolver propertyResolver;
@@ -54,23 +53,23 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int eIPBindRebindRetries = 3;
 
-	private int eIPBindingRetryIntervalMs = 5 * MINUTES;
+	private int eIPBindingRetryIntervalMs = 300000; // 5 * MINUTES
 
-	private int eIPBindingRetryIntervalMsWhenUnbound = 1 * MINUTES;
+	private int eIPBindingRetryIntervalMsWhenUnbound = 60000; // 1 * MINUTES
 
 	private boolean enableSelfPreservation = true;
 
 	private double renewalPercentThreshold = 0.85;
 
-	private int renewalThresholdUpdateIntervalMs = 15 * MINUTES;
+	private int renewalThresholdUpdateIntervalMs = 900000; // 15 * MINUTES
 
-	private int peerEurekaNodesUpdateIntervalMs = 10 * MINUTES;
+	private int peerEurekaNodesUpdateIntervalMs = 600000; // 10 * MINUTES
 
 	private int numberOfReplicationRetries = 5;
 
 	private int peerEurekaStatusRefreshTimeIntervalMs = 30 * 1000;
 
-	private int waitTimeInMsWhenSyncEmpty = 5 * MINUTES;
+	private int waitTimeInMsWhenSyncEmpty = 300000; // 5 * MINUTES
 
 	private int peerNodeConnectTimeoutMs = 200;
 
@@ -82,23 +81,24 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int peerNodeConnectionIdleTimeoutSeconds = 30;
 
-	private long retentionTimeInMSInDeltaQueue = 3 * MINUTES;
+	private long retentionTimeInMSInDeltaQueue = 180000; // 3 * MINUTES
 
-	private long deltaRetentionTimerIntervalInMs = 30 * 1000;
+	private long deltaRetentionTimerIntervalInMs = 30000; // 30 * SECONDS
 
 	private long evictionIntervalTimerInMs = 60 * 1000;
 
 	private int aSGQueryTimeoutMs = 300;
 
-	private long aSGUpdateIntervalMs = 5 * MINUTES;
+	private long aSGUpdateIntervalMs = 300000; // 5 * MINUTES
 
-	private long aSGCacheExpiryTimeoutMs = 10 * MINUTES; // defaults to longer than the
+	private long aSGCacheExpiryTimeoutMs = 600000; // 10 * MINUTES // defaults to longer
+													// than the
 
 	// asg update interval
 
 	private long responseCacheAutoExpirationInSeconds = 180;
 
-	private long responseCacheUpdateIntervalMs = 30 * 1000;
+	private long responseCacheUpdateIntervalMs = 30000; // 30 * SECONDS
 
 	private boolean useReadOnlyResponseCache = true;
 
@@ -186,7 +186,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int route53BindRebindRetries = 3;
 
-	private int route53BindingRetryIntervalMs = 5 * MINUTES;
+	private int route53BindingRetryIntervalMs = 300000; // 5 * MINUTES
 
 	private long route53DomainTTL = 30;
 
@@ -1060,80 +1060,83 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	@Override
 	public String toString() {
 		return new ToStringCreator(this).append("aSGCacheExpiryTimeoutMs", this.aSGCacheExpiryTimeoutMs)
-				.append("aSGQueryTimeoutMs", this.aSGQueryTimeoutMs)
-				.append("aSGUpdateIntervalMs", this.aSGUpdateIntervalMs).append("aWSAccessId", this.aWSAccessId)
-				.append("aWSSecretKey", this.aWSSecretKey).append("batchReplication", this.batchReplication)
-				.append("bindingStrategy", this.bindingStrategy)
-				.append("deltaRetentionTimerIntervalInMs", this.deltaRetentionTimerIntervalInMs)
-				.append("disableDelta", this.disableDelta)
-				.append("disableDeltaForRemoteRegions", this.disableDeltaForRemoteRegions)
-				.append("disableTransparentFallbackToOtherRegion", this.disableTransparentFallbackToOtherRegion)
-				.append("eIPBindRebindRetries", this.eIPBindRebindRetries)
-				.append("eIPBindingRetryIntervalMs", this.eIPBindingRetryIntervalMs)
-				.append("eIPBindingRetryIntervalMsWhenUnbound", this.eIPBindingRetryIntervalMsWhenUnbound)
-				.append("enableReplicatedRequestCompression", this.enableReplicatedRequestCompression)
-				.append("enableSelfPreservation", this.enableSelfPreservation)
-				.append("evictionIntervalTimerInMs", this.evictionIntervalTimerInMs)
-				.append("gZipContentFromRemoteRegion", this.gZipContentFromRemoteRegion)
-				.append("jsonCodecName", this.jsonCodecName)
-				.append("listAutoScalingGroupsRoleName", this.listAutoScalingGroupsRoleName)
-				.append("logIdentityHeaders", this.logIdentityHeaders)
-				.append("maxElementsInPeerReplicationPool", this.maxElementsInPeerReplicationPool)
-				.append("maxElementsInStatusReplicationPool", this.maxElementsInStatusReplicationPool)
-				.append("maxIdleThreadAgeInMinutesForPeerReplication", this.maxIdleThreadAgeInMinutesForPeerReplication)
-				.append("maxIdleThreadInMinutesAgeForStatusReplication",
-						this.maxIdleThreadInMinutesAgeForStatusReplication)
-				.append("maxThreadsForPeerReplication", this.maxThreadsForPeerReplication)
-				.append("maxThreadsForStatusReplication", this.maxThreadsForStatusReplication)
-				.append("maxTimeForReplication", this.maxTimeForReplication)
-				.append("minAvailableInstancesForPeerReplication", this.minAvailableInstancesForPeerReplication)
-				.append("minThreadsForPeerReplication", this.minThreadsForPeerReplication)
-				.append("minThreadsForStatusReplication", this.minThreadsForStatusReplication)
-				.append("numberOfReplicationRetries", this.numberOfReplicationRetries)
-				.append("peerEurekaNodesUpdateIntervalMs", this.peerEurekaNodesUpdateIntervalMs)
-				.append("peerEurekaStatusRefreshTimeIntervalMs", this.peerEurekaStatusRefreshTimeIntervalMs)
-				.append("peerNodeConnectTimeoutMs", this.peerNodeConnectTimeoutMs)
-				.append("peerNodeConnectionIdleTimeoutSeconds", this.peerNodeConnectionIdleTimeoutSeconds)
-				.append("peerNodeReadTimeoutMs", this.peerNodeReadTimeoutMs)
-				.append("peerNodeTotalConnections", this.peerNodeTotalConnections)
-				.append("peerNodeTotalConnectionsPerHost", this.peerNodeTotalConnectionsPerHost)
-				.append("primeAwsReplicaConnections", this.primeAwsReplicaConnections)
-				.append("propertyResolver", this.propertyResolver)
-				.append("rateLimiterBurstSize", this.rateLimiterBurstSize)
-				.append("rateLimiterEnabled", this.rateLimiterEnabled)
-				.append("rateLimiterFullFetchAverageRate", this.rateLimiterFullFetchAverageRate)
-				.append("rateLimiterPrivilegedClients", this.rateLimiterPrivilegedClients)
-				.append("rateLimiterRegistryFetchAverageRate", this.rateLimiterRegistryFetchAverageRate)
-				.append("rateLimiterThrottleStandardClients", this.rateLimiterThrottleStandardClients)
-				.append("registrySyncRetries", this.registrySyncRetries)
-				.append("registrySyncRetryWaitMs", this.registrySyncRetryWaitMs)
-				.append("remoteRegionAppWhitelist", this.remoteRegionAppWhitelist)
-				.append("remoteRegionConnectTimeoutMs", this.remoteRegionConnectTimeoutMs)
-				.append("remoteRegionConnectionIdleTimeoutSeconds", this.remoteRegionConnectionIdleTimeoutSeconds)
-				.append("remoteRegionFetchThreadPoolSize", this.remoteRegionFetchThreadPoolSize)
-				.append("remoteRegionReadTimeoutMs", this.remoteRegionReadTimeoutMs)
-				.append("remoteRegionRegistryFetchInterval", this.remoteRegionRegistryFetchInterval)
-				.append("remoteRegionTotalConnections", this.remoteRegionTotalConnections)
-				.append("remoteRegionTotalConnectionsPerHost", this.remoteRegionTotalConnectionsPerHost)
-				.append("remoteRegionTrustStore", this.remoteRegionTrustStore)
-				.append("remoteRegionTrustStorePassword", this.remoteRegionTrustStorePassword)
-				.append("remoteRegionUrls", this.remoteRegionUrls)
-				.append("remoteRegionUrlsWithName", this.remoteRegionUrlsWithName)
-				.append("renewalPercentThreshold", this.renewalPercentThreshold)
-				.append("renewalThresholdUpdateIntervalMs", this.renewalThresholdUpdateIntervalMs)
-				.append("responseCacheAutoExpirationInSeconds", this.responseCacheAutoExpirationInSeconds)
-				.append("responseCacheUpdateIntervalMs", this.responseCacheUpdateIntervalMs)
-				.append("retentionTimeInMSInDeltaQueue", this.retentionTimeInMSInDeltaQueue)
-				.append("route53BindRebindRetries", this.route53BindRebindRetries)
-				.append("route53BindingRetryIntervalMs", this.route53BindingRetryIntervalMs)
-				.append("route53DomainTTL", this.route53DomainTTL)
-				.append("syncWhenTimestampDiffers", this.syncWhenTimestampDiffers)
-				.append("useReadOnlyResponseCache", this.useReadOnlyResponseCache)
-				.append("waitTimeInMsWhenSyncEmpty", this.waitTimeInMsWhenSyncEmpty)
-				.append("xmlCodecName", this.xmlCodecName)
-				.append("initialCapacityOfResponseCache", this.initialCapacityOfResponseCache)
-				.append("expectedClientRenewalIntervalSeconds", this.expectedClientRenewalIntervalSeconds)
-				.append("useAwsAsgApi", this.useAwsAsgApi).append("myUrl", this.myUrl).toString();
+			.append("aSGQueryTimeoutMs", this.aSGQueryTimeoutMs)
+			.append("aSGUpdateIntervalMs", this.aSGUpdateIntervalMs)
+			.append("aWSAccessId", this.aWSAccessId)
+			.append("aWSSecretKey", this.aWSSecretKey)
+			.append("batchReplication", this.batchReplication)
+			.append("bindingStrategy", this.bindingStrategy)
+			.append("deltaRetentionTimerIntervalInMs", this.deltaRetentionTimerIntervalInMs)
+			.append("disableDelta", this.disableDelta)
+			.append("disableDeltaForRemoteRegions", this.disableDeltaForRemoteRegions)
+			.append("disableTransparentFallbackToOtherRegion", this.disableTransparentFallbackToOtherRegion)
+			.append("eIPBindRebindRetries", this.eIPBindRebindRetries)
+			.append("eIPBindingRetryIntervalMs", this.eIPBindingRetryIntervalMs)
+			.append("eIPBindingRetryIntervalMsWhenUnbound", this.eIPBindingRetryIntervalMsWhenUnbound)
+			.append("enableReplicatedRequestCompression", this.enableReplicatedRequestCompression)
+			.append("enableSelfPreservation", this.enableSelfPreservation)
+			.append("evictionIntervalTimerInMs", this.evictionIntervalTimerInMs)
+			.append("gZipContentFromRemoteRegion", this.gZipContentFromRemoteRegion)
+			.append("jsonCodecName", this.jsonCodecName)
+			.append("listAutoScalingGroupsRoleName", this.listAutoScalingGroupsRoleName)
+			.append("logIdentityHeaders", this.logIdentityHeaders)
+			.append("maxElementsInPeerReplicationPool", this.maxElementsInPeerReplicationPool)
+			.append("maxElementsInStatusReplicationPool", this.maxElementsInStatusReplicationPool)
+			.append("maxIdleThreadAgeInMinutesForPeerReplication", this.maxIdleThreadAgeInMinutesForPeerReplication)
+			.append("maxIdleThreadInMinutesAgeForStatusReplication", this.maxIdleThreadInMinutesAgeForStatusReplication)
+			.append("maxThreadsForPeerReplication", this.maxThreadsForPeerReplication)
+			.append("maxThreadsForStatusReplication", this.maxThreadsForStatusReplication)
+			.append("maxTimeForReplication", this.maxTimeForReplication)
+			.append("minAvailableInstancesForPeerReplication", this.minAvailableInstancesForPeerReplication)
+			.append("minThreadsForPeerReplication", this.minThreadsForPeerReplication)
+			.append("minThreadsForStatusReplication", this.minThreadsForStatusReplication)
+			.append("numberOfReplicationRetries", this.numberOfReplicationRetries)
+			.append("peerEurekaNodesUpdateIntervalMs", this.peerEurekaNodesUpdateIntervalMs)
+			.append("peerEurekaStatusRefreshTimeIntervalMs", this.peerEurekaStatusRefreshTimeIntervalMs)
+			.append("peerNodeConnectTimeoutMs", this.peerNodeConnectTimeoutMs)
+			.append("peerNodeConnectionIdleTimeoutSeconds", this.peerNodeConnectionIdleTimeoutSeconds)
+			.append("peerNodeReadTimeoutMs", this.peerNodeReadTimeoutMs)
+			.append("peerNodeTotalConnections", this.peerNodeTotalConnections)
+			.append("peerNodeTotalConnectionsPerHost", this.peerNodeTotalConnectionsPerHost)
+			.append("primeAwsReplicaConnections", this.primeAwsReplicaConnections)
+			.append("propertyResolver", this.propertyResolver)
+			.append("rateLimiterBurstSize", this.rateLimiterBurstSize)
+			.append("rateLimiterEnabled", this.rateLimiterEnabled)
+			.append("rateLimiterFullFetchAverageRate", this.rateLimiterFullFetchAverageRate)
+			.append("rateLimiterPrivilegedClients", this.rateLimiterPrivilegedClients)
+			.append("rateLimiterRegistryFetchAverageRate", this.rateLimiterRegistryFetchAverageRate)
+			.append("rateLimiterThrottleStandardClients", this.rateLimiterThrottleStandardClients)
+			.append("registrySyncRetries", this.registrySyncRetries)
+			.append("registrySyncRetryWaitMs", this.registrySyncRetryWaitMs)
+			.append("remoteRegionAppWhitelist", this.remoteRegionAppWhitelist)
+			.append("remoteRegionConnectTimeoutMs", this.remoteRegionConnectTimeoutMs)
+			.append("remoteRegionConnectionIdleTimeoutSeconds", this.remoteRegionConnectionIdleTimeoutSeconds)
+			.append("remoteRegionFetchThreadPoolSize", this.remoteRegionFetchThreadPoolSize)
+			.append("remoteRegionReadTimeoutMs", this.remoteRegionReadTimeoutMs)
+			.append("remoteRegionRegistryFetchInterval", this.remoteRegionRegistryFetchInterval)
+			.append("remoteRegionTotalConnections", this.remoteRegionTotalConnections)
+			.append("remoteRegionTotalConnectionsPerHost", this.remoteRegionTotalConnectionsPerHost)
+			.append("remoteRegionTrustStore", this.remoteRegionTrustStore)
+			.append("remoteRegionTrustStorePassword", this.remoteRegionTrustStorePassword)
+			.append("remoteRegionUrls", this.remoteRegionUrls)
+			.append("remoteRegionUrlsWithName", this.remoteRegionUrlsWithName)
+			.append("renewalPercentThreshold", this.renewalPercentThreshold)
+			.append("renewalThresholdUpdateIntervalMs", this.renewalThresholdUpdateIntervalMs)
+			.append("responseCacheAutoExpirationInSeconds", this.responseCacheAutoExpirationInSeconds)
+			.append("responseCacheUpdateIntervalMs", this.responseCacheUpdateIntervalMs)
+			.append("retentionTimeInMSInDeltaQueue", this.retentionTimeInMSInDeltaQueue)
+			.append("route53BindRebindRetries", this.route53BindRebindRetries)
+			.append("route53BindingRetryIntervalMs", this.route53BindingRetryIntervalMs)
+			.append("route53DomainTTL", this.route53DomainTTL)
+			.append("syncWhenTimestampDiffers", this.syncWhenTimestampDiffers)
+			.append("useReadOnlyResponseCache", this.useReadOnlyResponseCache)
+			.append("waitTimeInMsWhenSyncEmpty", this.waitTimeInMsWhenSyncEmpty)
+			.append("xmlCodecName", this.xmlCodecName)
+			.append("initialCapacityOfResponseCache", this.initialCapacityOfResponseCache)
+			.append("expectedClientRenewalIntervalSeconds", this.expectedClientRenewalIntervalSeconds)
+			.append("useAwsAsgApi", this.useAwsAsgApi)
+			.append("myUrl", this.myUrl)
+			.toString();
 	}
 
 }

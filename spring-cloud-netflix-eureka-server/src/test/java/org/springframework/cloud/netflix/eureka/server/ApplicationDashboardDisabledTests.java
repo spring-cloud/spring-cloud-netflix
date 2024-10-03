@@ -41,7 +41,7 @@ class ApplicationDashboardDisabledTests {
 	void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate()
-				.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
+			.getForEntity("http://localhost:" + this.port + "/eureka/apps", Map.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 

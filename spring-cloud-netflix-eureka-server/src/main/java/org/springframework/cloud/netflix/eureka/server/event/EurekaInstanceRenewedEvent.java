@@ -98,9 +98,19 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRenewedEvent{").append("appName='").append(appName).append("', ")
-				.append("serverId='").append(serverId).append("', ").append("instanceInfo=").append(instanceInfo)
-				.append(", ").append("replication=").append(replication).append("}").toString();
+		return new StringBuilder("EurekaInstanceRenewedEvent{").append("appName='")
+			.append(appName)
+			.append("', ")
+			.append("serverId='")
+			.append(serverId)
+			.append("', ")
+			.append("instanceInfo=")
+			.append(instanceInfo)
+			.append(", ")
+			.append("replication=")
+			.append(replication)
+			.append("}")
+			.toString();
 	}
 
 }

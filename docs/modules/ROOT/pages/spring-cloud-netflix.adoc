@@ -35,8 +35,9 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(Application.class).web(true).run(args);
-    }
+		SpringApplication.run(CustomerServiceTestApplication.class, args);
+	}
+
 
 }
 ----
@@ -294,6 +295,8 @@ The following example shows the dependencies you need to add:
 </dependencies>
 ----
 
+If you have `JerseyClient` on the classpath but do not wish to use it in your `EuerekaClient`, make sure to set `eureka.client.jersey.enabled` to `false`.
+
 === Alternatives to the Native Netflix EurekaClient
 
 You need not use the raw Netflix `EurekaClient`.
@@ -374,7 +377,9 @@ We take `eureka.client.availabilityZones`, which is a map from region name to a 
 
 Spring Cloud Netflix Eureka Client integration supports Spring AOT transformations and native images, however, only with refresh mode disabled.
 
-WARNING: If you want to run Eureka Client in AOT or native image modes, make sure to set `spring.cloud.refresh.enabled` to `false`
+WARNING: If you want to run Eureka Client in AOT or native image modes, make sure to set `spring.cloud.refresh.enabled` to `false`.
+
+NOTE:  Given the AOT and native image closed-world assumption, using random port with Eureka clients is not supported for ahead of time compilation or native images.
 
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
@@ -409,8 +414,9 @@ The following example shows a minimal Eureka server:
 public class Application {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(Application.class).web(true).run(args);
-    }
+		SpringApplication.run(CustomerServiceTestApplication.class, args);
+	}
+
 
 }
 ----

@@ -201,7 +201,7 @@ public class EurekaController {
 			ArrayList<Map<String, Object>> instanceInfos = new ArrayList<>();
 			appData.put("instanceInfos", instanceInfos);
 			for (Map.Entry<InstanceInfo.InstanceStatus, List<Pair<String, String>>> entry : instancesByStatus
-					.entrySet()) {
+				.entrySet()) {
 				List<Pair<String, String>> value = entry.getValue();
 				InstanceInfo.InstanceStatus status = entry.getKey();
 				LinkedHashMap<String, Object> instanceData = new LinkedHashMap<>();

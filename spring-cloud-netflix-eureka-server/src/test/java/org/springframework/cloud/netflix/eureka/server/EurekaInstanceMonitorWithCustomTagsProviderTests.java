@@ -84,7 +84,7 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
 		meterRegistryCounts.forEach((tags,
 				count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
-						.isEqualTo(count));
+					.isEqualTo(count));
 	}
 
 	@Configuration(proxyBeanMethods = false)

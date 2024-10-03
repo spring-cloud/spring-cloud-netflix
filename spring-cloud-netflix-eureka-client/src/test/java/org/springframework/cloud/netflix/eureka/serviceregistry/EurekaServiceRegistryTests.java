@@ -67,9 +67,11 @@ class EurekaServiceRegistryTests {
 		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
 
 		EurekaRegistration registration = EurekaRegistration
-				.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()))).with(eurekaClient)
-				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
-				.build();
+			.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties())))
+			.with(eurekaClient)
+			.with(applicationInfoManager)
+			.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+			.build();
 
 		registry.deregister(registration);
 
@@ -85,11 +87,18 @@ class EurekaServiceRegistryTests {
 		config.setAppname("myapp");
 		config.setInstanceId("1234");
 
-		InstanceInfo local = InstanceInfo.Builder.newBuilder().setAppName("myapp").setInstanceId("1234").setStatus(DOWN)
-				.build();
+		InstanceInfo local = InstanceInfo.Builder.newBuilder()
+			.setAppName("myapp")
+			.setInstanceId("1234")
+			.setStatus(DOWN)
+			.build();
 
-		InstanceInfo remote = InstanceInfo.Builder.newBuilder().setAppName("myapp").setInstanceId("1234")
-				.setStatus(DOWN).setOverriddenStatus(OUT_OF_SERVICE).build();
+		InstanceInfo remote = InstanceInfo.Builder.newBuilder()
+			.setAppName("myapp")
+			.setInstanceId("1234")
+			.setStatus(DOWN)
+			.setOverriddenStatus(OUT_OF_SERVICE)
+			.build();
 
 		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
 		when(eurekaClient.getInstanceInfo(local.getAppName(), local.getId())).thenReturn(remote);
@@ -97,9 +106,11 @@ class EurekaServiceRegistryTests {
 		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
 		when(applicationInfoManager.getInfo()).thenReturn(local);
 
-		EurekaRegistration registration = EurekaRegistration.builder(config).with(eurekaClient)
-				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
-				.build();
+		EurekaRegistration registration = EurekaRegistration.builder(config)
+			.with(eurekaClient)
+			.with(applicationInfoManager)
+			.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+			.build();
 
 		Object status = registry.getStatus(registration);
 
@@ -109,8 +120,9 @@ class EurekaServiceRegistryTests {
 
 		Map<Object, Object> map = (Map<Object, Object>) status;
 
-		assertThat(map).hasSize(2).containsEntry("status", DOWN.toString()).containsEntry("overriddenStatus",
-				OUT_OF_SERVICE.toString());
+		assertThat(map).hasSize(2)
+			.containsEntry("status", DOWN.toString())
+			.containsEntry("overriddenStatus", OUT_OF_SERVICE.toString());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -127,9 +139,11 @@ class EurekaServiceRegistryTests {
 		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
 		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
 
-		EurekaRegistration registration = EurekaRegistration.builder(config).with(eurekaClient)
-				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
-				.build();
+		EurekaRegistration registration = EurekaRegistration.builder(config)
+			.with(eurekaClient)
+			.with(applicationInfoManager)
+			.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+			.build();
 
 		Object status = registry.getStatus(registration);
 
@@ -160,9 +174,12 @@ class EurekaServiceRegistryTests {
 		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
 
 		EurekaRegistration registration = EurekaRegistration
-				.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()))).with(eurekaClient)
-				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
-				.with(new SimpleObjectProvider<>(null)).build();
+			.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties())))
+			.with(eurekaClient)
+			.with(applicationInfoManager)
+			.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+			.with(new SimpleObjectProvider<>(null))
+			.build();
 
 		registry.register(registration);
 
@@ -182,9 +199,12 @@ class EurekaServiceRegistryTests {
 		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
 
 		EurekaRegistration registration = EurekaRegistration
-				.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()))).with(eurekaClient)
-				.with(applicationInfoManager).with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
-				.with(new SimpleObjectProvider<>(null)).build();
+			.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties())))
+			.with(eurekaClient)
+			.with(applicationInfoManager)
+			.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+			.with(new SimpleObjectProvider<>(null))
+			.build();
 
 		registry.register(registration);
 

@@ -52,8 +52,8 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 		this.instanceRegistry = Objects.requireNonNull(instanceRegistry);
 		this.tagProvider = Objects.requireNonNull(tagProvider);
 		this.eurekaInstances = MultiGauge.builder("eureka.server.instances")
-				.description("Number of application instances registered with the Eureka server.")
-				.register(meterRegistry);
+			.description("Number of application instances registered with the Eureka server.")
+			.register(meterRegistry);
 	}
 
 	@Override
@@ -66,11 +66,15 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		final Map<Tags, Long> aggregatedCounts = instanceRegistry.getApplications().getRegisteredApplications().stream()
-				.flatMap(application -> application.getInstances().stream())
-				.collect(Collectors.groupingBy(tagProvider::eurekaInstanceTags, Collectors.counting()));
-		eurekaInstances.register(aggregatedCounts.entrySet().stream()
-				.map(entry -> MultiGauge.Row.of(entry.getKey(), entry.getValue())).collect(Collectors.toList()), true);
+		final Map<Tags, Long> aggregatedCounts = instanceRegistry.getApplications()
+			.getRegisteredApplications()
+			.stream()
+			.flatMap(application -> application.getInstances().stream())
+			.collect(Collectors.groupingBy(tagProvider::eurekaInstanceTags, Collectors.counting()));
+		eurekaInstances.register(aggregatedCounts.entrySet()
+			.stream()
+			.map(entry -> MultiGauge.Row.of(entry.getKey(), entry.getValue()))
+			.collect(Collectors.toList()), true);
 	}
 
 }
