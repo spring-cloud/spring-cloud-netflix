@@ -55,16 +55,21 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
 		final ResponseEntity<Void> response = restClient.post()
-				.uri(builder -> builder.pathSegment("apps", info.getAppName()).build()).body(info)
-				.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).retrieve().toBodilessEntity();
+			.uri(builder -> builder.pathSegment("apps", info.getAppName()).build())
+			.body(info)
+			.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.retrieve()
+			.toBodilessEntity();
 		return eurekaHttpResponse(response);
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
 		final ResponseEntity<Void> response = restClient.delete()
-				.uri(builder -> builder.pathSegment("apps", appName, id).build()).retrieve().toBodilessEntity();
+			.uri(builder -> builder.pathSegment("apps", appName, id).build())
+			.retrieve()
+			.toBodilessEntity();
 		return eurekaHttpResponse(response);
 	}
 
@@ -72,17 +77,21 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 	public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info,
 			InstanceStatus overriddenStatus) {
 		final Function<UriBuilder, URI> uriFunction = builder -> builder.pathSegment("apps", appName, id)
-				.queryParam("status", info.getStatus().toString())
-				.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString()).queryParamIfPresent(
-						"overriddenstatus", Optional.ofNullable(overriddenStatus).map(InstanceStatus::name))
-				.build();
+			.queryParam("status", info.getStatus().toString())
+			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
+			.queryParamIfPresent("overriddenstatus", Optional.ofNullable(overriddenStatus).map(InstanceStatus::name))
+			.build();
 
-		final ResponseEntity<InstanceInfo> response = restClient.put().uri(uriFunction)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve().toEntity(InstanceInfo.class);
+		final ResponseEntity<InstanceInfo> response = restClient.put()
+			.uri(uriFunction)
+			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.retrieve()
+			.toEntity(InstanceInfo.class);
 
 		final EurekaHttpResponseBuilder<InstanceInfo> builder = anEurekaHttpResponse(statusCodeValueOf(response),
-				InstanceInfo.class).headers(headersOf(response));
+				InstanceInfo.class)
+			.headers(headersOf(response));
 
 		final InstanceInfo entity = response.getBody();
 		if (entity != null) {
@@ -96,21 +105,29 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 	public EurekaHttpResponse<Void> statusUpdate(String appName, String id, InstanceStatus newStatus,
 			InstanceInfo info) {
 		final Function<UriBuilder, URI> uriFunction = builder -> builder.pathSegment("apps", appName, id, "status")
-				.queryParam("value", newStatus.name())
-				.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString()).build();
+			.queryParam("value", newStatus.name())
+			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
+			.build();
 
-		final ResponseEntity<Void> response = restClient.put().uri(uriFunction)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).retrieve().toBodilessEntity();
+		final ResponseEntity<Void> response = restClient.put()
+			.uri(uriFunction)
+			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.retrieve()
+			.toBodilessEntity();
 		return eurekaHttpResponse(response);
 	}
 
 	@Override
 	public EurekaHttpResponse<Void> deleteStatusOverride(String appName, String id, InstanceInfo info) {
 		final Function<UriBuilder, URI> uriFunction = builder -> builder.pathSegment("apps", appName, id, "status")
-				.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString()).build();
+			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
+			.build();
 
-		final ResponseEntity<Void> response = restClient.delete().uri(uriFunction)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).retrieve().toBodilessEntity();
+		final ResponseEntity<Void> response = restClient.delete()
+			.uri(uriFunction)
+			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.retrieve()
+			.toBodilessEntity();
 		return eurekaHttpResponse(response);
 	}
 
@@ -120,18 +137,24 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath, String[] regions) {
-		final Function<UriBuilder, URI> uriFunction = builder -> builder.queryParamIfPresent("regions",
-				Optional.ofNullable(regions).filter(it -> it.length > 0).map(StringUtil::join)).build();
+		final Function<UriBuilder, URI> uriFunction = builder -> builder
+			.queryParamIfPresent("regions",
+					Optional.ofNullable(regions).filter(it -> it.length > 0).map(StringUtil::join))
+			.build();
 
-		final ResponseEntity<Applications> response = restClient.get().uri(urlPath, uriFunction)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve().toEntity(Applications.class);
+		final ResponseEntity<Applications> response = restClient.get()
+			.uri(urlPath, uriFunction)
+			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.retrieve()
+			.toEntity(Applications.class);
 
 		final int statusCode = statusCodeValueOf(response);
 		final Applications body = response.getBody();
 
 		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
-				.headers(headersOf(response)).build();
+			.headers(headersOf(response))
+			.build();
 	}
 
 	@Override
@@ -152,8 +175,11 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Application> getApplication(String appName) {
 
-		final ResponseEntity<Application> response = restClient.get().uri("/apps/" + appName)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve().toEntity(Application.class);
+		final ResponseEntity<Application> response = restClient.get()
+			.uri("/apps/" + appName)
+			.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.retrieve()
+			.toEntity(Application.class);
 
 		final int statusCode = statusCodeValueOf(response);
 		final Application body = response.getBody();
@@ -174,14 +200,18 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
-		final ResponseEntity<InstanceInfo> response = restClient.get().uri(urlPath)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).retrieve().toEntity(InstanceInfo.class);
+		final ResponseEntity<InstanceInfo> response = restClient.get()
+			.uri(urlPath)
+			.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.retrieve()
+			.toEntity(InstanceInfo.class);
 
 		final int statusCode = statusCodeValueOf(response);
 		final InstanceInfo body = response.getBody();
 
 		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
-				.headers(headersOf(response)).build();
+			.headers(headersOf(response))
+			.build();
 	}
 
 	@Override

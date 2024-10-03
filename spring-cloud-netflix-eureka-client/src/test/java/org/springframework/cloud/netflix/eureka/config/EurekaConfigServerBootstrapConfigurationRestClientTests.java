@@ -35,27 +35,27 @@ class EurekaConfigServerBootstrapConfigurationRestClientTests {
 	@Test
 	void properBeansCreatedWhenEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
-						"eureka.client.restclient.enabled=true")
-				.run(context -> {
-					assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
-					assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
-					assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
-				});
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
+					"eureka.client.restclient.enabled=true")
+			.run(context -> {
+				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
+				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
+				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
+			});
 	}
 
 	@Test
 	void properBeansCreatedWhenEnabledRestClientDisabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
-				.run(context -> {
-					assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
-					assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
-					assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
-					assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
-				});
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
+			.run(context -> {
+				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
+				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
+				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
+				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
+			});
 	}
 
 }

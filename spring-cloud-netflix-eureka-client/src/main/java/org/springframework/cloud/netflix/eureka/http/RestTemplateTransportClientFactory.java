@@ -134,7 +134,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		final EurekaHttpClientUtils.UserInfo userInfo = extractUserInfo(serviceUrl);
 		if (userInfo != null) {
 			restTemplate.getInterceptors()
-					.add(new BasicAuthenticationInterceptor(userInfo.username(), userInfo.password()));
+				.add(new BasicAuthenticationInterceptor(userInfo.username(), userInfo.password()));
 		}
 
 		restTemplate.getMessageConverters().add(0, mappingJacksonHttpMessageConverter());

@@ -125,7 +125,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 		public RestClientEurekaHttpClient configDiscoveryRestClientEurekaHttpClient(EurekaClientConfigBean config,
 				ObjectProvider<RestClient.Builder> builder, Environment env) {
 			return (RestClientEurekaHttpClient) new RestClientTransportClientFactory(builder::getIfAvailable)
-					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 		}
 
 	}

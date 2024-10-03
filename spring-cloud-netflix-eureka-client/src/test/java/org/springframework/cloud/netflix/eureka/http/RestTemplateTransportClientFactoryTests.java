@@ -40,21 +40,21 @@ class RestTemplateTransportClientFactoryTests {
 	@Test
 	void withoutUserInfo() {
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
-				.newClient(new DefaultEndpoint("http://localhost:8761"));
+			.newClient(new DefaultEndpoint("http://localhost:8761"));
 		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
 	}
 
 	@Test
 	void invalidUserInfo() {
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
-				.newClient(new DefaultEndpoint("http://test@localhost:8761"));
+			.newClient(new DefaultEndpoint("http://test@localhost:8761"));
 		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
 	}
 
 	@Test
 	void userInfo() {
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
-				.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
+			.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
 		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
 	}
 

@@ -40,8 +40,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 /**
  * @author Wonchul Heo
  */
-@SpringBootTest(properties = { "spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
-		"eureka.client.restclient.enabled=true" }, webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+		properties = { "spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
+				"spring.config.use-legacy-processing=true", "eureka.client.restclient.enabled=true" },
+		webEnvironment = RANDOM_PORT)
 class EurekaConfigServerBootstrapConfigurationRestClientIntegrationTests {
 
 	@LocalServerPort
@@ -53,8 +55,10 @@ class EurekaConfigServerBootstrapConfigurationRestClientIntegrationTests {
 	@Test
 	void restClientRespectsCodecProperties() {
 		RestClient restClient = eurekaHttpClient.getRestClient();
-		ResponseEntity<String> response = restClient.get().uri("http://localhost:" + port).retrieve()
-				.toEntity(String.class);
+		ResponseEntity<String> response = restClient.get()
+			.uri("http://localhost:" + port)
+			.retrieve()
+			.toEntity(String.class);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -74,7 +78,8 @@ class EurekaConfigServerBootstrapConfigurationRestClientIntegrationTests {
 		@Bean
 		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			return http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-					.csrf(AbstractHttpConfigurer::disable).build();
+				.csrf(AbstractHttpConfigurer::disable)
+				.build();
 		}
 
 	}
