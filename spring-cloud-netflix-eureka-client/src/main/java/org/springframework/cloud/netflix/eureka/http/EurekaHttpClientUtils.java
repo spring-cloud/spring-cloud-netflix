@@ -42,6 +42,7 @@ import org.springframework.lang.Nullable;
 /**
  * Utility class for dealing with {@link EurekaHttpClient}.
  *
+ * @author Daniel Lavoie
  * @author Wonchul Heo
  */
 final class EurekaHttpClientUtils {

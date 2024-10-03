@@ -74,6 +74,8 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(EurekaHttpClient.class)
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+			havingValue = "false")
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
 			Environment env, @Nullable TlsProperties properties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,

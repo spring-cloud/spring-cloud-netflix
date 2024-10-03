@@ -26,6 +26,7 @@ import org.springframework.http.client.ClientHttpResponse;
 /**
  * Response that ignores body, specifically for 404 errors.
  *
+ * @author Spencer Gibb
  * @author Wonchul Heo
  */
 class NotFoundHttpResponse implements ClientHttpResponse {

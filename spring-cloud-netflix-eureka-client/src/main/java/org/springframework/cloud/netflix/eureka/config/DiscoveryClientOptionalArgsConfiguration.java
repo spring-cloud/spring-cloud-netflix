@@ -71,10 +71,14 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+			havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
 			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
-		logger.info("Eureka HTTP Client uses RestTemplate.");
+		if (logger.isInfoEnabled()) {
+			logger.info("Eureka HTTP Client uses RestTemplate.");
+		}
 		RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
 				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable);
 		setupTLS(result, tlsProperties);
@@ -85,6 +89,8 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
+	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+			havingValue = "false")
 	public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
 			RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
 		return new RestTemplateTransportClientFactories(optionalArgs);
@@ -113,7 +119,9 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		DiscoveryClientOptionalArgsTlsConfiguration(TlsProperties tlsProperties,
 				AbstractDiscoveryClientOptionalArgs optionalArgs) throws GeneralSecurityException, IOException {
-			logger.info("Eureka HTTP Client uses Jersey");
+			if (logger.isInfoEnabled()) {
+				logger.info("Eureka HTTP Client uses Jersey");
+			}
 			setupTLS(optionalArgs, tlsProperties);
 		}
 
@@ -130,7 +138,9 @@ public class DiscoveryClientOptionalArgsConfiguration {
 				search = SearchStrategy.CURRENT)
 		public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
 				ObjectProvider<WebClient.Builder> builder) throws GeneralSecurityException, IOException {
-			logger.info("Eureka HTTP Client uses WebClient.");
+			if (logger.isInfoEnabled()) {
+				logger.info("Eureka HTTP Client uses WebClient.");
+			}
 			WebClientDiscoveryClientOptionalArgs result = new WebClientDiscoveryClientOptionalArgs(
 					builder::getIfAvailable);
 			setupTLS(result, tlsProperties);
@@ -170,7 +180,9 @@ public class DiscoveryClientOptionalArgsConfiguration {
 				search = SearchStrategy.CURRENT)
 		public RestClientDiscoveryClientOptionalArgs restClientDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
 				ObjectProvider<RestClient.Builder> builder) throws GeneralSecurityException, IOException {
-			logger.info("Eureka HTTP Client uses RestClient.");
+			if (logger.isInfoEnabled()) {
+				logger.info("Eureka HTTP Client uses RestClient.");
+			}
 			RestClientDiscoveryClientOptionalArgs result = new RestClientDiscoveryClientOptionalArgs(
 					builder::getIfAvailable);
 			setupTLS(result, tlsProperties);

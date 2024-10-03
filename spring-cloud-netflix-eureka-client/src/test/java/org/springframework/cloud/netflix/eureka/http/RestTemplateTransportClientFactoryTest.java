@@ -17,12 +17,16 @@
 package org.springframework.cloud.netflix.eureka.http;
 
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Daniel Lavoie
+ * @author Wonchul Heo
  */
 class RestTemplateTransportClientFactoryTest {
 
@@ -34,18 +38,21 @@ class RestTemplateTransportClientFactoryTest {
 	}
 
 	@Test
-	void testWithoutUserInfo() {
-		transportClientFactory.newClient(new DefaultEndpoint("http://localhost:8761"));
+	void withoutUserInfo() {
+		EurekaHttpClient eurekaHttpClient = transportClientFactory.newClient(new DefaultEndpoint("http://localhost:8761"));
+		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
 	}
 
 	@Test
-	void testInvalidUserInfo() {
-		transportClientFactory.newClient(new DefaultEndpoint("http://test@localhost:8761"));
+	void invalidUserInfo() {
+		EurekaHttpClient eurekaHttpClient = transportClientFactory.newClient(new DefaultEndpoint("http://test@localhost:8761"));
+		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
 	}
 
 	@Test
-	void testUserInfo() {
-		transportClientFactory.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
+	void userInfo() {
+		EurekaHttpClient eurekaHttpClient = transportClientFactory.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
+		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
 	}
 
 	@AfterEach
