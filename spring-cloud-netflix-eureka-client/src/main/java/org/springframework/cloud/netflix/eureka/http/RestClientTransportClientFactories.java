@@ -32,6 +32,7 @@ import org.springframework.web.client.RestClient;
 
 /**
  * @author Wonchul Heo
+ * @since 4.2.0
  */
 public class RestClientTransportClientFactories implements TransportClientFactories<Void> {
 

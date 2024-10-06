@@ -28,6 +28,7 @@ import org.springframework.web.client.RestClient;
  * supplying {@link ClientRequestFilter}.
  *
  * @author Wonchul Heo
+ * @since 4.2.0
  */
 public class RestClientDiscoveryClientOptionalArgs extends AbstractDiscoveryClientOptionalArgs<Void> {
 

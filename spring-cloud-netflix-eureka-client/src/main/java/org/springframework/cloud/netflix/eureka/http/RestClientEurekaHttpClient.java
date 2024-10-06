@@ -43,6 +43,7 @@ import static com.netflix.discovery.shared.transport.EurekaHttpResponse.anEureka
  * {@link RestClient} implementation of {@link EurekaHttpClient}.
  *
  * @author Wonchul Heo
+ * @since 4.2.0
  */
 public class RestClientEurekaHttpClient implements EurekaHttpClient {
 

@@ -44,6 +44,7 @@ import org.springframework.lang.Nullable;
  *
  * @author Daniel Lavoie
  * @author Wonchul Heo
+ * @since 4.2.0
  */
 final class EurekaHttpClientUtils {
 

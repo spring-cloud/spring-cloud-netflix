@@ -48,6 +48,7 @@ import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtil
  *
  * @author Daniel Lavoie
  * @author Armin Krezovic
+ * @author Wonchul Heo
  */
 public class RestTemplateTransportClientFactory implements TransportClientFactory {
 

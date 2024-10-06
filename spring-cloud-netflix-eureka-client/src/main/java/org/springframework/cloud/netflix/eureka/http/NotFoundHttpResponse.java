@@ -28,6 +28,7 @@ import org.springframework.http.client.ClientHttpResponse;
  *
  * @author Spencer Gibb
  * @author Wonchul Heo
+ * @since 4.2.0
  */
 class NotFoundHttpResponse implements ClientHttpResponse {
 
