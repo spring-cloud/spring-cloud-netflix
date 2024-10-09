@@ -67,8 +67,8 @@ public class EurekaClientTests extends BaseCertTests {
 		@Bean
 		public RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
 			return new RestTemplateDiscoveryClientOptionalArgs(
-					new DefaultEurekaClientHttpRequestFactorySupplier(new RestTemplateTimeoutProperties()),
-					null); }
+					new DefaultEurekaClientHttpRequestFactorySupplier(new RestTemplateTimeoutProperties()), null);
+		}
 
 	}
 

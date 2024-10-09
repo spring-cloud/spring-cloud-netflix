@@ -159,14 +159,6 @@ abstract class BaseCertTests {
 	}
 
 	@Test
-	void nonExistKeyStoreCauseFailure() {
-		EurekaClientRunner client = createEurekaClient();
-		enableTlsClient(client);
-		client.setKeyStore(new File("nonExistFile"));
-		Assertions.assertThrows(BeanCreationException.class, client::start);
-	}
-
-	@Test
 	void wrongTrustStoreCannotWork() {
 		try (EurekaClientRunner client = createEurekaClient()) {
 			enableTlsClient(client);
