@@ -22,8 +22,12 @@ import org.junit.jupiter.api.BeforeAll;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
+import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+import org.springframework.context.annotation.Bean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,6 +56,19 @@ public class EurekaClientTests extends BaseCertTests {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	public static class TestApp {
+
+		@Bean
+		public RestTemplateTransportClientFactories forceRestTemplateTransportClientFactories(
+				DiscoveryClientOptionalArgsConfiguration configuration,
+				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
+			return configuration.restTemplateTransportClientFactories(discoveryClientOptionalArgs);
+		}
+
+		@Bean
+		public RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
+			return new RestTemplateDiscoveryClientOptionalArgs(
+					new DefaultEurekaClientHttpRequestFactorySupplier(new RestTemplateTimeoutProperties()), null);
+		}
 
 	}
 
