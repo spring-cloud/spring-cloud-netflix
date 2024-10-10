@@ -91,6 +91,7 @@ public class RestTemplateEurekaClientTests extends BaseCertTests {
 				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
 			return configuration.restTemplateTransportClientFactories(discoveryClientOptionalArgs);
 		}
+
 	}
 
 	@SpringBootConfiguration
