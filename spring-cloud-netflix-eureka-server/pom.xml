@@ -176,7 +176,7 @@
 					<dependency>
 						<groupId>org.webjars.npm</groupId>
 						<artifactId>glob</artifactId>
-						<version>7.2.0</version>
+						<version>7.2.3</version>
 					</dependency>
 					<dependency>
 						<groupId>org.webjars.npm</groupId>
