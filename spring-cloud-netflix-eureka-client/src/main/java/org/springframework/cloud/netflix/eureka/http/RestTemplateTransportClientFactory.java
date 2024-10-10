@@ -16,31 +16,12 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.converters.jackson.mixin.ApplicationsJsonMixIn;
-import com.netflix.discovery.converters.jackson.mixin.InstanceInfoJsonMixIn;
-import com.netflix.discovery.converters.jackson.serializer.InstanceInfoJsonBeanSerializer;
-import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
@@ -48,16 +29,17 @@ import com.netflix.discovery.shared.transport.TransportClientFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.extractUserInfo;
+import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.mappingJacksonHttpMessageConverter;
 
 /**
  * Provides the custom {@link RestTemplate} required by the
@@ -66,6 +48,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Daniel Lavoie
  * @author Armin Krezovic
+ * @author Wonchul Heo
  */
 public class RestTemplateTransportClientFactory implements TransportClientFactory {
 
@@ -149,18 +132,10 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 			restTemplate = new RestTemplate(requestFactory);
 		}
 
-		try {
-			URI serviceURI = new URI(serviceUrl);
-			if (serviceURI.getUserInfo() != null) {
-				String[] credentials = serviceURI.getUserInfo().split(":");
-				if (credentials.length == 2) {
-					restTemplate.getInterceptors()
-						.add(new BasicAuthenticationInterceptor(credentials[0], credentials[1]));
-				}
-			}
-		}
-		catch (URISyntaxException ignore) {
-
+		final EurekaHttpClientUtils.UserInfo userInfo = extractUserInfo(serviceUrl);
+		if (userInfo != null) {
+			restTemplate.getInterceptors()
+				.add(new BasicAuthenticationInterceptor(userInfo.username(), userInfo.password()));
 		}
 
 		restTemplate.getMessageConverters().add(0, mappingJacksonHttpMessageConverter());
@@ -177,86 +152,8 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		return restTemplate;
 	}
 
-	/**
-	 * Provides the serialization configurations required by the Eureka Server. JSON
-	 * content exchanged with eureka requires a root node matching the entity being
-	 * serialized or deserialized. Achived with
-	 * {@link SerializationFeature#WRAP_ROOT_VALUE} and
-	 * {@link DeserializationFeature#UNWRAP_ROOT_VALUE}.
-	 * {@link PropertyNamingStrategies.SnakeCaseStrategy} is applied to the underlying
-	 * {@link ObjectMapper}.
-	 * @return a {@link MappingJackson2HttpMessageConverter} object
-	 */
-	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-		converter.setObjectMapper(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE));
-
-		SimpleModule jsonModule = new SimpleModule();
-		jsonModule.setSerializerModifier(createJsonSerializerModifier());
-		converter.getObjectMapper().registerModule(jsonModule);
-
-		converter.getObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-		converter.getObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-		converter.getObjectMapper().addMixIn(Applications.class, ApplicationsJsonMixIn.class);
-		converter.getObjectMapper().addMixIn(InstanceInfo.class, InstanceInfoJsonMixIn.class);
-
-		return converter;
-	}
-
-	public static BeanSerializerModifier createJsonSerializerModifier() {
-		return new BeanSerializerModifier() {
-			@Override
-			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-					JsonSerializer<?> serializer) {
-				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
-					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
-				}
-				return serializer;
-			}
-		};
-	}
-
 	@Override
 	public void shutdown() {
-	}
-
-	/**
-	 * Response that ignores body, specifically for 404 errors.
-	 */
-	private static class NotFoundHttpResponse implements ClientHttpResponse {
-
-		private final ClientHttpResponse response;
-
-		NotFoundHttpResponse(ClientHttpResponse response) {
-			this.response = response;
-		}
-
-		@Override
-		public HttpStatusCode getStatusCode() throws IOException {
-			return response.getStatusCode();
-		}
-
-		@Override
-		public String getStatusText() throws IOException {
-			return response.getStatusText();
-		}
-
-		@Override
-		public void close() {
-			response.close();
-		}
-
-		@Override
-		public InputStream getBody() throws IOException {
-			// ignore body on 404 for heartbeat, see gh-4145
-			return null;
-		}
-
-		@Override
-		public HttpHeaders getHeaders() {
-			return response.getHeaders();
-		}
-
 	}
 
 	class ErrorHandler extends DefaultResponseErrorHandler {
