@@ -62,7 +62,7 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 
 	@Nested
 	@ClassPathExclusions({ "spring-webflux-*" })
-	class NoWebFlux {
+	static class NoWebFlux {
 
 		@Test
 		void properBeansCreatedWhenRestClientEnabled() {
