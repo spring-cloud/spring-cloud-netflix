@@ -16,12 +16,10 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -30,69 +28,75 @@ import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 /**
  * @author Wonchul Heo
  */
 class EurekaConfigServerBootstrapConfigurationClientTests {
 
-  @Test
-  void properBeansCreatedWhenRestClientEnabled() {
-    new ApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-        .withPropertyValues("spring.cloud.config.discovery.enabled=true")
-        .withPropertyValues("eureka.client.enabled=true")
-        .withPropertyValues("eureka.client.restclient.enabled=true")
-        .run(context -> {
-          assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
-          assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-        });
-  }
+	@Test
+	void properBeansCreatedWhenRestClientEnabled() {
+		new ApplicationContextRunner()
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
+			.withPropertyValues("eureka.client.enabled=true")
+			.withPropertyValues("eureka.client.restclient.enabled=true")
+			.run(context -> {
+				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
+				assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
+			});
+	}
 
-  @Test
-  void properBeansCreatedWhenWebClientEnabled() {
-    new ApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-        .withPropertyValues("spring.cloud.config.discovery.enabled=true")
-        .withPropertyValues("eureka.client.enabled=true")
-        .withPropertyValues("eureka.client.webclient.enabled=true")
-        .run(context -> {
-          assertThat(context).hasSingleBean(WebClientEurekaHttpClient.class);
-          assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
-        });
-  }
+	@Test
+	void properBeansCreatedWhenWebClientEnabled() {
+		new ApplicationContextRunner()
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
+			.withPropertyValues("eureka.client.enabled=true")
+			.withPropertyValues("eureka.client.webclient.enabled=true")
+			.run(context -> {
+				assertThat(context).hasSingleBean(WebClientEurekaHttpClient.class);
+				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
+			});
+	}
 
-  @Nested
-  @RunWith(ModifiedClassPathRunner.class)
-  @ClassPathExclusions({"spring-webflux-*"})
-  class NoWebFlux {
+	@Nested
+	@RunWith(ModifiedClassPathRunner.class)
+	@ClassPathExclusions({ "spring-webflux-*" })
+	class NoWebFlux {
 
-    @Test
-    void properBeansCreatedWhenRestClientEnabled() {
-      new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-          .withPropertyValues("spring.cloud.config.discovery.enabled=true")
-          .withPropertyValues("eureka.client.enabled=true")
-          .withPropertyValues("eureka.client.restclient.enabled=true")
-          .run(context -> {
-            assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
-            assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-          });
-    }
+		@Test
+		void properBeansCreatedWhenRestClientEnabled() {
+			new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
+				.withPropertyValues("eureka.client.enabled=true")
+				.withPropertyValues("eureka.client.restclient.enabled=true")
+				.run(context -> {
+					assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
+					assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
+				});
+		}
 
-    @Test
-    void properBeansCreatedWhenWebEnabledThenFailed() {
-      new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-          .withPropertyValues("spring.cloud.config.discovery.enabled=true")
-          .withPropertyValues("eureka.client.enabled=true")
-          .withPropertyValues("eureka.client.webclient.enabled=true")
-          .run(context -> {
-            assertThatThrownBy(() -> context.getBean(WebClientEurekaHttpClient.class))
-                .hasRootCauseInstanceOf(NoSuchBeanDefinitionException.class)
-                .hasRootCauseMessage("No qualifying bean of type 'com.netflix.discovery.shared.transport.EurekaHttpClient' available: "
-                    + "expected at least 1 bean which qualifies as autowire candidate. "
-                    + "Dependency annotations: {}");
-          });
-    }
-  }
+		@Test
+		void properBeansCreatedWhenWebEnabledThenFailed() {
+			new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
+				.withPropertyValues("eureka.client.enabled=true")
+				.withPropertyValues("eureka.client.webclient.enabled=true")
+				.run(context -> {
+					assertThatThrownBy(() -> context.getBean(WebClientEurekaHttpClient.class))
+						.hasRootCauseInstanceOf(NoSuchBeanDefinitionException.class)
+						.hasRootCauseMessage(
+								"No qualifying bean of type 'com.netflix.discovery.shared.transport.EurekaHttpClient' available: "
+										+ "expected at least 1 bean which qualifies as autowire candidate. "
+										+ "Dependency annotations: {}");
+				});
+		}
+
+	}
+
 }
