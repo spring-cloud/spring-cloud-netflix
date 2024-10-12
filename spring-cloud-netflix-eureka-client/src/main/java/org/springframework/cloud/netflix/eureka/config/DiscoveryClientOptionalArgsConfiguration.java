@@ -172,17 +172,13 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	static class RestTemplateEnabledCondition extends AllNestedConditions {
+	static class RestTemplateEnabledCondition extends AnyNestedCondition {
 
 		RestTemplateEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
 		@ConditionalOnClass(name = "org.glassfish.jersey.client.JerseyClient")
-		static class OnJerseyClientPresent {
-
-		}
-
 		@ConditionalOnProperty(value = "eureka.client.jersey.enabled", matchIfMissing = true)
 		static class OnJerseyClientEnabled {
 
