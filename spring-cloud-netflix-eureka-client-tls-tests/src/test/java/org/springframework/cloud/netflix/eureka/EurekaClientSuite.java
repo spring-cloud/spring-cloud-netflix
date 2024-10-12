@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * We need to use a suite cause we need to first run all the Eureka Servers, then close
@@ -26,8 +26,8 @@ import org.junit.runners.Suite;
  * That means that when the new context starts we will fail cause the executor service is
  * already shutdown.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ EurekaClientTests.class, RestTemplateEurekaClientTests.class })
+@SelectClasses({ EurekaClientTests.class, RestTemplateEurekaClientTests.class })
+@Suite
 public class EurekaClientSuite {
 
 }

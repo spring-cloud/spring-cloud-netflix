@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	 * @deprecated in favour of
 	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties)}
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier() {
 		this.restTemplateTimeoutProperties = new RestTemplateTimeoutProperties();
 	}
