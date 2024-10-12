@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 import org.springframework.cloud.test.ClassPathExclusions;
-import org.springframework.cloud.test.ModifiedClassPathRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -63,7 +61,6 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 	}
 
 	@Nested
-	@RunWith(ModifiedClassPathRunner.class)
 	@ClassPathExclusions({ "spring-webflux-*" })
 	class NoWebFlux {
 
