@@ -73,10 +73,8 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+	@Conditional(RestTemplateEnabledCondition.class)
 	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-			havingValue = "false")
 	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
 			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
@@ -117,7 +115,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@Conditional(JerseyClientPresentAndEnabledCondition.class)
+	@Conditional(RestTemplateEnabledCondition.class)
 	@ConditionalOnBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
 	static class DiscoveryClientOptionalArgsTlsConfiguration {
 
@@ -174,9 +172,9 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	static class JerseyClientPresentAndEnabledCondition extends AllNestedConditions {
+	static class RestTemplateEnabledCondition extends AllNestedConditions {
 
-		JerseyClientPresentAndEnabledCondition() {
+		RestTemplateEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
@@ -187,6 +185,18 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		@ConditionalOnProperty(value = "eureka.client.jersey.enabled", matchIfMissing = true)
 		static class OnJerseyClientEnabled {
+
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+				havingValue = "false")
+		static class OnWebClientDisabled {
+
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
+				havingValue = "false")
+		static class OnRestClientDisabled {
 
 		}
 
