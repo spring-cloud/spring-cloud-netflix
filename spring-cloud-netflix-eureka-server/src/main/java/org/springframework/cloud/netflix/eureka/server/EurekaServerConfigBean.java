@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka.server;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -234,7 +235,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	@Override
 	public Set<String> getRemoteRegionAppWhitelist(String regionName) {
-		return this.remoteRegionAppWhitelist.get(regionName == null ? "global" : regionName.trim().toLowerCase());
+		return this.remoteRegionAppWhitelist
+			.get(regionName == null ? "global" : regionName.trim().toLowerCase(Locale.ROOT));
 	}
 
 	@Override
