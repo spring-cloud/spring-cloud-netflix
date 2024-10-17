@@ -14,4 +14,8 @@
 <suppress files=".*TestAutoConfiguration\.java" checks="JavadocStyle"/>
 <suppress files=".*Tests\.java" checks="JavadocVariable"/>
 <suppress files=".*EurekaConfigServerBootstrapperIT\.java" checks="JavadocVariable"/>
+	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]"
+			  checks="RegexpSinglelineJava" id="toLowerCaseWithoutLocale"/>
+	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]"
+			  checks="RegexpSinglelineJava" id="toUpperCaseWithoutLocale"/>
 </suppressions>
