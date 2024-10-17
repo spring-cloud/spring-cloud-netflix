@@ -58,6 +58,7 @@ import static org.springframework.util.Assert.isTrue;
  * Mocked Eureka Server.
  *
  * @author Daniel Lavoie
+ * @author Wonchul Heo
  */
 @Configuration(proxyBeanMethods = false)
 @RestController
@@ -112,7 +113,7 @@ public class EurekaServerMockApplication {
 	 */
 	@Bean
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		return new RestTemplateTransportClientFactory().mappingJacksonHttpMessageConverter();
+		return EurekaHttpClientUtils.mappingJacksonHttpMessageConverter();
 	}
 
 	@ResponseStatus(HttpStatus.OK)

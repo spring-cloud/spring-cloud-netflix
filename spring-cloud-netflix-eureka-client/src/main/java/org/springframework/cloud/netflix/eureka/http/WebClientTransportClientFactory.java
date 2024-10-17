@@ -16,25 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.converters.jackson.mixin.ApplicationsJsonMixIn;
-import com.netflix.discovery.converters.jackson.mixin.InstanceInfoJsonMixIn;
-import com.netflix.discovery.converters.jackson.serializer.InstanceInfoJsonBeanSerializer;
-import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
@@ -52,6 +36,9 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.extractUserInfo;
+import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.objectMapper;
+
 /**
  * Provides the custom {@link WebClient.Builder} required by the
  * {@link WebClientEurekaHttpClient}. Relies on Jackson for serialization and
@@ -60,6 +47,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Daniel Lavoie
  * @author Haytham Mohamed
  * @author Armin Krezovic
+ * @author Wonchul Heo
  */
 public class WebClientTransportClientFactory implements TransportClientFactory {
 
@@ -82,31 +70,11 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 	private WebClient.Builder setUrl(WebClient.Builder builder, String serviceUrl) {
 		String url = UriComponentsBuilder.fromUriString(serviceUrl).userInfo(null).toUriString();
 
-		try {
-			URI serviceURI = new URI(serviceUrl);
-			if (serviceURI.getUserInfo() != null) {
-				String[] credentials = serviceURI.getUserInfo().split(":");
-				if (credentials.length == 2) {
-					builder.filter(ExchangeFilterFunctions.basicAuthentication(credentials[0], credentials[1]));
-				}
-			}
-		}
-		catch (URISyntaxException ignore) {
+		final EurekaHttpClientUtils.UserInfo userInfo = extractUserInfo(serviceUrl);
+		if (userInfo != null) {
+			builder.filter(ExchangeFilterFunctions.basicAuthentication(userInfo.username(), userInfo.password()));
 		}
 		return builder.baseUrl(url);
-	}
-
-	private static BeanSerializerModifier createJsonSerializerModifier() {
-		return new BeanSerializerModifier() {
-			@Override
-			public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-					JsonSerializer<?> serializer) {
-				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
-					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
-				}
-				return serializer;
-			}
-		};
 	}
 
 	private void setCodecs(WebClient.Builder builder) {
@@ -117,32 +85,6 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 			defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
 
 		});
-	}
-
-	/**
-	 * Provides the serialization configurations required by the Eureka Server. JSON
-	 * content exchanged with eureka requires a root node matching the entity being
-	 * serialized or deserialized. Achieved with
-	 * {@link SerializationFeature#WRAP_ROOT_VALUE} and
-	 * {@link DeserializationFeature#UNWRAP_ROOT_VALUE}.
-	 * {@link PropertyNamingStrategies.SnakeCaseStrategy} is applied to the underlying
-	 * {@link ObjectMapper}.
-	 * @return a {@link ObjectMapper} object
-	 */
-	private ObjectMapper objectMapper() {
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-
-		SimpleModule jsonModule = new SimpleModule();
-		jsonModule.setSerializerModifier(createJsonSerializerModifier());
-		objectMapper.registerModule(jsonModule);
-
-		objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-		objectMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-		objectMapper.addMixIn(Applications.class, ApplicationsJsonMixIn.class);
-		objectMapper.addMixIn(InstanceInfo.class, InstanceInfoJsonMixIn.class);
-
-		return objectMapper;
 	}
 
 	// Skip over 4xx http errors

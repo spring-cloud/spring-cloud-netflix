@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 /**
  * @author Daniel Lavoie
+ * @author Wonchul Heo
  */
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*" })
@@ -39,12 +41,24 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class EurekaHttpClientsOptionalArgsConfigurationTests {
 
 	@Test
-	public void contextLoadsWithRestTemplate() {
+	public void contextLoadsWithRestTemplateWhenWebClientDisabled() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 			.withPropertyValues("eureka.client.webclient.enabled=false")
 			.run(context -> {
 				assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
 				assertThat(context).doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
+				assertThat(context).doesNotHaveBean(RestClientDiscoveryClientOptionalArgs.class);
+			});
+	}
+
+	@Test
+	public void contextLoadsWithRestTemplateWhenRestClientDisabled() {
+		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
+			.withPropertyValues("eureka.client.restclient.enabled=false")
+			.run(context -> {
+				assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
+				assertThat(context).doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
+				assertThat(context).doesNotHaveBean(RestClientDiscoveryClientOptionalArgs.class);
 			});
 	}
 
@@ -55,6 +69,18 @@ public class EurekaHttpClientsOptionalArgsConfigurationTests {
 			.run(context -> {
 				assertThat(context).doesNotHaveBean(RestTemplateDiscoveryClientOptionalArgs.class);
 				assertThat(context).hasSingleBean(WebClientDiscoveryClientOptionalArgs.class);
+				assertThat(context).doesNotHaveBean(RestClientDiscoveryClientOptionalArgs.class);
+			});
+	}
+
+	@Test
+	public void contextLoadsWithRestClient() {
+		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
+			.withPropertyValues("eureka.client.restclient.enabled=true")
+			.run(context -> {
+				assertThat(context).doesNotHaveBean(RestTemplateDiscoveryClientOptionalArgs.class);
+				assertThat(context).doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
+				assertThat(context).hasSingleBean(RestClientDiscoveryClientOptionalArgs.class);
 			});
 	}
 
@@ -63,6 +89,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTests {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class).run(context -> {
 			assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
 			assertThat(context).doesNotHaveBean(WebClientDiscoveryClientOptionalArgs.class);
+			assertThat(context).doesNotHaveBean(RestClientDiscoveryClientOptionalArgs.class);
 		});
 	}
 
