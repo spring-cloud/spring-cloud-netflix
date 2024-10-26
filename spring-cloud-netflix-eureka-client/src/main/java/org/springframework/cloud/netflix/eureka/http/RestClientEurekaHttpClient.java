@@ -137,27 +137,6 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 		return getApplicationsInternal("/apps/", regions);
 	}
 
-	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath, String[] regions) {
-		final Function<UriBuilder, URI> uriFunction = builder -> builder
-			.queryParamIfPresent("regions",
-					Optional.ofNullable(regions).filter(it -> it.length > 0).map(StringUtil::join))
-			.build();
-
-		final ResponseEntity<Applications> response = restClient.get()
-			.uri(urlPath, uriFunction)
-			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.retrieve()
-			.toEntity(Applications.class);
-
-		final int statusCode = statusCodeValueOf(response);
-		final Applications body = response.getBody();
-
-		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
-			.headers(headersOf(response))
-			.build();
-	}
-
 	@Override
 	public EurekaHttpResponse<Applications> getDelta(String... regions) {
 		return getApplicationsInternal("/apps/delta", regions);
@@ -200,27 +179,48 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 		return getInstanceInternal("/instances/" + id);
 	}
 
-	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
-		final ResponseEntity<InstanceInfo> response = restClient.get()
-			.uri(urlPath)
-			.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.retrieve()
-			.toEntity(InstanceInfo.class);
-
-		final int statusCode = statusCodeValueOf(response);
-		final InstanceInfo body = response.getBody();
-
-		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
-			.headers(headersOf(response))
-			.build();
-	}
-
 	@Override
 	public void shutdown() {
 	}
 
 	public RestClient getRestClient() {
 		return restClient;
+	}
+
+	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath, String[] regions) {
+		final Function<UriBuilder, URI> uriFunction = builder -> builder
+				.queryParamIfPresent("regions",
+						Optional.ofNullable(regions).filter(it -> it.length > 0).map(StringUtil::join))
+				.build();
+
+		final ResponseEntity<Applications> response = restClient.get()
+				.uri(urlPath, uriFunction)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.retrieve()
+				.toEntity(Applications.class);
+
+		final int statusCode = statusCodeValueOf(response);
+		final Applications body = response.getBody();
+
+		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
+				.headers(headersOf(response))
+				.build();
+	}
+
+	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
+		final ResponseEntity<InstanceInfo> response = restClient.get()
+				.uri(urlPath)
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.retrieve()
+				.toEntity(InstanceInfo.class);
+
+		final int statusCode = statusCodeValueOf(response);
+		final InstanceInfo body = response.getBody();
+
+		return anEurekaHttpResponse(statusCode, statusCode == HttpStatus.OK.value() && body != null ? body : null)
+				.headers(headersOf(response))
+				.build();
 	}
 
 	private static Map<String, String> headersOf(ResponseEntity<?> response) {
