@@ -88,7 +88,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+	@Conditional(RestTemplateEnabledCondition.class)
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 			havingValue = "false")
@@ -114,7 +114,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@Conditional(RestTemplateEnabledCondition.class)
+	@Conditional(JerseyClientPresentAndEnabledCondition.class)
 	@ConditionalOnBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
 	static class DiscoveryClientOptionalArgsTlsConfiguration {
 
@@ -171,27 +171,19 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	static class RestTemplateEnabledCondition extends AnyNestedCondition {
+	static class JerseyClientPresentAndEnabledCondition extends AnyNestedCondition {
 
-		RestTemplateEnabledCondition() {
+		JerseyClientPresentAndEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
 		@ConditionalOnClass(name = "org.glassfish.jersey.client.JerseyClient")
+		static class OnJerseyClientPresent {
+
+		}
+
 		@ConditionalOnProperty(value = "eureka.client.jersey.enabled", matchIfMissing = true)
 		static class OnJerseyClientEnabled {
-
-		}
-
-		@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-				havingValue = "false")
-		static class OnWebClientDisabled {
-
-		}
-
-		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
-				havingValue = "false")
-		static class OnRestClientDisabled {
 
 		}
 
@@ -213,6 +205,30 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		}
 
+	}
+
+	static class RestTemplateEnabledCondition extends AnyNestedCondition {
+
+		RestTemplateEnabledCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+		static class OnJerseyClientNotPresentOrNotEnabled {
+
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+				havingValue = "false")
+		static class OnWebClientDisabled {
+
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
+				havingValue = "false")
+		static class OnRestClientDisabled {
+
+		}
 	}
 
 	@ConditionalOnMissingClass("org.glassfish.jersey.client.JerseyClient")

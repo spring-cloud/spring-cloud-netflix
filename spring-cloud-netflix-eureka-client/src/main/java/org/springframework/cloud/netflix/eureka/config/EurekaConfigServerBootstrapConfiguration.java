@@ -74,8 +74,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(EurekaHttpClient.class)
-	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-			havingValue = "false")
+	@Conditional(RestTemplateEnabledCondition.class)
 	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
 			Environment env, @Nullable TlsProperties properties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
@@ -126,6 +125,26 @@ public class EurekaConfigServerBootstrapConfiguration {
 				ObjectProvider<RestClient.Builder> builder, Environment env) {
 			return (RestClientEurekaHttpClient) new RestClientTransportClientFactory(builder::getIfAvailable)
 				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+		}
+
+	}
+
+	static class RestTemplateEnabledCondition extends AllNestedConditions {
+
+		RestTemplateEnabledCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+				havingValue = "false")
+		static class OnWebClientDisabled {
+
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
+				havingValue = "false")
+		static class OnRestClientDisabled {
+
 		}
 
 	}
