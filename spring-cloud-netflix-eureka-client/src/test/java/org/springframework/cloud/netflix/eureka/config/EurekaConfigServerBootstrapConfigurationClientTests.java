@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
