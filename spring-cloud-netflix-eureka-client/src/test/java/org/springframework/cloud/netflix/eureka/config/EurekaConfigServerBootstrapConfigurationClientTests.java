@@ -38,14 +38,14 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 	@Test
 	void properBeansCreatedWhenRestTemplateEnabled() {
 		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
-				.withPropertyValues("eureka.client.enabled=true")
-				.run(context -> {
-					assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
-					assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
-					assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-				});
+			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
+			.withPropertyValues("eureka.client.enabled=true")
+			.run(context -> {
+				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
+				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
+				assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
+			});
 	}
 
 	@Test
@@ -81,14 +81,14 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 		@Test
 		void properBeansCreatedWhenRestTemplateEnabled() {
 			new ApplicationContextRunner()
-					.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-					.withPropertyValues("spring.cloud.config.discovery.enabled=true")
-					.withPropertyValues("eureka.client.enabled=true")
-					.run(context -> {
-						assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
-						assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
-						assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-					});
+				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
+				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
+				.withPropertyValues("eureka.client.enabled=true")
+				.run(context -> {
+					assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
+					assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
+					assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
+				});
 		}
 
 		@Test
