@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +42,7 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
 			.withPropertyValues("eureka.client.enabled=true")
+				.withPropertyValues("eureka.client.restclient.enabled=false")
 			.run(context -> {
 				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
@@ -69,6 +71,8 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 			.withPropertyValues("eureka.client.enabled=true")
 			.withPropertyValues("eureka.client.webclient.enabled=true")
 			.run(context -> {
+				final EurekaHttpClient bean = context.getBean(EurekaHttpClient.class);
+				System.out.println(bean);
 				assertThat(context).hasSingleBean(WebClientEurekaHttpClient.class);
 				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
 			});
@@ -84,6 +88,7 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
 				.withPropertyValues("eureka.client.enabled=true")
+				.withPropertyValues("eureka.client.restclient.enabled=false")
 				.run(context -> {
 					assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 					assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);

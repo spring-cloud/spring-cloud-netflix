@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +53,7 @@ class EurekaConfigServerBootstrapConfigurationWebClientTests {
 			.run(context -> {
 				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
 				assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
+				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
 				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
 			});
 	}

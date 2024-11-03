@@ -50,7 +50,6 @@ import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFac
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -92,8 +91,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	@Conditional(RestTemplateEnabledCondition.class)
 	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
-	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-			havingValue = "false")
 	public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
 			RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
 		return new RestTemplateTransportClientFactories(optionalArgs);

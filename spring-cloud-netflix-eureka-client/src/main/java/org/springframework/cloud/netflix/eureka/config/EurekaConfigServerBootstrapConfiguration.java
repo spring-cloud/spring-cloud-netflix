@@ -115,7 +115,7 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(name = "org.springframework.web.client.RestClient")
-	@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "true")
+	@Conditional(RestClientEnabledCondition.class)
 	@ImportAutoConfiguration(RestClientAutoConfiguration.class)
 	protected static class RestClientConfiguration {
 
@@ -141,8 +141,27 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 		}
 
-		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
+		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "false")
+		static class OnRestClientDisabled {
+
+		}
+
+	}
+
+	static class RestClientEnabledCondition extends AllNestedConditions {
+
+		RestClientEnabledCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
 				havingValue = "false")
+		static class OnWebClientDisabled {
+
+		}
+
+		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
+				havingValue = "true")
 		static class OnRestClientDisabled {
 
 		}
