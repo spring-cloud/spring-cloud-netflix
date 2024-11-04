@@ -55,6 +55,7 @@ class RestTemplateEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 	@BeforeEach
 	void setup() {
 		eurekaHttpClient = new RestTemplateTransportClientFactory().newClient(new DefaultEndpoint(serviceUrl));
+		((RestTemplateEurekaHttpClient) eurekaHttpClient).getRestTemplate().setObservationRegistry(observationRegistry);
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
 
