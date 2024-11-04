@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,37 +23,38 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
-import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Spencer Gibb
+ * @author Wonchul Heo
  */
-class EurekaConfigServerBootstrapConfigurationWebClientTests {
+class EurekaConfigServerBootstrapConfigurationRestClientTests {
 
 	@Test
 	void properBeansCreatedWhenEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
-					"eureka.client.webclient.enabled=true")
+					"eureka.client.restclient.enabled=true")
 			.run(context -> {
 				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
-				assertThat(context).hasSingleBean(WebClientEurekaHttpClient.class);
+				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
 				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
 			});
 	}
 
 	@Test
-	void properBeansCreatedWhenEnabledWebClientDisabled() {
+	void properBeansCreatedWhenEnabledRestClientDisabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
+					"eureka.client.restclient.enabled=false")
 			.run(context -> {
 				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
-				assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
+				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
+				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
 			});
 	}

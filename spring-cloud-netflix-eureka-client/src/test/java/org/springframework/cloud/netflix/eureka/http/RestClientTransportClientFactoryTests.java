@@ -22,40 +22,41 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.web.client.RestClient;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Daniel Lavoie
  * @author Wonchul Heo
  */
-class RestTemplateTransportClientFactoryTests {
+class RestClientTransportClientFactoryTests {
 
-	private RestTemplateTransportClientFactory transportClientFactory;
+	private RestClientTransportClientFactory transportClientFactory;
 
 	@BeforeEach
 	void setup() {
-		transportClientFactory = new RestTemplateTransportClientFactory();
+		transportClientFactory = new RestClientTransportClientFactory(RestClient::builder);
 	}
 
 	@Test
 	void withoutUserInfo() {
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
 			.newClient(new DefaultEndpoint("http://localhost:8761"));
-		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
+		assertThat(eurekaHttpClient).isInstanceOf(RestClientEurekaHttpClient.class);
 	}
 
 	@Test
 	void invalidUserInfo() {
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
 			.newClient(new DefaultEndpoint("http://test@localhost:8761"));
-		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
+		assertThat(eurekaHttpClient).isInstanceOf(RestClientEurekaHttpClient.class);
 	}
 
 	@Test
 	void userInfo() {
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
 			.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
-		assertThat(eurekaHttpClient).isInstanceOf(RestTemplateEurekaHttpClient.class);
+		assertThat(eurekaHttpClient).isInstanceOf(RestClientEurekaHttpClient.class);
 	}
 
 	@AfterEach
