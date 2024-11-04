@@ -276,7 +276,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
 				havingValue = "true")
-		static class OnRestClientDisabled {
+		static class OnRestClientEnabled {
 
 		}
 
