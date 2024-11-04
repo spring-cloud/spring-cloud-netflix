@@ -27,7 +27,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -35,6 +34,7 @@ import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
@@ -63,38 +63,66 @@ import org.springframework.web.reactive.function.client.WebClient;
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
 @Conditional(EurekaConfigServerBootstrapConfiguration.EurekaConfigServerBootstrapCondition.class)
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
 public class EurekaConfigServerBootstrapConfiguration {
 
-	@Bean
-	@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)
-	public EurekaClientConfigBean eurekaClientConfigBean() {
-		return new EurekaClientConfigBean();
-	}
 
-	@Bean
-	@ConditionalOnMissingBean(EurekaHttpClient.class)
-	@Conditional(RestTemplateEnabledCondition.class)
-	public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
-			Environment env, @Nullable TlsProperties properties,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
-			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) {
-		return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory(properties,
-				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable)
-			.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
-	}
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
+	@Conditional(RestTemplateConfiguration.RestTemplateEnabledCondition.class)
+	@EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
+	static class RestTemplateConfiguration {
 
-	@Bean
-	@ConditionalOnMissingBean
-	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
-		return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
-	}
+		@Bean
+		@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)
+		public EurekaClientConfigBean eurekaClientConfigBean() {
+			return new EurekaClientConfigBean();
+		}
 
-	@Bean
-	public ConfigServerInstanceProvider.Function eurekaConfigServerInstanceProvider(EurekaHttpClient client,
-			EurekaClientConfig config) {
-		return new EurekaConfigServerInstanceProvider(client, config)::getInstances;
+		@Bean
+		@ConditionalOnMissingBean(EurekaHttpClient.class)
+		@Conditional(RestTemplateEnabledCondition.class)
+		public RestTemplateEurekaHttpClient configDiscoveryRestTemplateEurekaHttpClient(EurekaClientConfigBean config,
+				Environment env, @Nullable TlsProperties properties,
+				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+				ObjectProvider<RestTemplateBuilder> restTemplateBuilders) {
+			return (RestTemplateEurekaHttpClient) new RestTemplateTransportClientFactory(properties,
+					eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable)
+					.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
+		}
+
+		@Bean
+		@ConditionalOnMissingBean
+		@Conditional(RestTemplateEnabledCondition.class)
+		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+				RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
+		}
+
+		@Bean
+		public ConfigServerInstanceProvider.Function eurekaConfigServerInstanceProvider(EurekaHttpClient client,
+				EurekaClientConfig config) {
+			return new EurekaConfigServerInstanceProvider(client, config)::getInstances;
+		}
+
+		static class RestTemplateEnabledCondition extends AllNestedConditions {
+
+			RestTemplateEnabledCondition() {
+				super(ConfigurationPhase.REGISTER_BEAN);
+			}
+
+			@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+					havingValue = "false")
+			static class OnWebClientDisabled {
+
+			}
+
+			@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "false")
+			static class OnRestClientDisabled {
+
+			}
+
+		}
+
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -115,54 +143,53 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(name = "org.springframework.web.client.RestClient")
-	@Conditional(RestClientEnabledCondition.class)
-	@ImportAutoConfiguration(RestClientAutoConfiguration.class)
-	protected static class RestClientConfiguration {
+	@Conditional(RestClientConfiguration.RestClientEnabledCondition.class)
+	@EnableConfigurationProperties(RestClientTimeoutProperties.class)
+	static class RestClientConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(EurekaHttpClient.class)
 		public RestClientEurekaHttpClient configDiscoveryRestClientEurekaHttpClient(EurekaClientConfigBean config,
+				@Nullable TlsProperties properties,
+				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
 				ObjectProvider<RestClient.Builder> builder, Environment env) {
-			return (RestClientEurekaHttpClient) new RestClientTransportClientFactory(builder::getIfAvailable)
+			return (RestClientEurekaHttpClient) new RestClientTransportClientFactory(properties,
+					eurekaClientHttpRequestFactorySupplier,
+					builder::getIfAvailable)
 				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, env));
 		}
 
-	}
-
-	static class RestTemplateEnabledCondition extends AllNestedConditions {
-
-		RestTemplateEnabledCondition() {
-			super(ConfigurationPhase.REGISTER_BEAN);
+		@Bean
+		@ConditionalOnMissingBean
+		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+				RestClientTimeoutProperties restClientTimeoutProperties) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties);
 		}
 
-		@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-				havingValue = "false")
-		static class OnWebClientDisabled {
-
+		@Bean
+		@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)
+		public EurekaClientConfigBean eurekaClientConfigBean() {
+			return new EurekaClientConfigBean();
 		}
 
-		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "false")
-		static class OnRestClientDisabled {
 
-		}
+		static class RestClientEnabledCondition extends AllNestedConditions {
 
-	}
+			RestClientEnabledCondition() {
+				super(ConfigurationPhase.REGISTER_BEAN);
+			}
 
-	static class RestClientEnabledCondition extends AllNestedConditions {
+			@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
+					havingValue = "false")
+			static class OnWebClientDisabled {
 
-		RestClientEnabledCondition() {
-			super(ConfigurationPhase.REGISTER_BEAN);
-		}
+			}
 
-		@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", matchIfMissing = true,
-				havingValue = "false")
-		static class OnWebClientDisabled {
+			@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
+					havingValue = "true")
+			static class OnRestClientEnabled {
 
-		}
-
-		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
-				havingValue = "true")
-		static class OnRestClientEnabled {
+			}
 
 		}
 

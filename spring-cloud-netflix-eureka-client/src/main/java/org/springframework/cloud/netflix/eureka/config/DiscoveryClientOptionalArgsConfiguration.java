@@ -38,6 +38,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
+import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
@@ -60,7 +61,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Wonchul Heo
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
+@EnableConfigurationProperties({RestTemplateTimeoutProperties.class, RestClientTimeoutProperties.class})
 public class DiscoveryClientOptionalArgsConfiguration {
 
 	protected static final Log logger = LogFactory.getLog(DiscoveryClientOptionalArgsConfiguration.class);

@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
+
+import javax.net.ssl.SSLContext;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -36,6 +39,8 @@ import com.netflix.discovery.converters.jackson.serializer.InstanceInfoJsonBeanS
 import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 
+import org.springframework.cloud.configuration.SSLContextFactory;
+import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
 
@@ -121,6 +126,18 @@ final class EurekaHttpClientUtils {
 		catch (URISyntaxException ignore) {
 		}
 		return null;
+	}
+
+	static Optional<SSLContext> context(TlsProperties properties) {
+		if (properties == null || !properties.isEnabled()) {
+			return Optional.empty();
+		}
+		try {
+			return Optional.of(new SSLContextFactory(properties).createSSLContext());
+		}
+		catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	record UserInfo(String username, String password) {

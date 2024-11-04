@@ -16,12 +16,17 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 
+import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
@@ -29,6 +34,7 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.context;
 import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.extractUserInfo;
 import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.mappingJacksonHttpMessageConverter;
 
@@ -42,10 +48,34 @@ import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtil
  */
 public class RestClientTransportClientFactory implements TransportClientFactory {
 
+	private final Optional<SSLContext> sslContext;
+
+	private final Optional<HostnameVerifier> hostnameVerifier;
+
+	private final EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier;
+
 	private final Supplier<RestClient.Builder> builderSupplier;
 
-	public RestClientTransportClientFactory(Supplier<RestClient.Builder> builderSupplier) {
+	public RestClientTransportClientFactory(Optional<SSLContext> sslContext,
+			Optional<HostnameVerifier> hostnameVerifier,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			Supplier<RestClient.Builder> builderSupplier) {
+		this.sslContext = sslContext;
+		this.hostnameVerifier = hostnameVerifier;
+		this.eurekaClientHttpRequestFactorySupplier = eurekaClientHttpRequestFactorySupplier;
 		this.builderSupplier = builderSupplier;
+	}
+
+	public RestClientTransportClientFactory(TlsProperties tlsProperties,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			Supplier<RestClient.Builder> builderSupplier) {
+		this(context(tlsProperties), Optional.empty(),
+				eurekaClientHttpRequestFactorySupplier, builderSupplier);
+	}
+
+	public RestClientTransportClientFactory(TlsProperties tlsProperties,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
+		this(tlsProperties, eurekaClientHttpRequestFactorySupplier, RestClient::builder);
 	}
 
 	@Override

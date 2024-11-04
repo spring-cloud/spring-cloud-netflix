@@ -34,66 +34,11 @@ import org.springframework.web.client.RestTemplate;
  * @since 3.1.6
  */
 @ConfigurationProperties("eureka.client.rest-template-timeout")
-public class RestTemplateTimeoutProperties {
-
-	/**
-	 * Default values are set to 180000, in keeping with {@link RequestConfig} and
-	 * {@link SocketConfig} defaults.
-	 */
-	private int connectTimeout = 180000; // 3 * MINUTES
-
-	private int connectRequestTimeout = 180000; // 3 * MINUTES
-
-	private int socketTimeout = 180000; // 3 * MINUTES
-
-	public int getConnectTimeout() {
-		return connectTimeout;
-	}
-
-	public int getConnectRequestTimeout() {
-		return connectRequestTimeout;
-	}
-
-	public int getSocketTimeout() {
-		return socketTimeout;
-	}
-
-	public void setConnectTimeout(int connectTimeout) {
-		this.connectTimeout = connectTimeout;
-	}
-
-	public void setConnectRequestTimeout(int connectRequestTimeout) {
-		this.connectRequestTimeout = connectRequestTimeout;
-	}
-
-	public void setSocketTimeout(int socketTimeout) {
-		this.socketTimeout = socketTimeout;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		RestTemplateTimeoutProperties that = (RestTemplateTimeoutProperties) o;
-
-		return connectTimeout == that.connectTimeout && connectRequestTimeout == that.connectRequestTimeout
-				&& socketTimeout == that.socketTimeout;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(connectTimeout, connectRequestTimeout, socketTimeout);
-	}
+public class RestTemplateTimeoutProperties extends TimeoutProperties {
 
 	@Override
 	public String toString() {
 		return "RestTemplateTimeoutProperties{" + ", connectTimeout=" + connectTimeout + ", connectRequestTimeout="
 				+ connectRequestTimeout + ", socketTimeout=" + socketTimeout + '}';
 	}
-
 }

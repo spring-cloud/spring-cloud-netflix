@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.Timeout;
 
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
+import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
@@ -47,18 +48,18 @@ import org.springframework.lang.Nullable;
  */
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
-	private final RestTemplateTimeoutProperties restTemplateTimeoutProperties;
+	private final TimeoutProperties restTemplateTimeoutProperties;
 
 	/**
 	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties)}
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties)}
 	 */
 	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier() {
 		this.restTemplateTimeoutProperties = new RestTemplateTimeoutProperties();
 	}
 
-	public DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties restTemplateTimeoutProperties) {
 		this.restTemplateTimeoutProperties = restTemplateTimeoutProperties;
 	}
 
@@ -80,7 +81,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	}
 
 	private HttpClientConnectionManager buildConnectionManager(SSLContext sslContext, HostnameVerifier hostnameVerifier,
-			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+			TimeoutProperties restTemplateTimeoutProperties) {
 		PoolingHttpClientConnectionManagerBuilder connectionManagerBuilder = PoolingHttpClientConnectionManagerBuilder
 			.create();
 		SSLConnectionSocketFactoryBuilder sslConnectionSocketFactoryBuilder = SSLConnectionSocketFactoryBuilder
