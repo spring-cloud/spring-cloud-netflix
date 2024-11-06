@@ -38,6 +38,7 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Bean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration.setupTLS;
 
 public class RestTemplateEurekaClientTests extends BaseCertTests {
 
@@ -76,20 +77,22 @@ public class RestTemplateEurekaClientTests extends BaseCertTests {
 		// jersey from the classpath
 		@Bean
 		public RestTemplateDiscoveryClientOptionalArgs forceRestTemplateDiscoveryClientOptionalArgs(
-				TlsProperties tlsProperties, DiscoveryClientOptionalArgsConfiguration configuration,
+				TlsProperties tlsProperties,
 				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier)
 				throws GeneralSecurityException, IOException {
-			return configuration.restTemplateDiscoveryClientOptionalArgs(tlsProperties,
-					eurekaClientHttpRequestFactorySupplier, new RestTemplateBuilderObjectProvider());
+			RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
+					eurekaClientHttpRequestFactorySupplier,  new RestTemplateBuilderObjectProvider()
+			);
+			setupTLS(result, tlsProperties);
+			return result;
 		}
 
 		// Want to force reusing exactly the same bean as on production without excluding
 		// jersey from the classpath
 		@Bean
 		public RestTemplateTransportClientFactories forceRestTemplateTransportClientFactories(
-				DiscoveryClientOptionalArgsConfiguration configuration,
 				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
-			return configuration.restTemplateTransportClientFactories(discoveryClientOptionalArgs);
+			return new RestTemplateTransportClientFactories(discoveryClientOptionalArgs);
 		}
 
 	}

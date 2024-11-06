@@ -16,11 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.util.Objects;
-
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.core5.http.io.SocketConfig;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.web.client.RestTemplate;
@@ -41,4 +36,5 @@ public class RestTemplateTimeoutProperties extends TimeoutProperties {
 		return "RestTemplateTimeoutProperties{" + ", connectTimeout=" + connectTimeout + ", connectRequestTimeout="
 				+ connectRequestTimeout + ", socketTimeout=" + socketTimeout + '}';
 	}
+
 }

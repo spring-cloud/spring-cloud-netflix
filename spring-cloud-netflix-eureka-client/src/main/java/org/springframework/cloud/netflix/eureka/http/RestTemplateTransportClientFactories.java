@@ -42,16 +42,16 @@ public class RestTemplateTransportClientFactories implements TransportClientFact
 	@Override
 	public TransportClientFactory newTransportClientFactory(EurekaClientConfig clientConfig,
 			Collection<Void> additionalFilters, InstanceInfo myInstanceInfo) {
-		return new RestTemplateTransportClientFactory(this.args.getSSLContext(), this.args.getHostnameVerifier(),
-				this.args.eurekaClientHttpRequestFactorySupplier, this.args.restTemplateBuilderSupplier);
+		return new RestTemplateTransportClientFactory(args.getSSLContext(), args.getHostnameVerifier(),
+				args.eurekaClientHttpRequestFactorySupplier, args.restTemplateBuilderSupplier);
 	}
 
 	@Override
 	public TransportClientFactory newTransportClientFactory(final EurekaClientConfig clientConfig,
 			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
 			final Optional<SSLContext> sslContext, final Optional<HostnameVerifier> hostnameVerifier) {
-		return new RestTemplateTransportClientFactory(this.args.getSSLContext(), this.args.getHostnameVerifier(),
-				this.args.eurekaClientHttpRequestFactorySupplier, this.args.restTemplateBuilderSupplier);
+		return new RestTemplateTransportClientFactory(args.getSSLContext(), args.getHostnameVerifier(),
+				args.eurekaClientHttpRequestFactorySupplier, args.restTemplateBuilderSupplier);
 	}
 
 }

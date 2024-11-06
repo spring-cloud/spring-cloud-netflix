@@ -42,7 +42,7 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
 			.withPropertyValues("eureka.client.enabled=true")
-				.withPropertyValues("eureka.client.restclient.enabled=false")
+			.withPropertyValues("eureka.client.restclient.enabled=false")
 			.run(context -> {
 				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);

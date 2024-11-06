@@ -73,39 +73,14 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@Conditional(RestTemplateEnabledCondition.class)
-	@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class }, search = SearchStrategy.CURRENT)
-	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
-			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
-			ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
-		if (logger.isInfoEnabled()) {
-			logger.info("Eureka HTTP Client uses RestTemplate.");
-		}
-		RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
-				eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable);
-		setupTLS(result, tlsProperties);
-		return result;
-	}
-
-	@Bean
-	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
-	@Conditional(RestTemplateEnabledCondition.class)
-	@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
-	public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
-			RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
-		return new RestTemplateTransportClientFactories(optionalArgs);
-	}
-
-	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
 			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
 		return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
 	}
 
-	private static void setupTLS(AbstractDiscoveryClientOptionalArgs<?> args, TlsProperties properties)
+	// Visible for tests
+	public static void setupTLS(AbstractDiscoveryClientOptionalArgs<?> args, TlsProperties properties)
 			throws GeneralSecurityException, IOException {
 		if (properties.isEnabled()) {
 			SSLContextFactory factory = new SSLContextFactory(properties);
@@ -114,7 +89,37 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@Conditional(JerseyClientPresentAndEnabledCondition.class)
+	@Conditional(OnRestTemplatePresentAndEnabledCondition.class)
+	static class RestTemplateConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean(value = {AbstractDiscoveryClientOptionalArgs.class},
+				search = SearchStrategy.CURRENT)
+		public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(
+				TlsProperties tlsProperties,
+				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+				ObjectProvider<RestTemplateBuilder> restTemplateBuilders) throws GeneralSecurityException, IOException {
+			if (logger.isInfoEnabled()) {
+				logger.info("Eureka HTTP Client uses RestTemplate.");
+			}
+			RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
+					eurekaClientHttpRequestFactorySupplier, restTemplateBuilders::getIfAvailable);
+			setupTLS(result, tlsProperties);
+			return result;
+		}
+
+		@Bean
+		@Conditional(OnRestTemplatePresentAndEnabledCondition.class)
+		@ConditionalOnMissingBean(value = {TransportClientFactories.class}, search = SearchStrategy.CURRENT)
+		public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
+				RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
+			return new RestTemplateTransportClientFactories(optionalArgs);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Conditional(OnJerseyClientPresentAndEnabledCondition.class)
 	@ConditionalOnBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
 	static class DiscoveryClientOptionalArgsTlsConfiguration {
 
@@ -128,10 +133,10 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+	@Conditional(OnJerseyClientNotPresentOrNotEnabledCondition.class)
 	@ConditionalOnClass(name = "org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
-	protected static class WebClientConfiguration {
+	static class WebClientConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(
@@ -158,7 +163,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Configuration
-	@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+	@Conditional(OnJerseyClientNotPresentOrNotEnabledCondition.class)
 	@ConditionalOnMissingClass("org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
 	protected static class WebClientNotFoundConfiguration {
@@ -171,20 +176,22 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	@ConditionalOnClass(name = "org.springframework.web.client.RestClient")
-	@Conditional(RestClientEnabledCondition.class)
+	@Conditional(OnRestClientPresentAndEnabledCondition.class)
 	protected static class RestClientConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
 				search = SearchStrategy.CURRENT)
 		public RestClientDiscoveryClientOptionalArgs restClientDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
-				ObjectProvider<RestClient.Builder> builder) throws GeneralSecurityException, IOException {
+				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+				ObjectProvider<RestClient.Builder> restClientBuilderProvider)
+				throws GeneralSecurityException, IOException {
 			if (logger.isInfoEnabled()) {
 				logger.info("Eureka HTTP Client uses RestClient.");
 			}
 			RestClientDiscoveryClientOptionalArgs result = new RestClientDiscoveryClientOptionalArgs(
-					builder::getIfAvailable);
+					eurekaClientHttpRequestFactorySupplier,
+					() -> restClientBuilderProvider.getIfAvailable(RestClient::builder));
 			setupTLS(result, tlsProperties);
 			return result;
 		}
@@ -192,15 +199,15 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(value = TransportClientFactories.class, search = SearchStrategy.CURRENT)
 		public RestClientTransportClientFactories restClientTransportClientFactories(
-				ObjectProvider<RestClient.Builder> builder) {
-			return new RestClientTransportClientFactories(builder::getIfAvailable);
+				RestClientDiscoveryClientOptionalArgs args) {
+			return new RestClientTransportClientFactories(args);
 		}
 
 	}
 
-	static class JerseyClientPresentAndEnabledCondition extends AllNestedConditions {
+	static class OnJerseyClientPresentAndEnabledCondition extends AllNestedConditions {
 
-		JerseyClientPresentAndEnabledCondition() {
+		OnJerseyClientPresentAndEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
@@ -216,9 +223,9 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	static class JerseyClientNotPresentOrNotEnabledCondition extends AnyNestedCondition {
+	static class OnJerseyClientNotPresentOrNotEnabledCondition extends AnyNestedCondition {
 
-		JerseyClientNotPresentOrNotEnabledCondition() {
+		OnJerseyClientNotPresentOrNotEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
@@ -234,13 +241,18 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	static class RestTemplateEnabledCondition extends AllNestedConditions {
+	static class OnRestTemplatePresentAndEnabledCondition extends AllNestedConditions {
 
-		RestTemplateEnabledCondition() {
+		OnRestTemplatePresentAndEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
-		@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+		@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
+		static class OnRestTemplatePresent {
+
+		}
+
+		@Conditional(OnJerseyClientNotPresentOrNotEnabledCondition.class)
 		static class OnJerseyClientNotPresentOrNotEnabled {
 
 		}
@@ -258,13 +270,18 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	static class RestClientEnabledCondition extends AllNestedConditions {
+	static class OnRestClientPresentAndEnabledCondition extends AllNestedConditions {
 
-		RestClientEnabledCondition() {
+		OnRestClientPresentAndEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
-		@Conditional(JerseyClientNotPresentOrNotEnabledCondition.class)
+		@ConditionalOnClass(name = "org.springframework.web.client.RestClient")
+		static class OnRestClientPresent {
+
+		}
+
+		@Conditional(OnJerseyClientNotPresentOrNotEnabledCondition.class)
 		static class OnJerseyClientNotPresentOrNotEnabled {
 
 		}

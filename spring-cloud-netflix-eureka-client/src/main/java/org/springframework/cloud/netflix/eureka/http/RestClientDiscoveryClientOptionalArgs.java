@@ -32,7 +32,23 @@ import org.springframework.web.client.RestClient;
  */
 public class RestClientDiscoveryClientOptionalArgs extends AbstractDiscoveryClientOptionalArgs<Void> {
 
-	public RestClientDiscoveryClientOptionalArgs(Supplier<RestClient.Builder> builder) {
+	private final EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier;
+
+	private final Supplier<RestClient.Builder> restClientBuilderSupplier;
+
+	public RestClientDiscoveryClientOptionalArgs(
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			Supplier<RestClient.Builder> restClientBuilderSupplier) {
+		this.eurekaClientHttpRequestFactorySupplier = eurekaClientHttpRequestFactorySupplier;
+		this.restClientBuilderSupplier = restClientBuilderSupplier;
+	}
+
+	EurekaClientHttpRequestFactorySupplier getEurekaClientHttpRequestFactorySupplier() {
+		return eurekaClientHttpRequestFactorySupplier;
+	}
+
+	Supplier<RestClient.Builder> getRestClientBuilderSupplier() {
+		return restClientBuilderSupplier;
 	}
 
 }

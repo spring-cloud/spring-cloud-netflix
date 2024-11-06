@@ -74,15 +74,14 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	public RestTemplateTransportClientFactory(TlsProperties tlsProperties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
 			Supplier<RestTemplateBuilder> restTemplateBuilderSupplier) {
-		this(context(tlsProperties), Optional.empty(),
-				eurekaClientHttpRequestFactorySupplier, restTemplateBuilderSupplier);
+		this(context(tlsProperties), Optional.empty(), eurekaClientHttpRequestFactorySupplier,
+				restTemplateBuilderSupplier);
 	}
 
 	public RestTemplateTransportClientFactory(TlsProperties tlsProperties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
 		this(tlsProperties, eurekaClientHttpRequestFactorySupplier, RestTemplateBuilder::new);
 	}
-
 
 	public RestTemplateTransportClientFactory(Optional<SSLContext> sslContext,
 			Optional<HostnameVerifier> hostnameVerifier,
@@ -92,6 +91,10 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	}
 
 	// Visible for testing
+	/**
+	 * @deprecated pass the default values while initialising object in test classes.
+	 */
+	@Deprecated(forRemoval = true)
 	public RestTemplateTransportClientFactory() {
 		this(Optional.empty(), Optional.empty(), new DefaultEurekaClientHttpRequestFactorySupplier());
 	}

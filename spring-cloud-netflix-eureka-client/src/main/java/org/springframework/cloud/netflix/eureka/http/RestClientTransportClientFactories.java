@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -28,31 +27,31 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
-import org.springframework.web.client.RestClient;
-
 /**
  * @author Wonchul Heo
  * @since 4.2.0
  */
 public class RestClientTransportClientFactories implements TransportClientFactories<Void> {
 
-	private final Supplier<RestClient.Builder> builder;
+	private final RestClientDiscoveryClientOptionalArgs args;
 
-	public RestClientTransportClientFactories(Supplier<RestClient.Builder> builder) {
-		this.builder = builder;
+	public RestClientTransportClientFactories(RestClientDiscoveryClientOptionalArgs args) {
+		this.args = args;
 	}
 
 	@Override
 	public TransportClientFactory newTransportClientFactory(EurekaClientConfig clientConfig,
 			Collection<Void> additionalFilters, InstanceInfo myInstanceInfo) {
-		return new RestClientTransportClientFactory(builder);
+		return new RestClientTransportClientFactory(args.getSSLContext(), args.getHostnameVerifier(),
+				args.getEurekaClientHttpRequestFactorySupplier(), args.getRestClientBuilderSupplier());
 	}
 
 	@Override
 	public TransportClientFactory newTransportClientFactory(final EurekaClientConfig clientConfig,
 			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
 			final Optional<SSLContext> sslContext, final Optional<HostnameVerifier> hostnameVerifier) {
-		return new RestClientTransportClientFactory(builder);
+		return new RestClientTransportClientFactory(args.getSSLContext(), args.getHostnameVerifier(),
+				args.getEurekaClientHttpRequestFactorySupplier(), args.getRestClientBuilderSupplier());
 	}
 
 }

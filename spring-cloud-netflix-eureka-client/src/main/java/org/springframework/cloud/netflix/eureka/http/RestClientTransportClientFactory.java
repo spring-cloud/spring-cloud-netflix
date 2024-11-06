@@ -29,6 +29,7 @@ import com.netflix.discovery.shared.transport.TransportClientFactory;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestClient;
@@ -69,8 +70,7 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 	public RestClientTransportClientFactory(TlsProperties tlsProperties,
 			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
 			Supplier<RestClient.Builder> builderSupplier) {
-		this(context(tlsProperties), Optional.empty(),
-				eurekaClientHttpRequestFactorySupplier, builderSupplier);
+		this(context(tlsProperties), Optional.empty(), eurekaClientHttpRequestFactorySupplier, builderSupplier);
 	}
 
 	public RestClientTransportClientFactory(TlsProperties tlsProperties,
@@ -82,6 +82,11 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 	public EurekaHttpClient newClient(EurekaEndpoint endpoint) {
 		// we want a copy to modify. Don't change the original
 		final RestClient.Builder builder = builderSupplier.get().clone();
+
+		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
+			.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
+
+		builder.requestFactory(requestFactory);
 		setUrl(builder, endpoint.getServiceUrl());
 		builder.messageConverters(converters -> converters.add(0, mappingJacksonHttpMessageConverter()));
 
@@ -99,6 +104,10 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 		return new RestClientEurekaHttpClient(builder.build());
 	}
 
+	@Override
+	public void shutdown() {
+	}
+
 	private static void setUrl(RestClient.Builder builder, String serviceUrl) {
 		final String url = UriComponentsBuilder.fromUriString(serviceUrl).userInfo(null).toUriString();
 
@@ -107,10 +116,6 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 			builder.requestInterceptor(new BasicAuthenticationInterceptor(userInfo.username(), userInfo.password()));
 		}
 		builder.baseUrl(url);
-	}
-
-	@Override
-	public void shutdown() {
 	}
 
 }
