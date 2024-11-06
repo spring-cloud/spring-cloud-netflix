@@ -61,7 +61,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Wonchul Heo
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({RestTemplateTimeoutProperties.class, RestClientTimeoutProperties.class})
+@EnableConfigurationProperties({ RestTemplateTimeoutProperties.class, RestClientTimeoutProperties.class })
 public class DiscoveryClientOptionalArgsConfiguration {
 
 	protected static final Log logger = LogFactory.getLog(DiscoveryClientOptionalArgsConfiguration.class);
@@ -93,7 +93,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	static class RestTemplateConfiguration {
 
 		@Bean
-		@ConditionalOnMissingBean(value = {AbstractDiscoveryClientOptionalArgs.class},
+		@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
 				search = SearchStrategy.CURRENT)
 		public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(
 				TlsProperties tlsProperties,
@@ -110,7 +110,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		@Bean
 		@Conditional(OnRestTemplatePresentAndEnabledCondition.class)
-		@ConditionalOnMissingBean(value = {TransportClientFactories.class}, search = SearchStrategy.CURRENT)
+		@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
 		public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
 				RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
 			return new RestTemplateTransportClientFactories(optionalArgs);

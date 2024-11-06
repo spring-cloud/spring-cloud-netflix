@@ -26,20 +26,23 @@ import org.junit.jupiter.api.BeforeAll;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
+import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestClientTransportClientFactories;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration.setupTLS;
 
-public class RestTemplateEurekaClientTests extends BaseCertTests {
+/**
+ * @author Olga Maciaszek-Sharma
+ */
+public class RestClientEurekaClientTests extends BaseCertTests {
 
-	private static final Log log = LogFactory.getLog(RestTemplateEurekaClientTests.class);
+	private static final Log LOG = LogFactory.getLog(RestClientEurekaClientTests.class);
 
 	private static EurekaServerRunner server;
 
@@ -48,11 +51,11 @@ public class RestTemplateEurekaClientTests extends BaseCertTests {
 	@BeforeAll
 	public static void setupAll() {
 		server = startEurekaServer(TestEurekaServer.class);
-		service = startService(server, RestTemplateEurekaClientTests.RestTemplateTestApp.class);
-		// Will use RestTemplate
-		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
-		log.info("Successfully asserted that RestTemplate will be used");
-		waitForRegistration(() -> new RestTemplateEurekaClientTests().createEurekaClient());
+		service = startService(server, TestApp.class);
+		// Will use RestClient
+		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestClientDiscoveryClientOptionalArgs.class);
+		LOG.info("Successfully asserted that RestClient will be used");
+		waitForRegistration(() -> new RestClientEurekaClientTests().createEurekaClient());
 	}
 
 	@AfterAll
@@ -63,28 +66,30 @@ public class RestTemplateEurekaClientTests extends BaseCertTests {
 
 	@Override
 	EurekaClientRunner createEurekaClient() {
-		return new EurekaClientRunner(RestTemplateTestApp.class, server);
+		return new EurekaClientRunner(TestApp.class, server);
 	}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	public static class RestTemplateTestApp {
+	public static class TestApp {
 
+		// Want to force reusing exactly the same bean as on production without excluding
+		// jersey from the classpath
 		@Bean
-		public RestTemplateDiscoveryClientOptionalArgs forceRestTemplateDiscoveryClientOptionalArgs(
+		public RestClientDiscoveryClientOptionalArgs forceRestClientDiscoveryClientOptionalArgs(
 				TlsProperties tlsProperties,
 				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier)
 				throws GeneralSecurityException, IOException {
-			RestTemplateDiscoveryClientOptionalArgs result = new RestTemplateDiscoveryClientOptionalArgs(
-					eurekaClientHttpRequestFactorySupplier, RestTemplateBuilder::new);
+			RestClientDiscoveryClientOptionalArgs result = new RestClientDiscoveryClientOptionalArgs(
+					eurekaClientHttpRequestFactorySupplier, RestClient::builder);
 			setupTLS(result, tlsProperties);
 			return result;
 		}
 
 		@Bean
-		public RestTemplateTransportClientFactories forceRestTemplateTransportClientFactories(
-				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
-			return new RestTemplateTransportClientFactories(discoveryClientOptionalArgs);
+		public RestClientTransportClientFactories forceRestClientTransportClientFactories(
+				RestClientDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
+			return new RestClientTransportClientFactories(discoveryClientOptionalArgs);
 		}
 
 	}

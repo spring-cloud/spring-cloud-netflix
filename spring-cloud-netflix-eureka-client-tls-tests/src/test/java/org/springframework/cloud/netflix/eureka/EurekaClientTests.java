@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeAll;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EurekaClientTests extends BaseCertTests {
 
-	private static final Log log = LogFactory.getLog(EurekaClientTests.class);
+	private static final Log LOG = LogFactory.getLog(EurekaClientTests.class);
 
 	static EurekaServerRunner server;
 
@@ -44,7 +43,7 @@ public class EurekaClientTests extends BaseCertTests {
 		server = startEurekaServer(EurekaClientTests.TestEurekaServer.class);
 		service = startService(server, EurekaClientTests.TestApp.class);
 		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
-		log.info("Successfully asserted that Jersey will be used");
+		LOG.info("Successfully asserted that Jersey will be used");
 		waitForRegistration(() -> new EurekaClientTests().createEurekaClient());
 	}
 
@@ -59,9 +58,8 @@ public class EurekaClientTests extends BaseCertTests {
 
 		@Bean
 		public RestTemplateTransportClientFactories forceRestTemplateTransportClientFactories(
-				DiscoveryClientOptionalArgsConfiguration configuration,
 				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
-			return configuration.restTemplateTransportClientFactories(discoveryClientOptionalArgs);
+			return new RestTemplateTransportClientFactories(discoveryClientOptionalArgs);
 		}
 
 		@Bean
