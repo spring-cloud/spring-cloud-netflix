@@ -29,6 +29,7 @@ import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
 /**
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  * @since 4.2.0
  */
 public class RestClientTransportClientFactories implements TransportClientFactories<Void> {

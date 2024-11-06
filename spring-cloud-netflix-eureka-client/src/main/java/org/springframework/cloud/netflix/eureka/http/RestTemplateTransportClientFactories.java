@@ -27,10 +27,16 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
+
 /**
  * @author Daniel Lavoie
  * @author Armin Krezovic
+ * @deprecated {@link RestTemplate}-based implementation to be removed in favour of
+ * {@link RestClient}-based implementation.
  */
+@Deprecated(forRemoval = true)
 public class RestTemplateTransportClientFactories implements TransportClientFactories<Void> {
 
 	private final RestTemplateDiscoveryClientOptionalArgs args;

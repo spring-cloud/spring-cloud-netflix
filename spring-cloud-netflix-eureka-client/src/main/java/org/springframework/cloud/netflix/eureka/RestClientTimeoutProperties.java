@@ -17,9 +17,13 @@
 package org.springframework.cloud.netflix.eureka;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.web.client.RestClient;
 
 /**
+ * A {@link RestClient}-specific {@link TimeoutProperties} implementation.
+ *
  * @author Olga Maciaszek-Sharma
+ * @since 4.2.0
  */
 @ConfigurationProperties("eureka.client.restclient.timeout")
 public class RestClientTimeoutProperties extends TimeoutProperties {

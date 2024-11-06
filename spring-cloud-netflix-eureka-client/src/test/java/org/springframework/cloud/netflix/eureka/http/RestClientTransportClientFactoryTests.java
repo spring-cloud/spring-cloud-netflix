@@ -30,7 +30,10 @@ import org.springframework.web.client.RestClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link RestClientTransportClientFactory}.
+ *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 class RestClientTransportClientFactoryTests {
 

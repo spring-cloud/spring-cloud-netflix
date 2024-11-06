@@ -52,6 +52,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -72,13 +73,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		return new TlsProperties();
 	}
 
-	@Bean
-	@ConditionalOnMissingBean
-	EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-			RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
-		return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
-	}
-
 	// Visible for tests
 	public static void setupTLS(AbstractDiscoveryClientOptionalArgs<?> args, TlsProperties properties)
 			throws GeneralSecurityException, IOException {
@@ -88,9 +82,21 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		}
 	}
 
+	/**
+	 * @deprecated {@link RestTemplate}-based implementation to be removed in favour of
+	 * {@link RestClient}-based implementation.
+	 */
 	@Configuration(proxyBeanMethods = false)
 	@Conditional(OnRestTemplatePresentAndEnabledCondition.class)
+	@Deprecated
 	static class RestTemplateConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean
+		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+				RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
+		}
 
 		@Bean
 		@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
@@ -109,7 +115,6 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		}
 
 		@Bean
-		@Conditional(OnRestTemplatePresentAndEnabledCondition.class)
 		@ConditionalOnMissingBean(value = { TransportClientFactories.class }, search = SearchStrategy.CURRENT)
 		public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
 				RestTemplateDiscoveryClientOptionalArgs optionalArgs) {
@@ -133,10 +138,11 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@Conditional(OnJerseyClientNotPresentOrNotEnabledCondition.class)
 	@ConditionalOnClass(name = "org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
-	static class WebClientConfiguration {
+	protected static class WebClientConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(
@@ -162,7 +168,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@Conditional(OnJerseyClientNotPresentOrNotEnabledCondition.class)
 	@ConditionalOnMissingClass("org.springframework.web.reactive.function.client.WebClient")
 	@ConditionalOnProperty(prefix = "eureka.client", name = "webclient.enabled", havingValue = "true")
@@ -176,8 +182,16 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@Conditional(OnRestClientPresentAndEnabledCondition.class)
 	protected static class RestClientConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean
+		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+				RestClientTimeoutProperties restClientTimeoutProperties) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties);
+		}
 
 		@Bean
 		@ConditionalOnMissingBean(value = { AbstractDiscoveryClientOptionalArgs.class },
@@ -241,6 +255,11 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 	}
 
+	/**
+	 * @deprecated {@link RestTemplate}-based implementation to be removed in favour of
+	 * {@link RestClient}-based implementation.
+	 */
+	@Deprecated(forRemoval = true)
 	static class OnRestTemplatePresentAndEnabledCondition extends AllNestedConditions {
 
 		OnRestTemplatePresentAndEnabledCondition() {

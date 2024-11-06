@@ -50,6 +50,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -59,10 +60,12 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Dave Syer
  * @author Armin Krezovic
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
 @Conditional(EurekaConfigServerBootstrapConfiguration.EurekaConfigServerBootstrapCondition.class)
 @Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties({ RestTemplateTimeoutProperties.class, RestClientTimeoutProperties.class })
 public class EurekaConfigServerBootstrapConfiguration {
 
 	@Bean
@@ -77,9 +80,13 @@ public class EurekaConfigServerBootstrapConfiguration {
 		return new EurekaConfigServerInstanceProvider(client, config)::getInstances;
 	}
 
+	/**
+	 * @deprecated {@link RestTemplate}-based implementation to be removed in favour of
+	 * {@link RestClient}-based implementation.
+	 */
 	@Configuration(proxyBeanMethods = false)
 	@Conditional(RestTemplateConfiguration.OnRestTemplatePresentAndEnabledCondition.class)
-	@EnableConfigurationProperties(RestTemplateTimeoutProperties.class)
+	@Deprecated
 	static class RestTemplateConfiguration {
 
 		@Bean
@@ -100,6 +107,11 @@ public class EurekaConfigServerBootstrapConfiguration {
 			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
 		}
 
+		/**
+		 * @deprecated {@link RestTemplate}-based implementation to be removed in favour
+		 * of {@link RestClient}-based implementation.
+		 */
+		@Deprecated(forRemoval = true)
 		static class OnRestTemplatePresentAndEnabledCondition extends AllNestedConditions {
 
 			OnRestTemplatePresentAndEnabledCondition() {
@@ -144,7 +156,6 @@ public class EurekaConfigServerBootstrapConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@Conditional(RestClientConfiguration.OnRestClientPresentAndEnabledCondition.class)
-	@EnableConfigurationProperties(RestClientTimeoutProperties.class)
 	static class RestClientConfiguration {
 
 		@Bean

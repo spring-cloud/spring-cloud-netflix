@@ -28,6 +28,7 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.TlsProperties;
+import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
@@ -85,6 +86,12 @@ public class RestTemplateEurekaClientTests extends BaseCertTests {
 		public RestTemplateTransportClientFactories forceRestTemplateTransportClientFactories(
 				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
 			return new RestTemplateTransportClientFactories(discoveryClientOptionalArgs);
+		}
+
+		@Bean
+		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+				RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
 		}
 
 	}

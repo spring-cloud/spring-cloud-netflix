@@ -34,6 +34,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -50,7 +51,10 @@ import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtil
  * @author Armin Krezovic
  * @author Wonchul Heo
  * @author Olga Maciaszek-Sharma
+ * @deprecated {@link RestTemplate}-based implementation to be removed in favour of
+ * {@link RestClient}-based implementation.
  */
+@Deprecated(forRemoval = true)
 public class RestTemplateTransportClientFactory implements TransportClientFactory {
 
 	private final Optional<SSLContext> sslContext;

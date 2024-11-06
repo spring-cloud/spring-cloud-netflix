@@ -18,11 +18,20 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.util.Objects;
 
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.core5.http.io.SocketConfig;
 
+import org.springframework.web.client.RestTemplate;
+
 /**
+ * Properties for configuring timeouts used in {@link RestTemplate} required by
+ * {@link EurekaHttpClient}.
+ *
+ * @author Jiwon Jeon
+ * @author Mooyong Lee
  * @author Olga Maciaszek-Sharma
+ * @since 4.2.0
  */
 public abstract class TimeoutProperties {
 

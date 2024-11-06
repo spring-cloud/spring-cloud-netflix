@@ -33,7 +33,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.RestClient;
 
 /**
+ * Tests for {@link RestClientEurekaHttpClient}.
+ *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.fetch-registry=false",

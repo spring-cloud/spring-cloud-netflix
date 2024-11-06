@@ -48,7 +48,7 @@ import org.springframework.lang.Nullable;
  */
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
-	private final TimeoutProperties restTemplateTimeoutProperties;
+	private final TimeoutProperties timeoutProperties;
 
 	/**
 	 * @deprecated in favour of
@@ -56,21 +56,30 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	 */
 	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier() {
-		this.restTemplateTimeoutProperties = new RestTemplateTimeoutProperties();
+		this.timeoutProperties = new RestTemplateTimeoutProperties();
 	}
 
-	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties restTemplateTimeoutProperties) {
-		this.restTemplateTimeoutProperties = restTemplateTimeoutProperties;
+	/**
+	 * @deprecated in favour of
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties)}
+	 */
+	@Deprecated(forRemoval = true)
+	public DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties timeoutProperties) {
+		this.timeoutProperties = timeoutProperties;
+	}
+
+	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties) {
+		this.timeoutProperties = timeoutProperties;
 	}
 
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
 		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-		if (sslContext != null || hostnameVerifier != null || restTemplateTimeoutProperties != null) {
-			httpClientBuilder.setConnectionManager(
-					buildConnectionManager(sslContext, hostnameVerifier, restTemplateTimeoutProperties));
+		if (sslContext != null || hostnameVerifier != null || timeoutProperties != null) {
+			httpClientBuilder
+				.setConnectionManager(buildConnectionManager(sslContext, hostnameVerifier, timeoutProperties));
 		}
-		if (restTemplateTimeoutProperties != null) {
+		if (timeoutProperties != null) {
 			httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
 		}
 
@@ -103,9 +112,9 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	private RequestConfig buildRequestConfig() {
 		return RequestConfig.custom()
-			.setConnectTimeout(Timeout.of(restTemplateTimeoutProperties.getConnectTimeout(), TimeUnit.MILLISECONDS))
+			.setConnectTimeout(Timeout.of(timeoutProperties.getConnectTimeout(), TimeUnit.MILLISECONDS))
 			.setConnectionRequestTimeout(
-					Timeout.of(restTemplateTimeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS))
+					Timeout.of(timeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS))
 			.build();
 	}
 

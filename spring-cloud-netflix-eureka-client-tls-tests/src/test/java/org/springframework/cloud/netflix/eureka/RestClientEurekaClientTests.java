@@ -38,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration.setupTLS;
 
 /**
+ * Tests for verifying TLS setup with {@link RestClientTransportClientFactories}.
+ *
  * @author Olga Maciaszek-Sharma
  */
 public class RestClientEurekaClientTests extends BaseCertTests {

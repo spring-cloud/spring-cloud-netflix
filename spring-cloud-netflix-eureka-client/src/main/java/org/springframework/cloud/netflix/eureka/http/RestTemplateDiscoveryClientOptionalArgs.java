@@ -21,11 +21,16 @@ import java.util.function.Supplier;
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Daniel Lavoie
  * @author Armin Krezovic
+ * @deprecated {@link RestTemplate}-based implementation to be removed in favour of
+ * {@link RestClient}-based implementation.
  */
+@Deprecated
 public class RestTemplateDiscoveryClientOptionalArgs extends AbstractDiscoveryClientOptionalArgs<Void> {
 
 	protected final EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier;

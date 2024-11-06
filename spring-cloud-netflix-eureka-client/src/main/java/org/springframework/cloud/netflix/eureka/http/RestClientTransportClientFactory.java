@@ -45,6 +45,7 @@ import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtil
  * deserialization.
  *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  * @since 4.2.0
  */
 public class RestClientTransportClientFactory implements TransportClientFactory {
