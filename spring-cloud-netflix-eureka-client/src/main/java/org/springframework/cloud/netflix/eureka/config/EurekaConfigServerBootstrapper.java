@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,10 @@ import org.springframework.cloud.config.client.ConfigServerConfigDataLocationRes
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
+import org.springframework.cloud.netflix.eureka.http.RestClientTransportClientFactory;
 import org.springframework.util.ClassUtils;
 
 public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitializer {
@@ -57,10 +58,10 @@ public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitiali
 				return (id) -> Collections.emptyList();
 			}
 			EurekaClientConfigBean config = context.get(EurekaClientConfigBean.class);
-			EurekaHttpClient httpClient = new RestTemplateTransportClientFactory(
+			EurekaHttpClient httpClient = new RestClientTransportClientFactory(
 					context.getOrElse(TlsProperties.class, null),
 					context.getOrElse(EurekaClientHttpRequestFactorySupplier.class,
-							new DefaultEurekaClientHttpRequestFactorySupplier()))
+							new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties())))
 				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, getPropertyResolver(context)));
 			return new EurekaConfigServerInstanceProvider(httpClient, config)::getInstances;
 		});
