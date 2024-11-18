@@ -28,6 +28,6 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: ./mvnw clean install -B -U -P sonar
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
