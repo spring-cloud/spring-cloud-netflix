@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Optional;
+
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +28,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.RestClient;
 
 /**
+ * Tests for {@link RestClientEurekaHttpClient}.
+ *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.fetch-registry=false",
@@ -47,7 +53,9 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 
 	@BeforeEach
 	void setup() {
-		eurekaHttpClient = new RestClientTransportClientFactory(RestClient::builder)
+		eurekaHttpClient = new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties()),
+				RestClient::builder)
 			.newClient(new DefaultEndpoint(serviceUrl));
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);

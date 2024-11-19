@@ -16,18 +16,24 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Optional;
+
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link RestClientTransportClientFactory}.
+ *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 class RestClientTransportClientFactoryTests {
 
@@ -35,7 +41,9 @@ class RestClientTransportClientFactoryTests {
 
 	@BeforeEach
 	void setup() {
-		transportClientFactory = new RestClientTransportClientFactory(RestClient::builder);
+		transportClientFactory = new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties()),
+				RestClient::builder);
 	}
 
 	@Test

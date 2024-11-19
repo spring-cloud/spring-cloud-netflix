@@ -50,6 +50,9 @@
 |eureka.client.rest-template-timeout.connect-timeout | `+++180000+++` | Default values are set to 180000, in keeping with {@link RequestConfig} and {@link SocketConfig} defaults.
 |eureka.client.rest-template-timeout.socket-timeout | `+++180000+++` | 
 |eureka.client.restclient.enabled | `+++false+++` | Enables the use of RestClient for Eureka HTTP Client.
+|eureka.client.restclient.timeout.connect-request-timeout | `+++180000+++` | 
+|eureka.client.restclient.timeout.connect-timeout | `+++180000+++` | Default values are set to 180000, in keeping with {@link RequestConfig} and {@link SocketConfig} defaults.
+|eureka.client.restclient.timeout.socket-timeout | `+++180000+++` | 
 |eureka.client.service-url |  | Map of availability zone to list of fully qualified URLs to communicate with eureka server. Each value can be a single URL or a comma separated list of alternative locations. Typically the eureka server URLs carry protocol,host,port,context and version information if any. Example: https://ec2-256-156-243-129.compute-1.amazonaws.com:7001/eureka/ The changes are effective at runtime at the next service url refresh cycle as specified by eurekaServiceUrlPollIntervalSeconds.
 |eureka.client.should-enforce-registration-at-init | `+++false+++` | Indicates whether the client should enforce registration during initialization. Defaults to false.
 |eureka.client.should-unregister-on-shutdown | `+++true+++` | Indicates whether the client should explicitly unregister itself from the remote server on client shutdown.

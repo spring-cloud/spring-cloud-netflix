@@ -18,25 +18,19 @@ package org.springframework.cloud.netflix.eureka;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
 /**
- * A {@link RestTemplate}-specific {@link TimeoutProperties} implementation.
+ * A {@link RestClient}-specific {@link TimeoutProperties} implementation.
  *
- * @author Jiwon Jeon
- * @author Mooyong Lee
  * @author Olga Maciaszek-Sharma
- * @since 3.1.6
- * @deprecated {@link RestTemplate}-based implementation to be removed in favour of
- * {@link RestClient}-based implementation.
+ * @since 4.2.0
  */
-@Deprecated(forRemoval = true)
-@ConfigurationProperties("eureka.client.rest-template-timeout")
-public class RestTemplateTimeoutProperties extends TimeoutProperties {
+@ConfigurationProperties("eureka.client.restclient.timeout")
+public class RestClientTimeoutProperties extends TimeoutProperties {
 
 	@Override
 	public String toString() {
-		return "RestTemplateTimeoutProperties{" + ", connectTimeout=" + connectTimeout + ", connectRequestTimeout="
+		return "RestClientTimeoutProperties{" + ", connectTimeout=" + connectTimeout + ", connectRequestTimeout="
 				+ connectRequestTimeout + ", socketTimeout=" + socketTimeout + '}';
 	}
 

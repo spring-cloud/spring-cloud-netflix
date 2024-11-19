@@ -16,19 +16,26 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 
+import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.context;
 import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.extractUserInfo;
 import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtils.mappingJacksonHttpMessageConverter;
 
@@ -38,20 +45,49 @@ import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtil
  * deserialization.
  *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  * @since 4.2.0
  */
 public class RestClientTransportClientFactory implements TransportClientFactory {
 
+	private final Optional<SSLContext> sslContext;
+
+	private final Optional<HostnameVerifier> hostnameVerifier;
+
+	private final EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier;
+
 	private final Supplier<RestClient.Builder> builderSupplier;
 
-	public RestClientTransportClientFactory(Supplier<RestClient.Builder> builderSupplier) {
+	public RestClientTransportClientFactory(Optional<SSLContext> sslContext,
+			Optional<HostnameVerifier> hostnameVerifier,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			Supplier<RestClient.Builder> builderSupplier) {
+		this.sslContext = sslContext;
+		this.hostnameVerifier = hostnameVerifier;
+		this.eurekaClientHttpRequestFactorySupplier = eurekaClientHttpRequestFactorySupplier;
 		this.builderSupplier = builderSupplier;
+	}
+
+	public RestClientTransportClientFactory(TlsProperties tlsProperties,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
+			Supplier<RestClient.Builder> builderSupplier) {
+		this(context(tlsProperties), Optional.empty(), eurekaClientHttpRequestFactorySupplier, builderSupplier);
+	}
+
+	public RestClientTransportClientFactory(TlsProperties tlsProperties,
+			EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier) {
+		this(tlsProperties, eurekaClientHttpRequestFactorySupplier, RestClient::builder);
 	}
 
 	@Override
 	public EurekaHttpClient newClient(EurekaEndpoint endpoint) {
 		// we want a copy to modify. Don't change the original
 		final RestClient.Builder builder = builderSupplier.get().clone();
+
+		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
+			.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
+
+		builder.requestFactory(requestFactory);
 		setUrl(builder, endpoint.getServiceUrl());
 		builder.messageConverters(converters -> converters.add(0, mappingJacksonHttpMessageConverter()));
 
@@ -69,6 +105,10 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 		return new RestClientEurekaHttpClient(builder.build());
 	}
 
+	@Override
+	public void shutdown() {
+	}
+
 	private static void setUrl(RestClient.Builder builder, String serviceUrl) {
 		final String url = UriComponentsBuilder.fromUriString(serviceUrl).userInfo(null).toUriString();
 
@@ -77,10 +117,6 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 			builder.requestInterceptor(new BasicAuthenticationInterceptor(userInfo.username(), userInfo.password()));
 		}
 		builder.baseUrl(url);
-	}
-
-	@Override
-	public void shutdown() {
 	}
 
 }
