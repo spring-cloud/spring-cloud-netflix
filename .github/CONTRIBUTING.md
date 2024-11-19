@@ -17,7 +17,7 @@ given the ability to merge pull requests.
 
 ## Code of Conduct
 This project adheres to the Contributor Covenant [code of
-conduct](https://github.com/spring-cloud/spring-cloud-build/blob/main/docs/src/main/asciidoc/code-of-conduct.adoc). By participating, you  are expected to uphold this code. Please report
+conduct](https://github.com/spring-cloud/spring-cloud-build/blob/main/docs/modules/ROOT/partials/code-of-conduct.adoc). By participating, you  are expected to uphold this code. Please report
 unacceptable behavior to spring-code-of-conduct@pivotal.io.
 
 ## Code Conventions and Housekeeping
