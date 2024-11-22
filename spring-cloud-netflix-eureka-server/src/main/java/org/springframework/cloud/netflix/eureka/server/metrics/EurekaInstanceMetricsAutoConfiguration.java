@@ -28,11 +28,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.task.TaskExecutor;
 
 /**
  * Auto-configuration for Eureka Instance metrics.
  *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  * @since 4.1.2
  */
 @ConditionalOnClass(MeterRegistry.class)
@@ -51,8 +53,8 @@ class EurekaInstanceMetricsAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public EurekaInstanceMonitor eurekaInstanceMeterBinder(MeterRegistry meterRegistry,
-			PeerAwareInstanceRegistry instanceRegistry, EurekaInstanceTagsProvider tagProvider) {
-		return new EurekaInstanceMonitor(meterRegistry, instanceRegistry, tagProvider);
+			PeerAwareInstanceRegistry instanceRegistry, EurekaInstanceTagsProvider tagProvider, TaskExecutor executor) {
+		return new EurekaInstanceMonitor(meterRegistry, instanceRegistry, tagProvider, executor);
 	}
 
 }
