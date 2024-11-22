@@ -28,14 +28,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceMonitor;
 import org.springframework.context.annotation.Configuration;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getInstanceInfo;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getLeaseInfo;
 
 /**
+ * Tests for {@link EurekaInstanceMonitor}.
+ *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 @SpringBootTest(classes = EurekaInstanceMonitorTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -151,9 +158,11 @@ class EurekaInstanceMonitorTests {
 	}
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
-		meterRegistryCounts.forEach((tags,
-				count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
-					.isEqualTo(count));
+		await().atMost(5, SECONDS)
+			.pollInterval(fibonacci())
+			.untilAsserted(() -> meterRegistryCounts.forEach((tags,
+					count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
+						.isEqualTo(count)));
 	}
 
 	@Configuration(proxyBeanMethods = false)
