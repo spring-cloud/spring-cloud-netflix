@@ -21,9 +21,7 @@ import java.util.Map;
 import com.netflix.appinfo.InstanceInfo;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
-import io.micrometer.core.instrument.search.MeterNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getInstanceInfo;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getLeaseInfo;
 
@@ -49,7 +48,8 @@ import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixt
  */
 @SpringBootTest(classes = EurekaInstanceMonitorWithCustomTagsProviderTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-		value = { "spring.application.name=eureka", "eureka.server.metrics.enabled=true" })
+		value = {"spring.application.name=eureka", "eureka.server.metrics.enabled=true",
+				"eureka.client.register-with-eureka=false", "eureka.client.fetch-registry=false"})
 class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
 	private static final String APP_NAME = "FOO-APP-NAME";
@@ -78,7 +78,7 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	}
 
 	@Test
-	@Disabled
+//	@Disabled
 	void testMultipleRegistrations() {
 		instanceRegistry.register(firstInstanceInfo, false);
 		instanceRegistry.register(secondInstanceInfo, false);
@@ -93,11 +93,13 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
 		await().atMost(5, SECONDS)
-			.pollInterval(fibonacci())
-				.ignoreException(MeterNotFoundException.class)
-			.untilAsserted(() -> meterRegistryCounts.forEach((tags,
-					count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
-						.isEqualTo(count)));
+				.pollInterval(fibonacci())
+				.untilAsserted(() -> meterRegistryCounts.forEach((tags,
+						count) -> assertAll(() -> assertThat((long) meterRegistry.get("eureka.server.instances")
+								.tags(tags).gauge().value()).isNotNull(),
+						() -> assertThat((long) meterRegistry.get("eureka.server.instances")
+								.tags(tags).gauge().value())
+								.isEqualTo(count))));
 	}
 
 	@Configuration(proxyBeanMethods = false)
