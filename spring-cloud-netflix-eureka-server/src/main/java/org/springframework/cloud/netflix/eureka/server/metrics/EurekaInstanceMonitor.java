@@ -79,10 +79,10 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 
 	private Map<Tags, Long> collectAggregatedCounts() {
 		return instanceRegistry.getApplications()
-				.getRegisteredApplications()
-				.stream()
-				.flatMap(application -> application.getInstances().stream())
-				.collect(Collectors.groupingBy(tagProvider::eurekaInstanceTags, Collectors.counting()));
+			.getRegisteredApplications()
+			.stream()
+			.flatMap(application -> application.getInstances().stream())
+			.collect(Collectors.groupingBy(tagProvider::eurekaInstanceTags, Collectors.counting()));
 	}
 
 	private void registerMetrics(Map<Tags, Long> aggregatedCounts) {

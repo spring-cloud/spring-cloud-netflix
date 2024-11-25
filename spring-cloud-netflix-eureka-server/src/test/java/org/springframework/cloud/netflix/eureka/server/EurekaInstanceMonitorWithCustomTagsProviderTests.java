@@ -48,8 +48,8 @@ import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixt
  */
 @SpringBootTest(classes = EurekaInstanceMonitorWithCustomTagsProviderTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-		value = {"spring.application.name=eureka", "eureka.server.metrics.enabled=true",
-				"eureka.client.register-with-eureka=false", "eureka.client.fetch-registry=false"})
+		value = { "spring.application.name=eureka", "eureka.server.metrics.enabled=true",
+				"eureka.client.register-with-eureka=false", "eureka.client.fetch-registry=false" })
 class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
 	private static final String APP_NAME = "FOO-APP-NAME";
@@ -92,17 +92,17 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
 		await().atMost(5, SECONDS)
-				.pollInterval(fibonacci())
-				.untilAsserted(() -> meterRegistryCounts.forEach((tags,
-						count) -> {
-					SoftAssertions softAssertions = new SoftAssertions();
-					softAssertions.assertThat((long) meterRegistry.get("eureka.server.instances")
-							.tags(tags).gauge().value()).isNotNull();
-					softAssertions.assertThat((long) meterRegistry.get("eureka.server.instances")
-								.tags(tags).gauge().value())
-							.isEqualTo(count);
-					softAssertions.assertAll();
-				}));
+			.pollInterval(fibonacci())
+			.untilAsserted(() -> meterRegistryCounts.forEach((tags, count) -> {
+				SoftAssertions softAssertions = new SoftAssertions();
+				softAssertions
+					.assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
+					.isNotNull();
+				softAssertions
+					.assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
+					.isEqualTo(count);
+				softAssertions.assertAll();
+			}));
 	}
 
 	@Configuration(proxyBeanMethods = false)
