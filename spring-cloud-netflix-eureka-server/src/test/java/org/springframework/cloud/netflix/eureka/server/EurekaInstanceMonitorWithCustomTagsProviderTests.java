@@ -78,7 +78,6 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	}
 
 	@Test
-//	@Disabled
 	void testMultipleRegistrations() {
 		instanceRegistry.register(firstInstanceInfo, false);
 		instanceRegistry.register(secondInstanceInfo, false);
