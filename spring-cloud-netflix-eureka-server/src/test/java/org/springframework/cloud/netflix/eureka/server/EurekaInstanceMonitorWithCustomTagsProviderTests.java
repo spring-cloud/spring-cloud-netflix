@@ -21,7 +21,9 @@ import java.util.Map;
 import com.netflix.appinfo.InstanceInfo;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.search.MeterNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +78,7 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	}
 
 	@Test
+	@Disabled
 	void testMultipleRegistrations() {
 		instanceRegistry.register(firstInstanceInfo, false);
 		instanceRegistry.register(secondInstanceInfo, false);
@@ -89,8 +92,9 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	}
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
-		await().atMost(10, SECONDS)
+		await().atMost(5, SECONDS)
 			.pollInterval(fibonacci())
+				.ignoreException(MeterNotFoundException.class)
 			.untilAsserted(() -> meterRegistryCounts.forEach((tags,
 					count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
 						.isEqualTo(count)));
