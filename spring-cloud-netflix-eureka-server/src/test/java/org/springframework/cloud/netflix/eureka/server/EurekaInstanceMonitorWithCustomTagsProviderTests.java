@@ -21,6 +21,7 @@ import java.util.Map;
 import com.netflix.appinfo.InstanceInfo;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,10 +34,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getInstanceInfo;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getLeaseInfo;
 
@@ -94,11 +94,15 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 		await().atMost(5, SECONDS)
 				.pollInterval(fibonacci())
 				.untilAsserted(() -> meterRegistryCounts.forEach((tags,
-						count) -> assertAll(() -> assertThat((long) meterRegistry.get("eureka.server.instances")
-								.tags(tags).gauge().value()).isNotNull(),
-						() -> assertThat((long) meterRegistry.get("eureka.server.instances")
+						count) -> {
+					SoftAssertions softAssertions = new SoftAssertions();
+					softAssertions.assertThat((long) meterRegistry.get("eureka.server.instances")
+							.tags(tags).gauge().value()).isNotNull();
+					softAssertions.assertThat((long) meterRegistry.get("eureka.server.instances")
 								.tags(tags).gauge().value())
-								.isEqualTo(count))));
+							.isEqualTo(count);
+					softAssertions.assertAll();
+				}));
 	}
 
 	@Configuration(proxyBeanMethods = false)
