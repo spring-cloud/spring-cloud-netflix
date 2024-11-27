@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.server.metrics;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
@@ -36,6 +37,7 @@ import org.springframework.context.event.SmartApplicationListener;
  * {@link PeerAwareInstanceRegistry}.
  *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  * @since 4.1.2
  */
 public class EurekaInstanceMonitor implements SmartApplicationListener {
@@ -46,14 +48,17 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 
 	private final EurekaInstanceTagsProvider tagProvider;
 
+	private final Executor executor;
+
 	EurekaInstanceMonitor(MeterRegistry meterRegistry, PeerAwareInstanceRegistry instanceRegistry,
-			EurekaInstanceTagsProvider tagProvider) {
+			EurekaInstanceTagsProvider tagProvider, Executor executor) {
 		Objects.requireNonNull(meterRegistry);
 		this.instanceRegistry = Objects.requireNonNull(instanceRegistry);
 		this.tagProvider = Objects.requireNonNull(tagProvider);
 		this.eurekaInstances = MultiGauge.builder("eureka.server.instances")
 			.description("Number of application instances registered with the Eureka server.")
 			.register(meterRegistry);
+		this.executor = executor;
 	}
 
 	@Override
@@ -66,11 +71,21 @@ public class EurekaInstanceMonitor implements SmartApplicationListener {
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		final Map<Tags, Long> aggregatedCounts = instanceRegistry.getApplications()
+		executor.execute(() -> {
+			Map<Tags, Long> aggregatedCounts = collectAggregatedCounts();
+			registerMetrics(aggregatedCounts);
+		});
+	}
+
+	private Map<Tags, Long> collectAggregatedCounts() {
+		return instanceRegistry.getApplications()
 			.getRegisteredApplications()
 			.stream()
 			.flatMap(application -> application.getInstances().stream())
 			.collect(Collectors.groupingBy(tagProvider::eurekaInstanceTags, Collectors.counting()));
+	}
+
+	private void registerMetrics(Map<Tags, Long> aggregatedCounts) {
 		eurekaInstances.register(aggregatedCounts.entrySet()
 			.stream()
 			.map(entry -> MultiGauge.Row.of(entry.getKey(), entry.getValue()))

@@ -21,26 +21,35 @@ import java.util.Map;
 import com.netflix.appinfo.InstanceInfo;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceMonitor;
 import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceTagsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getInstanceInfo;
 import static org.springframework.cloud.netflix.eureka.server.EurekaInstanceFixture.getLeaseInfo;
 
 /**
+ * Tests for {@link EurekaInstanceMonitor} with custom tags provider.
+ *
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 @SpringBootTest(classes = EurekaInstanceMonitorWithCustomTagsProviderTests.Application.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-		value = { "spring.application.name=eureka", "eureka.server.metrics.enabled=true" })
+		value = { "spring.application.name=eureka", "eureka.server.metrics.enabled=true",
+				"eureka.client.register-with-eureka=false", "eureka.client.fetch-registry=false" })
 class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
 	private static final String APP_NAME = "FOO-APP-NAME";
@@ -82,9 +91,18 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	}
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
-		meterRegistryCounts.forEach((tags,
-				count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
-					.isEqualTo(count));
+		await().atMost(5, SECONDS)
+			.pollInterval(fibonacci())
+			.untilAsserted(() -> meterRegistryCounts.forEach((tags, count) -> {
+				SoftAssertions softAssertions = new SoftAssertions();
+				softAssertions
+					.assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
+					.isNotNull();
+				softAssertions
+					.assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
+					.isEqualTo(count);
+				softAssertions.assertAll();
+			}));
 	}
 
 	@Configuration(proxyBeanMethods = false)

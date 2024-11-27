@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
@@ -35,6 +36,7 @@ import org.springframework.core.Ordered;
  *
  * @author Spencer Gibb
  * @author Tim Ysewyn
+ * @author Olga Maciaszek-Sharma
  */
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
@@ -79,7 +81,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 			if (app.getInstances().isEmpty()) {
 				continue;
 			}
-			names.add(app.getName().toLowerCase());
+			names.add(app.getName().toLowerCase(Locale.ROOT));
 
 		}
 		return names;
