@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
-import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Spencer Gibb
  */
+@SuppressWarnings("removal")
 class EurekaConfigServerBootstrapConfigurationWebClientTests {
 
 	@Test
@@ -53,7 +54,7 @@ class EurekaConfigServerBootstrapConfigurationWebClientTests {
 			.run(context -> {
 				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
 				assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
+				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
 			});
 	}

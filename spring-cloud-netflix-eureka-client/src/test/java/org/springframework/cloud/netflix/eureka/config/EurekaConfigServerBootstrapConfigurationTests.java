@@ -39,7 +39,7 @@ import org.springframework.boot.test.system.OutputCaptureRule;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
-import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
 import org.springframework.context.annotation.Bean;
@@ -53,6 +53,7 @@ import static org.mockito.Mockito.when;
  * @author Spencer Gibb
  * @author Tang Xiong
  */
+@SuppressWarnings("removal")
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions("spring-webflux-*")
 public class EurekaConfigServerBootstrapConfigurationTests {
@@ -205,7 +206,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 
 	private void assertEurekaBeansPresent(AssertableApplicationContext context) {
 		assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
-		assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
+		assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 		assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
 	}
 

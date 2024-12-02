@@ -282,7 +282,8 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		}
 
-		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "false")
+		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "false",
+				matchIfMissing = true)
 		static class OnRestClientDisabled {
 
 		}
@@ -311,8 +312,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		}
 
-		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", matchIfMissing = true,
-				havingValue = "true")
+		@ConditionalOnProperty(prefix = "eureka.client", name = "restclient.enabled", havingValue = "true")
 		static class OnRestClientEnabled {
 
 		}
