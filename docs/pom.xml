@@ -21,7 +21,7 @@
 		<!-- Don't upload docs jar to central / repo.spring.io -->
 		<maven-deploy-plugin-default.phase>none</maven-deploy-plugin-default.phase>
 	</properties>
-	<dependencies>
+<!-- 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
@@ -30,7 +30,7 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 		</dependency>
-	</dependencies>
+	</dependencies> -->
 	<build>
 		<sourceDirectory>src/main/asciidoc</sourceDirectory>
 	</build>
