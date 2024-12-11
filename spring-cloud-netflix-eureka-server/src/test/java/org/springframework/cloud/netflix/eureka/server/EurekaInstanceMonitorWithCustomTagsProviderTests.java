@@ -33,6 +33,7 @@ import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceTag
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -91,7 +92,8 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 	}
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
-		await().atMost(5, SECONDS)
+		await().pollDelay(5, MILLISECONDS)
+				.atMost(5, SECONDS)
 			.pollInterval(fibonacci())
 			.untilAsserted(() -> meterRegistryCounts.forEach((tags, count) -> {
 				SoftAssertions softAssertions = new SoftAssertions();
