@@ -31,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.eureka.server.metrics.EurekaInstanceMonitor;
 import org.springframework.context.annotation.Configuration;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -158,8 +159,9 @@ class EurekaInstanceMonitorTests {
 	}
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
-		await().atMost(5, SECONDS)
-			.pollInterval(fibonacci())
+		await().pollDelay(5, MILLISECONDS)
+				.atMost(5, SECONDS)
+				.pollInterval(fibonacci())
 			.untilAsserted(() -> meterRegistryCounts.forEach((tags,
 					count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())
 						.isEqualTo(count)));
