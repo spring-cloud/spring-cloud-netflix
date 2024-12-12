@@ -160,7 +160,7 @@ class EurekaInstanceMonitorTests {
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
 		await().pollDelay(5, MILLISECONDS)
-				.atMost(10, SECONDS)
+			.atMost(10, SECONDS)
 			.pollInterval(fibonacci())
 			.untilAsserted(() -> meterRegistryCounts.forEach((tags,
 					count) -> assertThat((long) meterRegistry.get("eureka.server.instances").tags(tags).gauge().value())

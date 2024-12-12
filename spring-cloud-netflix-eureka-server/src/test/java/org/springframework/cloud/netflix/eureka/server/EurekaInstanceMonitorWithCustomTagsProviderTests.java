@@ -93,7 +93,7 @@ class EurekaInstanceMonitorWithCustomTagsProviderTests {
 
 	private void assertEurekaInstance(Map<Tags, Long> meterRegistryCounts) {
 		await().pollDelay(5, MILLISECONDS)
-				.atMost(5, SECONDS)
+			.atMost(5, SECONDS)
 			.pollInterval(fibonacci())
 			.untilAsserted(() -> meterRegistryCounts.forEach((tags, count) -> {
 				SoftAssertions softAssertions = new SoftAssertions();
