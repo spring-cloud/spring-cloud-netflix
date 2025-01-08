@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.eureka.http;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.client5.http.config.RequestConfig;
+
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 
@@ -37,5 +39,11 @@ public interface EurekaClientHttpRequestFactorySupplier {
 	 * @return {@link ClientHttpRequestFactory}
 	 */
 	ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier);
+
+	interface RequestConfigCustomizer {
+
+		void customize(RequestConfig.Builder builder);
+
+	}
 
 }
