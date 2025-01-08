@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Set;
 
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
@@ -189,8 +190,9 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-				RestClientTimeoutProperties restClientTimeoutProperties) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties);
+				RestClientTimeoutProperties restClientTimeoutProperties,
+				ObjectProvider<Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer>> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties, requestConfigCustomizers);
 		}
 
 		@Bean

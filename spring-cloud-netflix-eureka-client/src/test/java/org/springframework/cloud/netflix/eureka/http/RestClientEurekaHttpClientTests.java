@@ -16,21 +16,28 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.cloud.loadbalancer.support.SimpleObjectProvider;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.RestClient;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 /**
  * Tests for {@link RestClientEurekaHttpClient}.
@@ -53,13 +60,9 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 
 	@BeforeEach
 	void setup() {
-		eurekaHttpClient = new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
-				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties()),
-				RestClient::builder)
-			.newClient(new DefaultEndpoint(serviceUrl));
+		eurekaHttpClient = buildEurekaHttpClient();
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
-
 		String appname = "customapp";
 		config.setIpAddress("127.0.0.1");
 		config.setHostname("localhost");
@@ -72,5 +75,27 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 
 		info = new EurekaConfigBasedInstanceInfoProvider(config).get();
 	}
+
+	private EurekaHttpClient buildEurekaHttpClient() {
+		return buildEurekaHttpClient(Collections.emptySet());
+	}
+
+	private EurekaHttpClient buildEurekaHttpClient(Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> customizers) {
+		return new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(),
+						new SimpleObjectProvider<>(customizers)),
+				RestClient::builder)
+				.newClient(new DefaultEndpoint(serviceUrl));
+	}
+
+	@Test
+	void shouldCustomiseHttpClientRequestConfig() {
+		eurekaHttpClient = buildEurekaHttpClient(Set.of(builder ->
+				builder.setProtocolUpgradeEnabled(false)));
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> eurekaHttpClient.getApplication("test"));
+	}
+
+
 
 }

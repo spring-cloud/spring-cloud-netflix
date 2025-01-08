@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import java.util.Set;
+
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 
@@ -174,8 +176,9 @@ public class EurekaConfigServerBootstrapConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-				RestClientTimeoutProperties restClientTimeoutProperties) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties);
+				RestClientTimeoutProperties restClientTimeoutProperties,
+				ObjectProvider<Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer>> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties, requestConfigCustomizers);
 		}
 
 		static class OnRestClientPresentAndEnabledCondition extends AllNestedConditions {

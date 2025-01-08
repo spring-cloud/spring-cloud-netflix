@@ -25,12 +25,14 @@ import com.netflix.appinfo.LeaseInfo;
 import com.netflix.appinfo.MyDataCenterInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -172,7 +175,12 @@ public class EurekaServerMockApplication {
 	}
 
 	@GetMapping("/apps/{appName}")
-	public Application getApplication(@PathVariable String appName) {
+	public Application getApplication(@PathVariable String appName,
+			@RequestHeader HttpHeaders headers) {
+		// Used to verify that RequestConfig customizer has taken effect
+		if (!headers.containsKey("upgrade")) {
+			throw new RuntimeException("No upgrade header found");
+		}
 		return new Application();
 	}
 
