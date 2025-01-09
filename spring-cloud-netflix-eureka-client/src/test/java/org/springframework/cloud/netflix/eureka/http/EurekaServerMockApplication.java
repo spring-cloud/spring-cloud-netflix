@@ -25,7 +25,6 @@ import com.netflix.appinfo.LeaseInfo;
 import com.netflix.appinfo.MyDataCenterInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -175,10 +174,9 @@ public class EurekaServerMockApplication {
 	}
 
 	@GetMapping("/apps/{appName}")
-	public Application getApplication(@PathVariable String appName,
-			@RequestHeader HttpHeaders headers) {
+	public Application getApplication(@PathVariable String appName, @RequestHeader HttpHeaders headers) {
 		// Used to verify that RequestConfig customizer has taken effect
-		if (!headers.containsKey("upgrade")) {
+		if (appName.equals("upgrade") && !headers.containsKey("upgrade")) {
 			throw new RuntimeException("No upgrade header found");
 		}
 		return new Application();

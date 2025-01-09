@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
@@ -42,7 +43,8 @@ class RestClientTransportClientFactoryTests {
 	@BeforeEach
 	void setup() {
 		transportClientFactory = new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
-				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties()),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(),
+						Collections.emptySet()),
 				RestClient::builder);
 	}
 

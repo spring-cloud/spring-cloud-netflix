@@ -95,8 +95,10 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-				RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
+				RestTemplateTimeoutProperties restTemplateTimeoutProperties,
+				Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties,
+					requestConfigCustomizers);
 		}
 
 		@Bean
@@ -191,8 +193,9 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
 				RestClientTimeoutProperties restClientTimeoutProperties,
-				ObjectProvider<Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer>> requestConfigCustomizers) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties, requestConfigCustomizers);
+				Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties,
+					requestConfigCustomizers);
 		}
 
 		@Bean

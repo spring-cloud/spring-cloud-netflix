@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.Collections;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,8 +66,8 @@ public class EurekaClientTests extends BaseCertTests {
 
 		@Bean
 		public RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
-			return new RestTemplateDiscoveryClientOptionalArgs(
-					new DefaultEurekaClientHttpRequestFactorySupplier(new RestTemplateTimeoutProperties()), null);
+			return new RestTemplateDiscoveryClientOptionalArgs(new DefaultEurekaClientHttpRequestFactorySupplier(
+					new RestTemplateTimeoutProperties(), Collections.emptySet()));
 		}
 
 	}

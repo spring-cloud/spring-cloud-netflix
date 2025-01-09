@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
-import org.springframework.cloud.loadbalancer.support.SimpleObjectProvider;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.test.annotation.DirtiesContext;
@@ -80,22 +79,18 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 		return buildEurekaHttpClient(Collections.emptySet());
 	}
 
-	private EurekaHttpClient buildEurekaHttpClient(Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> customizers) {
-		return new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
-				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(),
-						new SimpleObjectProvider<>(customizers)),
-				RestClient::builder)
-				.newClient(new DefaultEndpoint(serviceUrl));
-	}
-
 	@Test
 	void shouldCustomiseHttpClientRequestConfig() {
-		eurekaHttpClient = buildEurekaHttpClient(Set.of(builder ->
-				builder.setProtocolUpgradeEnabled(false)));
-		assertThatExceptionOfType(RuntimeException.class)
-				.isThrownBy(() -> eurekaHttpClient.getApplication("test"));
+		eurekaHttpClient = buildEurekaHttpClient(Set.of(builder -> builder.setProtocolUpgradeEnabled(false)));
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> eurekaHttpClient.getApplication("upgrade"));
 	}
 
-
+	private EurekaHttpClient buildEurekaHttpClient(
+			Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> customizers) {
+		return new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(), customizers),
+				RestClient::builder)
+			.newClient(new DefaultEndpoint(serviceUrl));
+	}
 
 }

@@ -56,7 +56,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
- * Bootstrap configuration for config client that wants to lookup the config server via
+ * Bootstrap configuration for config client that wants to look the config server up via
  * discovery.
  *
  * @author Dave Syer
@@ -105,8 +105,10 @@ public class EurekaConfigServerBootstrapConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-				RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
+				RestTemplateTimeoutProperties restTemplateTimeoutProperties,
+				Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties,
+					requestConfigCustomizers);
 		}
 
 		/**
@@ -177,8 +179,9 @@ public class EurekaConfigServerBootstrapConfiguration {
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
 				RestClientTimeoutProperties restClientTimeoutProperties,
-				ObjectProvider<Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer>> requestConfigCustomizers) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties, requestConfigCustomizers);
+				Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties,
+					requestConfigCustomizers);
 		}
 
 		static class OnRestClientPresentAndEnabledCondition extends AllNestedConditions {

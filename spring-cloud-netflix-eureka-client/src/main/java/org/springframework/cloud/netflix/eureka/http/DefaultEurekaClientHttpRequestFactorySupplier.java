@@ -17,7 +17,6 @@
 package org.springframework.cloud.netflix.eureka.http;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +34,6 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.Timeout;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -54,12 +52,13 @@ import org.springframework.lang.Nullable;
 public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClientHttpRequestFactorySupplier {
 
 	private final TimeoutProperties timeoutProperties;
+
 	// TODO: switch to final after removing deprecated interfaces
-	private ObjectProvider<Set<RequestConfigCustomizer>> requestConfigCustomizers;
+	private Set<RequestConfigCustomizer> requestConfigCustomizers = Collections.emptySet();
 
 	/**
 	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, ObjectProvider)}
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
 	 */
 	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier() {
@@ -68,7 +67,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	/**
 	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, ObjectProvider)}
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
 	 */
 	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties timeoutProperties) {
@@ -77,7 +76,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	/**
 	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, ObjectProvider)}
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
 	 */
 	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties) {
@@ -85,7 +84,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	}
 
 	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties,
-			ObjectProvider<Set<RequestConfigCustomizer>> requestConfigCustomizers) {
+			Set<RequestConfigCustomizer> requestConfigCustomizers) {
 		this.timeoutProperties = timeoutProperties;
 		this.requestConfigCustomizers = requestConfigCustomizers;
 	}
@@ -120,12 +119,11 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 		connectionManagerBuilder.setSSLSocketFactory(sslConnectionSocketFactoryBuilder.build());
 		if (timeoutProperties != null) {
 			connectionManagerBuilder.setDefaultSocketConfig(SocketConfig.custom()
-					.setSoTimeout(Timeout.of(timeoutProperties.getSocketTimeout(), TimeUnit.MILLISECONDS))
+				.setSoTimeout(Timeout.of(timeoutProperties.getSocketTimeout(), TimeUnit.MILLISECONDS))
 				.build());
-			connectionManagerBuilder.setDefaultConnectionConfig(ConnectionConfig.custom().
-					setConnectTimeout(Timeout.of(timeoutProperties.getConnectTimeout(),
-							TimeUnit.MILLISECONDS)).build()
-			);
+			connectionManagerBuilder.setDefaultConnectionConfig(ConnectionConfig.custom()
+				.setConnectTimeout(Timeout.of(timeoutProperties.getConnectTimeout(), TimeUnit.MILLISECONDS))
+				.build());
 		}
 		return connectionManagerBuilder.build();
 	}
@@ -136,11 +134,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 			requestConfigBuilder.setConnectionRequestTimeout(
 					Timeout.of(timeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS));
 		}
-		Optional.ofNullable(requestConfigCustomizers).ifPresent(
-				requestConfigCustomizers ->
-						requestConfigCustomizers
-								.getIfAvailable(Collections::emptySet)
-								.forEach(customizer -> customizer.customize(requestConfigBuilder)));
+		requestConfigCustomizers.forEach(customizer -> customizer.customize(requestConfigBuilder));
 		return requestConfigBuilder.build();
 	}
 
