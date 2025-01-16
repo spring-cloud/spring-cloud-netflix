@@ -116,7 +116,7 @@ eureka:
       socket-timeout: 10000
 ----
 
-You can also customise the `RequestConfig` for the underlying Apache HC5 client by creating a bean of type `EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer`.
+You can also customise the `RequestConfig` for the underlying Apache HttpClient 5 by creating a bean of type `EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer`.
 
 === Status Page and Health Indicator
 
