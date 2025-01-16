@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package org.springframework.cloud.netflix.eureka;
+
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,8 +66,8 @@ public class EurekaClientTests extends BaseCertTests {
 
 		@Bean
 		public RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
-			return new RestTemplateDiscoveryClientOptionalArgs(
-					new DefaultEurekaClientHttpRequestFactorySupplier(new RestTemplateTimeoutProperties()), null);
+			return new RestTemplateDiscoveryClientOptionalArgs(new DefaultEurekaClientHttpRequestFactorySupplier(
+					new RestTemplateTimeoutProperties(), Collections.emptySet()));
 		}
 
 	}

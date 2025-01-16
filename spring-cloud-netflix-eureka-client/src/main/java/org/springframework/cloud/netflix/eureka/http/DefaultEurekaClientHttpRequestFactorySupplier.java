@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -50,9 +53,12 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	private final TimeoutProperties timeoutProperties;
 
+	// TODO: switch to final after removing deprecated interfaces
+	private Set<RequestConfigCustomizer> requestConfigCustomizers = Collections.emptySet();
+
 	/**
 	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties)}
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
 	 */
 	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier() {
@@ -61,15 +67,26 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	/**
 	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties)}
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
 	 */
 	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties timeoutProperties) {
 		this.timeoutProperties = timeoutProperties;
 	}
 
+	/**
+	 * @deprecated in favour of
+	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
+	 */
+	@Deprecated(forRemoval = true)
 	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties) {
 		this.timeoutProperties = timeoutProperties;
+	}
+
+	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties,
+			Set<RequestConfigCustomizer> requestConfigCustomizers) {
+		this.timeoutProperties = timeoutProperties;
+		this.requestConfigCustomizers = requestConfigCustomizers;
 	}
 
 	@Override
@@ -79,9 +96,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 			httpClientBuilder
 				.setConnectionManager(buildConnectionManager(sslContext, hostnameVerifier, timeoutProperties));
 		}
-		if (timeoutProperties != null) {
-			httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
-		}
+		httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
 
 		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
@@ -90,7 +105,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	}
 
 	private HttpClientConnectionManager buildConnectionManager(SSLContext sslContext, HostnameVerifier hostnameVerifier,
-			TimeoutProperties restTemplateTimeoutProperties) {
+			TimeoutProperties timeoutProperties) {
 		PoolingHttpClientConnectionManagerBuilder connectionManagerBuilder = PoolingHttpClientConnectionManagerBuilder
 			.create();
 		SSLConnectionSocketFactoryBuilder sslConnectionSocketFactoryBuilder = SSLConnectionSocketFactoryBuilder
@@ -102,20 +117,25 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 			sslConnectionSocketFactoryBuilder.setHostnameVerifier(hostnameVerifier);
 		}
 		connectionManagerBuilder.setSSLSocketFactory(sslConnectionSocketFactoryBuilder.build());
-		if (restTemplateTimeoutProperties != null) {
+		if (timeoutProperties != null) {
 			connectionManagerBuilder.setDefaultSocketConfig(SocketConfig.custom()
-				.setSoTimeout(Timeout.of(restTemplateTimeoutProperties.getSocketTimeout(), TimeUnit.MILLISECONDS))
+				.setSoTimeout(Timeout.of(timeoutProperties.getSocketTimeout(), TimeUnit.MILLISECONDS))
+				.build());
+			connectionManagerBuilder.setDefaultConnectionConfig(ConnectionConfig.custom()
+				.setConnectTimeout(Timeout.of(timeoutProperties.getConnectTimeout(), TimeUnit.MILLISECONDS))
 				.build());
 		}
 		return connectionManagerBuilder.build();
 	}
 
 	private RequestConfig buildRequestConfig() {
-		return RequestConfig.custom()
-			.setConnectTimeout(Timeout.of(timeoutProperties.getConnectTimeout(), TimeUnit.MILLISECONDS))
-			.setConnectionRequestTimeout(
-					Timeout.of(timeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS))
-			.build();
+		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
+		if (timeoutProperties != null) {
+			requestConfigBuilder.setConnectionRequestTimeout(
+					Timeout.of(timeoutProperties.getConnectRequestTimeout(), TimeUnit.MILLISECONDS));
+		}
+		requestConfigCustomizers.forEach(customizer -> customizer.customize(requestConfigBuilder));
+		return requestConfigBuilder.build();
 	}
 
 }

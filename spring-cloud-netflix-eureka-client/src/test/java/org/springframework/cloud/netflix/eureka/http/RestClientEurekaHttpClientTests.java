@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 the original author or authors.
+ * Copyright 2017-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +35,8 @@ import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.RestClient;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 /**
  * Tests for {@link RestClientEurekaHttpClient}.
@@ -53,13 +59,9 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 
 	@BeforeEach
 	void setup() {
-		eurekaHttpClient = new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
-				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties()),
-				RestClient::builder)
-			.newClient(new DefaultEndpoint(serviceUrl));
+		eurekaHttpClient = buildEurekaHttpClient();
 
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
-
 		String appname = "customapp";
 		config.setIpAddress("127.0.0.1");
 		config.setHostname("localhost");
@@ -71,6 +73,24 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 		config.setInstanceId("127.0.0.1:customapp:4444");
 
 		info = new EurekaConfigBasedInstanceInfoProvider(config).get();
+	}
+
+	private EurekaHttpClient buildEurekaHttpClient() {
+		return buildEurekaHttpClient(Collections.emptySet());
+	}
+
+	@Test
+	void shouldCustomiseHttpClientRequestConfig() {
+		eurekaHttpClient = buildEurekaHttpClient(Set.of(builder -> builder.setProtocolUpgradeEnabled(false)));
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> eurekaHttpClient.getApplication("upgrade"));
+	}
+
+	private EurekaHttpClient buildEurekaHttpClient(
+			Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> customizers) {
+		return new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(), customizers),
+				RestClient::builder)
+			.newClient(new DefaultEndpoint(serviceUrl));
 	}
 
 }

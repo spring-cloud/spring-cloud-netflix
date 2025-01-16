@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 the original author or authors.
+ * Copyright 2017-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Set;
 
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
@@ -94,8 +95,10 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-				RestTemplateTimeoutProperties restTemplateTimeoutProperties) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties);
+				RestTemplateTimeoutProperties restTemplateTimeoutProperties,
+				Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restTemplateTimeoutProperties,
+					requestConfigCustomizers);
 		}
 
 		@Bean
@@ -189,8 +192,10 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
-				RestClientTimeoutProperties restClientTimeoutProperties) {
-			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties);
+				RestClientTimeoutProperties restClientTimeoutProperties,
+				Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> requestConfigCustomizers) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(restClientTimeoutProperties,
+					requestConfigCustomizers);
 		}
 
 		@Bean

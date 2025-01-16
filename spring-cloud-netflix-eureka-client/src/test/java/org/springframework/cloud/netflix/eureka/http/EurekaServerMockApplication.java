@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -59,6 +61,7 @@ import static org.springframework.util.Assert.isTrue;
  *
  * @author Daniel Lavoie
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 @Configuration(proxyBeanMethods = false)
 @RestController
@@ -172,7 +175,11 @@ public class EurekaServerMockApplication {
 	}
 
 	@GetMapping("/apps/{appName}")
-	public Application getApplication(@PathVariable String appName) {
+	public Application getApplication(@PathVariable String appName, @RequestHeader HttpHeaders headers) {
+		// Used to verify that RequestConfig customizer has taken effect
+		if (appName.equals("upgrade") && !headers.containsKey("upgrade")) {
+			throw new RuntimeException("No upgrade header found");
+		}
 		return new Application();
 	}
 

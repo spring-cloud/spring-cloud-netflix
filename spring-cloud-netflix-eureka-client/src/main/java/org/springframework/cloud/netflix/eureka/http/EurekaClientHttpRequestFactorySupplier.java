@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.eureka.http;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.client5.http.config.RequestConfig;
+
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 
@@ -37,5 +39,18 @@ public interface EurekaClientHttpRequestFactorySupplier {
 	 * @return {@link ClientHttpRequestFactory}
 	 */
 	ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier);
+
+	/**
+	 * Allows customising the {@link RequestConfig} of the underlying Apache HC5 instance.
+	 *
+	 * @author Olga Maciaszek-Sharma
+	 * @since 4.2.1
+	 */
+	@FunctionalInterface
+	interface RequestConfigCustomizer {
+
+		void customize(RequestConfig.Builder builder);
+
+	}
 
 }
