@@ -43,6 +43,7 @@ public interface EurekaClientHttpRequestFactorySupplier {
 	/**
 	 * Allows customising the {@link RequestConfig} of the underlying Apache HC5 instance.
 	 *
+	 * @author Olga Maciaszek-Sharma
 	 * @since 4.2.1
 	 */
 	@FunctionalInterface
