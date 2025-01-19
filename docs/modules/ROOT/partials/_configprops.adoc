@@ -180,7 +180,7 @@
 |eureka.server.use-read-only-response-cache | `+++true+++` | 
 |eureka.server.wait-time-in-ms-when-sync-empty | `+++300000+++` | 
 |eureka.server.xml-codec-name |  | 
-|spring.cloud.compatibility-verifier.compatible-boot-versions | `+++3.4.x+++` | Default accepted versions for the Spring Boot dependency. You can set {@code x} for the patch version if you don't want to specify a concrete value. Example: {@code 3.4.x}
+|spring.cloud.compatibility-verifier.compatible-boot-versions | `+++3.5.x+++` | Default accepted versions for the Spring Boot dependency. You can set {@code x} for the patch version if you don't want to specify a concrete value. Example: {@code 3.5.x}
 |spring.cloud.compatibility-verifier.enabled | `+++false+++` | Enables creation of Spring Cloud compatibility verification.
 |spring.cloud.config.allow-override | `+++true+++` | Flag to indicate that {@link #isOverrideSystemProperties() systemPropertiesOverride} can be used. Set to false to prevent users from changing the default accidentally. Default true.
 |spring.cloud.config.initialize-on-context-refresh | `+++false+++` | Flag to initialize bootstrap configuration on context refresh event. Default false.
