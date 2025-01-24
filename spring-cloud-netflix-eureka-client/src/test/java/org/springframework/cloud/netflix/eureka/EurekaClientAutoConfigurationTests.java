@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.SpringApplication;
@@ -51,6 +51,7 @@ import org.springframework.cloud.context.config.ContextRefreshedWithApplicationE
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.cloud.context.scope.GenericScope;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
+import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -71,6 +72,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.fail;
  * @author Matt Jenkins
  * @author Olga Maciaszek-Sharma
  * @author Tim Ysewyn
+ * @author Max Brauer
  */
 class EurekaClientAutoConfigurationTests {
 
@@ -541,6 +543,53 @@ class EurekaClientAutoConfigurationTests {
 		this.context.close();
 
 		assertThat(isShutdown.get()).isTrue();
+	}
+
+	@Test
+	void shouldEnableProtocolUpgradesByDefault() {
+		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
+
+		assertThat(context.getBeansOfType(EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class))
+				.hasSize(1);
+		EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer httpComponentsProtocolUpgradeRequestCustomizer = context
+				.getBean("httpComponentsProtocolUpgradeRequestCustomizer",
+						EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class);
+
+		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setProtocolUpgradeEnabled(false);
+		httpComponentsProtocolUpgradeRequestCustomizer.customize(requestConfigBuilder);
+		assertThat(requestConfigBuilder.build().isProtocolUpgradeEnabled()).isTrue();
+	}
+
+	@Test
+	void shouldEnableProtocolUpgrades() {
+		TestPropertyValues.of("eureka.client.http-components.enable-protocol-upgrades=true").applyTo(context);
+		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
+
+		assertThat(context.getBeansOfType(EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class))
+				.hasSize(1);
+		EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer httpComponentsProtocolUpgradeRequestCustomizer = context
+				.getBean("httpComponentsProtocolUpgradeRequestCustomizer",
+						EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class);
+
+		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setProtocolUpgradeEnabled(false);
+		httpComponentsProtocolUpgradeRequestCustomizer.customize(requestConfigBuilder);
+		assertThat(requestConfigBuilder.build().isProtocolUpgradeEnabled()).isTrue();
+	}
+
+	@Test
+	void shouldDisableProtocolUpgrades() {
+		TestPropertyValues.of("eureka.client.http-components.enable-protocol-upgrades=false").applyTo(context);
+		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
+
+		assertThat(context.getBeansOfType(EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class))
+				.hasSize(1);
+		EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer httpComponentsProtocolUpgradeRequestCustomizer = context
+				.getBean("httpComponentsProtocolUpgradeRequestCustomizer",
+						EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class);
+
+		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setProtocolUpgradeEnabled(true);
+		httpComponentsProtocolUpgradeRequestCustomizer.customize(requestConfigBuilder);
+		assertThat(requestConfigBuilder.build().isProtocolUpgradeEnabled()).isFalse();
 	}
 
 	@Test

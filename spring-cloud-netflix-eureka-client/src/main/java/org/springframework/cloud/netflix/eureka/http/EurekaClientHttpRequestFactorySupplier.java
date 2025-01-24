@@ -41,7 +41,7 @@ public interface EurekaClientHttpRequestFactorySupplier {
 	ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier);
 
 	/**
-	 * Allows customising the {@link RequestConfig} of the underlying Apache HC5 instance.
+	 * Allows customising the {@link RequestConfig} of the underlying Apache HttpClient 5 instance.
 	 *
 	 * @author Olga Maciaszek-Sharma
 	 * @since 4.2.1
