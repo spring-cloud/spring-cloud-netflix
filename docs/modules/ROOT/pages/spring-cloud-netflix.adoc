@@ -131,6 +131,17 @@ public class RestClientConfiguration {
 }
 ----
 
+If you want to control Apache HttpClient 5's protocol specifically, then you can achieve the same
+with the property `eureka.client.http-components.enable-protocol-upgrades`. For example:
+
+.application.yml
+----
+eureka:
+  client:
+    http-components:
+      enable-protocol-upgrades: false
+----
+
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
@@ -650,6 +661,3 @@ You can add additional tags by injecting your own implementation of `EurekaInsta
 == Configuration properties
 
 To see the list of all Spring Cloud Netflix related configuration properties please check link:appendix.html[the Appendix page].
-
-
-

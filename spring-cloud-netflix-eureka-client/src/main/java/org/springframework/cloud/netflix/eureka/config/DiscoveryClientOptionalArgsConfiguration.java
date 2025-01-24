@@ -39,6 +39,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
+import org.springframework.cloud.netflix.eureka.HttpComponentsProperties;
 import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
@@ -61,9 +62,11 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Armin Krezovic
  * @author Olga Maciaszek-Sharma
  * @author Wonchul Heo
+ * @author Max Brauer
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({ RestTemplateTimeoutProperties.class, RestClientTimeoutProperties.class })
+@EnableConfigurationProperties({ RestTemplateTimeoutProperties.class, RestClientTimeoutProperties.class,
+		HttpComponentsProperties.class })
 public class DiscoveryClientOptionalArgsConfiguration {
 
 	protected static final Log logger = LogFactory.getLog(DiscoveryClientOptionalArgsConfiguration.class);
@@ -81,6 +84,15 @@ public class DiscoveryClientOptionalArgsConfiguration {
 			SSLContextFactory factory = new SSLContextFactory(properties);
 			args.setSSLContext(factory.createSSLContext());
 		}
+	}
+
+	@Bean
+	EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer httpComponentsProtocolUpgradeRequestCustomizer(
+			HttpComponentsProperties httpComponentsProperties) {
+		if (httpComponentsProperties.isEnableProtocolUpgrades() != null) {
+			return builder -> builder.setProtocolUpgradeEnabled(httpComponentsProperties.isEnableProtocolUpgrades());
+		}
+		return null;
 	}
 
 	/**
