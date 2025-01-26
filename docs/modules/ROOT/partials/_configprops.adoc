@@ -256,8 +256,8 @@
 |spring.cloud.loadbalancer.zone |  | Spring Cloud LoadBalancer zone.
 |spring.cloud.refresh.additional-property-sources-to-retain |  | Additional property sources to retain during a refresh. Typically only system property sources are retained. This property allows property sources, such as property sources created by EnvironmentPostProcessors to be retained as well.
 |spring.cloud.refresh.enabled | `+++true+++` | Enables autoconfiguration for the refresh scope and associated features.
-|spring.cloud.refresh.extra-refreshable | `+++true+++` | Additional class names for beans to post process into refresh scope.
-|spring.cloud.refresh.never-refreshable | `+++true+++` | Comma separated list of class names for beans to never be refreshed or rebound.
+|spring.cloud.refresh.extra-refreshable | `+++true+++` | Additional bean names or class names for beans to post process into refresh scope.
+|spring.cloud.refresh.never-refreshable | `+++true+++` | Comma separated list of bean names or class names for beans to never be refreshed or rebound.
 |spring.cloud.refresh.on-restart.enabled | `+++true+++` | Enable refreshing context on start.
 |spring.cloud.service-registry.auto-registration.enabled | `+++true+++` | Whether service auto-registration is enabled. Defaults to true.
 |spring.cloud.service-registry.auto-registration.fail-fast | `+++false+++` | Whether startup fails if there is no AutoServiceRegistration. Defaults to false.
