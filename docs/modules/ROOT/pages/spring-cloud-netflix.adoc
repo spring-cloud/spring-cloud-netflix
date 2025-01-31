@@ -116,7 +116,21 @@ eureka:
       socket-timeout: 10000
 ----
 
-You can also customise the `RequestConfig` for the underlying Apache HttpClient 5 by creating a bean of type `EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer`:
+If you want to control Apache HttpClient 5's protocol upgrades, then you can set the property
+`eureka.client.http-components.enable-protocol-upgrades`.
+For example:
+
+.application.yml
+----
+eureka:
+  client:
+    http-components:
+      enable-protocol-upgrades: false
+----
+
+As a more general approach, you can customise the `RequestConfig` for the underlying Apache HttpClient 5 by creating
+beans of type `EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer`.
+For example:
 
 [source,java,indent=0]
 ----
@@ -131,16 +145,7 @@ public class RestClientConfiguration {
 }
 ----
 
-If you want to control Apache HttpClient 5's protocol specifically, then you can achieve the same
-with the property `eureka.client.http-components.enable-protocol-upgrades`. For example:
-
-.application.yml
-----
-eureka:
-  client:
-    http-components:
-      enable-protocol-upgrades: false
-----
+Note that beans of `EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer` will override the property `eureka.client.http-components.enable-protocol-upgrades`.
 
 === Status Page and Health Indicator
 

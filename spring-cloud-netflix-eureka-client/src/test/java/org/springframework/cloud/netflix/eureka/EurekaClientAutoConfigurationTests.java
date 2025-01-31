@@ -593,6 +593,38 @@ class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	void shouldOverrideProtocolUpgrades() {
+		TestPropertyValues.of("eureka.client.http-components.enable-protocol-upgrades=true").applyTo(context);
+		context.register(TestDisableProtocolUpgradesConfiguration.class);
+		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
+
+		assertThat(context.getBeansOfType(EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class))
+				.hasSize(1);
+		EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer testRequestCustomizer = context
+				.getBean(EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class);
+
+		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setProtocolUpgradeEnabled(true);
+		testRequestCustomizer.customize(requestConfigBuilder);
+		assertThat(requestConfigBuilder.build().isProtocolUpgradeEnabled()).isFalse();
+	}
+
+	@Test
+	void TODO_shouldOverrideProtocolUpgrades() {
+		TestPropertyValues.of("eureka.client.http-components.enable-protocol-upgrades=false").applyTo(context);
+		context.register(TestEmptyRequestCustomizerConfiguration.class);
+		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
+
+		assertThat(context.getBeansOfType(EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class))
+				.hasSize(1);
+		EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer testRequestCustomizer = context
+				.getBean(EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer.class);
+
+		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom().setProtocolUpgradeEnabled(true);
+		testRequestCustomizer.customize(requestConfigBuilder);
+		assertThat(requestConfigBuilder.build().isProtocolUpgradeEnabled()).isFalse();
+	}
+
+	@Test
 	void testDefaultAppName() {
 		setupContext();
 		assertThat(getInstanceConfig().getAppname()).isEqualTo("unknown");
@@ -774,6 +806,27 @@ class EurekaClientAutoConfigurationTests {
 	@Configuration(proxyBeanMethods = false)
 	@EnableConfigurationProperties(AutoServiceRegistrationProperties.class)
 	public static class AutoServiceRegistrationConfiguration {
+
+	}
+
+	@Configuration
+	protected static class TestDisableProtocolUpgradesConfiguration {
+
+		@Bean
+		EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer disableProtocolUpgrades() {
+			return builder -> builder.setProtocolUpgradeEnabled(false);
+		}
+
+	}
+
+	@Configuration
+	protected static class TestEmptyRequestCustomizerConfiguration {
+
+		@Bean
+		EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer emptyRequestCustomizer() {
+			return builder -> {
+			};
+		}
 
 	}
 

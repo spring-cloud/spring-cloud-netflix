@@ -87,6 +87,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer httpComponentsProtocolUpgradeRequestCustomizer(
 			HttpComponentsProperties httpComponentsProperties) {
 		return builder -> builder.setProtocolUpgradeEnabled(httpComponentsProperties.isEnableProtocolUpgrades());
