@@ -2,17 +2,12 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: "3.1.x" # oldest OSS supported branch
+    target-branch: "4.1.x" # oldest OSS supported branch
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: "4.0.x" # oldest OSS supported branch
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: "4.1.x"
+    target-branch: "4.2.x"
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
@@ -24,29 +19,18 @@ updates:
     directory: /
     schedule:
       interval: daily
-    target-branch: 3.1.x
-    ignore:
-      # only upgrade patch versions for maintenance branch
-      - dependency-name: "*"
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
-  - package-ecosystem: maven
-    directory: /
-    schedule:
-      interval: daily
-    target-branch: 4.0.x
-    ignore:
-      # only upgrade patch versions for maintenance branch
-      - dependency-name: "*"
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
-  - package-ecosystem: maven
-    directory: /
-    schedule:
-      interval: daily
     target-branch: 4.1.x
+    ignore:
+      # only upgrade patch versions for maintenance branch
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: daily
+    target-branch: 4.2.x
     ignore:
       # only upgrade patch versions for maintenance branch
       - dependency-name: "*"
@@ -75,6 +59,11 @@ updates:
       interval: weekly
   - package-ecosystem: npm
     target-branch: 4.1.x
+    directory: /docs
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    target-branch: 4.2.x
     directory: /docs
     schedule:
       interval: weekly
