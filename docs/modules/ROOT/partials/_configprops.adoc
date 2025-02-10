@@ -66,6 +66,7 @@
 |eureka.client.tls.trust-store-type |  | 
 |eureka.client.use-dns-for-fetching-service-urls | `+++false+++` | Indicates whether the eureka client should use the DNS mechanism to fetch a list of eureka servers to talk to. When the DNS name is updated to have additional servers, that information is used immediately after the eureka client polls for that information as specified in eurekaServiceUrlPollIntervalSeconds. Alternatively, the service urls can be returned serviceUrls, but the users should implement their own mechanism to return the updated list in case of changes. The changes are effective at runtime.
 |eureka.client.webclient.enabled | `+++false+++` | Enables the use of WebClient for Eureka HTTP Client.
+|eureka.client.http-components.enable-protocol-upgrades | `+++true+++` | Indicates whether Apache HttpClient 5 should enable TLS protocol upgrades.
 |eureka.dashboard.enabled | `+++true+++` | Flag to enable the Eureka dashboard. Default true.
 |eureka.dashboard.path | `+++/+++` | The path to the Eureka dashboard (relative to the servlet path). Defaults to "/".
 |eureka.datacenter | `+++default+++` | Eureka datacenter. Defaults to "default".
