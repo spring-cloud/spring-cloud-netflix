@@ -32,8 +32,6 @@
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
 		<maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-		<!-- FIXME: 4.0.0 -->
-		<duplicate-finder-maven-plugin.skip>true</duplicate-finder-maven-plugin.skip>
 	</properties>
 	<build>
 		<plugins>
@@ -132,6 +130,12 @@
 				<groupId>org.mock-server</groupId>
 				<artifactId>mockserver-client-java</artifactId>
 				<version>${mockserverclient.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
