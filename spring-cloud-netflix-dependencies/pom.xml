@@ -138,9 +138,12 @@
 						<groupId>aopalliance</groupId>
 						<artifactId>aopalliance</artifactId>
 					</exclusion>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
 				</exclusions>
 			</dependency>
-			<!--			TODO: Move back to Eureka dependency when 1.10.17 released -->
 		</dependencies>
 	</dependencyManagement>
 	<profiles>
