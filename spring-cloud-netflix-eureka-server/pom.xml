@@ -14,8 +14,6 @@
 	<properties>
 		<wro4j.version>1.10.1</wro4j.version>
 		<wiremock.version>2.27.2</wiremock.version>
-		<!-- FIXME: 4.0.0 -->
-		<duplicate-finder-maven-plugin.skip>true</duplicate-finder-maven-plugin.skip>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -71,6 +69,12 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.inject</groupId>
 			<artifactId>jersey-hk2</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.glassfish.hk2.external</groupId>
+					<artifactId>aopalliance-repackaged</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.hk2</groupId>
