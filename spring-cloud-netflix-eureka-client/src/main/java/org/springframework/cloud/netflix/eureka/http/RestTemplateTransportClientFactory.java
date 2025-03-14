@@ -122,7 +122,11 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		RestTemplate restTemplate;
 
 		if (restTemplateBuilderSupplier != null && restTemplateBuilderSupplier.get() != null) {
-			restTemplate = restTemplateBuilderSupplier.get().requestFactory(() -> requestFactory).build();
+			// Avoid using RestTemplateBuilder.requestFactory(() -> requestFactory)
+			// when we have a concrete type, the reflective builder can throw errors if
+			// there is custom configuration (ie Redirects.DONT_FOLLOW) gh-4423
+			restTemplate = restTemplateBuilderSupplier.get().build();
+			restTemplate.setRequestFactory(requestFactory);
 		}
 		else {
 			restTemplate = new RestTemplate(requestFactory);
