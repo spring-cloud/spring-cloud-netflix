@@ -16,18 +16,14 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.WebClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.cloud.test.ClassPathExclusions;
-import org.springframework.cloud.test.ModifiedClassPathRunner;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -35,13 +31,11 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  * @author Daniel Lavoie
  * @author Wonchul Heo
  */
-@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*" })
-@SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class EurekaHttpClientsOptionalArgsConfigurationTests {
+class EurekaHttpClientsOptionalArgsConfigurationTests {
 
 	@Test
-	public void contextLoadsWithRestTemplateWhenWebClientDisabled() {
+	void contextLoadsWithRestTemplateWhenWebClientDisabled() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 			.withPropertyValues("eureka.client.webclient.enabled=false")
 			.withPropertyValues("eureka.client.restclient.enabled=false")
@@ -53,7 +47,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTests {
 	}
 
 	@Test
-	public void contextLoadsWithRestTemplateWhenRestClientDisabled() {
+	void contextLoadsWithRestTemplateWhenRestClientDisabled() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 			.withPropertyValues("eureka.client.restclient.enabled=false")
 			.run(context -> {
@@ -64,7 +58,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTests {
 	}
 
 	@Test
-	public void contextLoadsWithWebClient() {
+	void contextLoadsWithWebClient() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 			.withPropertyValues("eureka.client.webclient.enabled=true")
 			.run(context -> {
@@ -75,7 +69,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTests {
 	}
 
 	@Test
-	public void contextLoadsWithRestClient() {
+	void contextLoadsWithRestClient() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 			.withPropertyValues("eureka.client.restclient.enabled=true")
 			.run(context -> {
@@ -86,7 +80,7 @@ public class EurekaHttpClientsOptionalArgsConfigurationTests {
 	}
 
 	@Test
-	public void contextLoadsWithRestTemplateAsDefault() {
+	void contextLoadsWithRestTemplateAsDefault() {
 		new WebApplicationContextRunner().withUserConfiguration(EurekaSampleApplication.class)
 			.withPropertyValues("eureka.client.restclient.enabled=false")
 			.run(context -> {
