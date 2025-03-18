@@ -21,7 +21,6 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,18 +30,14 @@ import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.Jersey3DiscoveryClientOptionalArgs;
 import com.netflix.discovery.converters.EurekaJacksonCodec;
 import com.netflix.discovery.converters.wrappers.CodecWrapper;
 import com.netflix.discovery.converters.wrappers.CodecWrappers;
-import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import com.netflix.discovery.shared.transport.jersey3.EurekaIdentityHeaderFilter;
 import com.netflix.discovery.shared.transport.jersey3.EurekaJersey3Client;
 import com.netflix.discovery.shared.transport.jersey3.EurekaJersey3ClientImpl;
-import com.netflix.discovery.shared.transport.jersey3.Jersey3TransportClientFactories;
 import com.netflix.eureka.DefaultEurekaServerContext;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerContext;
@@ -54,7 +49,6 @@ import com.netflix.eureka.resources.DefaultServerCodecs;
 import com.netflix.eureka.resources.ServerCodecs;
 import com.netflix.eureka.transport.EurekaServerHttpClientFactory;
 import com.netflix.eureka.transport.Jersey3DynamicGZIPContentEncodingFilter;
-import com.netflix.eureka.transport.Jersey3EurekaServerHttpClientFactory;
 import com.netflix.eureka.transport.Jersey3ReplicationClient;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -89,8 +83,6 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.configuration.SSLContextFactory;
-import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.eureka.EurekaConstants;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
@@ -192,31 +184,6 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	@ConditionalOnMissingBean
 	public ReplicationClientAdditionalFilters replicationClientAdditionalFilters() {
 		return new ReplicationClientAdditionalFilters(Collections.emptySet());
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(TransportClientFactories.class)
-	public Jersey3TransportClientFactories jersey3TransportClientFactories() {
-		return Jersey3TransportClientFactories.getInstance();
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Bean
-	@ConditionalOnMissingBean(EurekaServerHttpClientFactory.class)
-	public Jersey3EurekaServerHttpClientFactory jersey3EurekaServerHttpClientFactory() {
-		return new Jersey3EurekaServerHttpClientFactory();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(AbstractDiscoveryClientOptionalArgs.class)
-	public Jersey3DiscoveryClientOptionalArgs jersey3DiscoveryClientOptionalArgs(
-			@Autowired(required = false) TlsProperties tlsProperties) throws GeneralSecurityException, IOException {
-		Jersey3DiscoveryClientOptionalArgs optionalArgs = new Jersey3DiscoveryClientOptionalArgs();
-		if (tlsProperties != null && tlsProperties.isEnabled()) {
-			SSLContextFactory factory = new SSLContextFactory(tlsProperties);
-			optionalArgs.setSSLContext(factory.createSSLContext());
-		}
-		return optionalArgs;
 	}
 
 	@Bean
