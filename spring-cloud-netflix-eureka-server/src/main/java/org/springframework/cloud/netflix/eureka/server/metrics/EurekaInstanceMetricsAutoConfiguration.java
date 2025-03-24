@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,21 @@ package org.springframework.cloud.netflix.eureka.server.metrics;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
 /**
  * Auto-configuration for Eureka Instance metrics.
@@ -37,10 +42,10 @@ import org.springframework.core.task.TaskExecutor;
  * @author Olga Maciaszek-Sharma
  * @since 4.1.2
  */
-@ConditionalOnClass(MeterRegistry.class)
+@ConditionalOnClass({ MeterRegistry.class, ThreadPoolTaskExecutor.class })
 @ConditionalOnBean(MeterRegistry.class)
-@AutoConfigureAfter({ MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class,
-		EurekaServerAutoConfiguration.class })
+@AutoConfiguration(after = { MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class,
+		EurekaServerAutoConfiguration.class, TaskExecutionAutoConfiguration.class })
 @ConditionalOnProperty(name = "eureka.server.metrics.enabled", havingValue = "true")
 class EurekaInstanceMetricsAutoConfiguration {
 
@@ -53,7 +58,8 @@ class EurekaInstanceMetricsAutoConfiguration {
 	@ConditionalOnMissingBean
 	@Bean
 	public EurekaInstanceMonitor eurekaInstanceMeterBinder(MeterRegistry meterRegistry,
-			PeerAwareInstanceRegistry instanceRegistry, EurekaInstanceTagsProvider tagProvider, TaskExecutor executor) {
+			PeerAwareInstanceRegistry instanceRegistry, EurekaInstanceTagsProvider tagProvider,
+			@Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) TaskExecutor executor) {
 		return new EurekaInstanceMonitor(meterRegistry, instanceRegistry, tagProvider, executor);
 	}
 
