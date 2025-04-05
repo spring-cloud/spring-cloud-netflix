@@ -22,7 +22,7 @@
 	<properties>
 		<bintray.package>netflix</bintray.package>
 		<spring-cloud-commons.version>4.2.2-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>4.2.2-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-config.version>4.2.3-SNAPSHOT</spring-cloud-config.version>
 		<testcontainers.version>1.20.6</testcontainers.version>
 		<mockserverclient.version>5.15.0</mockserverclient.version>
 
