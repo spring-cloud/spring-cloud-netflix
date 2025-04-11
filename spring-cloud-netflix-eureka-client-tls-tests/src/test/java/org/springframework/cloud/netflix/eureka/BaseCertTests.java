@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ import java.util.function.Supplier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 abstract class BaseCertTests {
 
@@ -155,7 +155,7 @@ abstract class BaseCertTests {
 		EurekaClientRunner client = createEurekaClient();
 		enableTlsClient(client);
 		client.setKeyStore(clientCert, WRONG_PASSWORD, WRONG_PASSWORD);
-		Assertions.assertThrows(BeanCreationException.class, client::start);
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(client::start);
 	}
 
 	@Test
