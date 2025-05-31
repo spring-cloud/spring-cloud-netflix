@@ -224,7 +224,6 @@
 |spring.cloud.loadbalancer.eureka.approximate-zone-from-hostname | `+++false+++` | Used to determine whether we should try to get the `zone` value from host name.
 |spring.cloud.loadbalancer.health-check.initial-delay | `+++0+++` | Initial delay value for the HealthCheck scheduler.
 |spring.cloud.loadbalancer.health-check.interval | `+++25s+++` | Interval for rerunning the HealthCheck scheduler.
-|spring.cloud.loadbalancer.health-check.interval  | `+++25s+++` | Interval for rerunning the HealthCheck scheduler.
 |spring.cloud.loadbalancer.health-check.path |  | Path at which the health-check request should be made. Can be set up per `serviceId`. A `default` value can be set up as well. If none is set up, `/actuator/health` will be used.
 |spring.cloud.loadbalancer.health-check.port |  | Path at which the health-check request should be made. If none is set, the port under which the requested service is available at the service instance.
 |spring.cloud.loadbalancer.health-check.refetch-instances | `+++false+++` | Indicates whether the instances should be refetched by the `HealthCheckServiceInstanceListSupplier`. This can be used if the instances can be updated and the underlying delegate does not provide an ongoing flux.
