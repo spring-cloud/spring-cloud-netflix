@@ -75,7 +75,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> register(InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+		URI uri = UriComponentsBuilder.fromUriString(serviceUrl)
 			.path("apps/{appName}")
 			.buildAndExpand(info.getAppName())
 			.toUri();
@@ -92,7 +92,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> cancel(String appName, String id) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+		URI uri = UriComponentsBuilder.fromUriString(serviceUrl)
 			.path("apps/{appName}/{id}")
 			.buildAndExpand(appName, id)
 			.toUri();
@@ -105,7 +105,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<InstanceInfo> sendHeartBeat(String appName, String id, InstanceInfo info,
 			InstanceStatus overriddenStatus) {
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(serviceUrl)
 			.path("apps/{appName}/{id}")
 			.queryParam("status", info.getStatus().toString())
 			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString());
@@ -132,7 +132,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	@Override
 	public EurekaHttpResponse<Void> statusUpdate(String appName, String id, InstanceStatus newStatus,
 			InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+		URI uri = UriComponentsBuilder.fromUriString(serviceUrl)
 			.path("apps/{appName}/{id}/status")
 			.queryParam("value", newStatus.name())
 			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
@@ -146,7 +146,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Void> deleteStatusOverride(String appName, String id, InstanceInfo info) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+		URI uri = UriComponentsBuilder.fromUriString(serviceUrl)
 			.path("apps/{appName}/{id}/status")
 			.queryParam("lastDirtyTimestamp", info.getLastDirtyTimestamp().toString())
 			.buildAndExpand(appName, id)
@@ -163,7 +163,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	private EurekaHttpResponse<Applications> getApplicationsInternal(String urlPath, String[] regions) {
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serviceUrl).path(urlPath);
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(serviceUrl).path(urlPath);
 
 		if (regions != null && regions.length > 0) {
 			uriBuilder = uriBuilder.queryParam("regions", StringUtil.join(regions));
@@ -198,7 +198,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<Application> getApplication(String appName) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).path("apps/{appName}").buildAndExpand(appName).toUri();
+		URI uri = UriComponentsBuilder.fromUriString(serviceUrl).path("apps/{appName}").buildAndExpand(appName).toUri();
 
 		ResponseEntity<Application> response = restTemplate.exchange(uri, HttpMethod.GET, null, Application.class);
 
@@ -219,7 +219,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	}
 
 	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String... pathSegments) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(serviceUrl).pathSegment(pathSegments).build().toUri();
+		URI uri = UriComponentsBuilder.fromUriString(serviceUrl).pathSegment(pathSegments).build().toUri();
 
 		ResponseEntity<InstanceInfo> response = restTemplate.exchange(uri, HttpMethod.GET, null, InstanceInfo.class);
 
@@ -241,7 +241,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 			return Collections.emptyMap();
 		}
 		Map<String, String> headers = new HashMap<>();
-		for (Entry<String, List<String>> entry : httpHeaders.entrySet()) {
+		for (Entry<String, List<String>> entry : httpHeaders.headerSet()) {
 			if (!entry.getValue().isEmpty()) {
 				headers.put(entry.getKey(), entry.getValue().get(0));
 			}

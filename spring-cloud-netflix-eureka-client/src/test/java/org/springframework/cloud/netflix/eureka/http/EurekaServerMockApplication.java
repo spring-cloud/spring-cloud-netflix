@@ -177,7 +177,7 @@ public class EurekaServerMockApplication {
 	@GetMapping("/apps/{appName}")
 	public Application getApplication(@PathVariable String appName, @RequestHeader HttpHeaders headers) {
 		// Used to verify that RequestConfig customizer has taken effect
-		if (appName.equals("upgrade") && !headers.containsKey("upgrade")) {
+		if (appName.equals("upgrade") && !headers.containsHeader("upgrade")) {
 			throw new RuntimeException("No upgrade header found");
 		}
 		return new Application();

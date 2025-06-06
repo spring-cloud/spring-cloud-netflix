@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.http.client.ClientHttpRequestFactorySettings;
-import org.springframework.boot.http.client.ClientHttpRequestFactorySettings.Redirects;
+import org.springframework.boot.http.client.HttpRedirects;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -72,7 +72,7 @@ class RestTemplateTransportClientFactoryTests {
 	void testRequestFactorySetWithRestTemplateBuilderSupplier() {
 		// Gateway Server WebMVC sets Redirects.DONT_FOLLOW, gh-4423
 		RestTemplateBuilder builder = new RestTemplateBuilder()
-			.requestFactorySettings(new ClientHttpRequestFactorySettings(Redirects.DONT_FOLLOW, null, null, null));
+			.requestFactorySettings(new ClientHttpRequestFactorySettings(HttpRedirects.DONT_FOLLOW, null, null, null));
 		transportClientFactory = new RestTemplateTransportClientFactory(Optional.empty(), Optional.empty(),
 				new DefaultEurekaClientHttpRequestFactorySupplier(), () -> builder);
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
