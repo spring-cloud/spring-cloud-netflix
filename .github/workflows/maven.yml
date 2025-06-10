@@ -5,29 +5,38 @@ name: Build
 
 on:
   push:
-    branches: [ main, 4.1.x ]
+    branches: [ main, 4.3.x, 4.2.x, 4.1.x ]
   pull_request:
-    branches: [ main, 4.1.x ]
+    branches: [ main, 4.3.x, 4.2.x, 4.1.x ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        java: ["17"]
-
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: ${{ matrix.java }}
-          cache: 'maven'
-      - name: Build with Maven
-        run: ./mvnw clean install -B -U -P sonar
-      - uses: codecov/codecov-action@v5
+          java-version: '17'
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
         with:
-          fail_ci_if_error: false
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build with Maven
+        run: ./mvnw -s .settings.xml clean org.jacoco:jacoco-maven-plugin:prepare-agent install -U -P sonar -nsu --batch-mode -Dmaven.test.redirectTestOutputToFile=true -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always() # always run even if the previous step fails
+        with:
+          report_paths: '**/surefire-reports/TEST-*.xml'
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: '**/surefire-reports/*'
