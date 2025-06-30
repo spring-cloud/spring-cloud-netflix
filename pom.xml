@@ -23,7 +23,7 @@
 		<bintray.package>netflix</bintray.package>
 		<spring-cloud-commons.version>4.3.1-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>4.3.1-SNAPSHOT</spring-cloud-config.version>
-		<testcontainers.version>1.21.1</testcontainers.version>
+		<testcontainers.version>1.21.3</testcontainers.version>
 		<mockserverclient.version>5.15.0</mockserverclient.version>
 
 		<!-- Sonar -->
