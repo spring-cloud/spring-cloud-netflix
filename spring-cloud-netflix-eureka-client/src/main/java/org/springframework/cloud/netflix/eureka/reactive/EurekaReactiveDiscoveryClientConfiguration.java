@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 the original author or authors.
+ * Copyright 2019-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class EurekaReactiveDiscoveryClientConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnClass(name = "org.springframework.boot.actuate.health.ReactiveHealthIndicator")
+	@ConditionalOnClass(name = "org.springframework.boot.health.contributor.ReactiveHealthIndicator")
 	@ConditionalOnDiscoveryHealthIndicatorEnabled
 	public ReactiveDiscoveryClientHealthIndicator eurekaReactiveDiscoveryClientHealthIndicator(
 			EurekaReactiveDiscoveryClient client, DiscoveryClientHealthIndicatorProperties properties) {

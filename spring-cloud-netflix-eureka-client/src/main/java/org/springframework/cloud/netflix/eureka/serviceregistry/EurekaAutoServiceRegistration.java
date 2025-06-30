@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2023 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.boot.web.server.context.WebServerInitializedEvent;
 import org.springframework.cloud.client.discovery.event.InstancePreRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistration;

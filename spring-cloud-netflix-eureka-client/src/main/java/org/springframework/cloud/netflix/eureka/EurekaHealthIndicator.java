@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
 import org.springframework.aop.support.AopUtils;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Health.Builder;
-import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.Health.Builder;
+import org.springframework.boot.health.contributor.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
 import org.springframework.cloud.util.ProxyUtils;
 

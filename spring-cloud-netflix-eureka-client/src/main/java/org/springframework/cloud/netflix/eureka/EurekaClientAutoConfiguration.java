@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,6 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
@@ -68,6 +66,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClas
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.health.autoconfigure.contributor.ConditionalOnEnabledHealthIndicator;
+import org.springframework.boot.health.contributor.Health;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
@@ -399,6 +399,7 @@ public class EurekaClientAutoConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
+		@ConditionalOnClass(ConditionalOnEnabledHealthIndicator.class)
 		@ConditionalOnEnabledHealthIndicator("eureka")
 		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
 				EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
