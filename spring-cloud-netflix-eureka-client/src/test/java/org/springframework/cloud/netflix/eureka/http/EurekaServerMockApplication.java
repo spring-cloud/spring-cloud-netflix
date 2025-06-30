@@ -35,6 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -204,11 +205,7 @@ public class EurekaServerMockApplication {
 
 		@Bean
 		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					.securityMatcher("/v2/apps/**")
-					.httpBasic();
-			// @formatter:on
+			http.securityMatcher("/v2/apps/**").httpBasic(Customizer.withDefaults());
 			return http.build();
 		}
 
