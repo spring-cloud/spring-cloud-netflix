@@ -36,7 +36,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.cloud.configuration.SSLContextFactory;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
@@ -178,9 +178,8 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	protected static class WebClientNotFoundConfiguration {
 
 		public WebClientNotFoundConfiguration() {
-			throw new IllegalStateException(
-					"eureka.client.webclient.enabled is true, " + "but WebClient is not on the classpath. Please add "
-							+ "spring-boot-starter-webflux as a dependency.");
+			throw new IllegalStateException("eureka.client.webclient.enabled is true, "
+					+ "but WebClient is not on the classpath. Please add " + "spring-boot-webclient as a dependency.");
 		}
 
 	}
@@ -273,6 +272,11 @@ public class DiscoveryClientOptionalArgsConfiguration {
 
 		@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 		static class OnRestTemplatePresent {
+
+		}
+
+		@ConditionalOnClass(name = "org.springframework.boot.restclient.RestTemplateBuilder")
+		static class OnRestTemplateBuilderPresent {
 
 		}
 

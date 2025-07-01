@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,17 @@ import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.actuate.health.CompositeHealthContributor;
-import org.springframework.boot.actuate.health.CompositeReactiveHealthContributor;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthContributor;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.actuate.health.NamedContributor;
-import org.springframework.boot.actuate.health.ReactiveHealthContributor;
-import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
-import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.health.StatusAggregator;
+import org.springframework.boot.health.contributor.CompositeHealthContributor;
+import org.springframework.boot.health.contributor.CompositeReactiveHealthContributor;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthContributor;
+import org.springframework.boot.health.contributor.HealthContributors;
+import org.springframework.boot.health.contributor.HealthIndicator;
+import org.springframework.boot.health.contributor.ReactiveHealthContributor;
+import org.springframework.boot.health.contributor.ReactiveHealthContributors;
+import org.springframework.boot.health.contributor.ReactiveHealthIndicator;
+import org.springframework.boot.health.contributor.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -154,8 +155,8 @@ public class EurekaHealthCheckHandler
 
 	private void processContributor(Set<Status> statusSet, HealthContributor contributor) {
 		if (contributor instanceof CompositeHealthContributor) {
-			for (NamedContributor<HealthContributor> contrib : (CompositeHealthContributor) contributor) {
-				processContributor(statusSet, contrib.getContributor());
+			for (HealthContributors.Entry contrib : (CompositeHealthContributor) contributor) {
+				processContributor(statusSet, contrib.contributor());
 			}
 		}
 		else if (contributor instanceof HealthIndicator) {
@@ -165,8 +166,8 @@ public class EurekaHealthCheckHandler
 
 	private void processContributor(Set<Status> statusSet, ReactiveHealthContributor contributor) {
 		if (contributor instanceof CompositeReactiveHealthContributor) {
-			for (NamedContributor<ReactiveHealthContributor> contrib : (CompositeReactiveHealthContributor) contributor) {
-				processContributor(statusSet, contrib.getContributor());
+			for (ReactiveHealthContributors.Entry contrib : (CompositeReactiveHealthContributor) contributor) {
+				processContributor(statusSet, contrib.contributor());
 			}
 		}
 		else if (contributor instanceof ReactiveHealthIndicator) {
