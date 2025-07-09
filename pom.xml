@@ -7,6 +7,7 @@
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
+	<url>https://github.com/spring-cloud/spring-cloud-netflix</url>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
@@ -19,6 +20,64 @@
 		<developerConnection>scm:git:ssh://git@github.com/spring-cloud/spring-cloud-netflix.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>dsyer</id>
+			<name>Dave Syer</name>
+			<email>david.syer at broadcom.com</email>
+			<organization>Broadcom, Inc.</organization>
+			<organizationUrl>https://www.spring.io</organizationUrl>
+			<roles>
+				<role>lead</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>sgibb</id>
+			<name>Spencer Gibb</name>
+			<email>spencer.gibb at broadcom.com</email>
+			<organization>Broadcom, Inc.</organization>
+			<organizationUrl>https://www.spring.io</organizationUrl>
+			<roles>
+				<role>lead</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>mgrzejszczak</id>
+			<name>Marcin Grzejszczak</name>
+			<email>>marcin.grzejszczak at broadcom.com</email>
+			<organization>Broadcom, Inc.</organization>
+			<organizationUrl>https://www.spring.io</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>rbaxter</id>
+			<name>Ryan Baxter</name>
+			<email>ryan.baxter at broadcom.com</email>
+			<organization>Broadcom, Inc.</organization>
+			<organizationUrl>https://www.spring.io</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>omaciaszeksharma</id>
+			<name>Olga Maciaszek-Sharma</name>
+			<email>olga.maciaszek-sharma at broadcom.com</email>
+			<organization>Broadcom, Inc.</organization>
+			<organizationUrl>https://www.spring.io</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
 	<properties>
 		<bintray.package>netflix</bintray.package>
 		<spring-cloud-commons.version>4.2.2-SNAPSHOT</spring-cloud-commons.version>
