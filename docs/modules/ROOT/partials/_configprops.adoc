@@ -119,7 +119,7 @@
 |eureka.server.e-i-p-binding-retry-interval-ms-when-unbound | `+++60000+++` | 
 |eureka.server.enable-replicated-request-compression | `+++false+++` | 
 |eureka.server.enable-self-preservation | `+++true+++` | 
-|eureka.server.eviction-interval-timer-in-ms | `+++0+++` | 
+|eureka.server.eviction-interval-timer-in-ms |  | 
 |eureka.server.expected-client-renewal-interval-seconds | `+++30+++` | 
 |eureka.server.g-zip-content-from-remote-region | `+++true+++` | 
 |eureka.server.initial-capacity-of-response-cache | `+++1000+++` | 
@@ -140,7 +140,7 @@
 |eureka.server.my-url |  | 
 |eureka.server.number-of-replication-retries | `+++5+++` | 
 |eureka.server.peer-eureka-nodes-update-interval-ms | `+++600000+++` | 
-|eureka.server.peer-eureka-status-refresh-time-interval-ms | `+++0+++` | 
+|eureka.server.peer-eureka-status-refresh-time-interval-ms |  | 
 |eureka.server.peer-node-connect-timeout-ms | `+++200+++` | 
 |eureka.server.peer-node-connection-idle-timeout-seconds | `+++30+++` | 
 |eureka.server.peer-node-read-timeout-ms | `+++200+++` | 
@@ -155,7 +155,7 @@
 |eureka.server.rate-limiter-registry-fetch-average-rate | `+++500+++` | 
 |eureka.server.rate-limiter-throttle-standard-clients | `+++false+++` | 
 |eureka.server.registry-sync-retries | `+++0+++` | 
-|eureka.server.registry-sync-retry-wait-ms | `+++0+++` | 
+|eureka.server.registry-sync-retry-wait-ms |  | 
 |eureka.server.remote-region-app-whitelist |  | 
 |eureka.server.remote-region-connect-timeout-ms | `+++1000+++` | 
 |eureka.server.remote-region-connection-idle-timeout-seconds | `+++30+++` | 
