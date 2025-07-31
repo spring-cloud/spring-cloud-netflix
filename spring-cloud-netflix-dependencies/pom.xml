@@ -75,6 +75,10 @@
 						<groupId>org.glassfish.jersey.core</groupId>
 						<artifactId>jersey-client</artifactId>
 					</exclusion>
+					<exclusion>
+						<artifactId>commons-configuration</artifactId>
+						<groupId>commons-configuration</groupId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
