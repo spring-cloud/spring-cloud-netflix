@@ -14,7 +14,6 @@
 	<properties>
 		<wro4j.version>1.10.1</wro4j.version>
 		<wiremock.version>2.27.2</wiremock.version>
-		<glassfish.version>3.1.11</glassfish.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -58,22 +57,18 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-servlet</artifactId>
-			<version>${glassfish.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-server</artifactId>
-			<version>${glassfish.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-client</artifactId>
-			<version>${glassfish.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.inject</groupId>
 			<artifactId>jersey-hk2</artifactId>
-			<version>${glassfish.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.glassfish.hk2.external</groupId>
