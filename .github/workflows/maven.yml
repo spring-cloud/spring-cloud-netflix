@@ -5,9 +5,9 @@ name: Build
 
 on:
   push:
-    branches: [ main, 4.3.x, 4.2.x, 4.1.x ]
+    branches: [ main, 4.3.x, 4.2.x ]
   pull_request:
-    branches: [ main, 4.3.x, 4.2.x, 4.1.x ]
+    branches: [ main, 4.3.x, 4.2.x ]
 
 jobs:
   build:
@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
