@@ -20,3 +20,4 @@ node_modules
 build
 docs/package.json
 package-lock.json
+.flattened-pom.xml
