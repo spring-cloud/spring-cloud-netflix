@@ -42,10 +42,22 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>tools.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>tools.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+			</exclusions>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
