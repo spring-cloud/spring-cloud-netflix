@@ -48,6 +48,7 @@ import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtil
  * @author Haytham Mohamed
  * @author Armin Krezovic
  * @author Wonchul Heo
+ * @author Olga Maciaszek-Sharma
  */
 public class WebClientTransportClientFactory implements TransportClientFactory {
 
@@ -81,6 +82,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		ObjectMapper objectMapper = objectMapper();
 		builder.codecs(configurer -> {
 			ClientCodecConfigurer.ClientDefaultCodecs defaults = configurer.defaultCodecs();
+			defaults.jacksonJsonDecoder(new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
+			defaults.jacksonJsonEncoder(new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON));
 			defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON));
 			defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
 
