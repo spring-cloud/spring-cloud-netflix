@@ -212,6 +212,13 @@
 |spring.cloud.inetutils.preferred-networks |  | List of Java regular expressions for network addresses that will be preferred.
 |spring.cloud.inetutils.timeout-seconds | `+++1+++` | Timeout, in seconds, for calculating hostname.
 |spring.cloud.inetutils.use-only-site-local-interfaces | `+++false+++` | Whether to use only interfaces with site local addresses. See {@link InetAddress#isSiteLocalAddress()} for more details.
+|spring.cloud.loadbalancer.api-version.default |  | Sets default version that should be used for each request.
+|spring.cloud.loadbalancer.api-version.fallback-to-available-instances | `+++false+++` | Indicates whether all the available instances should be returned if no instances for the specified version are available.
+|spring.cloud.loadbalancer.api-version.header |  | Uses the HTTP header with the given name to obtain the version.
+|spring.cloud.loadbalancer.api-version.media-type-parameters |  | Uses the media type parameter with the given name to obtain the version.
+|spring.cloud.loadbalancer.api-version.path-segment |  | Uses the path segment at the given index to obtain the version.
+|spring.cloud.loadbalancer.api-version.query-parameter |  | Uses the query parameter with the given name to obtain the version.
+|spring.cloud.loadbalancer.api-version.required | `+++false+++` | Indicates whether the API version is required with each request.
 |spring.cloud.loadbalancer.cache.caffeine.spec |  | The spec to use to create caches. See CaffeineSpec for more details on the spec format.
 |spring.cloud.loadbalancer.cache.capacity | `+++256+++` | Initial cache capacity expressed as int.
 |spring.cloud.loadbalancer.cache.enabled | `+++true+++` | Enables Spring Cloud LoadBalancer caching mechanism.
