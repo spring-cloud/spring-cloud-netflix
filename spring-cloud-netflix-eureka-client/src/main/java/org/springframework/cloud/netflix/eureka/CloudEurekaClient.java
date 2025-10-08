@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.Lifecycle;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.ReflectionUtils;
 
@@ -43,7 +44,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Spencer Gibb
  */
-public class CloudEurekaClient extends DiscoveryClient {
+public class CloudEurekaClient extends DiscoveryClient implements Lifecycle {
 
 	private static final Log log = LogFactory.getLog(CloudEurekaClient.class);
 
@@ -57,6 +58,10 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	private final AtomicReference<EurekaHttpClient> eurekaHttpClient = new AtomicReference<>();
 
+	private final Object lifecycleMonitor = new Object();
+
+	private volatile boolean running = true;
+
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config,
 			TransportClientFactories transportClientFactories, ApplicationEventPublisher publisher) {
 		this(applicationInfoManager, config, transportClientFactories, null, publisher);
@@ -68,8 +73,8 @@ public class CloudEurekaClient extends DiscoveryClient {
 		super(applicationInfoManager, config, transportClientFactories, args);
 		this.applicationInfoManager = applicationInfoManager;
 		this.publisher = publisher;
-		this.eurekaTransportField = ReflectionUtils.findField(DiscoveryClient.class, "eurekaTransport");
-		ReflectionUtils.makeAccessible(this.eurekaTransportField);
+		eurekaTransportField = ReflectionUtils.findField(DiscoveryClient.class, "eurekaTransport");
+		ReflectionUtils.makeAccessible(eurekaTransportField);
 	}
 
 	public ApplicationInfoManager getApplicationInfoManager() {
@@ -90,20 +95,19 @@ public class CloudEurekaClient extends DiscoveryClient {
 	}
 
 	EurekaHttpClient getEurekaHttpClient() {
-		if (this.eurekaHttpClient.get() == null) {
+		if (eurekaHttpClient.get() == null) {
 			try {
-				Object eurekaTransport = this.eurekaTransportField.get(this);
+				Object eurekaTransport = eurekaTransportField.get(this);
 				Field registrationClientField = ReflectionUtils.findField(eurekaTransport.getClass(),
 						"registrationClient");
 				ReflectionUtils.makeAccessible(registrationClientField);
-				this.eurekaHttpClient.compareAndSet(null,
-						(EurekaHttpClient) registrationClientField.get(eurekaTransport));
+				eurekaHttpClient.compareAndSet(null, (EurekaHttpClient) registrationClientField.get(eurekaTransport));
 			}
 			catch (IllegalAccessException e) {
 				log.error("error getting EurekaHttpClient", e);
 			}
 		}
-		return this.eurekaHttpClient.get();
+		return eurekaHttpClient.get();
 	}
 
 	public void setStatus(InstanceStatus newStatus, InstanceInfo info) {
@@ -114,12 +118,37 @@ public class CloudEurekaClient extends DiscoveryClient {
 	protected void onCacheRefreshed() {
 		super.onCacheRefreshed();
 
-		if (this.cacheRefreshedCount != null) { // might be called during construction and
+		if (cacheRefreshedCount != null) { // might be called during construction and
 			// will be null
-			long newCount = this.cacheRefreshedCount.incrementAndGet();
+			long newCount = cacheRefreshedCount.incrementAndGet();
 			log.trace("onCacheRefreshed called with count: " + newCount);
-			this.publisher.publishEvent(new HeartbeatEvent(this, newCount));
+			publisher.publishEvent(new HeartbeatEvent(this, newCount));
 		}
+	}
+
+	@Override
+	public void start() {
+		synchronized (lifecycleMonitor) {
+			if (!isRunning()) {
+				running = true;
+			}
+		}
+	}
+
+	@Override
+	public void stop() {
+		synchronized (lifecycleMonitor) {
+			if (isRunning()) {
+				applicationInfoManager.refreshLeaseInfoIfRequired();
+				shutdown();
+				running = false;
+			}
+		}
+	}
+
+	@Override
+	public boolean isRunning() {
+		return running;
 	}
 
 }
