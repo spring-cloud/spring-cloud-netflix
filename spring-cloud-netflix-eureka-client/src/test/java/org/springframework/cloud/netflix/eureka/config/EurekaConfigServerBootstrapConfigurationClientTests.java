@@ -24,7 +24,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.netflix.eureka.http.WebClientEurekaHttpClient;
 import org.springframework.cloud.test.ClassPathExclusions;
 
@@ -37,26 +36,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class EurekaConfigServerBootstrapConfigurationClientTests {
 
 	@Test
-	void properBeansCreatedWhenRestTemplateEnabled() {
-		new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
-			.withPropertyValues("eureka.client.enabled=true")
-			.withPropertyValues("eureka.client.restclient.enabled=false")
-			.run(context -> {
-				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
-				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
-				assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-			});
-	}
-
-	@Test
 	void properBeansCreatedWhenRestClientEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
 			.withPropertyValues("eureka.client.enabled=true")
-			.withPropertyValues("eureka.client.restclient.enabled=true")
 			.run(context -> {
 				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
 				assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
@@ -80,21 +64,7 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 
 	@Nested
 	@ClassPathExclusions({ "spring-webflux-*" })
-	static class NoWebFlux {
-
-		@Test
-		void properBeansCreatedWhenRestTemplateEnabled() {
-			new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
-				.withPropertyValues("eureka.client.enabled=true")
-				.withPropertyValues("eureka.client.restclient.enabled=false")
-				.run(context -> {
-					assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
-					assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
-					assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);
-				});
-		}
+	class NoWebFlux {
 
 		@Test
 		void properBeansCreatedWhenRestClientEnabled() {
@@ -102,7 +72,6 @@ class EurekaConfigServerBootstrapConfigurationClientTests {
 				.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 				.withPropertyValues("spring.cloud.config.discovery.enabled=true")
 				.withPropertyValues("eureka.client.enabled=true")
-				.withPropertyValues("eureka.client.restclient.enabled=true")
 				.run(context -> {
 					assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
 					assertThat(context).doesNotHaveBean(WebClientEurekaHttpClient.class);

@@ -96,9 +96,9 @@ The `eureka.client.tls.enabled` needs to be true to enable Eureka client side TL
 
 NOTE: Because of a limitation in Eureka, it is not possible to support per-server basic auth credentials, so only the first set that are found is used.
 
-If you want to customize the RestTemplate used by the Eureka HTTP Client you may want to create a bean of `EurekaClientHttpRequestFactorySupplier` and provide your own logic for generating a `ClientHttpRequestFactory` instance.
+If you want to customize the `RestClient` used by the Eureka HTTP Client you may want to create a bean of `EurekaClientHttpRequestFactorySupplier` and provide your own logic for generating a `ClientHttpRequestFactory` instance.
 
-All default timeout-related properties for RestTemplate and RestClient used by the Eureka HTTP Client are set to 3 minutes (in keeping with Apache HC5 default `RequestConfig` and `SocketConfig`). Therefore, to specify the timeout values, you must specify the value directly with the properties in `eureka.client.rest-template-timeout` or `eureka.client.restclient.timeout`. All timeout properties are in milliseconds.
+All default timeout-related properties for `RestClient` used by the Eureka HTTP Client are set to 3 minutes (in keeping with Apache HC5 default `RequestConfig` and `SocketConfig`). Therefore, to specify the timeout values, you must specify the value directly with the properties in `eureka.client.timeout`. All timeout properties are in milliseconds.
 
 .application.yml
 [source,yaml]
@@ -290,11 +290,11 @@ It is initialized in a `SmartLifecycle` (with `phase=0`), so the earliest you ca
 
 ==== Underlying HTTP clients
 
-`EurekaClient` uses either `RestClient`, `RestTemplate`, `WebClient` or `JerseyClient` under the hood. In order to use the `EurekaClient`, you need to have one of the supported HTTP clients on your classpath.
+`EurekaClient` uses either `RestClient`, `WebClient` or `JerseyClient` under the hood. In order to use the `EurekaClient`, you need to have one of the supported HTTP clients on your classpath.
 
-To use `RestTemplate` or `RestClient`, add `spring-boot-restclient` to your dependencies. To use `WebClient`, add `spring-boot-webclient` to your dependencies. If both `spring-boot-restclient`
+To use `RestClient`, add `spring-boot-restclient` to your dependencies. To use `WebClient`, add `spring-boot-webclient` to your dependencies. If both `spring-boot-restclient`
 and `spring-boot-webclient` are included in the dependencies and the `eureka.client.webclient.enabled` flag is set to `true`,
-then `WebClient` will be used. If that's not the case and `eureka.client.restclient.enabled` is set to `true`, `RestClient` will be used. Otherwise, `RestTemplate` will be used.
+then `WebClient` will be used. If that's not the case, `RestClient` will be used.
 
 NOTE: For any of those client implementations, if there's a builder bean available, it will be used to create the underlying client.
 

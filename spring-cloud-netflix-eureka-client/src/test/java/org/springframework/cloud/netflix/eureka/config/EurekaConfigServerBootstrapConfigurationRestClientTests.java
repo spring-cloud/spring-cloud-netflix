@@ -23,7 +23,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.http.RestClientEurekaHttpClient;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,28 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EurekaConfigServerBootstrapConfigurationRestClientTests {
 
 	@Test
-	void properBeansCreatedWhenEnabled() {
+	void properBeansCreated() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
-					"eureka.client.restclient.enabled=true")
+			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
 			.run(context -> {
 				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
 				assertThat(context).hasSingleBean(RestClientEurekaHttpClient.class);
-				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
-			});
-	}
-
-	@Test
-	void properBeansCreatedWhenEnabledRestClientDisabled() {
-		new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
-			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
-					"eureka.client.restclient.enabled=false")
-			.run(context -> {
-				assertThat(context).hasSingleBean(EurekaClientConfigBean.class);
-				assertThat(context).doesNotHaveBean(RestClientEurekaHttpClient.class);
-				assertThat(context).hasSingleBean(RestTemplateEurekaHttpClient.class);
 				assertThat(context).hasSingleBean(ConfigServerInstanceProvider.Function.class);
 			});
 	}

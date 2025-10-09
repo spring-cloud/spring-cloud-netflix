@@ -26,7 +26,7 @@ import org.junit.platform.suite.api.Suite;
  * That means that when the new context starts we will fail cause the executor service is
  * already shutdown.
  */
-@SelectClasses({ EurekaClientTests.class, RestTemplateEurekaClientTests.class })
+@SelectClasses({ EurekaClientTests.class, RestClientEurekaClientTests.class })
 @Suite
 public class EurekaClientSuite {
 
