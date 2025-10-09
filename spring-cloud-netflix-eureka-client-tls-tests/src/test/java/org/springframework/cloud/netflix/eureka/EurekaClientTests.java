@@ -25,10 +25,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
+import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestClientTransportClientFactories;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +45,7 @@ public class EurekaClientTests extends BaseCertTests {
 	public static void setupAll() {
 		server = startEurekaServer(EurekaClientTests.TestEurekaServer.class);
 		service = startService(server, EurekaClientTests.TestApp.class);
-		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
+		assertThat(service.discoveryClientOptionalArgs()).isInstanceOf(RestClientDiscoveryClientOptionalArgs.class);
 		LOG.info("Successfully asserted that Jersey will be used");
 		waitForRegistration(() -> new EurekaClientTests().createEurekaClient());
 	}
@@ -59,15 +60,16 @@ public class EurekaClientTests extends BaseCertTests {
 	public static class TestApp {
 
 		@Bean
-		public RestTemplateTransportClientFactories forceRestTemplateTransportClientFactories(
-				RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
-			return new RestTemplateTransportClientFactories(discoveryClientOptionalArgs);
+		public RestClientTransportClientFactories forceRestClientTransportClientFactories(
+				RestClientDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
+			return new RestClientTransportClientFactories(discoveryClientOptionalArgs);
 		}
 
 		@Bean
-		public RestTemplateDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
-			return new RestTemplateDiscoveryClientOptionalArgs(new DefaultEurekaClientHttpRequestFactorySupplier(
-					new RestTemplateTimeoutProperties(), Collections.emptySet()));
+		public RestClientDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
+			return new RestClientDiscoveryClientOptionalArgs(
+					new DefaultEurekaClientHttpRequestFactorySupplier(new TimeoutProperties(), Collections.emptySet()),
+					RestClient::builder);
 		}
 
 	}

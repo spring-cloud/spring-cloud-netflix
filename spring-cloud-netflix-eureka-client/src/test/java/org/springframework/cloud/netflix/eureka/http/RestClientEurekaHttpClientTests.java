@@ -32,7 +32,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
-import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
+import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.RestClient;
 
@@ -88,7 +88,7 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 	private EurekaHttpClient buildEurekaHttpClient(
 			Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> customizers) {
 		return new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
-				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(), customizers),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new TimeoutProperties(), customizers),
 				RestClient::builder)
 			.newClient(new DefaultEndpoint(serviceUrl));
 	}

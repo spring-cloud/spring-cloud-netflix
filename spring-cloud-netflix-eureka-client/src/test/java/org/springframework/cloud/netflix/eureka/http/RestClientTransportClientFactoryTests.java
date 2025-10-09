@@ -25,7 +25,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
+import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,8 +43,7 @@ class RestClientTransportClientFactoryTests {
 	@BeforeEach
 	void setup() {
 		transportClientFactory = new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
-				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(),
-						Collections.emptySet()),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new TimeoutProperties(), Collections.emptySet()),
 				RestClient::builder);
 	}
 

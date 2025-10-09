@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.configuration.TlsProperties;
+import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
 import org.springframework.cloud.netflix.eureka.http.RestClientTransportClientFactories;
@@ -92,6 +94,12 @@ public class RestClientEurekaClientTests extends BaseCertTests {
 		public RestClientTransportClientFactories forceRestClientTransportClientFactories(
 				RestClientDiscoveryClientOptionalArgs discoveryClientOptionalArgs) {
 			return new RestClientTransportClientFactories(discoveryClientOptionalArgs);
+		}
+
+		@Bean
+		EurekaClientHttpRequestFactorySupplier defaultEurekaClientHttpRequestFactorySupplier(
+				TimeoutProperties timeoutProperties) {
+			return new DefaultEurekaClientHttpRequestFactorySupplier(timeoutProperties, Collections.emptySet());
 		}
 
 	}

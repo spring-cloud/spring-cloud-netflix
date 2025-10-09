@@ -40,10 +40,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 /**
  * @author Wonchul Heo
  */
-@SpringBootTest(
-		properties = { "spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
-				"spring.config.use-legacy-processing=true", "eureka.client.restclient.enabled=true" },
-		webEnvironment = RANDOM_PORT)
+@SpringBootTest(properties = { "spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
+		"spring.config.use-legacy-processing=true" }, webEnvironment = RANDOM_PORT)
 class EurekaConfigServerBootstrapConfigurationRestClientIntegrationTests {
 
 	@LocalServerPort

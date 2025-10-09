@@ -22,10 +22,11 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.core5.http.io.SocketConfig;
 
-import org.springframework.web.client.RestTemplate;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.web.client.RestClient;
 
 /**
- * Properties for configuring timeouts used in {@link RestTemplate} required by
+ * Properties for configuring timeouts used in {@link RestClient} required by
  * {@link EurekaHttpClient}.
  *
  * @author Jiwon Jeon
@@ -33,7 +34,8 @@ import org.springframework.web.client.RestTemplate;
  * @author Olga Maciaszek-Sharma
  * @since 4.2.0
  */
-public abstract class TimeoutProperties {
+@ConfigurationProperties("eureka.client.timeout")
+public class TimeoutProperties {
 
 	/**
 	 * Default values are set to 180000, in keeping with {@link RequestConfig} and
@@ -78,7 +80,7 @@ public abstract class TimeoutProperties {
 			return false;
 		}
 
-		RestTemplateTimeoutProperties that = (RestTemplateTimeoutProperties) o;
+		TimeoutProperties that = (TimeoutProperties) o;
 
 		return connectTimeout == that.connectTimeout && connectRequestTimeout == that.connectRequestTimeout
 				&& socketTimeout == that.socketTimeout;

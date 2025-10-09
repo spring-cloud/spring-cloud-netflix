@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +33,6 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.Timeout;
 
-import org.springframework.cloud.netflix.eureka.RestTemplateTimeoutProperties;
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -53,35 +51,7 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	private final TimeoutProperties timeoutProperties;
 
-	// TODO: switch to final after removing deprecated interfaces
-	private Set<RequestConfigCustomizer> requestConfigCustomizers = Collections.emptySet();
-
-	/**
-	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
-	 */
-	@Deprecated(forRemoval = true)
-	public DefaultEurekaClientHttpRequestFactorySupplier() {
-		this.timeoutProperties = new RestTemplateTimeoutProperties();
-	}
-
-	/**
-	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
-	 */
-	@Deprecated(forRemoval = true)
-	public DefaultEurekaClientHttpRequestFactorySupplier(RestTemplateTimeoutProperties timeoutProperties) {
-		this.timeoutProperties = timeoutProperties;
-	}
-
-	/**
-	 * @deprecated in favour of
-	 * {@link DefaultEurekaClientHttpRequestFactorySupplier#DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties, Set)}
-	 */
-	@Deprecated(forRemoval = true)
-	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties) {
-		this.timeoutProperties = timeoutProperties;
-	}
+	private final Set<RequestConfigCustomizer> requestConfigCustomizers;
 
 	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties,
 			Set<RequestConfigCustomizer> requestConfigCustomizers) {
