@@ -46,7 +46,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
  */
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.fetch-registry=false",
-				"eureka.client.register-with-eureka=false", "logging.level.org.springframework=INFO" },
+				"eureka.client.register-with-eureka=false", "logging.level.org.springframework=INFO",
+				// spring.http.converters.preferred-json-mapper=jackson2 is only necessary
+				// to make the
+				// mock Eureka Server used in this test to work
+				// TODO we can likely remove this once this Boot issue is fixed post
+				// 2025.1.0-RC1:
+				// https://github.com/spring-projects/spring-boot/issues/47798
+				"spring.http.converters.preferred-json-mapper=jackson2" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
