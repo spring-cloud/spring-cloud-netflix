@@ -24,8 +24,8 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
 /**
- * A simple wrapper class for {@link Applications} that insure proprer Jackson
- * serialization through the JsonPropert overwrites.
+ * A simple wrapper class for {@link Applications} that insure proper Jackson
+ * serialization through the JsonProperties overwrites.
  *
  * @author Daniel Lavoie
  */

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
-import org.springframework.boot.actuate.health.SimpleStatusAggregator;
+import org.springframework.boot.health.actuate.endpoint.SimpleStatusAggregator;
 import org.springframework.boot.health.contributor.AbstractHealthIndicator;
 import org.springframework.boot.health.contributor.AbstractReactiveHealthIndicator;
 import org.springframework.boot.health.contributor.CompositeHealthContributor;

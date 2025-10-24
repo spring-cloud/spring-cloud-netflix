@@ -27,7 +27,7 @@ import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.actuate.health.StatusAggregator;
+import org.springframework.boot.health.actuate.endpoint.StatusAggregator;
 import org.springframework.boot.health.contributor.CompositeHealthContributor;
 import org.springframework.boot.health.contributor.CompositeReactiveHealthContributor;
 import org.springframework.boot.health.contributor.Health;

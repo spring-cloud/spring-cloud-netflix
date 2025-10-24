@@ -15,7 +15,6 @@
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
 		<eureka.version>2.0.5</eureka.version>
-		<jackson.version>2.20.0</jackson.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -144,11 +143,6 @@
 						<artifactId>commons-logging</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId> com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
