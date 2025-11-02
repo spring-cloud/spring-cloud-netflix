@@ -32,6 +32,7 @@ import org.springframework.core.Ordered;
  * A {@link ReactiveDiscoveryClient} implementation for Eureka.
  *
  * @author Tim Ysewyn
+ * @author Mohamed Macow
  */
 public class EurekaReactiveDiscoveryClient implements ReactiveDiscoveryClient {
 
@@ -62,6 +63,11 @@ public class EurekaReactiveDiscoveryClient implements ReactiveDiscoveryClient {
 			.filter(application -> !application.getInstances().isEmpty())
 			.map(Application::getName)
 			.map(String::toLowerCase);
+	}
+
+	@Override
+	public Mono<Void> reactiveProbe() {
+		return Mono.fromCallable(eurekaClient::getApplications).then();
 	}
 
 	@Override
