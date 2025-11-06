@@ -591,7 +591,7 @@ Set `eureka.instance.preferIpAddress` to `true` and, when the application regist
 [TIP]
 ====
 If the hostname cannot be determined by Java, then the IP address is sent to Eureka.
-Only explict way of setting the hostname is by setting `eureka.instance.hostname` property.
+Only explicit way of setting the hostname is by setting `eureka.instance.hostname` property.
 You can set your hostname at the run-time by using an environment variable -- for example, `eureka.instance.hostname=$\{HOST_NAME}`.
 ====
 

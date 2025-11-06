@@ -111,7 +111,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	 * Setting this value too long could mean that the traffic could be routed to the
 	 * instance even though the instance is not alive. Setting this value too small could
 	 * mean, the instance may be taken out of traffic because of temporary network
-	 * glitches.This value to be set to atleast higher than the value specified in
+	 * glitches.This value to be set to at least higher than the value specified in
 	 * leaseRenewalIntervalInSeconds.
 	 */
 	private int leaseExpirationDurationInSeconds = 90;
@@ -169,7 +169,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	/**
 	 * Gets the relative status page URL path for this instance. The status page URL is
 	 * then constructed out of the hostName and the type of communication - secure or
-	 * unsecure as specified in securePort and nonSecurePort.
+	 * insecure as specified in securePort and nonSecurePort.
 	 *
 	 * It is normally used for informational purposes for other services to find about the
 	 * status of this instance. Users can provide a simple HTML indicating what is the
@@ -191,7 +191,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 
 	/**
 	 * Gets the relative home page URL Path for this instance. The home page URL is then
-	 * constructed out of the hostName and the type of communication - secure or unsecure.
+	 * constructed out of the hostName and the type of communication - secure or insecure.
 	 *
 	 * It is normally used for informational purposes for other services to use it as a
 	 * landing page.
@@ -213,7 +213,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	/**
 	 * Gets the relative health check URL path for this instance. The health check page
 	 * URL is then constructed out of the hostname and the type of communication - secure
-	 * or unsecure as specified in securePort and nonSecurePort.
+	 * or insecure as specified in securePort and nonSecurePort.
 	 *
 	 * It is normally used for making educated decisions based on the health of the
 	 * instance - for example, it can be used to determine whether to proceed deployments
