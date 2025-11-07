@@ -34,14 +34,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.webclient.enabled=true",
-				"eureka.client.fetch-registry=false", "eureka.client.register-with-eureka=false",
-				// spring.http.converters.preferred-json-mapper=jackson2 is only necessary
-				// to make the
-				// mock Eureka Server used in this test to work
-				// TODO we can likely remove this once this Boot issue is fixed post
-				// 2025.1.0-RC1:
-				// https://github.com/spring-projects/spring-boot/issues/47798
-				"spring.http.converters.preferred-json-mapper=jackson2" },
+				"eureka.client.fetch-registry=false", "eureka.client.register-with-eureka=false" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class WebClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {

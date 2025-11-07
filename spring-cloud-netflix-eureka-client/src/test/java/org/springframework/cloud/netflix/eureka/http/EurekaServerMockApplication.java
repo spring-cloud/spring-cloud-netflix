@@ -27,6 +27,7 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.http.converter.autoconfigure.ServerHttpMessageConvertersCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -34,7 +35,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -111,15 +111,6 @@ public class EurekaServerMockApplication {
 		.setNamespace("namespace1")
 		.build();
 
-	/**
-	 * Simulates Eureka Server own's serialization.
-	 * @return converter
-	 */
-	@Bean
-	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		return EurekaHttpClientUtils.mappingJacksonHttpMessageConverter();
-	}
-
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/apps/{appName}")
 	public void register(@PathVariable String appName, @RequestBody InstanceInfo instanceInfo) {
@@ -187,6 +178,17 @@ public class EurekaServerMockApplication {
 	@GetMapping({ "/apps/{appName}/{id}", "/instances/{id}" })
 	public InstanceInfo getInstance(@PathVariable(required = false) String appName, @PathVariable String id) {
 		return INFO;
+	}
+
+	/*
+	 * Use this customizer to make sure we use the Jackson mappings for the Eureka server
+	 */
+	@Bean
+	@Order
+	ServerHttpMessageConvertersCustomizer customServerConvertersCustomizer() {
+		return builder -> {
+			builder.jsonMessageConverter(EurekaHttpClientUtils.mappingJacksonHttpMessageConverter());
+		};
 	}
 
 	@Configuration(proxyBeanMethods = false)
