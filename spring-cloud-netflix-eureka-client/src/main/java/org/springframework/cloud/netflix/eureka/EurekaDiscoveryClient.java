@@ -37,7 +37,6 @@ import org.springframework.core.Ordered;
  * @author Spencer Gibb
  * @author Tim Ysewyn
  * @author Olga Maciaszek-Sharma
- * @author Mohamed Macow
  */
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
@@ -86,11 +85,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 		}
 		return names;
-	}
-
-	@Override
-	public void probe() {
-		this.eurekaClient.getApplications();
 	}
 
 	@Override

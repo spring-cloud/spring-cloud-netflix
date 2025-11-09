@@ -24,9 +24,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
 
@@ -45,7 +44,9 @@ class EurekaDiscoveryClientTests {
 	@Test
 	void shouldCompleteProbeWhenClientHealthy() {
 		when(eurekaClient.getApplications()).thenReturn(new Applications());
-		assertDoesNotThrow(() -> client.probe());
+
+		assertThatCode(() -> client.probe())
+				.doesNotThrowAnyException();
 	}
 
 	@Test
@@ -53,8 +54,8 @@ class EurekaDiscoveryClientTests {
 		RuntimeException eurekaException = new RuntimeException("exception");
 		when(eurekaClient.getApplications()).thenThrow(eurekaException);
 
-		RuntimeException thrown = assertThrows(RuntimeException.class, () -> client.probe());
-		assertThat(eurekaException.getMessage()).isEqualTo(thrown.getMessage());
+		assertThatExceptionOfType(eurekaException.getClass())
+				.isThrownBy(() -> client.probe())
+				.withMessage(eurekaException.getMessage());
 	}
-
 }
