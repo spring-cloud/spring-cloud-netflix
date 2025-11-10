@@ -39,6 +39,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Tim Ysewyn
+ * @author Mohamed Macow
  */
 @ExtendWith(MockitoExtension.class)
 class EurekaReactiveDiscoveryClientTests {
@@ -107,6 +108,26 @@ class EurekaReactiveDiscoveryClientTests {
 		when(eurekaClient.getInstancesByVipAddress("my-service", false)).thenReturn(singletonList(instanceInfo));
 		Flux<ServiceInstance> instances = this.client.getInstances("my-service");
 		StepVerifier.create(instances).expectNextCount(1).expectComplete().verify();
+	}
+
+	@Test
+	void shouldCompleteReactiveProbeWhenClientHealthy() {
+		when(eurekaClient.getApplications()).thenReturn(new Applications());
+
+		StepVerifier.create(client.reactiveProbe())
+				.verifyComplete();
+	}
+
+	@Test
+	void shouldErrorReactiveProbeWhenClientThrows() {
+		RuntimeException eurekaException = new RuntimeException("exception");
+		when(eurekaClient.getApplications()).thenThrow(eurekaException);
+
+		StepVerifier.create(client.reactiveProbe())
+				.verifyErrorSatisfies(ex ->
+						assertThat(ex)
+								.isInstanceOf(RuntimeException.class)
+								.hasMessage(eurekaException.getMessage()));
 	}
 
 }
