@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
-
 /**
  * @author Mohamed Macow
  */
@@ -45,8 +44,7 @@ class EurekaDiscoveryClientTests {
 	void shouldCompleteProbeWhenClientHealthy() {
 		when(eurekaClient.getApplications()).thenReturn(new Applications());
 
-		assertThatCode(() -> client.probe())
-				.doesNotThrowAnyException();
+		assertThatCode(() -> client.probe()).doesNotThrowAnyException();
 	}
 
 	@Test
@@ -54,8 +52,8 @@ class EurekaDiscoveryClientTests {
 		RuntimeException eurekaException = new RuntimeException("exception");
 		when(eurekaClient.getApplications()).thenThrow(eurekaException);
 
-		assertThatExceptionOfType(eurekaException.getClass())
-				.isThrownBy(() -> client.probe())
-				.withMessage(eurekaException.getMessage());
+		assertThatExceptionOfType(eurekaException.getClass()).isThrownBy(() -> client.probe())
+			.withMessage(eurekaException.getMessage());
 	}
+
 }

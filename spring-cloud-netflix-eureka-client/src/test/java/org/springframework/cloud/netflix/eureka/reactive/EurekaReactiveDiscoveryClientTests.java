@@ -114,8 +114,7 @@ class EurekaReactiveDiscoveryClientTests {
 	void shouldCompleteReactiveProbeWhenClientHealthy() {
 		when(eurekaClient.getApplications()).thenReturn(new Applications());
 
-		StepVerifier.create(client.reactiveProbe())
-				.verifyComplete();
+		StepVerifier.create(client.reactiveProbe()).verifyComplete();
 	}
 
 	@Test
@@ -124,10 +123,8 @@ class EurekaReactiveDiscoveryClientTests {
 		when(eurekaClient.getApplications()).thenThrow(eurekaException);
 
 		StepVerifier.create(client.reactiveProbe())
-				.verifyErrorSatisfies(ex ->
-						assertThat(ex)
-								.isInstanceOf(RuntimeException.class)
-								.hasMessage(eurekaException.getMessage()));
+			.verifyErrorSatisfies(
+					ex -> assertThat(ex).isInstanceOf(RuntimeException.class).hasMessage(eurekaException.getMessage()));
 	}
 
 }
