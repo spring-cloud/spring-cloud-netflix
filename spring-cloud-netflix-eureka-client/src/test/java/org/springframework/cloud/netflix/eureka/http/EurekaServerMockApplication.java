@@ -187,7 +187,7 @@ public class EurekaServerMockApplication {
 	@Order
 	ServerHttpMessageConvertersCustomizer customServerConvertersCustomizer() {
 		return builder -> {
-			builder.jsonMessageConverter(EurekaHttpClientUtils.mappingJacksonHttpMessageConverter());
+			builder.withJsonConverter(EurekaHttpClientUtils.mappingJacksonHttpMessageConverter());
 		};
 	}
 
