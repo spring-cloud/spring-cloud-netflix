@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import com.netflix.appinfo.InstanceInfo;
 
-import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.util.Assert;
@@ -81,7 +80,7 @@ public class EurekaServiceInstance implements ServiceInstance {
 
 	@Override
 	public URI getUri() {
-		return DefaultServiceInstance.getUri(this);
+		return ServiceInstance.createUri(this);
 	}
 
 	@Override
