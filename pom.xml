@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>5.0.0-SNAPSHOT</version>
+		<version>5.0.1-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 	<scm>
@@ -80,8 +80,8 @@
 	</developers>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<spring-cloud-commons.version>5.0.0-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>5.0.0-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-commons.version>5.0.1-SNAPSHOT</spring-cloud-commons.version>
+		<spring-cloud-config.version>5.0.1-SNAPSHOT</spring-cloud-config.version>
 		<testcontainers.version>1.21.3</testcontainers.version>
 		<mockserverclient.version>5.15.0</mockserverclient.version>
 
