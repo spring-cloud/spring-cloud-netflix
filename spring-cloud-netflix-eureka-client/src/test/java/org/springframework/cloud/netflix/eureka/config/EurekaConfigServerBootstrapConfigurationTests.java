@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the original author or authors.
+ * Copyright 2013-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,8 @@ import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -35,13 +34,13 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.boot.test.system.OutputCaptureRule;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateEurekaHttpClient;
 import org.springframework.cloud.test.ClassPathExclusions;
-import org.springframework.cloud.test.ModifiedClassPathRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -54,22 +53,19 @@ import static org.mockito.Mockito.when;
  * @author Tang Xiong
  */
 @SuppressWarnings("removal")
-@RunWith(ModifiedClassPathRunner.class)
+@ExtendWith(OutputCaptureExtension.class)
 @ClassPathExclusions("spring-webflux-*")
-public class EurekaConfigServerBootstrapConfigurationTests {
-
-	@Rule
-	public OutputCaptureRule output = new OutputCaptureRule();
+class EurekaConfigServerBootstrapConfigurationTests {
 
 	@Test
-	public void offByDefault() {
+	void offByDefault() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.run(this::assertEurekaBeansNotPresent);
 	}
 
 	@Test
-	public void properBeansCreatedWhenDiscoveryEnabled() {
+	void properBeansCreatedWhenDiscoveryEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true")
@@ -77,7 +73,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenDiscoveryNotEnabled() {
+	void beansNotCreatedWhenDiscoveryNotEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=false")
@@ -85,7 +81,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenDiscoveryDisabled() {
+	void beansNotCreatedWhenDiscoveryDisabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.disabled")
@@ -93,7 +89,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenEurekaClientEnabled() {
+	void beansNotCreatedWhenEurekaClientEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("eureka.client.enabled=true")
@@ -101,7 +97,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenEurekaClientNotEnabled() {
+	void beansNotCreatedWhenEurekaClientNotEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("eureka.client.enabled=false")
@@ -109,7 +105,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenEurekaClientDisabled() {
+	void beansNotCreatedWhenEurekaClientDisabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("eureka.client.disabled")
@@ -117,7 +113,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void properBeansCreatedWhenDiscoveryEnabled_EurekaEnabled() {
+	void properBeansCreatedWhenDiscoveryEnabled_EurekaEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true")
@@ -125,7 +121,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenDiscoveryEnabled_EurekaNotEnabled() {
+	void beansNotCreatedWhenDiscoveryEnabled_EurekaNotEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=false")
@@ -133,7 +129,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenDiscoveryNotEnabled_EurekaEnabled() {
+	void beansNotCreatedWhenDiscoveryNotEnabled_EurekaEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=false", "eureka.client.enabled=true")
@@ -141,7 +137,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void beansNotCreatedWhenDiscoveryNotEnabled_EurekaNotEnabled() {
+	void beansNotCreatedWhenDiscoveryNotEnabled_EurekaNotEnabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=false", "eureka.client.enabled=false")
@@ -149,7 +145,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void eurekaDnsConfigurationWorks() {
+	void eurekaDnsConfigurationWorks(CapturedOutput output) {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(EurekaConfigServerBootstrapConfiguration.class))
 			.withPropertyValues("spring.cloud.config.discovery.enabled=true", "eureka.client.enabled=true",
@@ -161,7 +157,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void eurekaConfigServerInstanceProviderCalled() {
+	void eurekaConfigServerInstanceProviderCalled(CapturedOutput output) {
 		// FIXME: why do I need to do this? (fails in maven build without it.
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
@@ -176,7 +172,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void eurekaConfigServerInstanceProviderCalledWithRemoteRegions() {
+	void eurekaConfigServerInstanceProviderCalledWithRemoteRegions(CapturedOutput output) {
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
 			.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
@@ -190,7 +186,7 @@ public class EurekaConfigServerBootstrapConfigurationTests {
 	}
 
 	@Test
-	public void eurekaConfigServerInstanceProviderCalledWithVipAddress() {
+	void eurekaConfigServerInstanceProviderCalledWithVipAddress(CapturedOutput output) {
 		TomcatURLStreamHandlerFactory.disable();
 		new SpringApplicationBuilder(TestConfigDiscoveryConfiguration.class)
 			.properties("spring.config.use-legacy-processing=true", "spring.cloud.config.discovery.enabled=true",
