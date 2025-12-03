@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>4.3.1-SNAPSHOT</version>
+		<version>4.3.2-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 	<scm>
@@ -82,7 +82,7 @@
 		<bintray.package>netflix</bintray.package>
 		<spring-cloud-commons.version>4.3.1-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>4.3.1-SNAPSHOT</spring-cloud-config.version>
-		<testcontainers.version>1.21.0</testcontainers.version>
+		<testcontainers.version>1.21.3</testcontainers.version>
 		<mockserverclient.version>5.15.0</mockserverclient.version>
 
 		<!-- Sonar -->
