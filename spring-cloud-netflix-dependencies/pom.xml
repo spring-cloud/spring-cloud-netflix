@@ -44,6 +44,10 @@
 				<version>${eureka.version}</version>
 				<exclusions>
 					<exclusion>
+						<groupId>com.google.guava</groupId>
+						<artifactId>guava</artifactId>
+					</exclusion>
+					<exclusion>
 						<groupId>com.netflix.archaius</groupId>
 						<artifactId>archaius-core</artifactId>
 					</exclusion>
