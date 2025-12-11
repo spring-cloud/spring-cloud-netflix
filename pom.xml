@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-netflix</artifactId>
-	<version>4.2.3-SNAPSHOT</version>
+	<version>4.2.3</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>4.2.3-SNAPSHOT</version>
+		<version>4.2.4</version>
 		<relativePath />
 	</parent>
 	<scm>
@@ -80,8 +80,8 @@
 	</developers>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<spring-cloud-commons.version>4.2.4-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>4.2.4-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-commons.version>4.2.4</spring-cloud-commons.version>
+		<spring-cloud-config.version>4.2.4</spring-cloud-config.version>
 		<testcontainers.version>1.20.6</testcontainers.version>
 		<mockserverclient.version>5.15.0</mockserverclient.version>
 
