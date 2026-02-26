@@ -73,6 +73,7 @@ public class DiscoveryClientOptionalArgsConfiguration {
 	public static void setupTLS(AbstractDiscoveryClientOptionalArgs<?> args, TlsProperties properties)
 			throws GeneralSecurityException, IOException {
 		if (properties.isEnabled()) {
+			LOG.info("Eureka HTTP Client uses Jersey");
 			SSLContextFactory factory = new SSLContextFactory(properties);
 			args.setSSLContext(factory.createSSLContext());
 		}
