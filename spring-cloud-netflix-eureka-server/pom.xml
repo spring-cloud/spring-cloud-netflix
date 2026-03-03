@@ -87,6 +87,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-restclient</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.glassfish.hk2</groupId>
 			<artifactId>spring-bridge</artifactId>
 			<!-- FIXME: 4.0 -->
