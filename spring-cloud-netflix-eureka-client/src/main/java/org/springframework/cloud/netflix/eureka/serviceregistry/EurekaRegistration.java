@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.cloud.client.DefaultServiceInstance;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.cloud.netflix.eureka.CloudEurekaInstanceConfig;
@@ -102,7 +102,7 @@ public class EurekaRegistration implements Registration {
 
 	@Override
 	public URI getUri() {
-		return DefaultServiceInstance.getUri(this);
+		return ServiceInstance.createUri(this);
 	}
 
 	@Override

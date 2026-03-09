@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 the original author or authors.
+ * Copyright 2018-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.junit.platform.suite.api.Suite;
  * That means that when the new context starts we will fail cause the executor service is
  * already shutdown.
  */
-@SelectClasses({ EurekaClientTests.class, RestTemplateEurekaClientTests.class })
+@SelectClasses({ EurekaClientTests.class, RestClientEurekaClientTests.class })
 @Suite
 public class EurekaClientSuite {
 

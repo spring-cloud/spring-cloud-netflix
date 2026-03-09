@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 the original author or authors.
+ * Copyright 2017-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,12 +30,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Olga Maciaszek-Sharma
  */
-@SuppressWarnings("deprecation")
 public class JerseyClientOptionalArgsConfigurationTests {
 
 	@SuppressWarnings("OptionalGetWithoutIsPresent")
 	@Test
-	void shouldCreateRestTemplateDiscoveryClientOptionalArgsWhenJerseyClientDisabled() {
+	void shouldCreateRestClientDiscoveryClientOptionalArgsWhenJerseyClientDisabled() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(DiscoveryClientOptionalArgsConfiguration.class))
 			.withPropertyValues("eureka.client.jersey.enabled=false")
@@ -45,8 +44,8 @@ public class JerseyClientOptionalArgsConfigurationTests {
 					.values()
 					.stream()
 					.findFirst()
-					.get()).isInstanceOf(RestTemplateDiscoveryClientOptionalArgs.class);
-				assertThat(context).hasSingleBean(RestTemplateDiscoveryClientOptionalArgs.class);
+					.get()).isInstanceOf(RestClientDiscoveryClientOptionalArgs.class);
+				assertThat(context).hasSingleBean(RestClientDiscoveryClientOptionalArgs.class);
 			});
 	}
 

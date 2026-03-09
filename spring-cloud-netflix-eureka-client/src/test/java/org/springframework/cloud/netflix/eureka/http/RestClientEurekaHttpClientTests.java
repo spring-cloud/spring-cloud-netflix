@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2025 the original author or authors.
+ * Copyright 2017-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
-import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
+import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.RestClient;
 
@@ -46,7 +46,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
  */
 @SpringBootTest(classes = EurekaServerMockApplication.class,
 		properties = { "debug=true", "security.basic.enabled=true", "eureka.client.fetch-registry=false",
-				"eureka.client.register-with-eureka=false", "logging.level.org.springframework=INFO" },
+				"eureka.client.register-with-eureka=false", "logging.level.org.springframework=INFO",
+				// spring.http.converters.preferred-json-mapper=jackson2 is only necessary
+				// to make the
+				// mock Eureka Server used in this test to work
+				// TODO we can likely remove this once this Boot issue is fixed post
+				// 2025.1.0-RC1:
+				// https://github.com/spring-projects/spring-boot/issues/47798
+				"spring.http.converters.preferred-json-mapper=jackson2" },
 		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
@@ -88,7 +95,7 @@ class RestClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 	private EurekaHttpClient buildEurekaHttpClient(
 			Set<EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer> customizers) {
 		return new RestClientTransportClientFactory(Optional.empty(), Optional.empty(),
-				new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(), customizers),
+				new DefaultEurekaClientHttpRequestFactorySupplier(new TimeoutProperties(), customizers),
 				RestClient::builder)
 			.newClient(new DefaultEndpoint(serviceUrl));
 	}

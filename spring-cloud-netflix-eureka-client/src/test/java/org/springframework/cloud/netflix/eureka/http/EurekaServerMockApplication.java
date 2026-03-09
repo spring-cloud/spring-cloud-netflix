@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2025 the original author or authors.
+ * Copyright 2017-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.http.converter.autoconfigure.ServerHttpMessageConvertersCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -34,7 +35,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -110,15 +111,6 @@ public class EurekaServerMockApplication {
 		.setNamespace("namespace1")
 		.build();
 
-	/**
-	 * Simulates Eureka Server own's serialization.
-	 * @return converter
-	 */
-	@Bean
-	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		return EurekaHttpClientUtils.mappingJacksonHttpMessageConverter();
-	}
-
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/apps/{appName}")
 	public void register(@PathVariable String appName, @RequestBody InstanceInfo instanceInfo) {
@@ -188,6 +180,17 @@ public class EurekaServerMockApplication {
 		return INFO;
 	}
 
+	/*
+	 * Use this customizer to make sure we use the Jackson mappings for the Eureka server
+	 */
+	@Bean
+	@Order
+	ServerHttpMessageConvertersCustomizer customServerConvertersCustomizer() {
+		return builder -> {
+			builder.withJsonConverter(EurekaHttpClientUtils.mappingJacksonHttpMessageConverter());
+		};
+	}
+
 	@Configuration(proxyBeanMethods = false)
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	protected static class TestSecurityConfiguration {
@@ -204,11 +207,7 @@ public class EurekaServerMockApplication {
 
 		@Bean
 		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					.securityMatcher("/v2/apps/**")
-					.httpBasic();
-			// @formatter:on
+			http.securityMatcher("/v2/apps/**").httpBasic(Customizer.withDefaults());
 			return http.build();
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 the original author or authors.
+ * Copyright 2013-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.SimpleStatusAggregator;
-import org.springframework.boot.actuate.health.StatusAggregator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.health.actuate.endpoint.SimpleStatusAggregator;
+import org.springframework.boot.health.actuate.endpoint.StatusAggregator;
 import org.springframework.cloud.client.ConditionalOnBlockingDiscoveryEnabled;
 import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;

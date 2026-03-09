@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2025 the original author or authors.
+ * Copyright 2013-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
+import org.springframework.boot.micrometer.metrics.autoconfigure.CompositeMeterRegistryAutoConfiguration;
+import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.server.EurekaServerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;

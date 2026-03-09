@@ -14,12 +14,6 @@
     },
     {
       "defaultValue": false,
-      "name": "eureka.client.restclient.enabled",
-      "description": "Enables the use of RestClient for Eureka HTTP Client.",
-      "type": "java.lang.Boolean"
-    },
-    {
-      "defaultValue": false,
       "name": "eureka.client.webclient.enabled",
       "description": "Enables the use of WebClient for Eureka HTTP Client.",
       "type": "java.lang.Boolean"

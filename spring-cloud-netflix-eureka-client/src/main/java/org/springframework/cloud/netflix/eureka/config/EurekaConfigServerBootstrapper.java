@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2025 the original author or authors.
+ * Copyright 2013-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import java.util.Collections;
 
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 
-import org.springframework.boot.BootstrapContext;
-import org.springframework.boot.BootstrapRegistry;
-import org.springframework.boot.BootstrapRegistryInitializer;
+import org.springframework.boot.bootstrap.BootstrapContext;
+import org.springframework.boot.bootstrap.BootstrapRegistry;
+import org.springframework.boot.bootstrap.BootstrapRegistryInitializer;
 import org.springframework.boot.context.properties.bind.BindHandler;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.config.client.ConfigClientProperties;
@@ -30,7 +30,7 @@ import org.springframework.cloud.config.client.ConfigServerConfigDataLocationRes
 import org.springframework.cloud.config.client.ConfigServerInstanceProvider;
 import org.springframework.cloud.configuration.TlsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
-import org.springframework.cloud.netflix.eureka.RestClientTimeoutProperties;
+import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier;
 import org.springframework.cloud.netflix.eureka.http.RestClientTransportClientFactory;
@@ -61,7 +61,7 @@ public class EurekaConfigServerBootstrapper implements BootstrapRegistryInitiali
 			EurekaHttpClient httpClient = new RestClientTransportClientFactory(
 					context.getOrElse(TlsProperties.class, null),
 					context.getOrElse(EurekaClientHttpRequestFactorySupplier.class,
-							new DefaultEurekaClientHttpRequestFactorySupplier(new RestClientTimeoutProperties(),
+							new DefaultEurekaClientHttpRequestFactorySupplier(new TimeoutProperties(),
 									Collections.emptySet())))
 				.newClient(HostnameBasedUrlRandomizer.randomEndpoint(config, getPropertyResolver(context)));
 			return new EurekaConfigServerInstanceProvider(httpClient, config)::getInstances;

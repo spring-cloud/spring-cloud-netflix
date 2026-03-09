@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 the original author or authors.
+ * Copyright 2017-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
 /**
- * A simple wrapper class for {@link Applications} that insure proprer Jackson
- * serialization through the JsonPropert overwrites.
+ * A simple wrapper class for {@link Applications} that insure proper Jackson
+ * serialization through the JsonProperties overwrites.
  *
  * @author Daniel Lavoie
  */

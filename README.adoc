@@ -49,7 +49,7 @@ build succeed, please raise a ticket to get the settings added to
 source control.
 
 The projects that require middleware (i.e. Redis) for testing generally
-require that a local instance of [Docker](https://www.docker.com/get-started) is installed and running.
+require that a local instance of https://www.docker.com/get-started[Docker] is installed and running.
 
 [[documentation]]
 == Documentation
@@ -68,7 +68,7 @@ a modified file in the correct place. Just commit it and push the change.
 [[working-with-the-code]]
 == Working with the code
 If you don't have an IDE preference we would recommend that you use
-https://www.springsource.com/developer/sts[Spring Tools Suite] or
+https://spring.io/tools[Spring Tools Suite] or
 https://eclipse.org[Eclipse] when working with the code. We use the
 https://eclipse.org/m2e/[m2eclipse] eclipse plugin for maven support. Other IDEs and tools
 should also work without issue as long as they use Maven 3.3.3 or better.
