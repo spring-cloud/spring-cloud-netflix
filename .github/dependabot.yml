@@ -16,6 +16,8 @@ updates:
       interval: daily
     target-branch: 4.3.x
     ignore:
+      # glob 7.2.3+ conflicts with jshint (minimatch) in wro4j-maven-plugin
+      - dependency-name: "org.webjars.npm:glob"
       # only upgrade patch versions for maintenance branch
       - dependency-name: "*"
         update-types:
@@ -27,6 +29,8 @@ updates:
       interval: daily
     target-branch: main
     ignore:
+      # glob 7.2.3+ conflicts with jshint (minimatch) in wro4j-maven-plugin
+      - dependency-name: "org.webjars.npm:glob"
       # only upgrade patch versions for maintenance branch
       - dependency-name: "*"
         update-types:
