@@ -1,4 +1,4 @@
-name: Spring Cloud Build CI Job
+name: Spring Cloud Netflix CI Job
 
 on:
   push:
