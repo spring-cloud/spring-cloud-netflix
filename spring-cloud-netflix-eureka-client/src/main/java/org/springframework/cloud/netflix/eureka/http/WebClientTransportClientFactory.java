@@ -24,9 +24,13 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
+import reactor.netty.resources.LoopResources;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.ClientCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
@@ -54,8 +58,14 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	private final Supplier<WebClient.Builder> builderSupplier;
 
+	private final ConnectionProvider connectionProvider;
+
+	private final LoopResources loopResources;
+
 	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier) {
 		this.builderSupplier = builderSupplier;
+		this.connectionProvider = ConnectionProvider.create("eureka-webclient");
+		this.loopResources = LoopResources.create("eureka-webclient");
 	}
 
 	@Override
@@ -65,6 +75,11 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		setUrl(builder, endpoint.getServiceUrl());
 		setCodecs(builder);
 		builder.filter(http4XxErrorExchangeFilterFunction());
+		// Use dedicated Reactor Netty resources independent of the reactive web server
+		// to prevent RejectedExecutionException during graceful shutdown when the
+		// server's event loop terminates before DiscoveryClient deregisters.
+		builder.clientConnector(
+				new ReactorClientHttpConnector(HttpClient.create(this.connectionProvider).runOn(this.loopResources)));
 		return new WebClientEurekaHttpClient(builder.build());
 	}
 
@@ -113,6 +128,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	@Override
 	public void shutdown() {
+		this.connectionProvider.dispose();
+		this.loopResources.dispose();
 	}
 
 }

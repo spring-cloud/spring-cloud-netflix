@@ -18,7 +18,11 @@ package org.springframework.cloud.netflix.eureka.http;
 
 import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.LoopResources;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +30,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Daniel Lavoie
@@ -63,6 +71,31 @@ class WebClientEurekaHttpClientTests extends AbstractEurekaHttpClientTests {
 		config.setInstanceId("127.0.0.1:customapp:4444");
 
 		info = new EurekaConfigBasedInstanceInfoProvider(config).get();
+	}
+
+	@Test
+	void cancelSucceedsAfterSharedReactorResourcesDisposed() {
+		// Simulate the LoopResources shared between the reactive web server and a
+		// WebClient (as Spring Boot's ReactorResourceFactory provides by default)
+		LoopResources sharedResources = LoopResources.create("simulated-server");
+		WebClient.Builder sharedBuilder = WebClient.builder()
+			.clientConnector(new ReactorClientHttpConnector(HttpClient.create().runOn(sharedResources)));
+
+		WebClientTransportClientFactory factory = new WebClientTransportClientFactory(() -> sharedBuilder);
+		EurekaHttpClient client = factory.newClient(new DefaultEndpoint(serviceUrl));
+
+		// Simulate the reactive web server shutting down (terminates the shared event
+		// loop)
+		sharedResources.dispose();
+
+		// cancel() must succeed because the factory uses its own dedicated Reactor Netty
+		// resources that are independent of the shared (now disposed) web server
+		// resources.
+		// Without the fix this would throw RejectedExecutionException: event executor
+		// terminated
+		assertThat(client.cancel("test", "test").getStatusCode()).isEqualTo(HttpStatus.OK.value());
+
+		factory.shutdown();
 	}
 
 }
