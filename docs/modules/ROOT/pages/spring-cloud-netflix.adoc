@@ -389,134 +389,15 @@ the ability to refresh Eureka clients.  To do this set `eureka.client.refresh.en
 
 === Using Eureka with Spring Cloud LoadBalancer
 
-Spring Cloud Netflix integrates with Spring Cloud LoadBalancer to provide
-client-side load balancing for services registered with Eureka.
+We offer support for the Spring Cloud LoadBalancer `ZonePreferenceServiceInstanceListSupplier`.
+The `zone` value from the Eureka instance metadata (`eureka.instance.metadataMap.zone`) is used for setting the
+value of `spring-cloud-loadbalancer-zone` property that is used to filter service instances by zone.
 
-When a client makes a request to another service using a logical service ID,
-Spring Cloud LoadBalancer selects an appropriate service instance based on
-available instances retrieved from Eureka.
+If that is missing and if the `spring.cloud.loadbalancer.eureka.approximateZoneFromHostname` flag is set to `true`,
+it can use the domain name from the server hostname as a proxy for the zone.
 
-==== How It Works
-
-The load balancing process follows these steps:
-
-1. A client makes a request using a service ID (for example, `http://user-service`).
-2. The `DiscoveryClient` retrieves all available instances of the service from Eureka.
-3. Spring Cloud LoadBalancer selects one instance using a load balancing strategy.
-4. The request is routed to the selected service instance.
-
-This mechanism enables service discovery and client-side load balancing across multiple instances.
-
-==== Configuration Example
-
-The following example shows a minimal configuration for using Eureka with Spring Cloud LoadBalancer:
-
-.application.yml
-[source,yaml]
-----
-spring:
-  application:
-    name: user-service
-  cloud:
-    loadbalancer:
-      ribbon:
-        enabled: false
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-----
-
-NOTE: Ribbon is deprecated and replaced by Spring Cloud LoadBalancer.
-
-==== Using Load-Balanced Clients
-
-Spring Cloud LoadBalancer can be used with `RestTemplate` or `WebClient`.
-
-.Example using RestTemplate
-[source,java,indent=0]
-----
-@Bean
-@LoadBalanced
-public RestTemplate restTemplate() {
-    return new RestTemplate();
-}
-----
-
-.Example using WebClient
-[source,java,indent=0]
-----
-@Bean
-@LoadBalanced
-public WebClient.Builder webClientBuilder() {
-    return WebClient.builder();
-}
-----
-
-With these configurations, requests made using a service name are automatically resolved
-to an actual service instance registered in Eureka.
-
-==== Zone-Based Load Balancing
-
-Spring Cloud LoadBalancer supports zone-based routing by using metadata provided
-by Eureka instances.
-
-To define a zone for a service instance, use the following configuration:
-
-.application.yml
-[source,yaml]
-----
-eureka:
-  instance:
-    metadataMap:
-      zone: zone1
-----
-
-When multiple instances exist across zones, the load balancer can prioritize instances
-in the same zone as the client.
-
-The `ZonePreferenceServiceInstanceListSupplier` is used to filter instances based on zone.
-
-==== Zone Resolution
-
-The zone used by the load balancer can be determined in multiple ways:
-
-- Explicitly via `eureka.instance.metadataMap.zone`
-- From the hostname if the following property is enabled:
-
-[source]
-----
-spring.cloud.loadbalancer.eureka.approximateZoneFromHostname=true
-----
-
-When this property is enabled, the system attempts to infer the zone from the domain name
-of the service instance hostname.
-
-If no zone information is available, the system falls back to the client configuration,
-such as `eureka.client.availabilityZones`.
-
-==== Troubleshooting
-
-If load balancing does not behave as expected, consider the following:
-
-- Ensure that all service instances are properly registered in Eureka
-- Verify that `metadataMap.zone` is correctly configured
-- Check that the Eureka client is able to fetch registry data
-- Enable debug logs to inspect load balancer decisions
-
-==== Best Practices
-
-- Always define zone metadata for service instances in multi-zone deployments
-- Use consistent naming conventions for zones
-- Avoid relying solely on hostname-based zone approximation in production
-- Monitor service instance health and registration status
-
-==== Summary
-
-Spring Cloud LoadBalancer, when combined with Eureka, provides a flexible and dynamic
-approach to client-side load balancing. It enables services to discover and communicate
-with each other efficiently while distributing traffic across available instances.
+If there is no other source of zone data, then a guess is made, based on the client configuration (as opposed to the instance configuration).
+We take `eureka.client.availabilityZones`, which is a map from region name to a list of zones, and pull out the first zone for the instance's own region (that is, the `eureka.client.region`, which defaults to "us-east-1", for compatibility with native Netflix).
 
 === AOT and Native Image Support
 
