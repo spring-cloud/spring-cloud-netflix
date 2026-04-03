@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,6 +84,8 @@ public class EurekaHealthCheckHandler
 
 	private final Map<String, HealthContributor> healthContributors = new HashMap<>();
 
+	private final EurekaClientStatusMappingProperties properties;
+
 	/**
 	 * {@code true} until the context is stopped.
 	 */
@@ -91,9 +94,14 @@ public class EurekaHealthCheckHandler
 	private final Map<String, ReactiveHealthContributor> reactiveHealthContributors = new HashMap<>();
 
 	public EurekaHealthCheckHandler(StatusAggregator statusAggregator) {
-		this.statusAggregator = statusAggregator;
-		Assert.notNull(statusAggregator, "StatusAggregator must not be null");
+		this(statusAggregator, new EurekaClientStatusMappingProperties());
+	}
 
+	public EurekaHealthCheckHandler(StatusAggregator statusAggregator, EurekaClientStatusMappingProperties properties) {
+
+		this.statusAggregator = statusAggregator;
+		this.properties = properties;
+		Assert.notNull(statusAggregator, "StatusAggregator must not be null");
 	}
 
 	@Override
@@ -179,9 +187,27 @@ public class EurekaHealthCheckHandler
 	}
 
 	protected InstanceStatus mapToInstanceStatus(Status status) {
+
+		if (status == null) {
+			return InstanceStatus.UNKNOWN;
+		}
+
+		String statusCode = status.getCode().toLowerCase(Locale.ROOT);
+
+		// 🔥 Custom mapping (case-insensitive)
+		if (properties != null && properties.getMapping() != null) {
+			for (Map.Entry<String, InstanceStatus> entry : properties.getMapping().entrySet()) {
+				if (entry.getKey().equalsIgnoreCase(statusCode)) {
+					return entry.getValue();
+				}
+			}
+		}
+
+		// 🔁 Default mapping
 		if (!STATUS_MAPPING.containsKey(status)) {
 			return InstanceStatus.UNKNOWN;
 		}
+
 		return STATUS_MAPPING.get(status);
 	}
 
