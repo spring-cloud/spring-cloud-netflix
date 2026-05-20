@@ -399,6 +399,73 @@ it can use the domain name from the server hostname as a proxy for the zone.
 If there is no other source of zone data, then a guess is made, based on the client configuration (as opposed to the instance configuration).
 We take `eureka.client.availabilityZones`, which is a map from region name to a list of zones, and pull out the first zone for the instance's own region (that is, the `eureka.client.region`, which defaults to "us-east-1", for compatibility with native Netflix).
 
+The following sections provide additional details and practical guidance on using Spring Cloud LoadBalancer with Eureka.
+
+==== How Load Balancing Works
+
+Spring Cloud LoadBalancer works together with Eureka to provide client-side load balancing.
+
+When a client makes a request using a service ID (for example, `http://STORES/api`), the following steps occur:
+
+----
+Client → DiscoveryClient → LoadBalancer → ServiceInstance → Request Execution
+----
+
+1. The client uses a logical service name instead of a fixed URL.
+2. The `DiscoveryClient` retrieves all available instances from Eureka.
+3. Spring Cloud LoadBalancer selects one instance.
+4. The request is sent to the selected instance.
+
+==== Example Usage
+
+[source,java]
+----
+@Autowired
+private RestTemplate restTemplate;
+
+public String callService() {
+    return restTemplate.getForObject("http://STORES/api", String.class);
+}
+----
+
+In this example:
+- `STORES` is resolved using Eureka.
+- A service instance is selected using Spring Cloud LoadBalancer.
+
+==== Zone Preference
+
+In distributed systems, services are often deployed across multiple zones.
+
+Setting zone metadata helps LoadBalancer prefer instances in the same zone:
+
+----
+eureka.instance.metadataMap.zone=zone1
+----
+
+This reduces latency and improves fault tolerance.
+
+==== Troubleshooting
+
+Common issues:
+
+*No instances found*
+- Ensure the service is registered with Eureka.
+- Verify `spring.application.name`.
+
+*Load balancing not working*
+- Ensure Spring Cloud LoadBalancer dependency is present.
+
+*Incorrect zone selection*
+- Check `metadataMap.zone` configuration.
+- Ensure consistent zone naming.
+
+==== Best Practices
+
+- Always define `spring.application.name`.
+- Use zone metadata in multi-zone deployments.
+- Avoid hardcoding service URLs.
+- Monitor logs for debugging load balancing behavior.
+
 === AOT and Native Image Support
 
 Spring Cloud Netflix Eureka Client integration supports Spring AOT transformations and native images, however, only with refresh mode disabled.
@@ -419,7 +486,6 @@ To include Eureka Server in your project, use the starter with a group ID of `or
 See the https://projects.spring.io/spring-cloud/[Spring Cloud Project page] for details on setting up your build system with the current Spring Cloud Release Train.
 
 NOTE: If your project already uses Thymeleaf as its template engine, the Freemarker templates of the Eureka server may not be loaded correctly. In this case it is necessary to configure the template loader manually:
-
 .application.yml
 ----
 spring:
