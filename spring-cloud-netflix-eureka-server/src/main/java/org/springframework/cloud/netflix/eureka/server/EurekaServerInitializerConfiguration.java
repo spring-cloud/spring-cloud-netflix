@@ -16,12 +16,10 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import com.netflix.eureka.EurekaServerConfig;
-import jakarta.servlet.ServletContext;
+import java.util.concurrent.CompletableFuture;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaRegistryAvailableEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaServerStartedEvent;
 import org.springframework.context.ApplicationContext;
@@ -29,39 +27,42 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.web.context.ServletContextAware;
+
+import com.netflix.eureka.EurekaServerConfig;
+
+import jakarta.servlet.ServletContext;
 
 /**
  * @author Dave Syer
  */
 @Configuration(proxyBeanMethods = false)
-public class EurekaServerInitializerConfiguration implements ServletContextAware, SmartLifecycle, Ordered {
+public class EurekaServerInitializerConfiguration implements SmartLifecycle, Ordered {
 
 	private static final Log log = LogFactory.getLog(EurekaServerInitializerConfiguration.class);
 
-	@Autowired
-	private EurekaServerConfig eurekaServerConfig;
+	private static final int ORDER = 1;
 
-	private ServletContext servletContext;
+	private final EurekaServerConfig eurekaServerConfig;
 
-	@Autowired
-	private ApplicationContext applicationContext;
+	private final ServletContext servletContext;
 
-	@Autowired
-	private EurekaServerBootstrap eurekaServerBootstrap;
+	private final ApplicationContext applicationContext;
 
-	private boolean running;
+	private final EurekaServerBootstrap eurekaServerBootstrap;
 
-	private final int order = 1;
+	private volatile boolean running;
 
-	@Override
-	public void setServletContext(ServletContext servletContext) {
+	public EurekaServerInitializerConfiguration(EurekaServerConfig eurekaServerConfig, ServletContext servletContext,
+			ApplicationContext applicationContext, EurekaServerBootstrap eurekaServerBootstrap) {
+		this.eurekaServerConfig = eurekaServerConfig;
 		this.servletContext = servletContext;
+		this.applicationContext = applicationContext;
+		this.eurekaServerBootstrap = eurekaServerBootstrap;
 	}
 
 	@Override
 	public void start() {
-		new Thread(() -> {
+		CompletableFuture.runAsync(() -> {
 			try {
 				// TODO: is this class even needed now?
 				eurekaServerBootstrap.contextInitialized(EurekaServerInitializerConfiguration.this.servletContext);
@@ -75,7 +76,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 				// Help!
 				log.error("Could not initialize Eureka servlet context", ex);
 			}
-		}).start();
+		});
 	}
 
 	private EurekaServerConfig getEurekaServerConfig() {
@@ -103,13 +104,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 	}
 
 	@Override
-	public boolean isAutoStartup() {
-		return true;
-	}
-
-	@Override
 	public int getOrder() {
-		return this.order;
+		return ORDER;
 	}
 
 }
