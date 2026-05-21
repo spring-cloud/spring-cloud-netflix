@@ -22,8 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaRegistryAvailableEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaServerStartedEvent;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -46,17 +46,17 @@ public class EurekaServerInitializerConfiguration implements SmartLifecycle, Ord
 
 	private final ServletContext servletContext;
 
-	private final ApplicationContext applicationContext;
+	private final ApplicationEventPublisher applicationEventPublisher;
 
 	private final EurekaServerBootstrap eurekaServerBootstrap;
 
 	private volatile boolean running;
 
 	public EurekaServerInitializerConfiguration(EurekaServerConfig eurekaServerConfig, ServletContext servletContext,
-			ApplicationContext applicationContext, EurekaServerBootstrap eurekaServerBootstrap) {
+			ApplicationEventPublisher applicationEventPublisher, EurekaServerBootstrap eurekaServerBootstrap) {
 		this.eurekaServerConfig = eurekaServerConfig;
 		this.servletContext = servletContext;
-		this.applicationContext = applicationContext;
+		this.applicationEventPublisher = applicationEventPublisher;
 		this.eurekaServerBootstrap = eurekaServerBootstrap;
 	}
 
@@ -84,7 +84,7 @@ public class EurekaServerInitializerConfiguration implements SmartLifecycle, Ord
 	}
 
 	private void publish(ApplicationEvent event) {
-		this.applicationContext.publishEvent(event);
+		this.applicationEventPublisher.publishEvent(event);
 	}
 
 	@Override
