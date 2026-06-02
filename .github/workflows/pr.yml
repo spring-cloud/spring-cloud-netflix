@@ -1,0 +1,9 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [ main, 4.3.x, 4.2.x ]
+
+jobs:
+  build:
+    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/pr.yml@main
