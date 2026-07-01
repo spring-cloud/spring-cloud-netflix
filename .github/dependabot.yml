@@ -2,27 +2,9 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: "4.3.x"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: "/"
     target-branch: "main"
     schedule:
       interval: "weekly"
-  - package-ecosystem: maven
-    directory: /
-    schedule:
-      interval: daily
-    target-branch: 4.3.x
-    ignore:
-      # glob 7.2.3+ conflicts with jshint (minimatch) in wro4j-maven-plugin
-      - dependency-name: "org.webjars.npm:glob"
-      # only upgrade patch versions for maintenance branch
-      - dependency-name: "*"
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
   - package-ecosystem: maven
     directory: /
     schedule:
@@ -43,11 +25,6 @@ updates:
       interval: weekly
   - package-ecosystem: npm
     target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-  - package-ecosystem: npm
-    target-branch: 4.3.x
     directory: /docs
     schedule:
       interval: weekly
