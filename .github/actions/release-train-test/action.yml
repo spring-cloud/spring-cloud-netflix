@@ -2,4 +2,4 @@ name: Test Release
 runs:
   using: composite
   steps:
-    - uses: spring-cloud/spring-cloud-github-actions/.github/actions/release-train-test@3844cdcd9639d7dfdfaa5bb8affb730c54ddfee2
+    - uses: spring-cloud/spring-cloud-github-actions/.github/actions/release-train-test@e71783838535661d37a8777b067f2c96be4142c2
