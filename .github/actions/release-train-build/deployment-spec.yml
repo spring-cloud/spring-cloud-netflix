@@ -1,0 +1,10 @@
+artifactory:
+  artifacts:
+    - pattern: "/**/spring-cloud-*-docs-*.zip"
+      properties:
+        zip.deployed: "false"
+        zip.type: "docs"
+    - pattern: "/**/spring-cloud-docs-*.zip"
+      properties:
+        zip.deployed: "false"
+        zip.type: "docs"

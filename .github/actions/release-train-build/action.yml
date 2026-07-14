@@ -2,4 +2,12 @@ name: Build Release
 runs:
   using: composite
   steps:
-    - uses: spring-cloud/spring-cloud-github-actions/.github/actions/release-train-build@55cb11377657bcec9a0a89456094e0d5cdb35d2f
+    - name: Build Release
+      shell: bash
+      # If we are on Java 8 we need to build the docs zip for jubilee projects so it is distributed as part of the release
+      run: |
+        if java -version 2>&1 | grep -q '1\.8\.'; then
+          ./mvnw --no-transfer-progress --batch-mode --settings release-train-settings.xml clean deploy --activate-profiles releaseTrain,docs -DaltDeploymentRepository="release-train::default::file://$(pwd)/deployment-repository" -DskipTests
+        else
+          ./mvnw --no-transfer-progress --batch-mode --settings release-train-settings.xml clean deploy --activate-profiles releaseTrain -DaltDeploymentRepository="release-train::default::file://$(pwd)/deployment-repository" -DskipTests
+        fi

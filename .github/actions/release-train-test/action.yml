@@ -2,4 +2,6 @@ name: Test Release
 runs:
   using: composite
   steps:
-    - uses: spring-cloud/spring-cloud-github-actions/.github/actions/release-train-test@55cb11377657bcec9a0a89456094e0d5cdb35d2f
+    - name: Test Release
+      shell: bash
+      run: ./mvnw --no-transfer-progress --batch-mode --settings release-train-settings.xml clean verify --activate-profiles releaseTrain
