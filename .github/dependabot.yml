@@ -5,6 +5,9 @@ updates:
     target-branch: "main"
     schedule:
       interval: "weekly"
+    exclude-paths:
+      - ".github/workflows/release-train-test.yml"
+      - ".github/workflows/release-train-build.yml"
   - package-ecosystem: maven
     directory: /
     schedule:
