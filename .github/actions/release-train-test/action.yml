@@ -4,4 +4,4 @@ runs:
   steps:
     - name: Test Release
       shell: bash
-      run: ./mvnw --no-transfer-progress --batch-mode --settings release-train-settings.xml clean verify --activate-profiles releaseTrain
+      run: ./mvnw --batch-mode --settings release-train-settings.xml clean verify --activate-profiles releaseTrain
