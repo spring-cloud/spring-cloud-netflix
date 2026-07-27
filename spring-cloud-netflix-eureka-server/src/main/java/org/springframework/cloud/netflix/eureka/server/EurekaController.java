@@ -18,11 +18,13 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -41,8 +43,11 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @author Spencer Gibb
@@ -263,30 +268,47 @@ public class EurekaController {
 
 	protected void filterReplicas(Map<String, Object> model, StatusInfo statusInfo) {
 		Map<String, String> applicationStats = statusInfo.getApplicationStats();
-		if (applicationStats.get("registered-replicas").contains("@")) {
-			applicationStats.put("registered-replicas", scrubBasicAuth(applicationStats.get("registered-replicas")));
-		}
-		if (applicationStats.get("unavailable-replicas").contains("@")) {
-			applicationStats.put("unavailable-replicas", scrubBasicAuth(applicationStats.get("unavailable-replicas")));
-		}
-		if (applicationStats.get("available-replicas").contains("@")) {
-			applicationStats.put("available-replicas", scrubBasicAuth(applicationStats.get("available-replicas")));
-		}
+		applicationStats.put("registered-replicas", scrubBasicAuth(applicationStats.get("registered-replicas")));
+		applicationStats.put("unavailable-replicas", scrubBasicAuth(applicationStats.get("unavailable-replicas")));
+		applicationStats.put("available-replicas", scrubBasicAuth(applicationStats.get("available-replicas")));
 		model.put("applicationStats", applicationStats);
 	}
 
+	/**
+	 * Removes any credentials from a comma separated list of URLs, so that they are not
+	 * exposed on the dashboard.
+	 * @param urlList a comma separated list of URLs, possibly containing credentials
+	 * @return the same list with the credentials removed from each URL
+	 */
 	private String scrubBasicAuth(String urlList) {
-		String[] urls = urlList.split(",");
-		StringBuilder filteredUrls = new StringBuilder();
-		for (String u : urls) {
-			if (u.contains("@")) {
-				filteredUrls.append(u, 0, u.indexOf("//") + 2).append(u.substring(u.indexOf("@") + 1)).append(",");
-			}
-			else {
-				filteredUrls.append(u).append(",");
-			}
+		if (urlList == null) {
+			return null;
 		}
-		return filteredUrls.substring(0, filteredUrls.length() - 1);
+		return Arrays.stream(StringUtils.commaDelimitedListToStringArray(urlList))
+			.map(EurekaController::removeCredentials)
+			.collect(Collectors.joining(","));
+	}
+
+	private static String removeCredentials(String url) {
+		try {
+			// A peer URL has no legitimate use for a query string, so it is dropped
+			// wholesale rather than trying to guess which parameters are sensitive.
+			UriComponents components = UriComponentsBuilder.fromUriString(url)
+				.userInfo(null)
+				.replaceQuery(null)
+				.build();
+			if (components.getHost() == null) {
+				// Without a host we cannot tell the authority from the rest of the URL,
+				// so we cannot be sure any credentials have been removed.
+				return "";
+			}
+			return components.toUriString();
+		}
+		catch (IllegalArgumentException ex) {
+			// The URL could not be parsed, so we cannot reliably strip the credentials
+			// from it. Drop it rather than risk exposing them.
+			return "";
+		}
 	}
 
 }
