@@ -25,6 +25,8 @@ import com.netflix.eureka.util.StatusInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -131,6 +133,57 @@ class EurekaControllerReplicasTests {
 		assertThat(results.get("registered-replicas")).isEqualTo(totalNoAutoList);
 		assertThat(results.get("available-replicas")).isEqualTo(combinationNoAuthList1);
 		assertThat(results.get("unavailable-replicas")).isEqualTo(combinationNoAuthList2);
+	}
+
+	@ParameterizedTest(name = "[{index}] {0} -> {1}")
+	@CsvSource(delimiter = '|', textBlock = """
+			# credentials are removed, the rest of the URL is left untouched
+			https://user:pwd@test1.com                          | https://test1.com
+			https://user:pwd@test1.com:8761/eureka/             | https://test1.com:8761/eureka/
+			https://user@test1.com:8761/eureka                  | https://test1.com:8761/eureka
+			http://user:pwd@localhost:8761/eureka/#frag         | http://localhost:8761/eureka/#frag
+			https://user:p%40ssw0rd@test1.com/eureka/           | https://test1.com/eureka/
+			https://user:pwd@[::1]:8761/eureka                  | https://[::1]:8761/eureka
+			# a peer URL has no legitimate use for a query string, and it may itself carry
+			# credentials, so it is dropped rather than guessing which parameters are sensitive
+			http://host:8761/path?user=admin&password=secret    | http://host:8761/path
+			http://host:8761/path?a=b                           | http://host:8761/path
+			# an unencoded '@' in the password must not leak the remainder of the password
+			https://user:p@ss@test1.com/eureka                  | https://test1.com/eureka
+			# an '@' outside of the user info must not truncate the URL
+			https://test1.com/path@weird                        | https://test1.com/path@weird
+			https://test1.com/eureka                            | https://test1.com/eureka
+			# without a host the authority cannot be told apart from the rest of the URL,
+			# so the URL is dropped rather than risk exposing credentials
+			user:pass@host:8761/eureka/                         | ''
+			not a url @ all                                     | ''
+			# a URL that cannot be parsed is dropped for the same reason
+			https://user:pwd@te st1.com                         | ''
+			""")
+	void scrubsUserInfoFromSingleUrl(String url, String expected) {
+		assertThat(filterAvailableReplicas(url)).isEqualTo(expected);
+	}
+
+	@Test
+	void testFilterReplicasScrubsEachUrlInList() {
+		String urls = "https://user:p@ss@test1.com,https://test2.com/path@weird,https://user3@test3.com:8761";
+		assertThat(filterAvailableReplicas(urls))
+			.isEqualTo("https://test1.com,https://test2.com/path@weird,https://test3.com:8761");
+	}
+
+	private String filterAvailableReplicas(String availableReplicas) {
+		Map<String, Object> model = new HashMap<>();
+		StatusInfo statusInfo = StatusInfo.Builder.newBuilder()
+			.add("registered-replicas", empty)
+			.add("available-replicas", availableReplicas)
+			.add("unavailable-replicas", empty)
+			.withInstanceInfo(instanceInfo)
+			.build();
+		new EurekaController(null, new EurekaProperties()).filterReplicas(model, statusInfo);
+
+		@SuppressWarnings("unchecked")
+		Map<String, String> results = (Map<String, String>) model.get("applicationStats");
+		return results.get("available-replicas");
 	}
 
 }
