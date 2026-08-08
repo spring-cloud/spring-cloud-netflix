@@ -176,8 +176,14 @@ public class EurekaController {
 				String zone = "";
 				if (info.getDataCenterInfo().getName() == DataCenterInfo.Name.Amazon) {
 					AmazonInfo dcInfo = (AmazonInfo) info.getDataCenterInfo();
-					ami = dcInfo.get(AmazonInfo.MetaDataKey.amiId);
-					zone = dcInfo.get(AmazonInfo.MetaDataKey.availabilityZone);
+					String amiId = dcInfo.get(AmazonInfo.MetaDataKey.amiId);
+					if (amiId != null) {
+						ami = amiId;
+					}
+					String availabilityZone = dcInfo.get(AmazonInfo.MetaDataKey.availabilityZone);
+					if (availabilityZone != null) {
+						zone = availabilityZone;
+					}
 				}
 				Integer count = amiCounts.get(ami);
 				if (count != null) {
