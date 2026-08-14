@@ -41,6 +41,17 @@ public interface EurekaClientHttpRequestFactorySupplier {
 	ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier);
 
 	/**
+	 * Closes any resources (e.g. a shared HTTP client / connection pool) held by this
+	 * supplier. Called by the owning
+	 * {@link com.netflix.discovery.shared.transport.TransportClientFactory} on
+	 * {@code shutdown()}, which Netflix's {@code DiscoveryClient} invokes synchronously,
+	 * right after the final {@code unregister()} call completes.
+	 * @since 4.3.0
+	 */
+	default void close() {
+	}
+
+	/**
 	 * Allows customising the {@link RequestConfig} of the underlying Apache HC5 instance.
 	 *
 	 * @author Olga Maciaszek-Sharma
