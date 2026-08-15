@@ -615,6 +615,34 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 }
 ----
 
+=== Securing Eureka Replication Requests
+
+When running a Eureka cluster, replication requests between Eureka servers
+(e.g., `/eureka/peerreplication/...`) are internal calls and do not pass through
+standard Spring Security filters.
+
+As a result, authentication mechanisms such as OAuth2 token injection that work
+for client requests (registration, heartbeat) are not automatically applied to
+replication requests.
+
+To customize replication requests (for example, to add authentication headers),
+you can define a `ReplicationClientAdditionalFilters` bean:
+
+[source,java,indent=0]
+----
+
+@Bean
+public ReplicationClientAdditionalFilters additionalFilters() {
+    return new ReplicationClientAdditionalFilters(Collections.emptyList());
+}
+----
+
+Custom filters provided in this bean can be used to modify outgoing replication
+requests, such as injecting OAuth2 tokens or additional headers.
+
+NOTE: This customization is required when securing communication between Eureka
+nodes in a cluster.
+
 For more information on CSRF see the https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf[Spring Security documentation].
 
 A demo Eureka Server can be found in the Spring Cloud Samples https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security-4.x[repo].
