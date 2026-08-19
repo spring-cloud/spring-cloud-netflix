@@ -24,6 +24,7 @@ import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -40,6 +41,7 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus.OUT_OF_SERVICE;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -154,6 +156,31 @@ class EurekaServiceRegistryTests {
 		Map<Object, Object> map = (Map<Object, Object>) status;
 
 		assertThat(map).hasSize(1).containsEntry("status", UNKNOWN.toString());
+	}
+
+	@Test
+	void initialStatusIsSetBeforeClientInitialization() {
+		EurekaServiceRegistry registry = new EurekaServiceRegistry(eurekaInstanceConfigBean);
+
+		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
+		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+
+		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
+
+		EurekaRegistration registration = EurekaRegistration
+			.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties())))
+			.with(eurekaClient)
+			.with(applicationInfoManager)
+			.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
+			.with(new SimpleObjectProvider<>(null))
+			.build();
+
+		registry.register(registration);
+
+		InOrder inOrder = inOrder(applicationInfoManager, eurekaClient);
+
+		inOrder.verify(applicationInfoManager).setInstanceStatus(registration.getInstanceConfig().getInitialStatus());
+		inOrder.verify(eurekaClient).getApplications();
 	}
 
 	@Test
