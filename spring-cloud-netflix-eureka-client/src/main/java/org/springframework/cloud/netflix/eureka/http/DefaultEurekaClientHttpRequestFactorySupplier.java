@@ -55,9 +55,9 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	private final Set<RequestConfigCustomizer> requestConfigCustomizers;
 
-	private volatile CloseableHttpClient sharedHttpClient;
-
 	private final Object lock = new Object();
+
+	private volatile CloseableHttpClient sharedHttpClient;
 
 	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties,
 			Set<RequestConfigCustomizer> requestConfigCustomizers) {
@@ -67,20 +67,18 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	@Override
 	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
-		CloseableHttpClient httpClient = this.sharedHttpClient;
-		if (httpClient == null) {
-			synchronized (this.lock) {
-				httpClient = this.sharedHttpClient;
-				if (httpClient == null) {
-					HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-					if (sslContext != null || hostnameVerifier != null || timeoutProperties != null) {
-						httpClientBuilder.setConnectionManager(
-								buildConnectionManager(sslContext, hostnameVerifier, timeoutProperties));
-					}
-					httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
-					httpClient = httpClientBuilder.build();
-					this.sharedHttpClient = httpClient;
+		CloseableHttpClient httpClient;
+		synchronized (this.lock) {
+			httpClient = this.sharedHttpClient;
+			if (httpClient == null) {
+				HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+				if (sslContext != null || hostnameVerifier != null || timeoutProperties != null) {
+					httpClientBuilder
+						.setConnectionManager(buildConnectionManager(sslContext, hostnameVerifier, timeoutProperties));
 				}
+				httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
+				httpClient = httpClientBuilder.build();
+				this.sharedHttpClient = httpClient;
 			}
 		}
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
@@ -90,13 +88,16 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	@Override
 	public void close() {
-		CloseableHttpClient httpClient = this.sharedHttpClient;
-		if (httpClient != null) {
-			try {
-				httpClient.close();
-			}
-			catch (IOException ex) {
-				// best-effort close during shutdown; nothing actionable if it fails
+		synchronized (this.lock) {
+			CloseableHttpClient httpClient = this.sharedHttpClient;
+			this.sharedHttpClient = null;
+			if (httpClient != null) {
+				try {
+					httpClient.close();
+				}
+				catch (IOException ex) {
+					// best-effort close during shutdown; nothing actionable if it fails
+				}
 			}
 		}
 	}
