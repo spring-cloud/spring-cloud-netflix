@@ -20,7 +20,7 @@ permissions: read-all
 
 jobs:
   deploy-docs:
-    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy-docs.yml@main
+    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy-docs.yml@b6a6b1963b8762420526591c3d363bd7d09e7d4b # v1.1.1
     with:
       build_refname: ${{ github.event.inputs.build-refname }}
       # Optional overrides - the defaults are correct for every current project:
