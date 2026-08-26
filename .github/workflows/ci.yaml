@@ -21,7 +21,7 @@ on:
 
 jobs:
   deploy:
-    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy.yml@main
+    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy.yml@b6a6b1963b8762420526591c3d363bd7d09e7d4b # v1.1.1
     with:
       branches: ${{ inputs.branches }}
     secrets:
