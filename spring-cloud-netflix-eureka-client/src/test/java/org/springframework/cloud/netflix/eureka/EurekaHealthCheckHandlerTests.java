@@ -30,17 +30,20 @@ import org.springframework.boot.health.actuate.endpoint.SimpleStatusAggregator;
 import org.springframework.boot.health.contributor.AbstractHealthIndicator;
 import org.springframework.boot.health.contributor.AbstractReactiveHealthIndicator;
 import org.springframework.boot.health.contributor.CompositeHealthContributor;
+import org.springframework.boot.health.contributor.CompositeReactiveHealthContributor;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthContributor;
 import org.springframework.boot.health.contributor.HealthContributors;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.boot.health.contributor.ReactiveHealthIndicator;
+import org.springframework.boot.health.contributor.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -161,6 +164,30 @@ class EurekaHealthCheckHandlerTests {
 		assertThat(status).isEqualTo(InstanceStatus.DOWN);
 	}
 
+	@Test
+	void testContributorStatusesWithBlockingIndicators() {
+		initialize(NamedUpHealthConfiguration.class, NamedDownHealthConfiguration.class);
+
+		Map<String, Status> statuses = new HashMap<>();
+		Status status = healthCheckHandler.getStatus(new SimpleStatusAggregator(), statuses);
+
+		assertThat(status).isEqualTo(Status.DOWN);
+		assertThat(statuses).containsEntry("upHealthIndicator", Status.UP);
+		assertThat(statuses).containsEntry("downHealthIndicator", Status.DOWN);
+	}
+
+	@Test
+	void testContributorStatusesWithReactiveIndicators() {
+		initialize(NamedReactiveUpHealthConfiguration.class, NamedReactiveDownHealthConfiguration.class);
+
+		Map<String, Status> statuses = new HashMap<>();
+		Status status = healthCheckHandler.getStatus(new SimpleStatusAggregator(), statuses);
+
+		assertThat(status).isEqualTo(Status.DOWN);
+		assertThat(statuses).containsEntry("reactiveUpHealthIndicator", Status.UP);
+		assertThat(statuses).containsEntry("reactiveDownHealthIndicator", Status.DOWN);
+	}
+
 	private void initialize(Class<?>... configurations) {
 		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurations);
 		healthCheckHandler.setApplicationContext(applicationContext);
@@ -191,6 +218,33 @@ class EurekaHealthCheckHandlerTests {
 					builder.down();
 				}
 			};
+		}
+
+	}
+
+	public static class NamedUpHealthConfiguration {
+
+		@Bean
+		public HealthIndicator upHealthIndicator() {
+			return () -> Health.up().build();
+		}
+
+	}
+
+	public static class NamedDownHealthConfiguration {
+
+		@Bean
+		public HealthIndicator downHealthIndicator() {
+			return () -> Health.down().build();
+		}
+
+	}
+
+	public static class NamedReactiveUpHealthConfiguration {
+
+		@Bean
+		public ReactiveHealthIndicator reactiveUpHealthIndicator() {
+			return () -> Mono.just(Health.up().build());
 		}
 
 	}
@@ -323,6 +377,17 @@ class EurekaHealthCheckHandlerTests {
 			return contributorMap.entrySet()
 				.stream()
 				.map((entry) -> new HealthContributors.Entry(entry.getKey(), entry.getValue()));
+		}
+
+	}
+
+	@Configuration
+	static class NamedReactiveDownHealthConfiguration {
+
+		@Bean
+		CompositeReactiveHealthContributor namedReactiveDownHealthContributor() {
+			return CompositeReactiveHealthContributor.fromMap(Map.of("reactiveDownHealthIndicator",
+					(ReactiveHealthIndicator) () -> Mono.just(Health.down().build())));
 		}
 
 	}

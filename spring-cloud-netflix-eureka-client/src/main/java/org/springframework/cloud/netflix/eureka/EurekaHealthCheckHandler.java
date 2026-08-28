@@ -19,11 +19,12 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -67,6 +68,8 @@ import org.springframework.util.Assert;
  */
 public class EurekaHealthCheckHandler
 		implements HealthCheckHandler, ApplicationContextAware, InitializingBean, Ordered, Lifecycle {
+
+	private static final Log log = LogFactory.getLog(EurekaHealthCheckHandler.class);
 
 	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<>() {
 		{
@@ -127,7 +130,12 @@ public class EurekaHealthCheckHandler
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
 		if (running) {
-			return getHealthStatus();
+			Map<String, Status> statuses = new HashMap<>();
+			InstanceStatus status = getHealthStatus(statuses);
+			if (status != instanceStatus) {
+				log.info("Eureka health status changed to " + status + " with health contributors " + statuses);
+			}
+			return status;
 		}
 		else {
 			// Return nothing if the context is not running, so the status held by the
@@ -137,43 +145,42 @@ public class EurekaHealthCheckHandler
 		}
 	}
 
-	protected InstanceStatus getHealthStatus() {
-		Status status = getStatus(statusAggregator);
+	protected InstanceStatus getHealthStatus(Map<String, Status> statuses) {
+		Status status = getStatus(statusAggregator, statuses);
 		return mapToInstanceStatus(status);
 	}
 
-	protected Status getStatus(StatusAggregator statusAggregator) {
-		Set<Status> statusSet = new HashSet<>();
-		for (HealthContributor contributor : healthContributors.values()) {
-			processContributor(statusSet, contributor);
+	protected Status getStatus(StatusAggregator statusAggregator, Map<String, Status> statuses) {
+		for (Map.Entry<String, HealthContributor> entry : healthContributors.entrySet()) {
+			processContributor(statuses, entry.getKey(), entry.getValue());
 		}
-		for (ReactiveHealthContributor contributor : reactiveHealthContributors.values()) {
-			processContributor(statusSet, contributor);
+		for (Map.Entry<String, ReactiveHealthContributor> entry : reactiveHealthContributors.entrySet()) {
+			processContributor(statuses, entry.getKey(), entry.getValue());
 		}
-		return statusAggregator.getAggregateStatus(statusSet);
+		return statusAggregator.getAggregateStatus(new HashSet<>(statuses.values()));
 	}
 
-	private void processContributor(Set<Status> statusSet, HealthContributor contributor) {
+	private void processContributor(Map<String, Status> statuses, String name, HealthContributor contributor) {
 		if (contributor instanceof CompositeHealthContributor) {
 			for (HealthContributors.Entry contrib : (CompositeHealthContributor) contributor) {
-				processContributor(statusSet, contrib.contributor());
+				processContributor(statuses, contrib.name(), contrib.contributor());
 			}
 		}
 		else if (contributor instanceof HealthIndicator) {
-			statusSet.add(((HealthIndicator) contributor).health().getStatus());
+			statuses.put(name, ((HealthIndicator) contributor).health().getStatus());
 		}
 	}
 
-	private void processContributor(Set<Status> statusSet, ReactiveHealthContributor contributor) {
+	private void processContributor(Map<String, Status> statuses, String name, ReactiveHealthContributor contributor) {
 		if (contributor instanceof CompositeReactiveHealthContributor) {
 			for (ReactiveHealthContributors.Entry contrib : (CompositeReactiveHealthContributor) contributor) {
-				processContributor(statusSet, contrib.contributor());
+				processContributor(statuses, contrib.name(), contrib.contributor());
 			}
 		}
 		else if (contributor instanceof ReactiveHealthIndicator) {
 			Health health = ((ReactiveHealthIndicator) contributor).health().block();
 			if (health != null) {
-				statusSet.add(health.getStatus());
+				statuses.put(name, health.getStatus());
 			}
 		}
 	}
