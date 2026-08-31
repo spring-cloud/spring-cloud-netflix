@@ -35,6 +35,7 @@ import org.springframework.boot.health.contributor.HealthContributor;
 import org.springframework.boot.health.contributor.HealthContributors;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.boot.health.contributor.ReactiveHealthIndicator;
+import org.springframework.boot.health.contributor.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
@@ -127,6 +128,15 @@ class EurekaHealthCheckHandlerTests {
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
 		assertThat(status).isEqualTo(InstanceStatus.UNKNOWN);
+	}
+
+	@Test
+	void testCustomHealthStatusMapping() {
+		healthCheckHandler = new EurekaHealthCheckHandler(new SimpleStatusAggregator(),
+				Map.of("fatal", InstanceStatus.OUT_OF_SERVICE));
+
+		assertThat(healthCheckHandler.mapToInstanceStatus(new Status("fatal")))
+			.isEqualTo(InstanceStatus.OUT_OF_SERVICE);
 	}
 
 	@Test

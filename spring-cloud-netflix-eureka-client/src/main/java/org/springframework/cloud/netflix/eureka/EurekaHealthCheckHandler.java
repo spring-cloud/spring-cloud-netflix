@@ -79,6 +79,8 @@ public class EurekaHealthCheckHandler
 
 	private final StatusAggregator statusAggregator;
 
+	private final Map<String, InstanceStatus> statusMapping;
+
 	private ApplicationContext applicationContext;
 
 	private final Map<String, HealthContributor> healthContributors = new HashMap<>();
@@ -91,8 +93,14 @@ public class EurekaHealthCheckHandler
 	private final Map<String, ReactiveHealthContributor> reactiveHealthContributors = new HashMap<>();
 
 	public EurekaHealthCheckHandler(StatusAggregator statusAggregator) {
+		this(statusAggregator, new HashMap<>());
+	}
+
+	public EurekaHealthCheckHandler(StatusAggregator statusAggregator, Map<String, InstanceStatus> statusMapping) {
 		this.statusAggregator = statusAggregator;
+		this.statusMapping = statusMapping;
 		Assert.notNull(statusAggregator, "StatusAggregator must not be null");
+		Assert.notNull(statusMapping, "Status mapping must not be null");
 
 	}
 
@@ -179,10 +187,11 @@ public class EurekaHealthCheckHandler
 	}
 
 	protected InstanceStatus mapToInstanceStatus(Status status) {
-		if (!STATUS_MAPPING.containsKey(status)) {
-			return InstanceStatus.UNKNOWN;
+		if (STATUS_MAPPING.containsKey(status)) {
+			return STATUS_MAPPING.get(status);
 		}
-		return STATUS_MAPPING.get(status);
+
+		return this.statusMapping.getOrDefault(status.getCode(), InstanceStatus.UNKNOWN);
 	}
 
 	@Override
