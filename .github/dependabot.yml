@@ -31,3 +31,29 @@ updates:
     directory: /docs
     schedule:
       interval: weekly
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "5.0.x"
+    schedule:
+      interval: "weekly"
+    exclude-paths:
+      - ".github/workflows/release-train-test.yml"
+      - ".github/workflows/release-train-build.yml"
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: daily
+    target-branch: 5.0.x
+    ignore:
+      # glob 7.2.3+ conflicts with jshint (minimatch) in wro4j-maven-plugin
+      - dependency-name: "org.webjars.npm:glob"
+      # only upgrade patch versions for maintenance branch
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+  - package-ecosystem: npm
+    target-branch: 5.0.x
+    directory: /docs
+    schedule:
+      interval: weekly
