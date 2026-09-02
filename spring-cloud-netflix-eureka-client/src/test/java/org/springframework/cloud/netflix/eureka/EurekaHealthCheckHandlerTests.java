@@ -30,6 +30,7 @@ import org.springframework.boot.health.actuate.endpoint.SimpleStatusAggregator;
 import org.springframework.boot.health.contributor.AbstractHealthIndicator;
 import org.springframework.boot.health.contributor.AbstractReactiveHealthIndicator;
 import org.springframework.boot.health.contributor.CompositeHealthContributor;
+import org.springframework.boot.health.contributor.CompositeReactiveHealthContributor;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthContributor;
 import org.springframework.boot.health.contributor.HealthContributors;
@@ -41,6 +42,7 @@ import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicato
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -195,6 +197,33 @@ class EurekaHealthCheckHandlerTests {
 
 	}
 
+	public static class NamedUpHealthConfiguration {
+
+		@Bean
+		public HealthIndicator upHealthIndicator() {
+			return () -> Health.up().build();
+		}
+
+	}
+
+	public static class NamedDownHealthConfiguration {
+
+		@Bean
+		public HealthIndicator downHealthIndicator() {
+			return () -> Health.down().build();
+		}
+
+	}
+
+	public static class NamedReactiveUpHealthConfiguration {
+
+		@Bean
+		public ReactiveHealthIndicator reactiveUpHealthIndicator() {
+			return () -> Mono.just(Health.up().build());
+		}
+
+	}
+
 	public static class FatalHealthConfiguration {
 
 		@Bean
@@ -323,6 +352,17 @@ class EurekaHealthCheckHandlerTests {
 			return contributorMap.entrySet()
 				.stream()
 				.map((entry) -> new HealthContributors.Entry(entry.getKey(), entry.getValue()));
+		}
+
+	}
+
+	@Configuration
+	static class NamedReactiveDownHealthConfiguration {
+
+		@Bean
+		CompositeReactiveHealthContributor namedReactiveDownHealthContributor() {
+			return CompositeReactiveHealthContributor.fromMap(Map.of("reactiveDownHealthIndicator",
+					(ReactiveHealthIndicator) () -> Mono.just(Health.down().build())));
 		}
 
 	}
