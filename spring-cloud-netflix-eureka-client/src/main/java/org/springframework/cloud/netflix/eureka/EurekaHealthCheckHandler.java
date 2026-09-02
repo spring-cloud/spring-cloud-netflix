@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
@@ -130,10 +131,9 @@ public class EurekaHealthCheckHandler
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
 		if (running) {
-			Map<String, Status> statuses = new HashMap<>();
-			InstanceStatus status = getHealthStatus(statuses);
+			InstanceStatus status = getHealthStatus();
 			if (status != instanceStatus) {
-				log.info("Eureka health status changed to " + status + " with health contributors " + statuses);
+				log.info("Eureka health status changed to " + status);
 			}
 			return status;
 		}
@@ -145,33 +145,36 @@ public class EurekaHealthCheckHandler
 		}
 	}
 
-	protected InstanceStatus getHealthStatus(Map<String, Status> statuses) {
-		Status status = getStatus(statusAggregator, statuses);
+	protected InstanceStatus getHealthStatus() {
+		Status status = getStatus(statusAggregator);
 		return mapToInstanceStatus(status);
 	}
 
-	protected Status getStatus(StatusAggregator statusAggregator, Map<String, Status> statuses) {
+	protected Status getStatus(StatusAggregator statusAggregator) {
+		Set<Status> statuses = new HashSet<>();
 		for (Map.Entry<String, HealthContributor> entry : healthContributors.entrySet()) {
 			processContributor(statuses, entry.getKey(), entry.getValue());
 		}
 		for (Map.Entry<String, ReactiveHealthContributor> entry : reactiveHealthContributors.entrySet()) {
 			processContributor(statuses, entry.getKey(), entry.getValue());
 		}
-		return statusAggregator.getAggregateStatus(new HashSet<>(statuses.values()));
+		return statusAggregator.getAggregateStatus(statuses);
 	}
 
-	private void processContributor(Map<String, Status> statuses, String name, HealthContributor contributor) {
+	private void processContributor(Set<Status> statuses, String name, HealthContributor contributor) {
 		if (contributor instanceof CompositeHealthContributor) {
 			for (HealthContributors.Entry contrib : (CompositeHealthContributor) contributor) {
 				processContributor(statuses, contrib.name(), contrib.contributor());
 			}
 		}
 		else if (contributor instanceof HealthIndicator) {
-			statuses.put(name, ((HealthIndicator) contributor).health().getStatus());
+			Status status = ((HealthIndicator) contributor).health().getStatus();
+			log.debug("Health contributor " + name + " has status " + status);
+			statuses.add(status);
 		}
 	}
 
-	private void processContributor(Map<String, Status> statuses, String name, ReactiveHealthContributor contributor) {
+	private void processContributor(Set<Status> statuses, String name, ReactiveHealthContributor contributor) {
 		if (contributor instanceof CompositeReactiveHealthContributor) {
 			for (ReactiveHealthContributors.Entry contrib : (CompositeReactiveHealthContributor) contributor) {
 				processContributor(statuses, contrib.name(), contrib.contributor());
@@ -180,7 +183,9 @@ public class EurekaHealthCheckHandler
 		else if (contributor instanceof ReactiveHealthIndicator) {
 			Health health = ((ReactiveHealthIndicator) contributor).health().block();
 			if (health != null) {
-				statuses.put(name, health.getStatus());
+				Status status = health.getStatus();
+				log.debug("Health contributor " + name + " has status " + status);
+				statuses.add(status);
 			}
 		}
 	}

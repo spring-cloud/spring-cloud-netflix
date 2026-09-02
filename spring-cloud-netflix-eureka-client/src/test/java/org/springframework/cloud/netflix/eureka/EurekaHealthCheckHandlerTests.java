@@ -36,7 +36,6 @@ import org.springframework.boot.health.contributor.HealthContributor;
 import org.springframework.boot.health.contributor.HealthContributors;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.boot.health.contributor.ReactiveHealthIndicator;
-import org.springframework.boot.health.contributor.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthContributor;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
@@ -162,30 +161,6 @@ class EurekaHealthCheckHandlerTests {
 
 		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
 		assertThat(status).isEqualTo(InstanceStatus.DOWN);
-	}
-
-	@Test
-	void testContributorStatusesWithBlockingIndicators() {
-		initialize(NamedUpHealthConfiguration.class, NamedDownHealthConfiguration.class);
-
-		Map<String, Status> statuses = new HashMap<>();
-		Status status = healthCheckHandler.getStatus(new SimpleStatusAggregator(), statuses);
-
-		assertThat(status).isEqualTo(Status.DOWN);
-		assertThat(statuses).containsEntry("upHealthIndicator", Status.UP);
-		assertThat(statuses).containsEntry("downHealthIndicator", Status.DOWN);
-	}
-
-	@Test
-	void testContributorStatusesWithReactiveIndicators() {
-		initialize(NamedReactiveUpHealthConfiguration.class, NamedReactiveDownHealthConfiguration.class);
-
-		Map<String, Status> statuses = new HashMap<>();
-		Status status = healthCheckHandler.getStatus(new SimpleStatusAggregator(), statuses);
-
-		assertThat(status).isEqualTo(Status.DOWN);
-		assertThat(statuses).containsEntry("reactiveUpHealthIndicator", Status.UP);
-		assertThat(statuses).containsEntry("reactiveDownHealthIndicator", Status.DOWN);
 	}
 
 	private void initialize(Class<?>... configurations) {
