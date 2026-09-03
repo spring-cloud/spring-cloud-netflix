@@ -49,6 +49,13 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 
 	@Override
 	public void register(EurekaRegistration reg) {
+		if (log.isInfoEnabled()) {
+			log.info("Registering application " + reg.getApplicationInfoManager().getInfo().getAppName()
+					+ " with eureka with status " + reg.getInstanceConfig().getInitialStatus());
+		}
+
+		reg.getApplicationInfoManager().setInstanceStatus(reg.getInstanceConfig().getInitialStatus());
+
 		if (eurekaInstanceConfigBean != null && eurekaInstanceConfigBean.isAsyncClientInitialization()) {
 			if (log.isDebugEnabled()) {
 				log.debug("Initializing client asynchronously...");
@@ -65,13 +72,6 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		else {
 			maybeInitializeClient(reg);
 		}
-
-		if (log.isInfoEnabled()) {
-			log.info("Registering application " + reg.getApplicationInfoManager().getInfo().getAppName()
-					+ " with eureka with status " + reg.getInstanceConfig().getInitialStatus());
-		}
-
-		reg.getApplicationInfoManager().setInstanceStatus(reg.getInstanceConfig().getInitialStatus());
 
 		reg.getHealthCheckHandler()
 			.ifAvailable(healthCheckHandler -> reg.getEurekaClient().registerHealthCheck(healthCheckHandler));
