@@ -5,6 +5,7 @@
 # there and re-run the rollout, otherwise your change will be overwritten.
 
 name: Deploy Docs
+
 on:
   push:
     # Allow-list of exactly this branch. A topic or Dependabot branch cut from
@@ -12,14 +13,16 @@ on:
     # those would dispatch a full docs build for a ref that is not in the
     # Antora playbook.
     branches:
-      - 5.0.x
+      - main
     tags: '**'
   repository_dispatch:
     types: request-build-reference # legacy
   workflow_dispatch:
+
 permissions:
-  contents: read # required to check out private commercial repositories
-  actions: write # required to dispatch the docs build
+  contents: read   # required to check out private commercial repositories
+  actions: write   # required to dispatch the docs build
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,6 +32,7 @@ jobs:
         with:
           ref: docs-build
           fetch-depth: 1
+
       # A branch push rebuilds just that branch's docs; a tag push rebuilds
       # everything so the new version appears in the version dropdown.
       - name: Dispatch (partial build)
@@ -36,6 +40,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run deploy-docs.yml -r $(git rev-parse --abbrev-ref HEAD) -f build-refname=${{ github.ref_name }}
+
       - name: Dispatch (full build)
         if: github.ref_type == 'tag'
         env:

@@ -1,20 +1,24 @@
 name: Spring Cloud Netflix CI Job
+
 on:
   push:
     branches:
-      - 5.0.x
+      - main
       - 4.3.x
+
   # Scheduled builds run daily at midnight UTC
   schedule:
     - cron: '0 0 * * *'
+
   # Manual trigger with optional branch override
   workflow_dispatch:
     inputs:
       branches:
         description: "Which branch should be built (can be a comma-separated list of branches)"
         required: true
-        default: '5.0.x'
+        default: 'main'
         type: string
+
 jobs:
   deploy:
     uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy.yml@b6a6b1963b8762420526591c3d363bd7d09e7d4b # v1.1.1
