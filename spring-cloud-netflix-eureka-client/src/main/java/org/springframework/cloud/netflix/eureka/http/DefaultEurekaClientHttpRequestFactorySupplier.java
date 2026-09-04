@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +35,7 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.Timeout;
 
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
+import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
@@ -53,6 +55,8 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 
 	private final Set<RequestConfigCustomizer> requestConfigCustomizers;
 
+	private CloseableHttpClient sharedHttpClient;
+
 	public DefaultEurekaClientHttpRequestFactorySupplier(TimeoutProperties timeoutProperties,
 			Set<RequestConfigCustomizer> requestConfigCustomizers) {
 		this.timeoutProperties = timeoutProperties;
@@ -60,18 +64,36 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 	}
 
 	@Override
-	public ClientHttpRequestFactory get(SSLContext sslContext, @Nullable HostnameVerifier hostnameVerifier) {
-		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-		if (sslContext != null || hostnameVerifier != null || timeoutProperties != null) {
-			httpClientBuilder
-				.setConnectionManager(buildConnectionManager(sslContext, hostnameVerifier, timeoutProperties));
+	public synchronized ClientHttpRequestFactory get(SSLContext sslContext,
+			@Nullable HostnameVerifier hostnameVerifier) {
+		CloseableHttpClient httpClient = this.sharedHttpClient;
+		if (httpClient == null) {
+			HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+			if (sslContext != null || hostnameVerifier != null || timeoutProperties != null) {
+				httpClientBuilder
+					.setConnectionManager(buildConnectionManager(sslContext, hostnameVerifier, timeoutProperties));
+			}
+			httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
+			httpClient = httpClientBuilder.build();
+			this.sharedHttpClient = httpClient;
 		}
-		httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
-
-		CloseableHttpClient httpClient = httpClientBuilder.build();
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
 		return requestFactory;
+	}
+
+	@Override
+	public synchronized void close() {
+		CloseableHttpClient httpClient = this.sharedHttpClient;
+		this.sharedHttpClient = null;
+		if (httpClient != null) {
+			try {
+				httpClient.close();
+			}
+			catch (IOException ex) {
+				// best-effort close during shutdown; nothing actionable if it fails
+			}
+		}
 	}
 
 	private HttpClientConnectionManager buildConnectionManager(SSLContext sslContext, HostnameVerifier hostnameVerifier,

@@ -107,6 +107,7 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 
 	@Override
 	public void shutdown() {
+		eurekaClientHttpRequestFactorySupplier.close();
 	}
 
 	private static void setUrl(RestClient.Builder builder, String serviceUrl) {
