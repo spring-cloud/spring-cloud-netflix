@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2013-2025 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!--
+  Maven settings used exclusively on commercial OSS release branches
+  (release/VERSION branches in *-commercial repos).
+
+  This file is placed at the repo root as release-ci-settings.xml during
+  branch initialization and is passed to Maven via the settings flag
+  by deploy.yml when the file is detected.  It is deleted by
+  spring-release-train-project-ready before the release is finalised so it
+  never appears in the OSS repo history.
+
+  Credentials are read from environment variables set by the CI workflow:
+  COMMERCIAL_ARTIFACTORY_USERNAME and COMMERCIAL_ARTIFACTORY_PASSWORD
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+	<servers>
+		<server>
+			<id>spring-commercial-snapshot</id>
+			<username>${env.COMMERCIAL_ARTIFACTORY_USERNAME}</username>
+			<password>${env.COMMERCIAL_ARTIFACTORY_PASSWORD}</password>
+		</server>
+		<server>
+			<id>spring-commercial-release</id>
+			<username>${env.COMMERCIAL_ARTIFACTORY_USERNAME}</username>
+			<password>${env.COMMERCIAL_ARTIFACTORY_PASSWORD}</password>
+		</server>
+		<!--
+		  Provides credentials when a pom.xml distributionManagement still carries the
+		  OSS server id 'repo.spring.io' but deploy.yml has patched its URL to point at
+		  commercial Artifactory.  Maven looks up credentials by server id, so this entry
+		  ensures the upload is authenticated even before the id is renamed.
+		-->
+		<server>
+			<id>repo.spring.io</id>
+			<username>${env.COMMERCIAL_ARTIFACTORY_USERNAME}</username>
+			<password>${env.COMMERCIAL_ARTIFACTORY_PASSWORD}</password>
+		</server>
+		<server>
+			<id>repo-spring-io-spring-commercial-snapshot</id>
+			<username>${env.COMMERCIAL_ARTIFACTORY_USERNAME}</username>
+			<password>${env.COMMERCIAL_ARTIFACTORY_PASSWORD}</password>
+		</server>
+		<server>
+			<id>repo-spring-io-spring-commercial-release</id>
+			<username>${env.COMMERCIAL_ARTIFACTORY_USERNAME}</username>
+			<password>${env.COMMERCIAL_ARTIFACTORY_PASSWORD}</password>
+		</server>
+	</servers>
+
+	<profiles>
+		<profile>
+			<!--
+			  Activates alongside the pom.xml 'spring' profile (via -Pspring in the
+			  Maven command).  Maven merges both; this adds the four commercial repos
+			  while pom.xml contributes the OSS repos (spring-snapshots, etc.).
+			  Commercial Artifactory does not carry OSS snapshots, so spring-snapshots
+			  from pom.xml remains the source for those.
+			-->
+			<id>spring</id>
+			<repositories>
+				<repository>
+					<id>spring-commercial-snapshot</id>
+					<name>Spring Commercial Snapshot Repository</name>
+					<url>https://usw1.packages.broadcom.com/artifactory/spring-enterprise-maven-dev-local</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>spring-commercial-release</id>
+					<name>Spring Commercial Release Repository</name>
+					<url>https://usw1.packages.broadcom.com/artifactory/spring-enterprise-maven-prod-local</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>repo-spring-io-spring-commercial-snapshot</id>
+					<name>Spring Commercial Snapshot Repository On repo.spring.io</name>
+					<url>https://repo.spring.io/artifactory/spring-commercial-snapshot-remote</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>repo-spring-io-spring-commercial-release</id>
+					<name>Spring Commercial Release Repository On repo.spring.io</name>
+					<url>https://repo.spring.io/artifactory/spring-commercial-release-remote</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>spring-commercial-snapshot</id>
+					<name>Spring Commercial Snapshot Repository</name>
+					<url>https://usw1.packages.broadcom.com/artifactory/spring-enterprise-maven-dev-local</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</pluginRepository>
+				<pluginRepository>
+					<id>spring-commercial-release</id>
+					<name>Spring Commercial Release Repository</name>
+					<url>https://usw1.packages.broadcom.com/artifactory/spring-enterprise-maven-prod-local</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</pluginRepository>
+				<pluginRepository>
+					<id>repo-spring-io-spring-commercial-snapshot</id>
+					<name>Spring Commercial Snapshot Repository On repo.spring.io</name>
+					<url>https://repo.spring.io/artifactory/spring-commercial-snapshot-remote</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</pluginRepository>
+				<pluginRepository>
+					<id>repo-spring-io-spring-commercial-release</id>
+					<name>Spring Commercial Release Repository On repo.spring.io</name>
+					<url>https://repo.spring.io/artifactory/spring-commercial-release-remote</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
+
+</settings>

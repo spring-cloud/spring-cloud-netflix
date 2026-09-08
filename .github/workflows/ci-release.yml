@@ -1,0 +1,41 @@
+name: Spring Cloud CI Job (Commercial Release Branch)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branches:
+        description: "Which branch should be built (can be a comma-separated list of branches)"
+        required: true
+        default: '5.1.x-internal'
+        type: string
+  push:
+    branches:
+      - 5.1.x-internal
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  deploy:
+    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy.yml@b6a6b1963b8762420526591c3d363bd7d09e7d4b # v1.1.1
+    with:
+      branches: ${{ inputs.branches }}
+      # Commercial Artifactory only serves runners in the spring-enterprise-builds
+      # group and refuses anything else with a 403, before authentication is even
+      # attempted. This branch resolves its dependencies from there, so a
+      # GitHub-hosted runner will fail no matter how the credentials are set up.
+      runs_on: ubuntu22-2-8
+      # The branches this workflow builds carry -INTERNAL-SNAPSHOT versions until
+      # release-train-ready stamps the release versions. The antora-component-version
+      # plugin derives the component version by stripping only -SNAPSHOT, producing
+      # e.g. 5.0.3-INTERNAL, which @springio/antora-extensions cannot parse. Building
+      # the docs profile would fail, so it is disabled here.
+      build_docs: false
+    secrets:
+      ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+      ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      COMMERCIAL_ARTIFACTORY_USERNAME: ${{ secrets.COMMERCIAL_ARTIFACTORY_USERNAME }}
+      COMMERCIAL_ARTIFACTORY_PASSWORD: ${{ secrets.COMMERCIAL_ARTIFACTORY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
