@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -31,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -43,6 +46,15 @@ import static org.springframework.cloud.netflix.eureka.http.EurekaHttpClientUtil
  * Provides the custom {@link RestClient} required by the
  * {@link RestClientEurekaHttpClient}. Relies on Jackson for serialization and
  * deserialization.
+ *
+ * <p>
+ * A single {@link ClientHttpRequestFactory} (and the underlying HTTP client it wraps) is
+ * lazily built on the first call to {@link #newClient} and reused for every subsequent
+ * call on this factory instance. Since each {@code RestClientTransportClientFactory} is
+ * already scoped to a single Eureka client, caching the request factory here - rather
+ * than in a potentially shared {@link EurekaClientHttpRequestFactorySupplier} - ties the
+ * shared client's lifecycle directly to this factory instance, so {@link #shutdown()}
+ * only ever closes a client owned exclusively by this factory.
  *
  * @author Wonchul Heo
  * @author Olga Maciaszek-Sharma
@@ -57,6 +69,8 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 	private final EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier;
 
 	private final Supplier<RestClient.Builder> builderSupplier;
+
+	private ClientHttpRequestFactory cachedRequestFactory;
 
 	public RestClientTransportClientFactory(Optional<SSLContext> sslContext,
 			Optional<HostnameVerifier> hostnameVerifier,
@@ -84,8 +98,7 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 		// we want a copy to modify. Don't change the original
 		final RestClient.Builder builder = builderSupplier.get().clone();
 
-		ClientHttpRequestFactory requestFactory = this.eurekaClientHttpRequestFactorySupplier
-			.get(this.sslContext.orElse(null), this.hostnameVerifier.orElse(null));
+		ClientHttpRequestFactory requestFactory = getOrCreateRequestFactory();
 
 		builder.requestFactory(requestFactory);
 		setUrl(builder, endpoint.getServiceUrl());
@@ -105,9 +118,26 @@ public class RestClientTransportClientFactory implements TransportClientFactory 
 		return new RestClientEurekaHttpClient(builder.build());
 	}
 
+	private synchronized ClientHttpRequestFactory getOrCreateRequestFactory() {
+		if (this.cachedRequestFactory == null) {
+			this.cachedRequestFactory = this.eurekaClientHttpRequestFactorySupplier.get(this.sslContext.orElse(null),
+					this.hostnameVerifier.orElse(null));
+		}
+		return this.cachedRequestFactory;
+	}
+
 	@Override
-	public void shutdown() {
-		eurekaClientHttpRequestFactorySupplier.close();
+	public synchronized void shutdown() {
+		if (this.cachedRequestFactory instanceof HttpComponentsClientHttpRequestFactory httpRequestFactory
+				&& httpRequestFactory.getHttpClient() instanceof Closeable closeableHttpClient) {
+			try {
+				closeableHttpClient.close();
+			}
+			catch (IOException ex) {
+				// best-effort close during shutdown; nothing actionable if it fails
+			}
+		}
+		this.cachedRequestFactory = null;
 	}
 
 	private static void setUrl(RestClient.Builder builder, String serviceUrl) {

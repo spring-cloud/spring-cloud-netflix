@@ -34,10 +34,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * These specifically guard against regressing gh-4275: an earlier fix (gh-4258) made this
  * class a Spring {@code DisposableBean}, which raced with
  * {@code CloudEurekaClient#shutdown()} during context shutdown and broke
- * unregister-on-shutdown. That fix was reverted; this class must continue to be closed
- * only via {@link EurekaClientHttpRequestFactorySupplier#close()}, invoked synchronously
- * by {@code TransportClientFactory#shutdown()} - never via an independent Spring
- * bean-destroy callback.
+ * unregister-on-shutdown. That fix was reverted, and this supplier is now intentionally
+ * stateless (gh-4569): it never caches or closes an HTTP client itself. Lifecycle
+ * management of the shared client belongs to the owning
+ * {@link RestClientTransportClientFactory}, which is already scoped to a single Eureka
+ * client - see {@link RestClientTransportClientFactoryShutdownTests}.
  */
 class DefaultEurekaClientHttpRequestFactorySupplierTests {
 
@@ -52,41 +53,23 @@ class DefaultEurekaClientHttpRequestFactorySupplierTests {
 	}
 
 	@Test
-	void shouldReuseSameHttpClientAcrossMultipleGetCalls() {
+	void getShouldReturnANonNullRequestFactory() {
+		ClientHttpRequestFactory requestFactory = supplier.get(null, null);
+		assertThat(requestFactory).isNotNull();
+	}
+
+	@Test
+	void getShouldBuildAFreshHttpClientOnEveryCall() {
+		// The supplier is stateless - caching and lifecycle management belong to the
+		// caller (RestClientTransportClientFactory), so every call must return an
+		// independent client rather than a shared one.
 		ClientHttpRequestFactory first = supplier.get(null, null);
 		ClientHttpRequestFactory second = supplier.get(null, null);
 
 		Object firstHttpClient = ((HttpComponentsClientHttpRequestFactory) first).getHttpClient();
 		Object secondHttpClient = ((HttpComponentsClientHttpRequestFactory) second).getHttpClient();
 
-		assertThat(firstHttpClient).isSameAs(secondHttpClient);
-	}
-
-	@Test
-	void closeShouldBeSafeToCallWithoutPriorGet() {
-		// close() before get() (e.g. context shut down before any request was ever
-		// made) must not throw.
-		supplier.close();
-	}
-
-	@Test
-	void closeShouldBeSafeToCallTwice() {
-		supplier.get(null, null);
-		supplier.close();
-		// Idempotent - shutdown paths may call close() more than once.
-		supplier.close();
-	}
-
-	@Test
-	void getAfterCloseShouldStillReturnARequestFactory() {
-		supplier.get(null, null);
-		supplier.close();
-
-		// A get() call racing just after shutdown must not throw; the returned factory
-		// wraps a closed client and will fail on actual use, which is expected during
-		// shutdown, but construction itself must remain safe.
-		ClientHttpRequestFactory afterClose = supplier.get(null, null);
-		assertThat(afterClose).isNotNull();
+		assertThat(firstHttpClient).isNotSameAs(secondHttpClient);
 	}
 
 }
