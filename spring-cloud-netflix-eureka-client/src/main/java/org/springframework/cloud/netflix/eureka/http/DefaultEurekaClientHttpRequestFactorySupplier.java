@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.Timeout;
 
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
+import org.springframework.cloud.netflix.eureka.http.EurekaClientHttpRequestFactorySupplier.RequestConfigCustomizer;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
@@ -41,6 +42,13 @@ import org.springframework.lang.Nullable;
 /**
  * Supplier for the {@link ClientHttpRequestFactory} to be used by Eureka client that uses
  * {@link HttpClients}.
+ *
+ * <p>
+ * This supplier is intentionally stateless: each call to {@link #get} builds a fresh
+ * {@link CloseableHttpClient}. Caching and lifecycle management of the shared client is
+ * the responsibility of the owning {@code TransportClientFactory}
+ * ({@link RestClientTransportClientFactory}), which is already created once per Eureka
+ * client and is the natural owner of that client's lifecycle.
  *
  * @author Marcin Grzejszczak
  * @author Olga Maciaszek-Sharma
@@ -67,8 +75,8 @@ public class DefaultEurekaClientHttpRequestFactorySupplier implements EurekaClie
 				.setConnectionManager(buildConnectionManager(sslContext, hostnameVerifier, timeoutProperties));
 		}
 		httpClientBuilder.setDefaultRequestConfig(buildRequestConfig());
-
 		CloseableHttpClient httpClient = httpClientBuilder.build();
+
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		requestFactory.setHttpClient(httpClient);
 		return requestFactory;
