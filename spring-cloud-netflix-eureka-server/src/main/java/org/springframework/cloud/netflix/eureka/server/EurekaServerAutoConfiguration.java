@@ -387,7 +387,7 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 		@ConditionalOnMissingBean
 		public EurekaServerConfig eurekaServerConfig(EurekaClientConfig clientConfig) {
 			EurekaServerConfigBean server = new EurekaServerConfigBean();
-			if (clientConfig.shouldRegisterWithEureka()) {
+			if (clientConfig.shouldFetchRegistry()) {
 				// Set a sensible default if we are supposed to replicate
 				server.setRegistrySyncRetries(5);
 			}
