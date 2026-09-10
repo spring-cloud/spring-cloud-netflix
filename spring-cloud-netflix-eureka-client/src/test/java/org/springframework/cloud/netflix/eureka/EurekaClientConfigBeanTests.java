@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.util.Collections;
 
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +52,19 @@ class EurekaClientConfigBeanTests {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
 		this.context.refresh();
 		assertThat(this.context.getBean(EurekaClientConfigBean.class).getProxyHost()).isEqualTo("example.com");
+	}
+
+	@Test
+	void statusMapping() {
+		TestPropertyValues
+			.of("eureka.client.status.mapping.fatal:OUT_OF_SERVICE", "eureka.client.status.mapping.degraded:DOWN")
+			.applyTo(this.context);
+		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
+		this.context.refresh();
+
+		assertThat(this.context.getBean(EurekaClientConfigBean.class).getStatus().getMapping())
+			.containsEntry("fatal", InstanceStatus.OUT_OF_SERVICE)
+			.containsEntry("degraded", InstanceStatus.DOWN);
 	}
 
 	@Test
