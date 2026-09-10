@@ -92,4 +92,20 @@ class RestClientTransportClientFactoryShutdownTests {
 		return ((HttpComponentsClientHttpRequestFactory) requestFactory).getHttpClient();
 	}
 
+	@Test
+	void newClientAfterShutdownShouldCreateANewCachedRequestFactory() {
+		factory.newClient(endpoint());
+		Object httpClientBeforeShutdown = cachedHttpClient(factory);
+
+		factory.shutdown();
+
+		factory.newClient(endpoint());
+		Object httpClientAfterShutdown = cachedHttpClient(factory);
+
+		// shutdown() clears the cached request factory, so a subsequent newClient()
+		// call must lazily build a fresh one rather than reusing the client that was
+		// just closed.
+		assertThat(httpClientAfterShutdown).isNotSameAs(httpClientBeforeShutdown);
+	}
+
 }
