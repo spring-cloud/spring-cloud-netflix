@@ -384,20 +384,23 @@ public class RestClientConfiguration {
 }
 ----
 
+[[status-page-and-health-indicator]]
 === Status Page and Health Indicator
 
-The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
+The status page and health indicators for a Eureka instance default to `/actuator/info` and `/actuator/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
 You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as `server.servletPath=/custom`). The following example shows the default values for the two settings:
 
 .application.yml
 ----
 eureka:
   instance:
-    statusPageUrlPath: ${server.servletPath}/info
-    healthCheckUrlPath: ${server.servletPath}/health
+    statusPageUrlPath: ${server.servletPath}/actuator/info
+    healthCheckUrlPath: ${server.servletPath}/actuator/health
 ----
 
 These links show up in the metadata that is consumed by clients and are used in some scenarios to decide whether to send requests to your application, so it is helpful if they are accurate.
+
+A list of production-ready HTTP paths is in xref:endpoints.adoc[Actuator Endpoints].
 
 NOTE: In Dalston it was also required to set the status and health check URLs when changing
 that management context path.  This requirement was removed beginning in Edgware.
@@ -420,8 +423,8 @@ You can use placeholders to configure the eureka instance URLs, as shown in the 
 ----
 eureka:
   instance:
-    statusPageUrl: https://${eureka.hostname}/info
-    healthCheckUrl: https://${eureka.hostname}/health
+    statusPageUrl: https://${eureka.hostname}/actuator/info
+    healthCheckUrl: https://${eureka.hostname}/actuator/health
     homePageUrl: https://${eureka.hostname}/
 ----
 

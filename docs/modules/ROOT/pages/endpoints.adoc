@@ -1,0 +1,45 @@
+[[actuator-endpoints]]
+= Actuator Endpoints
+
+Spring Cloud Netflix does not register extra Spring Boot Actuator endpoint IDs.
+Use the https://docs.spring.io/spring-boot/reference/actuator/endpoints.html[Spring Boot actuator endpoints] for `health`, `info`, and the rest.
+Earlier releases exposed extra IDs such as `archaius`; those Netflix OSS clients are no longer part of this project.
+
+This project contributes the following production-ready HTTP paths.
+
+== Eureka Client
+
+Eureka instance metadata points at Actuator by default:
+
+[cols="3,2"]
+|===
+| Property | Default
+
+| `eureka.instance.statusPageUrlPath`
+| `/actuator/info`
+
+| `eureka.instance.healthCheckUrlPath`
+| `/actuator/health`
+|===
+
+If you change the servlet context path or `management.endpoints.web.base-path`, set those properties so Eureka publishes the correct URLs.
+See xref:spring-cloud-netflix.adoc#status-page-and-health-indicator[Status Page and Health Indicator].
+
+The `eureka` contributor on `/actuator/health` is auto-configured (`management.health.eureka.enabled`, default `true`).
+It reports the remote instance status from the Eureka server.
+
+== Eureka Server
+
+[cols="2,5"]
+|===
+| Path | Description
+
+| `/` (`eureka.dashboard.path`)
+| Dashboard UI. Disable with `eureka.dashboard.enabled=false`.
+
+| `{dashboard}/lastn`
+| Last registered and canceled instances.
+
+| `/eureka/*`
+| Eureka HTTP API (registration, renewal, and registry).
+|===
