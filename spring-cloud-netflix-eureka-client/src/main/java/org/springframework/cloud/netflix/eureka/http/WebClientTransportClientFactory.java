@@ -30,6 +30,7 @@ import io.netty.handler.ssl.JdkSslContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientSecurityUtils;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.resources.LoopResources;
 
@@ -95,7 +96,8 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 		if (this.sslContext.isPresent()) {
 			httpClient = httpClient.secure(sslContextSpec -> sslContextSpec
-				.sslContext(new JdkSslContext(this.sslContext.get(), true, ClientAuth.NONE)));
+				.sslContext(new JdkSslContext(this.sslContext.get(), true, ClientAuth.NONE))
+				.handlerConfigurator(HttpClientSecurityUtils.HOSTNAME_VERIFICATION_CONFIGURER));
 		}
 
 		builder.clientConnector(new ReactorClientHttpConnector(httpClient));
