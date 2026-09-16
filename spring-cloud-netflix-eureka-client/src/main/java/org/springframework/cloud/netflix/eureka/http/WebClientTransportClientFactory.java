@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka.http;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,18 +67,21 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	private final Optional<SSLContext> sslContext;
 
+	private final Optional<HostnameVerifier> hostnameVerifier;
+
 	private final ConnectionProvider connectionProvider;
 
 	private final LoopResources loopResources;
 
 	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier) {
-		this(builderSupplier, Optional.empty());
+		this(builderSupplier, Optional.empty(), Optional.empty());
 	}
 
-	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier,
-			Optional<SSLContext> sslContext) {
+	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier, Optional<SSLContext> sslContext,
+			Optional<HostnameVerifier> hostnameVerifier) {
 		this.builderSupplier = builderSupplier;
 		this.sslContext = sslContext;
+		this.hostnameVerifier = hostnameVerifier;
 		this.connectionProvider = ConnectionProvider.create("eureka-webclient");
 		this.loopResources = LoopResources.create("eureka-webclient");
 	}
