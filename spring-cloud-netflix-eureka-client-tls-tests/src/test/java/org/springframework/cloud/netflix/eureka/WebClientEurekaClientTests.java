@@ -77,6 +77,7 @@ public class WebClientEurekaClientTests extends BaseCertTests {
 		public WebClientDiscoveryClientOptionalArgs forceWebClientDiscoveryClientOptionalArgs(
 				TlsProperties tlsProperties) throws GeneralSecurityException, IOException {
 			WebClientDiscoveryClientOptionalArgs result = new WebClientDiscoveryClientOptionalArgs(WebClient::builder);
+			result.setHostnameVerifier((hostname, session) -> true);
 			setupTLS(result, tlsProperties);
 			return result;
 		}

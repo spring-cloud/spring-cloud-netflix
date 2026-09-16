@@ -21,11 +21,14 @@ import java.util.function.Supplier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
+import io.netty.channel.Channel;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.JdkSslContext;
 import reactor.core.publisher.Flux;
@@ -99,9 +102,30 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		HttpClient httpClient = HttpClient.create(this.connectionProvider).runOn(this.loopResources);
 
 		if (this.sslContext.isPresent()) {
-			httpClient = httpClient.secure(sslContextSpec -> sslContextSpec
-				.sslContext(new JdkSslContext(this.sslContext.get(), true, ClientAuth.NONE))
-				.handlerConfigurator(HttpClientSecurityUtils.HOSTNAME_VERIFICATION_CONFIGURER));
+			JdkSslContext sslContext = new JdkSslContext(this.sslContext.get(), true, ClientAuth.NONE);
+
+			httpClient = httpClient.secure(sslContextSpec -> {
+				if (this.hostnameVerifier.isPresent()) {
+					HostnameVerifier verifier = this.hostnameVerifier.get();
+					sslContextSpec.sslContext(sslContext)
+						.handlerConfigurator(sslHandler -> sslHandler.handshakeFuture().addListener(handshake -> {
+							if (handshake.isSuccess()) {
+								SSLEngine engine = sslHandler.engine();
+								if (!verifier.verify(engine.getPeerHost(), engine.getSession())) {
+									Channel channel = (Channel) handshake.getNow();
+									channel.pipeline()
+										.fireExceptionCaught(new SSLPeerUnverifiedException(
+												"Hostname verification failed for " + engine.getPeerHost()));
+									channel.close();
+								}
+							}
+						}));
+				}
+				else {
+					sslContextSpec.sslContext(sslContext)
+						.handlerConfigurator(HttpClientSecurityUtils.HOSTNAME_VERIFICATION_CONFIGURER);
+				}
+			});
 		}
 
 		builder.clientConnector(new ReactorClientHttpConnector(httpClient));
