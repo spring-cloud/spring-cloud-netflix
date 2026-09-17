@@ -181,6 +181,58 @@ class WebClientTransportClientFactoryTest {
 		}
 	}
 
+	@Test
+	void testHostnameVerificationWithDefaultVerifier() throws Exception {
+		SelfSignedCertificate certificate = new SelfSignedCertificate("localhost");
+		io.netty.handler.ssl.SslContext serverSslContext = SslContextBuilder
+			.forServer(certificate.certificate(), certificate.privateKey())
+			.build();
+
+		DisposableServer server = HttpServer.create()
+			.port(0)
+			.secure(sslContextSpec -> sslContextSpec.sslContext(serverSslContext))
+			.handle((request, response) -> response.send())
+			.bindNow();
+
+		try {
+			SSLContext clientSslContext = SSLContext.getInstance("TLS");
+			TrustManager[] trustManagers = { new X509TrustManager() {
+
+				@Override
+				public X509Certificate[] getAcceptedIssuers() {
+					return new X509Certificate[0];
+				}
+
+				@Override
+				public void checkClientTrusted(X509Certificate[] chain, String authType) {
+				}
+
+				@Override
+				public void checkServerTrusted(X509Certificate[] chain, String authType) {
+				}
+
+			} };
+			clientSslContext.init(null, trustManagers, new SecureRandom());
+
+			WebClientTransportClientFactory factory = new WebClientTransportClientFactory(WebClient::builder,
+					Optional.of(clientSslContext), Optional.empty());
+
+			try {
+				WebClientEurekaHttpClient client = (WebClientEurekaHttpClient) factory
+					.newClient(new DefaultEndpoint("https://localhost:" + server.port()));
+
+				client.getWebClient().get().retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
+			}
+			finally {
+				factory.shutdown();
+			}
+		}
+		finally {
+			server.disposeNow();
+			certificate.delete();
+		}
+	}
+
 	@AfterEach
 	void shutdown() {
 		transportClientFatory.shutdown();
