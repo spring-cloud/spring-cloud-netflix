@@ -16,15 +16,25 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
+import io.netty.channel.Channel;
+import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.JdkSslContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientSecurityUtils;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.resources.LoopResources;
 
@@ -58,12 +68,23 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 
 	private final Supplier<WebClient.Builder> builderSupplier;
 
+	private final Optional<SSLContext> sslContext;
+
+	private final Optional<HostnameVerifier> hostnameVerifier;
+
 	private final ConnectionProvider connectionProvider;
 
 	private final LoopResources loopResources;
 
 	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier) {
+		this(builderSupplier, Optional.empty(), Optional.empty());
+	}
+
+	public WebClientTransportClientFactory(Supplier<WebClient.Builder> builderSupplier, Optional<SSLContext> sslContext,
+			Optional<HostnameVerifier> hostnameVerifier) {
 		this.builderSupplier = builderSupplier;
+		this.sslContext = sslContext;
+		this.hostnameVerifier = hostnameVerifier;
 		this.connectionProvider = ConnectionProvider.create("eureka-webclient");
 		this.loopResources = LoopResources.create("eureka-webclient");
 	}
@@ -78,8 +99,36 @@ public class WebClientTransportClientFactory implements TransportClientFactory {
 		// Use dedicated Reactor Netty resources independent of the reactive web server
 		// to prevent RejectedExecutionException during graceful shutdown when the
 		// server's event loop terminates before DiscoveryClient deregisters.
-		builder.clientConnector(
-				new ReactorClientHttpConnector(HttpClient.create(this.connectionProvider).runOn(this.loopResources)));
+		HttpClient httpClient = HttpClient.create(this.connectionProvider).runOn(this.loopResources);
+
+		if (this.sslContext.isPresent()) {
+			JdkSslContext sslContext = new JdkSslContext(this.sslContext.get(), true, ClientAuth.NONE);
+
+			httpClient = httpClient.secure(sslContextSpec -> {
+				if (this.hostnameVerifier.isPresent()) {
+					HostnameVerifier verifier = this.hostnameVerifier.get();
+					sslContextSpec.sslContext(sslContext)
+						.handlerConfigurator(sslHandler -> sslHandler.handshakeFuture().addListener(handshake -> {
+							if (handshake.isSuccess()) {
+								SSLEngine engine = sslHandler.engine();
+								if (!verifier.verify(engine.getPeerHost(), engine.getSession())) {
+									Channel channel = (Channel) handshake.getNow();
+									channel.pipeline()
+										.fireExceptionCaught(new SSLPeerUnverifiedException(
+												"Hostname verification failed for " + engine.getPeerHost()));
+									channel.close();
+								}
+							}
+						}));
+				}
+				else {
+					sslContextSpec.sslContext(sslContext)
+						.handlerConfigurator(HttpClientSecurityUtils.HOSTNAME_VERIFICATION_CONFIGURER);
+				}
+			});
+		}
+
+		builder.clientConnector(new ReactorClientHttpConnector(httpClient));
 		return new WebClientEurekaHttpClient(builder.build());
 	}
 
