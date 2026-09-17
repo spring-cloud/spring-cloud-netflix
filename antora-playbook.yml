@@ -13,7 +13,7 @@ content:
     - url: https://github.com/spring-cloud/spring-cloud-netflix
       # Refname matching:
       # https://docs.antora.org/antora/latest/playbook/content-refname-matching/
-      branches: [ main, 4.3.x, 4.2.x ]
+      branches: [ main, 5.0.x ]
       tags: [ 'v{4..9}.+({0..9}).+({0..9})?(-{RC,M}*)', '!v4.1.0-M1', '!v4.0.*' ]
       start_path: docs
 asciidoc:
