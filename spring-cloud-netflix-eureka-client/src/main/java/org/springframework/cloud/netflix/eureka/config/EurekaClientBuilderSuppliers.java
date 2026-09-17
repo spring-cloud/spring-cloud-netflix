@@ -1,0 +1,56 @@
+/*
+ * Copyright 2017-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.cloud.netflix.eureka.config;
+
+import java.util.function.Supplier;
+
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+
+/**
+ * Supplies HTTP client builders for Eureka registry transport, excluding
+ * {@link LoadBalanced @LoadBalanced} beans so registry hosts are not resolved as service
+ * ids.
+ *
+ * @author arimu1
+ */
+final class EurekaClientBuilderSuppliers {
+
+	private EurekaClientBuilderSuppliers() {
+	}
+
+	static Supplier<RestClient.Builder> restClientBuilder(ConfigurableListableBeanFactory beanFactory) {
+		return () -> resolveNonLoadBalancedBuilder(beanFactory, RestClient.Builder.class, RestClient::builder);
+	}
+
+	static Supplier<WebClient.Builder> webClientBuilder(ConfigurableListableBeanFactory beanFactory) {
+		return () -> resolveNonLoadBalancedBuilder(beanFactory, WebClient.Builder.class, WebClient::builder);
+	}
+
+	private static <T> T resolveNonLoadBalancedBuilder(ConfigurableListableBeanFactory beanFactory, Class<T> type,
+			Supplier<T> fallback) {
+		for (String name : beanFactory.getBeanNamesForType(type)) {
+			if (beanFactory.findAnnotationOnBean(name, LoadBalanced.class) == null) {
+				return beanFactory.getBean(name, type);
+			}
+		}
+		return fallback.get();
+	}
+
+}
