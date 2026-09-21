@@ -83,6 +83,19 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 			});
 	}
 
+	@Test
+	void webClientTransportPrefersPlainWebClientBuilderOverLoadBalanced() {
+		new WebApplicationContextRunner()
+			.withUserConfiguration(EurekaSampleApplication.class, PlainAndLoadBalancedWebClientConfiguration.class)
+			.withPropertyValues("eureka.client.webclient.enabled=true")
+			.run(context -> {
+				WebClientTransportClientFactories factories = context.getBean(WebClientTransportClientFactories.class);
+				WebClient.Builder plainBuilder = context.getBean("plainWebClientBuilder", WebClient.Builder.class);
+				Supplier<WebClient.Builder> supplier = getWebClientBuilderSupplier(factories);
+				assertThat(supplier.get()).isSameAs(plainBuilder);
+			});
+	}
+
 	@SuppressWarnings("unchecked")
 	private static Supplier<RestClient.Builder> getRestClientBuilderSupplier(
 			RestClientDiscoveryClientOptionalArgs args) {
@@ -124,6 +137,22 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 
 	@Configuration(proxyBeanMethods = false)
 	static class LoadBalancedWebClientConfiguration {
+
+		@Bean
+		@LoadBalanced
+		WebClient.Builder loadBalancedWebClientBuilder() {
+			return WebClient.builder();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class PlainAndLoadBalancedWebClientConfiguration {
+
+		@Bean
+		WebClient.Builder plainWebClientBuilder() {
+			return WebClient.builder();
+		}
 
 		@Bean
 		@LoadBalanced
