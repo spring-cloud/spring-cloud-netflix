@@ -23,9 +23,10 @@ import java.util.function.Supplier;
 
 import jakarta.annotation.Priority;
 
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.client.RestClient;
@@ -66,24 +67,48 @@ final class EurekaClientBuilderSuppliers {
 		if (candidates.isEmpty()) {
 			return fallback.get();
 		}
-		String beanName = selectHighestPriorityBeanName(beanFactory, candidates);
+		String beanName = selectHighestPriorityBeanName(beanFactory, type, candidates);
 		return beanFactory.getBean(beanName, type);
 	}
 
-	private static String selectHighestPriorityBeanName(ConfigurableListableBeanFactory beanFactory,
+	private static String selectHighestPriorityBeanName(ConfigurableListableBeanFactory beanFactory, Class<?> type,
 			List<String> candidates) {
 		if (candidates.size() == 1) {
 			return candidates.get(0);
 		}
+		List<String> primary = new ArrayList<>();
+		for (String name : candidates) {
+			if (beanFactory.findAnnotationOnBean(name, Primary.class) != null) {
+				primary.add(name);
+			}
+		}
+		if (primary.size() == 1) {
+			return primary.get(0);
+		}
+		if (primary.size() > 1) {
+			throw new NoUniqueBeanDefinitionException(type, primary.size(),
+					"more than one @Primary non-@LoadBalanced " + type.getSimpleName() + " bean: " + primary);
+		}
 		candidates.sort(
 				Comparator.comparingInt((String name) -> orderFor(beanFactory, name)).thenComparing(String::compareTo));
-		return candidates.get(0);
+		int bestOrder = orderFor(beanFactory, candidates.get(0));
+		List<String> tied = new ArrayList<>();
+		for (String name : candidates) {
+			if (orderFor(beanFactory, name) == bestOrder) {
+				tied.add(name);
+			}
+			else {
+				break;
+			}
+		}
+		if (tied.size() > 1) {
+			throw new NoUniqueBeanDefinitionException(type, tied.size(), "more than one non-@LoadBalanced "
+					+ type.getSimpleName() + " bean with equal precedence and no @Primary: " + tied);
+		}
+		return tied.get(0);
 	}
 
 	private static int orderFor(ConfigurableListableBeanFactory beanFactory, String beanName) {
-		if (beanFactory instanceof DefaultListableBeanFactory defaultListableBeanFactory) {
-			return defaultListableBeanFactory.getOrder(beanName);
-		}
 		Order order = beanFactory.findAnnotationOnBean(beanName, Order.class);
 		if (order != null) {
 			return order.value();
@@ -91,10 +116,6 @@ final class EurekaClientBuilderSuppliers {
 		Priority priority = beanFactory.findAnnotationOnBean(beanName, Priority.class);
 		if (priority != null) {
 			return priority.value();
-		}
-		Object bean = beanFactory.getBean(beanName);
-		if (bean instanceof Ordered ordered) {
-			return ordered.getOrder();
 		}
 		return Ordered.LOWEST_PRECEDENCE;
 	}

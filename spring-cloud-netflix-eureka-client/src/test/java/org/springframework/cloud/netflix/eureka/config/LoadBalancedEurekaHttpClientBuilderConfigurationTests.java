@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.eureka.http.RestClientDiscoveryClientOptionalArgs;
@@ -28,11 +29,14 @@ import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author arimu1
@@ -94,6 +98,43 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 				Supplier<WebClient.Builder> supplier = getWebClientBuilderSupplier(factories);
 				assertThat(supplier.get()).isSameAs(plainBuilder);
 			});
+	}
+
+	@Test
+	void restClientTransportPrefersOrderedPlainBuilder() {
+		new WebApplicationContextRunner()
+			.withUserConfiguration(EurekaSampleApplication.class, OrderedPlainRestClientConfiguration.class)
+			.withPropertyValues("eureka.client.webclient.enabled=false")
+			.run(context -> {
+				RestClientDiscoveryClientOptionalArgs args = context
+					.getBean(RestClientDiscoveryClientOptionalArgs.class);
+				RestClient.Builder preferred = context.getBean("preferredRestClientBuilder", RestClient.Builder.class);
+				Supplier<RestClient.Builder> supplier = getRestClientBuilderSupplier(args);
+				assertThat(supplier.get()).isSameAs(preferred);
+			});
+	}
+
+	@Test
+	void restClientTransportPrefersPrimaryPlainBuilder() {
+		new WebApplicationContextRunner()
+			.withUserConfiguration(EurekaSampleApplication.class, PrimaryPlainRestClientConfiguration.class)
+			.withPropertyValues("eureka.client.webclient.enabled=false")
+			.run(context -> {
+				RestClientDiscoveryClientOptionalArgs args = context
+					.getBean(RestClientDiscoveryClientOptionalArgs.class);
+				RestClient.Builder primary = context.getBean("primaryRestClientBuilder", RestClient.Builder.class);
+				Supplier<RestClient.Builder> supplier = getRestClientBuilderSupplier(args);
+				assertThat(supplier.get()).isSameAs(primary);
+			});
+	}
+
+	@Test
+	void restClientTransportRejectsAmbiguousPlainBuilders() {
+		assertThatThrownBy(() -> new WebApplicationContextRunner()
+			.withUserConfiguration(EurekaSampleApplication.class, AmbiguousPlainRestClientConfiguration.class)
+			.withPropertyValues("eureka.client.webclient.enabled=false")
+			.run(context -> context.getBean(RestClientDiscoveryClientOptionalArgs.class)))
+			.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -158,6 +199,72 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 		@LoadBalanced
 		WebClient.Builder loadBalancedWebClientBuilder() {
 			return WebClient.builder();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class OrderedPlainRestClientConfiguration {
+
+		@Bean
+		@Order(1)
+		RestClient.Builder preferredRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+		@Bean
+		@Order(2)
+		RestClient.Builder secondaryRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+		@Bean
+		@LoadBalanced
+		RestClient.Builder loadBalancedRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class PrimaryPlainRestClientConfiguration {
+
+		@Bean
+		@Primary
+		RestClient.Builder primaryRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+		@Bean
+		RestClient.Builder secondaryRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+		@Bean
+		@LoadBalanced
+		RestClient.Builder loadBalancedRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class AmbiguousPlainRestClientConfiguration {
+
+		@Bean
+		RestClient.Builder firstPlainRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+		@Bean
+		RestClient.Builder secondPlainRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+		@Bean
+		@LoadBalanced
+		RestClient.Builder loadBalancedRestClientBuilder() {
+			return RestClient.builder();
 		}
 
 	}
