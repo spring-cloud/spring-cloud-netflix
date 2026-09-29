@@ -40,6 +40,7 @@ import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
@@ -49,8 +50,10 @@ import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationP
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.context.config.ContextRefreshedWithApplicationEvent;
 import org.springframework.cloud.context.refresh.ContextRefresher;
+import org.springframework.cloud.context.restart.PauseHandler;
 import org.springframework.cloud.context.scope.GenericScope;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaPauseHandler;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -648,6 +651,37 @@ class EurekaClientAutoConfigurationTests {
 				assertThat(context).doesNotHaveBean(DiscoveryClient.class);
 				assertThat(context).doesNotHaveBean(DiscoveryClientHealthIndicator.class);
 			});
+	}
+
+	@Test
+	void shouldHaveEurekaPauseHandler() {
+		pauseHandlerContextRunner().run(context -> assertThat(context).hasSingleBean(EurekaPauseHandler.class));
+	}
+
+	@Test
+	void shouldNotHaveEurekaPauseHandlerWhenAutoRegistrationDisabled() {
+		pauseHandlerContextRunner().withPropertyValues("spring.cloud.service-registry.auto-registration.enabled=false")
+			.run(context -> assertThat(context).doesNotHaveBean(EurekaPauseHandler.class));
+	}
+
+	@Test
+	void shouldNotHaveEurekaPauseHandlerWhenRegisterWithEurekaDisabled() {
+		pauseHandlerContextRunner().withPropertyValues("eureka.client.register-with-eureka=false")
+			.run(context -> assertThat(context).doesNotHaveBean(EurekaPauseHandler.class));
+	}
+
+	@Test
+	void shouldNotHaveEurekaPauseHandlerWhenPauseHandlerIsNotOnClasspath() {
+		pauseHandlerContextRunner().withClassLoader(new FilteredClassLoader(PauseHandler.class))
+			.run(context -> assertThat(context).doesNotHaveBean(EurekaPauseHandler.class));
+	}
+
+	private ApplicationContextRunner pauseHandlerContextRunner() {
+		return new ApplicationContextRunner()
+			.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
+					DiscoveryClientOptionalArgsConfiguration.class, EurekaClientAutoConfiguration.class))
+			.withUserConfiguration(AutoServiceRegistrationConfiguration.class)
+			.withPropertyValues("eureka.client.fetch-registry=false");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -387,6 +387,12 @@ When a refresh occurs clients will be unregistered from the Eureka server and th
 where all instance of a given service are not available. One way to eliminate this from happening is to disable
 the ability to refresh Eureka clients.  To do this set `eureka.client.refresh.enable=false`.
 
+=== Pausing Eureka Clients
+
+If the `pause` and `resume` actuator endpoints from Spring Cloud Commons are enabled, calling `/actuator/pause` sets
+the instance's status to `OUT_OF_SERVICE` in the Eureka server, which takes it out of rotation for other clients.
+Calling `/actuator/resume` removes that override, and the instance shows its own status again after its next heartbeat.
+
 === Using Eureka with Spring Cloud LoadBalancer
 
 We offer support for the Spring Cloud LoadBalancer `ZonePreferenceServiceInstanceListSupplier`.

@@ -75,11 +75,13 @@ import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistryAutoConfiguration;
 import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.cloud.context.restart.PauseHandler;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.cloud.netflix.eureka.metadata.DefaultManagementMetadataProvider;
 import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadata;
 import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadataProvider;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaPauseHandler;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.cloud.util.ProxyUtils;
@@ -249,6 +251,21 @@ public class EurekaClientAutoConfiguration {
 	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(ApplicationContext context,
 			EurekaServiceRegistry registry, EurekaRegistration registration) {
 		return new EurekaAutoServiceRegistration(context, registry, registration);
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnClass(PauseHandler.class)
+	@ConditionalOnProperty(value = "eureka.client.register-with-eureka", matchIfMissing = true)
+	protected static class EurekaPauseHandlerConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean
+		@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+		@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
+		public EurekaPauseHandler eurekaPauseHandler(EurekaServiceRegistry registry, EurekaRegistration registration) {
+			return new EurekaPauseHandler(registry, registration);
+		}
+
 	}
 
 	@Configuration(proxyBeanMethods = false)
