@@ -73,11 +73,11 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 			long lastFetch = discoveryClient.getLastSuccessfulRegistryFetchTimePeriod();
 
 			if (lastFetch < 0) {
-				status = new Status("UP",
+				status = new Status("DOWN",
 						"Eureka discovery client has not yet successfully connected to a Eureka server");
 			}
 			else if (lastFetch > clientConfig.getRegistryFetchIntervalSeconds() * 2000) {
-				status = new Status("UP",
+				status = new Status("DOWN",
 						"Eureka discovery client is reporting failures to connect to a Eureka server");
 				builder.withDetail("renewalPeriod", instanceConfig.getLeaseRenewalIntervalInSeconds());
 				builder.withDetail("failCount", lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
