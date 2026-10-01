@@ -16,11 +16,10 @@ updates:
     ignore:
       # glob 7.2.3+ conflicts with jshint (minimatch) in wro4j-maven-plugin
       - dependency-name: "org.webjars.npm:glob"
-      # only upgrade patch versions for maintenance branch
+      # ignore major updates
       - dependency-name: "*"
         update-types:
           - version-update:semver-major
-          - version-update:semver-minor
   - package-ecosystem: npm
     target-branch: docs-build
     directory: /
