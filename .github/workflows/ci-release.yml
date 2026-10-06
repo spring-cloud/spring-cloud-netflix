@@ -6,11 +6,11 @@ on:
       branches:
         description: "Which branch should be built (can be a comma-separated list of branches)"
         required: true
-        default: '5.0.x-internal'
+        default: 'release/5.0.3'
         type: string
   push:
     branches:
-      - 5.0.x-internal
+      - release/5.0.3
 
 permissions:
   actions: write
