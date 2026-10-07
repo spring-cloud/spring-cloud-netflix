@@ -117,8 +117,8 @@ abstract class AbstractEurekaHttpClientTests {
 	@ParameterizedTest
 	@ValueSource(strings = { "test", "test#1.[3.?]!" })
 	void testGetInstance(String instanceId) {
-		eurekaHttpClient.getInstance(instanceId);
-		eurekaHttpClient.getInstance("test", instanceId);
+		assertThat(eurekaHttpClient.getInstance(instanceId).getEntity().getInstanceId()).isEqualTo(instanceId);
+		assertThat(eurekaHttpClient.getInstance("test", instanceId).getEntity().getInstanceId()).isEqualTo(instanceId);
 	}
 
 }

@@ -171,12 +171,12 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 
 	@Override
 	public EurekaHttpResponse<InstanceInfo> getInstance(String appName, String id) {
-		return getInstanceInternal("/apps/" + appName + '/' + id);
+		return getInstanceInternal("apps", appName, id);
 	}
 
 	@Override
 	public EurekaHttpResponse<InstanceInfo> getInstance(String id) {
-		return getInstanceInternal("/instances/" + id);
+		return getInstanceInternal("instances", id);
 	}
 
 	@Override
@@ -208,9 +208,9 @@ public class RestClientEurekaHttpClient implements EurekaHttpClient {
 			.build();
 	}
 
-	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String urlPath) {
+	private EurekaHttpResponse<InstanceInfo> getInstanceInternal(String... pathSegments) {
 		final ResponseEntity<InstanceInfo> response = restClient.get()
-			.uri(urlPath)
+			.uri(builder -> builder.pathSegment(pathSegments).build())
 			.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 			.retrieve()
 			.toEntity(InstanceInfo.class);
