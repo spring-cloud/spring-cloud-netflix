@@ -177,7 +177,7 @@ public class EurekaServerMockApplication {
 
 	@GetMapping({ "/apps/{appName}/{id}", "/instances/{id}" })
 	public InstanceInfo getInstance(@PathVariable(required = false) String appName, @PathVariable String id) {
-		return INFO;
+		return new InstanceInfo.Builder(new InstanceInfo(INFO)).setInstanceId(id).build();
 	}
 
 	/*
