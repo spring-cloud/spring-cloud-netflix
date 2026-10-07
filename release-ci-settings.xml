@@ -115,6 +115,17 @@
 						<enabled>false</enabled>
 					</snapshots>
 				</repository>
+				<repository>
+					<id>spring-snapshots</id>
+					<name>Spring Snapshots</name>
+					<url>https://repo.spring.io/libs-snapshot-local</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
 			</repositories>
 			<pluginRepositories>
 				<pluginRepository>
@@ -154,6 +165,17 @@
 					<snapshots>
 						<enabled>false</enabled>
 					</snapshots>
+				</pluginRepository>
+				<pluginRepository>
+					<id>spring-snapshots</id>
+					<name>Spring Snapshots</name>
+					<url>https://repo.spring.io/libs-snapshot-local</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
 				</pluginRepository>
 			</pluginRepositories>
 		</profile>
