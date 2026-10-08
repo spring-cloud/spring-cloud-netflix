@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -186,12 +187,23 @@ public class EurekaHealthCheckHandler
 		}
 	}
 
+	private static String getUniformCode(String code) {
+		return code.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+	}
+
 	protected InstanceStatus mapToInstanceStatus(Status status) {
 		if (STATUS_MAPPING.containsKey(status)) {
 			return STATUS_MAPPING.get(status);
 		}
 
-		return this.statusMapping.getOrDefault(status.getCode(), InstanceStatus.UNKNOWN);
+		String statusCode = getUniformCode(status.getCode());
+
+		return this.statusMapping.entrySet()
+			.stream()
+			.filter(entry -> getUniformCode(entry.getKey()).equals(statusCode))
+			.map(Map.Entry::getValue)
+			.findFirst()
+			.orElse(InstanceStatus.UNKNOWN);
 	}
 
 	@Override

@@ -140,6 +140,15 @@ class EurekaHealthCheckHandlerTests {
 	}
 
 	@Test
+	void testCustomHealthStatusMappingIsCaseInsensitive() {
+		healthCheckHandler = new EurekaHealthCheckHandler(new SimpleStatusAggregator(),
+				Map.of("fatal", InstanceStatus.OUT_OF_SERVICE));
+
+		assertThat(healthCheckHandler.mapToInstanceStatus(new Status("FATAL")))
+			.isEqualTo(InstanceStatus.OUT_OF_SERVICE);
+	}
+
+	@Test
 	void testEurekaIgnored() {
 		initialize(EurekaDownHealthConfiguration.class);
 
