@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.netflix.appinfo.EurekaAccept;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -68,6 +69,12 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	 * Flag to indicate that the Eureka client is enabled.
 	 */
 	private boolean enabled = true;
+
+	/**
+	 * Custom health status mapping for Eureka.
+	 */
+	@NestedConfigurationProperty
+	private StatusMapping status = new StatusMapping();
 
 	@NestedConfigurationProperty
 	private EurekaTransportConfig transport = new CloudEurekaTransportConfig();
@@ -538,6 +545,14 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public StatusMapping getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(StatusMapping status) {
+		this.status = status;
 	}
 
 	public EurekaTransportConfig getTransport() {
@@ -1138,6 +1153,20 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 			.append(order)
 			.append("'}")
 			.toString();
+	}
+
+	public static class StatusMapping {
+
+		private Map<String, InstanceStatus> mapping = new HashMap<>();
+
+		public Map<String, InstanceStatus> getMapping() {
+			return this.mapping;
+		}
+
+		public void setMapping(Map<String, InstanceStatus> mapping) {
+			this.mapping = mapping;
+		}
+
 	}
 
 }
