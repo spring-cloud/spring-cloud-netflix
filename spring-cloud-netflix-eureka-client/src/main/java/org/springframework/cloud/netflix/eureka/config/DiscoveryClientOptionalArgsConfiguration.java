@@ -25,7 +25,7 @@ import com.netflix.discovery.shared.transport.jersey.TransportClientFactories;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -48,8 +48,6 @@ import org.springframework.cloud.netflix.eureka.http.WebClientTransportClientFac
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Daniel Lavoie
@@ -104,12 +102,12 @@ public class DiscoveryClientOptionalArgsConfiguration {
 				value = { AbstractDiscoveryClientOptionalArgs.class, RestClientDiscoveryClientOptionalArgs.class },
 				search = SearchStrategy.CURRENT)
 		public WebClientDiscoveryClientOptionalArgs webClientDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
-				ObjectProvider<WebClient.Builder> builder) throws GeneralSecurityException, IOException {
+				ConfigurableListableBeanFactory beanFactory) throws GeneralSecurityException, IOException {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Eureka HTTP Client uses WebClient.");
 			}
 			WebClientDiscoveryClientOptionalArgs result = new WebClientDiscoveryClientOptionalArgs(
-					builder::getIfAvailable);
+					EurekaClientBuilderSuppliers.webClientBuilder(beanFactory));
 			setupTLS(result, tlsProperties);
 			return result;
 		}
@@ -117,8 +115,8 @@ public class DiscoveryClientOptionalArgsConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(value = TransportClientFactories.class, search = SearchStrategy.CURRENT)
 		public WebClientTransportClientFactories webClientTransportClientFactories(
-				ObjectProvider<WebClient.Builder> builder) {
-			return new WebClientTransportClientFactories(builder::getIfAvailable);
+				ConfigurableListableBeanFactory beanFactory) {
+			return new WebClientTransportClientFactories(EurekaClientBuilderSuppliers.webClientBuilder(beanFactory));
 		}
 
 	}
@@ -154,14 +152,13 @@ public class DiscoveryClientOptionalArgsConfiguration {
 				search = SearchStrategy.CURRENT)
 		public RestClientDiscoveryClientOptionalArgs restClientDiscoveryClientOptionalArgs(TlsProperties tlsProperties,
 				EurekaClientHttpRequestFactorySupplier eurekaClientHttpRequestFactorySupplier,
-				ObjectProvider<RestClient.Builder> restClientBuilderProvider)
-				throws GeneralSecurityException, IOException {
+				ConfigurableListableBeanFactory beanFactory) throws GeneralSecurityException, IOException {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Eureka HTTP Client uses RestClient.");
 			}
 			RestClientDiscoveryClientOptionalArgs result = new RestClientDiscoveryClientOptionalArgs(
 					eurekaClientHttpRequestFactorySupplier,
-					() -> restClientBuilderProvider.getIfAvailable(RestClient::builder));
+					EurekaClientBuilderSuppliers.restClientBuilder(beanFactory));
 			setupTLS(result, tlsProperties);
 			return result;
 		}
