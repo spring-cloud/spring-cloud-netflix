@@ -3,7 +3,6 @@
 
 Spring Cloud Netflix does not register extra Spring Boot Actuator endpoint IDs.
 Use the https://docs.spring.io/spring-boot/reference/actuator/endpoints.html[Spring Boot actuator endpoints] for `health`, `info`, and the rest.
-Earlier releases exposed extra IDs such as `archaius`; those Netflix OSS clients are no longer part of this project.
 
 This project contributes the following production-ready HTTP paths.
 
