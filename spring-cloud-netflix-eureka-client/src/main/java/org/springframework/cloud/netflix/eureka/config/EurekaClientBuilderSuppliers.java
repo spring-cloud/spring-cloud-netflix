@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,12 +24,15 @@ import java.util.function.Supplier;
 
 import jakarta.annotation.Priority;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.util.function.SingletonSupplier;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -45,22 +49,20 @@ final class EurekaClientBuilderSuppliers {
 	}
 
 	static Supplier<RestClient.Builder> restClientBuilder(ConfigurableListableBeanFactory beanFactory) {
-		RestClient.Builder builder = resolveNonLoadBalancedBuilder(beanFactory, RestClient.Builder.class,
-				RestClient::builder);
-		return () -> builder;
+		return SingletonSupplier
+			.of(() -> resolveNonLoadBalancedBuilder(beanFactory, RestClient.Builder.class, RestClient::builder));
 	}
 
 	static Supplier<WebClient.Builder> webClientBuilder(ConfigurableListableBeanFactory beanFactory) {
-		WebClient.Builder builder = resolveNonLoadBalancedBuilder(beanFactory, WebClient.Builder.class,
-				WebClient::builder);
-		return () -> builder;
+		return SingletonSupplier
+			.of(() -> resolveNonLoadBalancedBuilder(beanFactory, WebClient.Builder.class, WebClient::builder));
 	}
 
 	private static <T> T resolveNonLoadBalancedBuilder(ConfigurableListableBeanFactory beanFactory, Class<T> type,
 			Supplier<T> fallback) {
 		List<String> candidates = new ArrayList<>();
-		for (String name : beanFactory.getBeanNamesForType(type)) {
-			if (beanFactory.findAnnotationOnBean(name, LoadBalanced.class) == null) {
+		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, type)) {
+			if (findAnnotation(beanFactory, name, LoadBalanced.class) == null) {
 				candidates.add(name);
 			}
 		}
@@ -78,7 +80,7 @@ final class EurekaClientBuilderSuppliers {
 		}
 		List<String> primary = new ArrayList<>();
 		for (String name : candidates) {
-			if (beanFactory.findAnnotationOnBean(name, Primary.class) != null) {
+			if (findAnnotation(beanFactory, name, Primary.class) != null) {
 				primary.add(name);
 			}
 		}
@@ -109,15 +111,27 @@ final class EurekaClientBuilderSuppliers {
 	}
 
 	private static int orderFor(ConfigurableListableBeanFactory beanFactory, String beanName) {
-		Order order = beanFactory.findAnnotationOnBean(beanName, Order.class);
+		Order order = findAnnotation(beanFactory, beanName, Order.class);
 		if (order != null) {
 			return order.value();
 		}
-		Priority priority = beanFactory.findAnnotationOnBean(beanName, Priority.class);
+		Priority priority = findAnnotation(beanFactory, beanName, Priority.class);
 		if (priority != null) {
 			return priority.value();
 		}
 		return Ordered.LOWEST_PRECEDENCE;
+	}
+
+	private static <A extends Annotation> A findAnnotation(ConfigurableListableBeanFactory beanFactory, String beanName,
+			Class<A> annotationType) {
+		BeanFactory current = beanFactory;
+		while (current instanceof ConfigurableListableBeanFactory factory) {
+			if (factory.containsBeanDefinition(beanName)) {
+				return factory.findAnnotationOnBean(beanName, annotationType);
+			}
+			current = factory.getParentBeanFactory();
+		}
+		return null;
 	}
 
 }
