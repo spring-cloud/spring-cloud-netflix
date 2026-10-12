@@ -118,7 +118,7 @@ final class EurekaHttpClientUtils {
 		try {
 			final URI serviceURI = new URI(serviceUrl);
 			if (serviceURI.getUserInfo() != null) {
-				final String[] credentials = serviceURI.getUserInfo().split(":");
+				final String[] credentials = serviceURI.getUserInfo().split(":", 2);
 				if (credentials.length == 2) {
 					return new UserInfo(credentials[0], credentials[1]);
 				}
