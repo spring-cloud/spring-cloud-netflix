@@ -112,6 +112,20 @@ class WebClientTransportClientFactoryTest {
 	}
 
 	@Test
+	void testUserInfoWithColonInPassword() {
+		String expectedAuthHeader = "Basic " + HttpHeaders.encodeBasicAuth("test", "My:Password", null);
+
+		WebClientEurekaHttpClient client = (WebClientEurekaHttpClient) transportClientFatory
+			.newClient(new DefaultEndpoint("http://test:My%3APassword@localhost:8761"));
+
+		client.getWebClient().get().retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
+
+		ClientRequest request = verifyAndGetRequest();
+
+		assertThat(request.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo(expectedAuthHeader);
+	}
+
+	@Test
 	void testUserInfo() {
 		transportClientFatory.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
 	}
