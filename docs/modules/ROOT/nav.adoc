@@ -1,5 +1,5 @@
 * xref:index.adoc[Introduction]
 * xref:spring-cloud-netflix.adoc[]
+* xref:endpoints.adoc[]
 * xref:appendix.adoc[]
 ** xref:configprops.adoc[]
-
