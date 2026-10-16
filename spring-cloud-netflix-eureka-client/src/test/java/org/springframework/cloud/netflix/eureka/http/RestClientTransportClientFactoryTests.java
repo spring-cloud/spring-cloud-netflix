@@ -26,9 +26,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
  * Tests for {@link RestClientTransportClientFactory}.
@@ -66,6 +71,22 @@ class RestClientTransportClientFactoryTests {
 		EurekaHttpClient eurekaHttpClient = transportClientFactory
 			.newClient(new DefaultEndpoint("http://test:test@localhost:8761"));
 		assertThat(eurekaHttpClient).isInstanceOf(RestClientEurekaHttpClient.class);
+	}
+
+	@Test
+	void userInfoWithColonInPassword() {
+		RestClientEurekaHttpClient eurekaHttpClient = (RestClientEurekaHttpClient) transportClientFactory
+			.newClient(new DefaultEndpoint("http://test:My%3APassword@localhost:8761"));
+		RestClient.Builder builder = eurekaHttpClient.getRestClient().mutate();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+		server.expect(requestTo("http://localhost:8761/apps/"))
+			.andExpect(header(HttpHeaders.AUTHORIZATION,
+					"Basic " + HttpHeaders.encodeBasicAuth("test", "My:Password", null)))
+			.andRespond(withSuccess());
+
+		builder.build().get().uri("/apps/").retrieve().toBodilessEntity();
+
+		server.verify();
 	}
 
 	@AfterEach
