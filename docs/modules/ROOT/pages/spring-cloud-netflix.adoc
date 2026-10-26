@@ -7,6 +7,9 @@ Service Discovery is one of the key tenets of a microservice-based architecture.
 Trying to hand-configure each client or some form of convention can be difficult to do and can be brittle.
 Eureka is the Netflix Service Discovery Server and Client.
 The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.
+To get started with Eureka, run a Eureka Server first and then configure clients to register with it.
+For local development, use the xref:spring-cloud-eureka-server-standalone-mode[standalone mode] configuration.
+For production deployments, use multiple servers with xref:spring-cloud-eureka-server-peer-awareness[peer awareness].
 
 [[netflix-eureka-client-starter]]
 === How to Include Eureka Client
@@ -417,6 +420,9 @@ NOTE:  Given the AOT and native image closed-world assumption, using random port
 == Service Discovery: Eureka Server
 
 This section describes how to set up a Eureka server.
+You can run a single server for local development or run multiple peer-aware servers for higher availability.
+The server itself is also a Eureka client by default, so a standalone server should disable client-side registration and registry fetching.
+See xref:spring-cloud-eureka-server-standalone-mode[] for the standalone configuration and xref:spring-cloud-eureka-server-peer-awareness[] for a production-style setup.
 
 [[netflix-eureka-server-starter]]
 === How to Include Eureka Server
@@ -446,14 +452,12 @@ The following example shows a minimal Eureka server:
 public class Application {
 
     public static void main(String[] args) {
-		SpringApplication.run(CustomerServiceTestApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
-
-
 }
 ----
 
-The server has a home page with a UI and HTTP API endpoints for the normal Eureka functionality under `/eureka/*`.
+After adding the starter and the configuration for either standalone or peer-aware operation, the server has a home page with a UI and HTTP API endpoints for the normal Eureka functionality under `/eureka/*`.
 
 The following links have some Eureka background reading:  https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer[flux capacitor] and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0[google group discussion].
 
