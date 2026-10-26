@@ -4,4 +4,4 @@ on:
     branches: [5.0.x, 4.3.x]
 jobs:
   build:
-    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/pr.yml@dcb46519e39cac30da944657880e628f1acaba23 # v1.1.2
+    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/pr.yml@3438b5f08fb79debef7a7a8b76a9a74391680b86 # v1.1.3

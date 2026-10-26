@@ -17,7 +17,7 @@ on:
         type: string
 jobs:
   deploy:
-    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy.yml@dcb46519e39cac30da944657880e628f1acaba23 # v1.1.2
+    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/deploy.yml@3438b5f08fb79debef7a7a8b76a9a74391680b86 # v1.1.3
     with:
       branches: ${{ inputs.branches }}
     secrets:
