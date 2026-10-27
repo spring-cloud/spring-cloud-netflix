@@ -19,7 +19,9 @@ package org.springframework.cloud.netflix.eureka.config;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import jakarta.annotation.Priority;
@@ -91,12 +93,16 @@ final class EurekaClientBuilderSuppliers {
 			throw new NoUniqueBeanDefinitionException(type, primary.size(),
 					"more than one @Primary non-@LoadBalanced " + type.getSimpleName() + " bean: " + primary);
 		}
-		candidates.sort(
-				Comparator.comparingInt((String name) -> orderFor(beanFactory, name)).thenComparing(String::compareTo));
-		int bestOrder = orderFor(beanFactory, candidates.get(0));
+		Map<String, Integer> orderByName = new HashMap<>();
+		for (String name : candidates) {
+			orderByName.put(name, orderFor(beanFactory, name));
+		}
+		candidates
+			.sort(Comparator.comparingInt((String name) -> orderByName.get(name)).thenComparing(String::compareTo));
+		int bestOrder = orderByName.get(candidates.get(0));
 		List<String> tied = new ArrayList<>();
 		for (String name : candidates) {
-			if (orderFor(beanFactory, name) == bestOrder) {
+			if (orderByName.get(name) == bestOrder) {
 				tied.add(name);
 			}
 			else {
