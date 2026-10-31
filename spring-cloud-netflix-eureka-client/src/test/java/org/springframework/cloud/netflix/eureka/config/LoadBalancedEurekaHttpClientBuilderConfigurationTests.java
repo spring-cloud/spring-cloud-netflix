@@ -148,6 +148,26 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 	}
 
 	@Test
+	void restClientTransportPrefersChildBuilderOverParentBuilder() {
+		try (AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
+				ParentPrimaryRestClientConfiguration.class)) {
+			new WebApplicationContextRunner().withParent(parent)
+				.withUserConfiguration(EurekaSampleApplication.class, ChildPlainRestClientConfiguration.class)
+				.withPropertyValues("eureka.client.webclient.enabled=false")
+				.run(context -> {
+					RestClientDiscoveryClientOptionalArgs args = context
+						.getBean(RestClientDiscoveryClientOptionalArgs.class);
+					RestClient.Builder childBuilder = context.getBean("childRestClientBuilder",
+							RestClient.Builder.class);
+					RestClient.Builder parentBuilder = parent.getBean("parentRestClientBuilder",
+							RestClient.Builder.class);
+					Supplier<RestClient.Builder> supplier = getRestClientBuilderSupplier(args);
+					assertThat(supplier.get()).isSameAs(childBuilder).isNotSameAs(parentBuilder);
+				});
+		}
+	}
+
+	@Test
 	void restClientTransportIgnoresLoadBalancedBuilderDefinedOnlyInParentContext() {
 		try (AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
 				LoadBalancedRestClientConfiguration.class)) {
@@ -195,6 +215,27 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 
 		@Bean
 		RestClient.Builder plainRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ParentPrimaryRestClientConfiguration {
+
+		@Bean
+		@Primary
+		RestClient.Builder parentRestClientBuilder() {
+			return RestClient.builder();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ChildPlainRestClientConfiguration {
+
+		@Bean
+		RestClient.Builder childRestClientBuilder() {
 			return RestClient.builder();
 		}
 

@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 /**
  * Supplies HTTP client builders for Eureka registry transport, excluding
  * {@link LoadBalanced @LoadBalanced} beans so registry hosts are not resolved as service
- * ids.
+ * ids. A non-load-balanced builder in the current factory is preferred over an ancestor
+ * bean of the same type, matching {@code ObjectProvider#getIfAvailable()}.
  *
  * @author arimu1
  */
@@ -62,17 +64,40 @@ final class EurekaClientBuilderSuppliers {
 
 	private static <T> T resolveNonLoadBalancedBuilder(ConfigurableListableBeanFactory beanFactory, Class<T> type,
 			Supplier<T> fallback) {
-		List<String> candidates = new ArrayList<>();
-		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, type)) {
-			if (findAnnotation(beanFactory, name, LoadBalanced.class) == null) {
-				candidates.add(name);
-			}
+		// Match ObjectProvider.getIfAvailable(): this factory wins when it has a
+		// non-@LoadBalanced candidate. Ancestors are used only when it does not.
+		String[] localNames = beanFactory.getBeanNamesForType(type);
+		List<String> candidates = nonLoadBalancedNames(beanFactory, localNames);
+		if (candidates.isEmpty()) {
+			candidates = nonLoadBalancedAncestorNames(beanFactory, type, localNames);
 		}
 		if (candidates.isEmpty()) {
 			return fallback.get();
 		}
 		String beanName = selectHighestPriorityBeanName(beanFactory, type, candidates);
 		return beanFactory.getBean(beanName, type);
+	}
+
+	private static List<String> nonLoadBalancedNames(ConfigurableListableBeanFactory beanFactory, String[] names) {
+		List<String> candidates = new ArrayList<>();
+		for (String name : names) {
+			if (findAnnotation(beanFactory, name, LoadBalanced.class) == null) {
+				candidates.add(name);
+			}
+		}
+		return candidates;
+	}
+
+	private static List<String> nonLoadBalancedAncestorNames(ConfigurableListableBeanFactory beanFactory, Class<?> type,
+			String[] localNames) {
+		List<String> local = Arrays.asList(localNames);
+		List<String> candidates = new ArrayList<>();
+		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, type)) {
+			if (!local.contains(name) && findAnnotation(beanFactory, name, LoadBalanced.class) == null) {
+				candidates.add(name);
+			}
+		}
+		return candidates;
 	}
 
 	private static String selectHighestPriorityBeanName(ConfigurableListableBeanFactory beanFactory, Class<?> type,
