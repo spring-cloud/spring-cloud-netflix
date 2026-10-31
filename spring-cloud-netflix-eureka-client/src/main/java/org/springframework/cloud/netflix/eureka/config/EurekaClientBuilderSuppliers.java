@@ -1,0 +1,168 @@
+/*
+ * Copyright 2017-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.cloud.netflix.eureka.config;
+
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+
+import jakarta.annotation.Priority;
+
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.util.function.SingletonSupplier;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+
+/**
+ * Supplies HTTP client builders for Eureka registry transport, excluding
+ * {@link LoadBalanced @LoadBalanced} beans so registry hosts are not resolved as service
+ * ids. A non-load-balanced builder in the current factory is preferred over an ancestor
+ * bean of the same type, matching {@code ObjectProvider#getIfAvailable()}.
+ *
+ * @author arimu1
+ */
+final class EurekaClientBuilderSuppliers {
+
+	private EurekaClientBuilderSuppliers() {
+	}
+
+	static Supplier<RestClient.Builder> restClientBuilder(ConfigurableListableBeanFactory beanFactory) {
+		return SingletonSupplier
+			.of(() -> resolveNonLoadBalancedBuilder(beanFactory, RestClient.Builder.class, RestClient::builder));
+	}
+
+	static Supplier<WebClient.Builder> webClientBuilder(ConfigurableListableBeanFactory beanFactory) {
+		return SingletonSupplier
+			.of(() -> resolveNonLoadBalancedBuilder(beanFactory, WebClient.Builder.class, WebClient::builder));
+	}
+
+	private static <T> T resolveNonLoadBalancedBuilder(ConfigurableListableBeanFactory beanFactory, Class<T> type,
+			Supplier<T> fallback) {
+		// Match ObjectProvider.getIfAvailable(): this factory wins when it has a
+		// non-@LoadBalanced candidate. Ancestors are used only when it does not.
+		String[] localNames = beanFactory.getBeanNamesForType(type);
+		List<String> candidates = nonLoadBalancedNames(beanFactory, localNames);
+		if (candidates.isEmpty()) {
+			candidates = nonLoadBalancedAncestorNames(beanFactory, type, localNames);
+		}
+		if (candidates.isEmpty()) {
+			return fallback.get();
+		}
+		String beanName = selectHighestPriorityBeanName(beanFactory, type, candidates);
+		return beanFactory.getBean(beanName, type);
+	}
+
+	private static List<String> nonLoadBalancedNames(ConfigurableListableBeanFactory beanFactory, String[] names) {
+		List<String> candidates = new ArrayList<>();
+		for (String name : names) {
+			if (findAnnotation(beanFactory, name, LoadBalanced.class) == null) {
+				candidates.add(name);
+			}
+		}
+		return candidates;
+	}
+
+	private static List<String> nonLoadBalancedAncestorNames(ConfigurableListableBeanFactory beanFactory, Class<?> type,
+			String[] localNames) {
+		List<String> local = Arrays.asList(localNames);
+		List<String> candidates = new ArrayList<>();
+		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, type)) {
+			if (!local.contains(name) && findAnnotation(beanFactory, name, LoadBalanced.class) == null) {
+				candidates.add(name);
+			}
+		}
+		return candidates;
+	}
+
+	private static String selectHighestPriorityBeanName(ConfigurableListableBeanFactory beanFactory, Class<?> type,
+			List<String> candidates) {
+		if (candidates.size() == 1) {
+			return candidates.get(0);
+		}
+		List<String> primary = new ArrayList<>();
+		for (String name : candidates) {
+			if (findAnnotation(beanFactory, name, Primary.class) != null) {
+				primary.add(name);
+			}
+		}
+		if (primary.size() == 1) {
+			return primary.get(0);
+		}
+		if (primary.size() > 1) {
+			throw new NoUniqueBeanDefinitionException(type, primary.size(),
+					"more than one @Primary non-@LoadBalanced " + type.getSimpleName() + " bean: " + primary);
+		}
+		Map<String, Integer> orderByName = new HashMap<>();
+		for (String name : candidates) {
+			orderByName.put(name, orderFor(beanFactory, name));
+		}
+		candidates
+			.sort(Comparator.comparingInt((String name) -> orderByName.get(name)).thenComparing(String::compareTo));
+		int bestOrder = orderByName.get(candidates.get(0));
+		List<String> tied = new ArrayList<>();
+		for (String name : candidates) {
+			if (orderByName.get(name) == bestOrder) {
+				tied.add(name);
+			}
+			else {
+				break;
+			}
+		}
+		if (tied.size() > 1) {
+			throw new NoUniqueBeanDefinitionException(type, tied.size(), "more than one non-@LoadBalanced "
+					+ type.getSimpleName() + " bean with equal precedence and no @Primary: " + tied);
+		}
+		return tied.get(0);
+	}
+
+	private static int orderFor(ConfigurableListableBeanFactory beanFactory, String beanName) {
+		Order order = findAnnotation(beanFactory, beanName, Order.class);
+		if (order != null) {
+			return order.value();
+		}
+		Priority priority = findAnnotation(beanFactory, beanName, Priority.class);
+		if (priority != null) {
+			return priority.value();
+		}
+		return Ordered.LOWEST_PRECEDENCE;
+	}
+
+	private static <A extends Annotation> A findAnnotation(ConfigurableListableBeanFactory beanFactory, String beanName,
+			Class<A> annotationType) {
+		BeanFactory current = beanFactory;
+		while (current instanceof ConfigurableListableBeanFactory factory) {
+			if (factory.containsBeanDefinition(beanName)) {
+				return factory.findAnnotationOnBean(beanName, annotationType);
+			}
+			current = factory.getParentBeanFactory();
+		}
+		return null;
+	}
+
+}
