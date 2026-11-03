@@ -721,6 +721,7 @@ Common issues:
 - Use zone metadata in multi-zone deployments.
 - Avoid hardcoding service URLs.
 - Monitor logs for debugging load balancing behavior.
+
 === AOT and Native Image Support
 
 Spring Cloud Netflix Eureka Client integration supports Spring AOT transformations and native images, however, only with refresh mode disabled.
