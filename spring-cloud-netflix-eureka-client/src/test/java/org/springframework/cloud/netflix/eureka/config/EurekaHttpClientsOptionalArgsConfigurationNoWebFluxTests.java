@@ -24,8 +24,7 @@ import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static org.assertj.core.api.AssertionsForClassTypes.fail;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Daniel Lavoie
@@ -35,22 +34,11 @@ class EurekaHttpClientsOptionalArgsConfigurationNoWebFluxTests {
 
 	@Test
 	void contextFailsWithoutWebClient() {
-
-		ConfigurableApplicationContext ctx = null;
-		try {
-			TomcatURLStreamHandlerFactory.disable();
-			ctx = new SpringApplicationBuilder(EurekaSampleApplication.class)
+		TomcatURLStreamHandlerFactory.disable();
+		assertThatThrownBy(() -> new SpringApplicationBuilder(EurekaSampleApplication.class)
 				.properties("eureka.client.webclient.enabled=true")
-				.run();
-			fail("exception not thrown");
-		}
-		catch (Exception e) {
-			// this is the desired state
-			assertThat(e).hasStackTraceContaining("WebClient is not on the classpath");
-		}
-		if (ctx != null) {
-			ctx.close();
-		}
+				.run())
+				.hasStackTraceContaining("WebClient is not on the classpath");
 	}
 
 }
