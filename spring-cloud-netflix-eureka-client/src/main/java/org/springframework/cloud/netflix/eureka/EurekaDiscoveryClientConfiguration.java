@@ -66,8 +66,8 @@ public class EurekaDiscoveryClientConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(HealthCheckHandler.class)
-		public EurekaHealthCheckHandler eurekaHealthCheckHandler() {
-			return new EurekaHealthCheckHandler(this.statusAggregator);
+		public EurekaHealthCheckHandler eurekaHealthCheckHandler(EurekaClientConfigBean eurekaClientConfigBean) {
+			return new EurekaHealthCheckHandler(this.statusAggregator, eurekaClientConfigBean.getStatus().getMapping());
 		}
 
 	}
