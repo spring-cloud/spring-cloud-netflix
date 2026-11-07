@@ -29,6 +29,7 @@ import org.springframework.boot.health.actuate.endpoint.SimpleStatusAggregator;
 import org.springframework.boot.health.actuate.endpoint.StatusAggregator;
 import org.springframework.cloud.client.ConditionalOnBlockingDiscoveryEnabled;
 import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
 import org.springframework.context.ApplicationListener;
@@ -52,7 +53,7 @@ import org.springframework.context.annotation.Configuration;
 public class EurekaDiscoveryClientConfiguration {
 
 	@Bean
-	@ConditionalOnMissingBean
+	@ConditionalOnMissingBean(DiscoveryClient.class)
 	public EurekaDiscoveryClient discoveryClient(EurekaClient client, EurekaClientConfig clientConfig) {
 		return new EurekaDiscoveryClient(client, clientConfig);
 	}
