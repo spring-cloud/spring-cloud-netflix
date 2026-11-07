@@ -148,7 +148,7 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 	}
 
 	@Test
-	void restClientTransportPrefersChildBuilderOverParentBuilder() {
+	void restClientTransportPrefersParentPrimaryBuilderOverPlainChildBuilder() {
 		try (AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
 				ParentPrimaryRestClientConfiguration.class)) {
 			new WebApplicationContextRunner().withParent(parent)
@@ -162,7 +162,23 @@ class LoadBalancedEurekaHttpClientBuilderConfigurationTests {
 					RestClient.Builder parentBuilder = parent.getBean("parentRestClientBuilder",
 							RestClient.Builder.class);
 					Supplier<RestClient.Builder> supplier = getRestClientBuilderSupplier(args);
-					assertThat(supplier.get()).isSameAs(childBuilder).isNotSameAs(parentBuilder);
+					assertThat(supplier.get()).isSameAs(parentBuilder).isNotSameAs(childBuilder);
+				});
+		}
+	}
+
+	@Test
+	void restClientTransportRejectsPlainBuildersDefinedInParentAndChild() {
+		try (AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
+				ParentPlainRestClientConfiguration.class)) {
+			new WebApplicationContextRunner().withParent(parent)
+				.withUserConfiguration(EurekaSampleApplication.class, ChildPlainRestClientConfiguration.class)
+				.withPropertyValues("eureka.client.webclient.enabled=false")
+				.run(context -> {
+					RestClientDiscoveryClientOptionalArgs args = context
+						.getBean(RestClientDiscoveryClientOptionalArgs.class);
+					assertThatThrownBy(getRestClientBuilderSupplier(args)::get)
+						.isInstanceOf(NoUniqueBeanDefinitionException.class);
 				});
 		}
 	}
