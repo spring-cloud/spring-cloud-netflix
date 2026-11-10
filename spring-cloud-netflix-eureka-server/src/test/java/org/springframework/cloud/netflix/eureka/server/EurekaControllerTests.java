@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
@@ -117,11 +118,45 @@ class EurekaControllerTests {
 		assertThat((Boolean) instance.get("isHref")).as("isHref was wrong").isFalse();
 	}
 
+	@Test
+	void statusUsesDefaultAmiForAmazonInstancesWithoutAmiMetadata() {
+		AmazonInfo amazonInfo = new AmazonInfo(null, new HashMap<>());
+		Application app = new Application("myapp");
+		app.addInstance(InstanceInfo.Builder.newBuilder()
+			.setAppName("myapp")
+			.setDataCenterInfo(amazonInfo)
+			.setInstanceId("myapp:1")
+			.build());
+
+		when(getServerContext().getRegistry().getSortedApplications()).thenReturn(Collections.singletonList(app));
+
+		Map<String, Object> model = new HashMap<>();
+		EurekaController controller = new EurekaController(infoManager, new EurekaProperties());
+
+		controller.status(new MockHttpServletRequest("GET", "/"), model);
+
+		Map<String, Object> appData = getFirst(model, "apps");
+		Map.Entry<String, Integer> amiCount = getFirstEntry(appData, "amiCounts");
+		assertThat(amiCount.getKey()).isEqualTo("n/a");
+		assertThat(amiCount.getValue()).isEqualTo(1);
+	}
+
+	private EurekaServerContext getServerContext() {
+		return EurekaServerContextHolder.getInstance().getServerContext();
+	}
+
 	@SuppressWarnings("unchecked")
 	Map<String, Object> getFirst(Map<String, Object> model, String key) {
 		List<Map<String, Object>> apps = (List<Map<String, Object>>) model.get(key);
 		assertThat(apps).as(key + " was wrong size").hasSize(1);
 		return apps.get(0);
+	}
+
+	@SuppressWarnings("unchecked")
+	Map.Entry<String, Integer> getFirstEntry(Map<String, Object> model, String key) {
+		Iterable<Map.Entry<String, Integer>> entries = (Iterable<Map.Entry<String, Integer>>) model.get(key);
+		assertThat(entries).as(key + " was wrong size").hasSize(1);
+		return entries.iterator().next();
 	}
 
 }
