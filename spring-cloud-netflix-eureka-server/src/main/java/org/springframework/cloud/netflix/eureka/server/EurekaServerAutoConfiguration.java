@@ -80,7 +80,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.server.autoconfigure.ServerProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
@@ -253,13 +252,8 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 	}
 
 	@Bean
-	public FilterRegistrationBean<?> eurekaVersionFilterRegistration(ServerProperties serverProperties,
-			Environment env) {
-		final String contextPath = serverProperties.getServlet().getContextPath();
+	public FilterRegistrationBean<?> eurekaVersionFilterRegistration(Environment env) {
 		String regex = EurekaConstants.DEFAULT_PREFIX + STATIC_CONTENT_PATTERN;
-		if (StringUtils.hasText(contextPath)) {
-			regex = contextPath + regex;
-		}
 		String debugResponseHeader = env.getProperty("eureka.server.version.filter.debug.response-header");
 		boolean addDebugResponseHeader = StringUtils.hasText(debugResponseHeader);
 		Pattern staticPattern = Pattern.compile(regex);
@@ -269,19 +263,14 @@ public class EurekaServerAutoConfiguration implements WebMvcConfigurer {
 			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 					FilterChain filterChain) throws ServletException, IOException {
 				HttpServletRequest req = request;
+				String contextPath = request.getContextPath();
 				String requestURI = request.getRequestURI();
-				if (!requestURI.startsWith(EurekaConstants.DEFAULT_PREFIX + "/v2")
+				if (!requestURI.startsWith(contextPath + EurekaConstants.DEFAULT_PREFIX + "/v2")
 						// don't forward static requests (images, js, etc...) to /v2
-						&& !staticPattern.matcher(requestURI).matches()) {
+						&& !staticPattern.matcher(requestURI.substring(contextPath.length())).matches()) {
 
-					String prefix = EurekaConstants.DEFAULT_PREFIX;
-					if (StringUtils.hasText(contextPath)) {
-						prefix = contextPath + prefix;
-					}
-					String updatedPath = EurekaConstants.DEFAULT_PREFIX + "/v2" + requestURI.substring(prefix.length());
-					if (StringUtils.hasText(contextPath)) {
-						updatedPath = contextPath + updatedPath;
-					}
+					String prefix = contextPath + EurekaConstants.DEFAULT_PREFIX;
+					String updatedPath = prefix + "/v2" + requestURI.substring(prefix.length());
 					final String computedPath = updatedPath;
 					// only used if a special debug property is set, so in prod this is
 					// always skipped.
