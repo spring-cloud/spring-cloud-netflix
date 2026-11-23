@@ -14,10 +14,10 @@ Eureka instance metadata points at Actuator by default:
 |===
 | Property | Default
 
-| `eureka.instance.statusPageUrlPath`
+| `eureka.instance.status-page-url-path`
 | `/actuator/info`
 
-| `eureka.instance.healthCheckUrlPath`
+| `eureka.instance.health-check-url-path`
 | `/actuator/health`
 |===
 
