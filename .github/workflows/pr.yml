@@ -6,4 +6,4 @@ on:
 
 jobs:
   build:
-    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/pr.yml@f040e448aec1a8705914bc8d84380ea98a23d8d2 # v1.1.4
+    uses: spring-cloud/spring-cloud-github-actions/.github/workflows/pr.yml@5c311f30a39682b7db09afe9930e14ea1b472927 # v1.1.5
