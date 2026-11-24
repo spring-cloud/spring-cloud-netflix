@@ -12,7 +12,7 @@
 	<name>Spring Cloud Netflix Eureka Server</name>
 	<url>https://projects.spring.io/spring-cloud/</url>
 	<properties>
-		<bootstrap.version>5.3.8</bootstrap.version>
+		<bootstrap.version>5.3.9</bootstrap.version>
 		<jersey.version>4.0.3</jersey.version>
 		<jquery.version>3.6.4</jquery.version>
 		<wro4j.version>1.10.1</wro4j.version>
