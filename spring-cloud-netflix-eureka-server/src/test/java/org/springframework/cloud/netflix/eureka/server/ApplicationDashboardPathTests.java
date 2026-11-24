@@ -67,6 +67,7 @@ class ApplicationDashboardPathTests {
 		ResponseEntity<String> entity = new TestRestTemplate()
 			.getForEntity("http://localhost:" + this.port + "/eureka/css/wro.css", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(entity.getBody()).contains(".table-striped");
 	}
 
 	@Test
@@ -74,6 +75,7 @@ class ApplicationDashboardPathTests {
 		ResponseEntity<String> entity = new TestRestTemplate()
 			.getForEntity("http://localhost:" + this.port + "/eureka/js/wro.js", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(entity.getBody()).contains(".fn.extend(", "[data-bs-toggle=\"tab\"]");
 	}
 
 }
