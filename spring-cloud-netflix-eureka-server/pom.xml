@@ -12,7 +12,9 @@
 	<name>Spring Cloud Netflix Eureka Server</name>
 	<url>https://projects.spring.io/spring-cloud/</url>
 	<properties>
+		<bootstrap.version>5.3.8</bootstrap.version>
 		<jersey.version>4.0.3</jersey.version>
+		<jquery.version>3.6.4</jquery.version>
 		<wro4j.version>1.10.1</wro4j.version>
 		<wiremock.version>2.27.2</wiremock.version>
 	</properties>
@@ -205,12 +207,12 @@
 					<dependency>
 						<groupId>org.webjars.npm</groupId>
 						<artifactId>jquery</artifactId>
-						<version>3.6.4</version>
+						<version>${jquery.version}</version>
 					</dependency>
 					<dependency>
 						<groupId>org.webjars.npm</groupId>
 						<artifactId>bootstrap</artifactId>
-						<version>5.3.8</version>
+						<version>${bootstrap.version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
