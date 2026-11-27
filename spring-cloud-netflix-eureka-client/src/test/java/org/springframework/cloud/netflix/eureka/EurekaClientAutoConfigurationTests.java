@@ -51,6 +51,8 @@ import org.springframework.cloud.context.config.ContextRefreshedWithApplicationE
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.cloud.context.scope.GenericScope;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -58,6 +60,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
@@ -75,6 +78,31 @@ import static org.assertj.core.api.AssertionsForClassTypes.fail;
 class EurekaClientAutoConfigurationTests {
 
 	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+
+	@Test
+	void autoRegistrationWorksWithoutEmbeddedServer() {
+		EurekaServiceRegistry registry = Mockito.mock(EurekaServiceRegistry.class);
+		new ApplicationContextRunner()
+			.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
+					DiscoveryClientOptionalArgsConfiguration.class, EurekaClientAutoConfiguration.class))
+			.withUserConfiguration(AutoServiceRegistrationConfiguration.class)
+			.withBean("testServiceRegistry", EurekaServiceRegistry.class, () -> registry,
+					definition -> definition.setPrimary(true))
+			.withPropertyValues("eureka.client.register-with-eureka=false", "eureka.client.fetch-registry=false",
+					"eureka.instance.non-secure-port=9090")
+			.run(context -> {
+				assertThat(context).hasNotFailed();
+				EurekaAutoServiceRegistration autoRegistration = context.getBean(EurekaAutoServiceRegistration.class);
+				assertThat(autoRegistration).isExactlyInstanceOf(EurekaAutoServiceRegistration.class);
+				assertThat(autoRegistration.isRunning()).isTrue();
+				EurekaRegistration registration = context.getBean(EurekaRegistration.class);
+				assertThat(registration.getNonSecurePort()).isEqualTo(9090);
+				Mockito.verify(registry).register(registration);
+				autoRegistration.onApplicationEvent(new ContextClosedEvent(context.getSourceApplicationContext()));
+				assertThat(autoRegistration.isRunning()).isFalse();
+				Mockito.verify(registry).deregister(registration);
+			});
+	}
 
 	@AfterEach
 	void after() {

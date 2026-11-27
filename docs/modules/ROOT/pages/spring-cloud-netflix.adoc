@@ -449,6 +449,10 @@ public class Application {
 
 The server has a home page with a UI and HTTP API endpoints for the normal Eureka functionality under `/eureka/*`.
 
+When packaging a Eureka application as a WAR for deployment to an external servlet container, keep `spring-boot-web-server` in `WEB-INF/lib`.
+This module is included transitively by the Eureka client and is required for service registration even when no embedded server is used.
+The embedded container dependency, such as `spring-boot-starter-tomcat`, can use `provided` scope without removing `spring-boot-web-server` from the WAR.
+
 The following links have some Eureka background reading:  https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer[flux capacitor] and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0[google group discussion].
 
 [TIP]
